@@ -1,0 +1,17 @@
+{
+  "pkg": "@misoto22/design",
+  "globalName": "Misoto22Design",
+  "projectId": "f363d98d-fa01-4902-8a9a-62c2ddd0e594",
+  "shape": "package",
+  "buildCmd": "pnpm build",
+  "cssEntry": "dist/styles.css",
+  "extraFonts": ["src/styles/fonts.css"],
+  "overrides": {
+    "ErrorState": { "cardMode": "column", "viewport": "760x440" },
+    "FloatingIconButton": { "cardMode": "single", "viewport": "360x260" },
+    "Dialog": { "cardMode": "single", "viewport": "680x620" },
+    "DropdownMenu": { "cardMode": "single", "viewport": "360x360" },
+    "AppShell": { "cardMode": "single", "viewport": "1100x720" }
+  },
+  "readmeHeader": ".design-sync/conventions.md"
+}

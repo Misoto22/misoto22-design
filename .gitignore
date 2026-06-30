@@ -4,6 +4,12 @@ dist/
 .DS_Store
 .env*
 !.env.example
-.design-sync/cache/
-ds-bundle/
+
+# design-sync working dirs (regenerated; never committed).
+# The durable set under .design-sync/ (config.json, NOTES.md, conventions.md,
+# previews/, overrides/) IS committed — only these machine/scratch paths are not.
 .ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules
