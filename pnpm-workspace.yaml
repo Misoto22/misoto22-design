@@ -1,0 +1,7 @@
+# pnpm v11 build-script allowlist — only these trusted native deps may run
+# install/postinstall scripts. esbuild powers tsup; @parcel/watcher powers
+# tsup --watch; @tailwindcss/oxide is Tailwind v4's native engine.
+allowBuilds:
+  '@parcel/watcher': true
+  '@tailwindcss/oxide': true
+  esbuild: true

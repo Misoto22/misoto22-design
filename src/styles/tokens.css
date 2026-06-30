@@ -1,0 +1,117 @@
+/*
+ * misoto22 design tokens — portable layer (no Tailwind dependency).
+ *
+ * Ported from misoto22-site/src/app/globals.css (the runtime SSOT). These are
+ * plain CSS custom properties so any consumer — a Tailwind app, a plain CSS
+ * app, or a claude.ai/design preview — gets the same warm-cream / ink look by
+ * importing this one file. Hex mirrors for non-CSS surfaces live in tokens/brand.ts.
+ *
+ * Semantic colors are consumed via var(--token); only fonts/breakpoints are
+ * promoted to Tailwind utilities (see styles/index.css).
+ */
+
+/* ─── Light Theme (Warm Cream) — WCAG AAA ─── */
+:root {
+  --background: oklch(96.6% 0.0078 73.7);
+  --background-elevated: oklch(99% 0.007 75); /* warm off-white, not stark #fff */
+  --foreground: oklch(28% 0.008 59.3); /* 13.23:1 AAA */
+  --foreground-muted: oklch(39.4% 0.0107 67.5); /* 8.58:1 AAA */
+  --secondary-text: oklch(43.4% 0.013 76.5); /* 7.23:1 AAA */
+  --border-color: oklch(91.5% 0.0125 75.3);
+  --border-subtle: oklch(94.2% 0.0107 76.6);
+  --accent: oklch(43.9% 0.0461 69.9); /* 7.11:1 AAA */
+  --accent-hover: oklch(40.9% 0.0437 68.8); /* 8.08:1 AAA */
+  --accent-muted: oklch(43.9% 0.0461 69.9 / 0.12);
+  --nav-background: oklch(96.6% 0.0078 73.7 / 0.72);
+  --card-background: oklch(99% 0.007 75);
+  --code-background: oklch(94.2% 0.0107 76.6);
+  --success: oklch(62% 0.13 150);
+  --danger: oklch(58% 0.14 25);
+  --on-dark: #fff;
+
+  --photo-scrim: #0f0c0a;
+  --accent-wash: color-mix(in oklab, var(--accent) 4%, transparent);
+  --shadow-color: oklch(0% 0 0 / 0.06);
+
+  /* ─── Radius scale ─── */
+  --radius-sm: 8px; /* micro: tags, keycaps */
+  --radius: 12px; /* controls: buttons, inputs, chips, badges */
+  --radius-lg: 18px; /* surfaces: cards, media frames, panels */
+  --radius-pill: 999px; /* fully-round pills + toggle dots */
+
+  /* ─── Elevation ─── */
+  --shadow-sm: 0 1px 2px var(--shadow-color);
+  --shadow: 0 2px 4px -1px var(--shadow-color), 0 8px 20px -6px var(--shadow-color);
+  --shadow-lg: 0 4px 10px -3px var(--shadow-color), 0 20px 44px -12px var(--shadow-color);
+
+  /* ─── Motion ─── expo-out curve ─── */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ─── Layout ─── */
+  --page-pad: clamp(24px, 5vw, 64px);
+  --w-page: 1280px;
+  --article-measure: 62rem;
+
+  /* ─── Fonts ─── consumers set the *-font-family vars (e.g. via next/font);
+     these fall back to system stacks so the package renders standalone. */
+  --font-sans: var(--font-geist), Geist, ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ─── Dark Theme (Warm Charcoal) — WCAG AAA ─── */
+.dark {
+  --background: oklch(21.9% 0.0065 78.2);
+  --background-elevated: oklch(25.5% 0.0058 56);
+  --foreground: oklch(93.3% 0.0096 72.6); /* 14.26:1 AAA */
+  --foreground-muted: oklch(76.1% 0.0167 73.6); /* 8.10:1 AAA */
+  --secondary-text: oklch(72.3% 0.0169 73.6); /* 7.05:1 AAA */
+  --border-color: oklch(33.6% 0.0089 67.5);
+  --border-subtle: oklch(29.1% 0.0069 67.5);
+  --accent: oklch(75% 0.0704 74.4); /* 7.75:1 AAA */
+  --accent-hover: oklch(81.1% 0.0606 74.3); /* 9.58:1 AAA */
+  --accent-muted: oklch(75% 0.0704 74.4 / 0.08);
+  --nav-background: oklch(21.9% 0.0065 78.2 / 0.72);
+  --card-background: oklch(25.5% 0.0058 56);
+  --code-background: oklch(29.1% 0.0069 67.5);
+  --success: oklch(72% 0.14 152);
+  --danger: oklch(70% 0.15 25);
+  --shadow-color: oklch(0% 0 0 / 0.2);
+}
+
+/* ─── Base ─── */
+:where(body) {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+/* WCAG 2.4.7 — visible focus indicator for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ─── Keyframes (general-purpose) ─── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* ─── Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
