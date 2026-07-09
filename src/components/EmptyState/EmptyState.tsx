@@ -1,14 +1,13 @@
 import { clsx } from 'clsx'
 import type { LucideIcon } from 'lucide-react'
-import type { ReactNode } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
 
-export interface EmptyStateProps {
+export interface EmptyStateProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   /** Optional lucide icon, shown muted inside a soft accent-wash circle. */
   icon?: LucideIcon
   title: ReactNode
   description?: ReactNode
   action?: ReactNode
-  className?: string
 }
 
 /**
@@ -24,13 +23,21 @@ export interface EmptyStateProps {
  *   action={<Button>New project</Button>}
  * />
  */
-export function EmptyState({ icon: Icon, title, description, action, className }: EmptyStateProps) {
+export function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  action,
+  className,
+  ...rest
+}: EmptyStateProps) {
   return (
     <div
       className={clsx(
         'flex flex-col items-center text-center py-20 px-(--page-pad)',
         className,
       )}
+      {...rest}
     >
       {Icon && (
         <span className="flex items-center justify-center w-14 h-14 mb-6 rounded-(--radius-pill) bg-(--accent-wash) text-(--foreground-muted)">

@@ -1,9 +1,8 @@
 import { clsx } from 'clsx'
-import type { ReactNode } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
 
-export interface BadgeProps {
+export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   children: ReactNode
-  className?: string
 }
 
 /**
@@ -13,13 +12,14 @@ export interface BadgeProps {
  * @example
  * <Badge>New</Badge>
  */
-export function Badge({ children, className }: BadgeProps) {
+export function Badge({ children, className, ...rest }: BadgeProps) {
   return (
     <span
       className={clsx(
         'font-mono text-xs tracking-wide bg-(--accent-muted) text-(--foreground-muted) px-2.5 py-1 rounded-(--radius-sm) border border-(--border-subtle) hover:border-(--accent) transition-colors duration-300',
         className,
       )}
+      {...rest}
     >
       {children}
     </span>

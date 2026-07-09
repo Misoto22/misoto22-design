@@ -3,9 +3,9 @@
 import { clsx } from 'clsx'
 import { Menu } from 'lucide-react'
 import { useState } from 'react'
-import type { ReactNode } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
 
-export interface AppShellProps {
+export interface AppShellProps extends HTMLAttributes<HTMLDivElement> {
   /** Navigation content for the sidebar (e.g. a stack of `NavItem`s). */
   sidebar: ReactNode
   /** Optional content for the sticky topbar, laid out after the mobile toggle. */
@@ -13,10 +13,25 @@ export interface AppShellProps {
   /** Optional brand/logo lockup pinned to the top of the sidebar. */
   brand?: ReactNode
   children: ReactNode
-  className?: string
 }
 
 const SIDEBAR_ID = 'app-shell-sidebar'
+
+/** Mobile-only hamburger that toggles the off-canvas drawer (44px touch target). */
+function MobileToggle({ open, onToggle }: { open: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label="Toggle navigation"
+      aria-expanded={open}
+      aria-controls={SIDEBAR_ID}
+      onClick={onToggle}
+      className="md:hidden -ml-2.5 grid size-11 place-items-center rounded-(--radius) text-(--foreground-muted) hover:text-(--foreground) transition-colors duration-200"
+    >
+      <Menu size={20} aria-hidden />
+    </button>
+  )
+}
 
 /**
  * Admin two-column layout: a fixed sidebar that collapses off-canvas under
@@ -32,7 +47,7 @@ const SIDEBAR_ID = 'app-shell-sidebar'
  *   <Card>…</Card>
  * </AppShell>
  */
-export function AppShell({ sidebar, topbar, brand, children, className }: AppShellProps) {
+export function AppShell({ sidebar, topbar, brand, children, className, ...rest }: AppShellProps) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -41,6 +56,7 @@ export function AppShell({ sidebar, topbar, brand, children, className }: AppShe
         'min-h-svh bg-(--background) md:grid md:grid-cols-[15rem_1fr]',
         className,
       )}
+      {...rest}
     >
       {/* Scrim — closes the drawer on tap; mobile only, hidden when closed. */}
       {open && (
@@ -73,16 +89,7 @@ export function AppShell({ sidebar, topbar, brand, children, className }: AppShe
 
       <div className="flex min-w-0 flex-col">
         <header className="sticky top-0 z-30 h-14 flex items-center gap-3 px-(--page-pad) border-b border-(--border-subtle) bg-(--nav-background) backdrop-blur">
-          <button
-            type="button"
-            aria-label="Toggle navigation"
-            aria-expanded={open}
-            aria-controls={SIDEBAR_ID}
-            onClick={() => setOpen((prev) => !prev)}
-            className="md:hidden text-(--foreground-muted) hover:text-(--foreground) transition-colors duration-200"
-          >
-            <Menu size={20} />
-          </button>
+          <MobileToggle open={open} onToggle={() => setOpen((prev) => !prev)} />
           {topbar}
         </header>
 

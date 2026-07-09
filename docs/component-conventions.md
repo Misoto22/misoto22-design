@@ -23,15 +23,19 @@ Surfaces: `--background`, `--background-elevated`, `--card-background`,
 Text: `--foreground`, `--foreground-muted`, `--secondary-text`, `--on-dark`.
 Lines: `--border-color`, `--border-subtle`.
 Accent: `--accent`, `--accent-hover`, `--accent-muted` (12% wash for fills),
-`--accent-wash` (4% tint).
-Status: `--success`, `--danger`.
+`--accent-wash` (4% tint), `--accent-foreground` (text/icon on an accent fill).
+Status: `--success`, `--danger`, `--warning`, `--info`.
+Spacing: `--space-1`…`--space-10` (4px base). Type scale is Tailwind's built-in
+`--text-*` / `--leading-*`; custom label tracking is `--tracking-label`.
+Focus / state: `--ring`, `--ring-offset`, `--overlay` (modal scrim),
+`--disabled-opacity`. Z-index: `--z-dropdown|sticky|overlay|modal|toast`.
 
 Radius: `--radius-sm` 8px (chips/keycaps) · `--radius` 12px (controls:
 buttons/inputs/selects) · `--radius-lg` 18px (surfaces: cards/dialogs/panels) ·
 `--radius-pill` (pills/dots).
 Elevation: `--shadow-sm`, `--shadow`, `--shadow-lg`.
-Motion: `--ease-out-expo`. Fonts: `font-sans`, `font-heading` (Cormorant
-display), `font-mono`.
+Motion: `--ease-out-expo`, `--duration-fast|base|slow`. Fonts: `font-sans`,
+`font-heading` (Cormorant display), `font-mono`.
 
 ## Idioms
 
@@ -40,8 +44,8 @@ display), `font-mono`.
 - Mono labels: the `eyebrow` utility (uppercase kicker) and `mono-meta` (inline
   metadata); pair `eyebrow` with a `text-*` color.
 - Chips: `font-mono text-xs tracking-wide … rounded-(--radius-sm)`.
-- Focus: a global `:focus-visible` outline exists; custom controls that suppress
-  it must restore `focus-visible:outline-2 focus-visible:outline-(--accent)`.
+- Focus: a global `:focus-visible` outline (`--ring`) exists; custom controls
+  restore it with `focus-visible:outline-2 focus-visible:outline-(--ring) outline-offset-2`.
 - Disabled: `disabled:opacity-50 disabled:pointer-events-none`.
 
 ## File + export shape
@@ -65,7 +69,7 @@ example in its own doc comment. `className` is always accepted and merged last.
 const BASE =
   'inline-flex items-center gap-2.5 px-4 py-[11px] rounded-(--radius) text-sm transition-all duration-150 ease-(--ease-out-expo) hover:shadow-(--shadow) hover:-translate-y-px disabled:opacity-50 disabled:pointer-events-none'
 const VARIANT = {
-  primary: 'bg-(--foreground) text-(--background) border border-(--foreground) hover:bg-(--accent) hover:border-(--accent) hover:text-(--on-dark)',
+  primary: 'bg-(--foreground) text-(--background) border border-(--foreground) hover:bg-(--accent) hover:border-(--accent) hover:text-(--accent-foreground)',
   secondary: 'border border-(--border-color) text-(--foreground) hover:border-(--accent) hover:text-(--accent)',
 }
 ```

@@ -1,9 +1,9 @@
 import { clsx } from 'clsx'
+import type { HTMLAttributes } from 'react'
 
-export interface StatusDotProps {
+export interface StatusDotProps extends HTMLAttributes<HTMLSpanElement> {
   size?: 'sm' | 'md'
   pulse?: boolean
-  className?: string
 }
 
 const SIZE_CLASS = { sm: 'w-[7px] h-[7px]', md: 'w-2 h-2' } as const
@@ -18,7 +18,7 @@ const PULSE_CLASS =
  * @example
  * <StatusDot size="sm" pulse />
  */
-export function StatusDot({ size = 'md', pulse = true, className }: StatusDotProps) {
+export function StatusDot({ size = 'md', pulse = true, className, ...rest }: StatusDotProps) {
   return (
     <span
       aria-hidden
@@ -28,6 +28,7 @@ export function StatusDot({ size = 'md', pulse = true, className }: StatusDotPro
         pulse && PULSE_CLASS,
         className,
       )}
+      {...rest}
     />
   )
 }

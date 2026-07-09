@@ -23,6 +23,25 @@ const SR_ONLY: CSSProperties = {
   borderWidth: 0,
 }
 
+/** Title + description stack; renders nothing when both are omitted. */
+function DialogHeader({ title, description }: { title?: ReactNode; description?: ReactNode }) {
+  if (title === undefined && description === undefined) return null
+  return (
+    <div className="mb-4 flex flex-col gap-1 pr-8">
+      {title !== undefined ? (
+        <DialogPrimitive.Title className="font-heading text-xl text-(--foreground)">
+          {title}
+        </DialogPrimitive.Title>
+      ) : null}
+      {description !== undefined ? (
+        <DialogPrimitive.Description className="text-sm text-(--secondary-text)">
+          {description}
+        </DialogPrimitive.Description>
+      ) : null}
+    </div>
+  )
+}
+
 type DialogContentBaseProps = Omit<
   ComponentProps<typeof DialogPrimitive.Content>,
   'title' | 'className'
@@ -60,28 +79,15 @@ export function DialogContent({
 }: DialogContentProps) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-(--photo-scrim)/50 backdrop-blur-sm data-[state=open]:animate-[fadeIn_150ms]" />
+      <DialogPrimitive.Overlay className="fixed inset-0 z-(--z-overlay) bg-(--overlay) backdrop-blur-sm data-[state=open]:animate-[fadeIn_150ms]" />
       <DialogPrimitive.Content
         className={clsx(
-          'fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 w-[min(92vw,32rem)] max-h-[85vh] overflow-auto rounded-(--radius-lg) border border-(--border-color) bg-(--card-background) shadow-(--shadow-lg) p-6',
+          'fixed left-1/2 top-1/2 z-(--z-modal) -translate-x-1/2 -translate-y-1/2 w-[min(92vw,32rem)] max-h-[85vh] overflow-auto rounded-(--radius-lg) border border-(--border-color) bg-(--card-background) shadow-(--shadow-lg) p-6',
           className,
         )}
         {...rest}
       >
-        {title !== undefined || description !== undefined ? (
-          <div className="mb-4 flex flex-col gap-1 pr-8">
-            {title !== undefined ? (
-              <DialogPrimitive.Title className="font-heading text-xl text-(--foreground)">
-                {title}
-              </DialogPrimitive.Title>
-            ) : null}
-            {description !== undefined ? (
-              <DialogPrimitive.Description className="text-sm text-(--secondary-text)">
-                {description}
-              </DialogPrimitive.Description>
-            ) : null}
-          </div>
-        ) : null}
+        <DialogHeader title={title} description={description} />
 
         {title === undefined ? (
           <span style={SR_ONLY}>

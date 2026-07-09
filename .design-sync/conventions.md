@@ -1,8 +1,9 @@
 # misoto22 design system — conventions
 
 A warm, editorial, flat design system: warm-cream / ink palette, Cormorant
-Garamond display + Geist body + JetBrains Mono labels. Light and dark are both
-WCAG AAA. Build with the real components below; style your own layout glue with
+Garamond display + Geist body + JetBrains Mono labels. Body text on the base
+surfaces is WCAG AAA in both themes (text on elevated surfaces and accent fills
+meets AA). Build with the real components below; style your own layout glue with
 the tokens — never invent colors or hardcode hex.
 
 ## Setup
@@ -33,11 +34,15 @@ The full token vocabulary (use ONLY these for color/shape):
 | Surfaces | `--background`, `--background-elevated`, `--card-background`, `--code-background`, `--nav-background` |
 | Text | `--foreground`, `--foreground-muted`, `--secondary-text`, `--on-dark` |
 | Lines | `--border-color`, `--border-subtle` |
-| Accent | `--accent`, `--accent-hover`, `--accent-muted` (fills), `--accent-wash` (faint tint) |
-| Status | `--success`, `--danger` |
+| Accent | `--accent`, `--accent-hover`, `--accent-muted` (fills), `--accent-wash` (faint tint), `--accent-foreground` (on accent fills) |
+| Status | `--success`, `--danger`, `--warning`, `--info` |
 | Radius | `--radius-sm` 8px (chips) · `--radius` 12px (controls) · `--radius-lg` 18px (cards/dialogs) · `--radius-pill` |
 | Elevation | `--shadow-sm`, `--shadow`, `--shadow-lg` |
-| Motion | `--ease-out-expo` |
+| Motion | `--ease-out-expo` · `--duration-fast\|base\|slow` |
+| Spacing | `--space-1` … `--space-10` (4px base) |
+| Type scale | Tailwind built-in `--text-*` / `--leading-*` · custom `--tracking-label` |
+| Focus / state | `--ring`, `--ring-offset` · `--overlay` (modal scrim) · `--disabled-opacity` |
+| Z-index | `--z-dropdown` · `--z-sticky` · `--z-overlay` · `--z-modal` · `--z-toast` |
 
 Type: `--font-sans` (Geist, body), `--font-heading` (Cormorant Garamond, display
 headings), `--font-mono` (JetBrains Mono, labels). Two label utility classes:

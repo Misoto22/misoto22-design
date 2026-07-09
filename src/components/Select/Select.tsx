@@ -4,7 +4,7 @@ import type { Ref, SelectHTMLAttributes } from 'react'
 
 /** Input's control base, plus native-arrow suppression and room for the chevron. */
 const BASE =
-  'w-full appearance-none cursor-pointer px-3.5 py-2.5 pr-9 text-sm rounded-(--radius) bg-(--background-elevated) text-(--foreground) border transition-colors duration-200 focus:border-(--accent) focus:outline-none focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none'
+  'w-full appearance-none cursor-pointer px-3.5 py-2.5 pr-9 text-sm rounded-(--radius) bg-(--background-elevated) text-(--foreground) border transition-colors duration-200 focus:border-(--accent) focus-visible:outline-2 focus-visible:outline-(--ring) outline-offset-2 disabled:opacity-50 disabled:pointer-events-none'
 
 export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   /** Paints the resting border with `--danger`; also reflected as `aria-invalid`. */

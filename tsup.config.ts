@@ -10,7 +10,7 @@ import { fixImportsPlugin } from 'esbuild-fix-imports-plugin'
  * the `.js` extensions that ESM resolution needs on relative imports.
  */
 export default defineConfig({
-  entry: ['src/**/*.{ts,tsx}'],
+  entry: ['src/**/*.{ts,tsx}', '!src/**/*.test.{ts,tsx}'],
   format: ['esm'],
   dts: true,
   sourcemap: true,

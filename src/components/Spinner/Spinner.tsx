@@ -1,8 +1,8 @@
 import { clsx } from 'clsx'
+import type { HTMLAttributes } from 'react'
 
-export interface SpinnerProps {
+export interface SpinnerProps extends HTMLAttributes<HTMLSpanElement> {
   size?: 'sm' | 'md' | 'lg'
-  className?: string
   /** Accessible label announced to screen readers. */
   label?: string
 }
@@ -21,7 +21,7 @@ const SIZE_CLASS = {
  * @example
  * <Spinner size="lg" label="Loading projects" />
  */
-export function Spinner({ size = 'md', className, label = 'Loading' }: SpinnerProps) {
+export function Spinner({ size = 'md', className, label = 'Loading', ...rest }: SpinnerProps) {
   return (
     <span
       role="status"
@@ -30,6 +30,7 @@ export function Spinner({ size = 'md', className, label = 'Loading' }: SpinnerPr
         'inline-block rounded-full border-(--accent) border-t-transparent motion-safe:animate-spin',
         className,
       )}
+      {...rest}
     >
       <span style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>
         {label}

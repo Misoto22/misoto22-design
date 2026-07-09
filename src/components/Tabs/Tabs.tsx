@@ -37,7 +37,7 @@ export function TabsTrigger({
   return (
     <TabsPrimitive.Trigger
       className={clsx(
-        'px-3.5 py-2 text-sm text-(--secondary-text) border-b-2 border-transparent -mb-px transition-colors hover:text-(--foreground) data-[state=active]:text-(--accent) data-[state=active]:border-(--accent) outline-none',
+        'px-3.5 py-2 text-sm text-(--secondary-text) border-b-2 border-transparent -mb-px transition-colors hover:text-(--foreground) data-[state=active]:text-(--accent) data-[state=active]:border-(--accent) focus-visible:outline-2 focus-visible:outline-(--ring) outline-offset-2',
         className,
       )}
       {...rest}
@@ -51,7 +51,10 @@ export function TabsContent({
   ...rest
 }: ComponentProps<typeof TabsPrimitive.Content>) {
   return (
-    <TabsPrimitive.Content className={clsx('pt-4 outline-none', className)} {...rest} />
+    <TabsPrimitive.Content
+      className={clsx('pt-4 focus-visible:outline-2 focus-visible:outline-(--ring) outline-offset-2', className)}
+      {...rest}
+    />
   )
 }
 

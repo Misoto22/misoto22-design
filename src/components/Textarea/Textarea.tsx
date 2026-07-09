@@ -3,7 +3,7 @@ import type { Ref, TextareaHTMLAttributes } from 'react'
 
 /** Same control idiom as Input, with a comfortable min height and vertical resize. */
 const BASE =
-  'w-full min-h-24 resize-y px-3.5 py-2.5 text-sm rounded-(--radius) bg-(--background-elevated) text-(--foreground) border placeholder:text-(--secondary-text) transition-colors duration-200 focus:border-(--accent) focus:outline-none focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none'
+  'w-full min-h-24 resize-y px-3.5 py-2.5 text-sm rounded-(--radius) bg-(--background-elevated) text-(--foreground) border placeholder:text-(--secondary-text) transition-colors duration-200 focus:border-(--accent) focus-visible:outline-2 focus-visible:outline-(--ring) outline-offset-2 disabled:opacity-50 disabled:pointer-events-none'
 
 export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   /** Paints the resting border with `--danger`; also reflected as `aria-invalid`. */

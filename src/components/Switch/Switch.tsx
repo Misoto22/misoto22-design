@@ -22,7 +22,7 @@ export function Switch({ className, ...props }: SwitchProps) {
   return (
     <SwitchPrimitive.Root
       className={clsx(
-        'inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-(--radius-pill) bg-(--border-color) px-0.5 transition-colors duration-200 data-[state=checked]:bg-(--accent) focus-visible:outline-2 focus-visible:outline-(--accent) outline-offset-2 disabled:opacity-50 disabled:pointer-events-none',
+        'inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-(--radius-pill) bg-(--border-color) px-0.5 transition-colors duration-200 data-[state=checked]:bg-(--accent) focus-visible:outline-2 focus-visible:outline-(--ring) outline-offset-2 disabled:opacity-50 disabled:pointer-events-none',
         className,
       )}
       {...props}

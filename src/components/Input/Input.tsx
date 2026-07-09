@@ -7,7 +7,7 @@ import type { InputHTMLAttributes, Ref } from 'react'
  * the invalid state reliably wins over the resting border.
  */
 const BASE =
-  'w-full px-3.5 py-2.5 text-sm rounded-(--radius) bg-(--background-elevated) text-(--foreground) border placeholder:text-(--secondary-text) transition-colors duration-200 focus:border-(--accent) focus:outline-none focus-visible:outline-none disabled:opacity-50 disabled:pointer-events-none'
+  'w-full px-3.5 py-2.5 text-sm rounded-(--radius) bg-(--background-elevated) text-(--foreground) border placeholder:text-(--secondary-text) transition-colors duration-200 focus:border-(--accent) focus-visible:outline-2 focus-visible:outline-(--ring) outline-offset-2 disabled:opacity-50 disabled:pointer-events-none'
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   /** Paints the resting border with `--danger`; also reflected as `aria-invalid`. */

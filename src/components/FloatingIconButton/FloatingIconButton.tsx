@@ -1,14 +1,13 @@
 'use client'
 
 import { clsx } from 'clsx'
-import type { ReactNode } from 'react'
+import type { ButtonHTMLAttributes, ReactNode } from 'react'
 
-export interface FloatingIconButtonProps {
+export interface FloatingIconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   position: 'left' | 'right'
   label: string
   onClick: () => void
   children: ReactNode
-  className?: string
 }
 
 const POSITION_CLASS = { left: 'left-6', right: 'right-6' } as const
@@ -28,9 +27,11 @@ export function FloatingIconButton({
   onClick,
   children,
   className,
+  ...rest
 }: FloatingIconButtonProps) {
   return (
     <button
+      {...rest}
       type="button"
       onClick={onClick}
       aria-label={label}

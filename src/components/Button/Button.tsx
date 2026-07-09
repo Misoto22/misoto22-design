@@ -9,7 +9,7 @@ const BASE =
 
 const VARIANT: Record<ButtonVariant, string> = {
   primary:
-    'bg-(--foreground) text-(--background) border border-(--foreground) hover:bg-(--accent) hover:border-(--accent) hover:text-(--on-dark)',
+    'bg-(--foreground) text-(--background) border border-(--foreground) hover:bg-(--accent) hover:border-(--accent) hover:text-(--accent-foreground)',
   secondary:
     'border border-(--border-color) text-(--foreground) hover:border-(--accent) hover:text-(--accent)',
 }

@@ -1,9 +1,8 @@
 import { clsx } from 'clsx'
-import type { ReactNode } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
 
-export interface TagProps {
+export interface TagProps extends HTMLAttributes<HTMLSpanElement> {
   children: ReactNode
-  className?: string
 }
 
 /**
@@ -13,13 +12,14 @@ export interface TagProps {
  * @example
  * <Tag>typescript</Tag>
  */
-export function Tag({ children, className }: TagProps) {
+export function Tag({ children, className, ...rest }: TagProps) {
   return (
     <span
       className={clsx(
         'font-mono text-xs tracking-wide text-(--secondary-text) bg-(--accent-muted) px-2.5 py-1 rounded-(--radius-sm)',
         className,
       )}
+      {...rest}
     >
       {children}
     </span>

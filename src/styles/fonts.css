@@ -9,7 +9,8 @@
  * family names — make the design render on-brand instead of in system fonts.
  *
  * Subset: latin, normal style. woff2 copied from the @fontsource packages.
- * Wired into the design-sync bundle via cfg.extraFonts.
+ * Appended into dist/styles.css by build:css (so `@misoto22/design/styles.css`
+ * ships the fonts too), and wired into the design-sync bundle via cfg.extraFonts.
  */
 
 /* ─── Geist (body / --font-sans) ─── */

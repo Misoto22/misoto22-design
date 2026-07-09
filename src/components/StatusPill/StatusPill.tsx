@@ -1,11 +1,10 @@
 import { clsx } from 'clsx'
-import type { ReactNode } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
 import { StatusDot } from '../StatusDot/StatusDot'
 
-export interface StatusPillProps {
+export interface StatusPillProps extends HTMLAttributes<HTMLSpanElement> {
   children: ReactNode
   pulse?: boolean
-  className?: string
 }
 
 /**
@@ -15,13 +14,14 @@ export interface StatusPillProps {
  * @example
  * <StatusPill>Available for work</StatusPill>
  */
-export function StatusPill({ children, pulse = true, className }: StatusPillProps) {
+export function StatusPill({ children, pulse = true, className, ...rest }: StatusPillProps) {
   return (
     <span
       className={clsx(
         'inline-flex items-center gap-2.5 pl-2.5 pr-3 py-1.5 border border-(--border-color) rounded-(--radius-pill) eyebrow tracking-[0.12em] text-(--foreground-muted) bg-(--card-background)',
         className,
       )}
+      {...rest}
     >
       <StatusDot pulse={pulse} />
       {children}

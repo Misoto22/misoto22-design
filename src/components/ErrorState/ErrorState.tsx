@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react'
+import { clsx } from 'clsx'
+import type { HTMLAttributes, ReactNode } from 'react'
 
-export interface ErrorStateProps {
+export interface ErrorStateProps extends HTMLAttributes<HTMLElement> {
   code: ReactNode
   heading: ReactNode
   message: ReactNode
@@ -26,9 +27,12 @@ export const ERROR_ACTION_CLASS =
  *   action={<a href="/" className={ERROR_ACTION_CLASS}>Back home</a>}
  * />
  */
-export function ErrorState({ code, heading, message, action }: ErrorStateProps) {
+export function ErrorState({ code, heading, message, action, className, ...rest }: ErrorStateProps) {
   return (
-    <section className="pt-24 min-h-svh bg-(--background) flex flex-col justify-center">
+    <section
+      className={clsx('pt-24 min-h-svh bg-(--background) flex flex-col justify-center', className)}
+      {...rest}
+    >
       <div className="max-w-(--w-page) mx-auto px-(--page-pad)">
         <h1 className="font-heading text-6xl md:text-8xl lg:text-9xl text-(--foreground) mb-4">
           {code}

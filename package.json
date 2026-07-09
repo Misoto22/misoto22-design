@@ -24,11 +24,14 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build:js": "tsup",
-    "build:css": "tailwindcss -i ./src/styles/index.css -o ./dist/styles.css --minify && cp ./src/styles/tokens.css ./dist/tokens.css",
+    "build:css": "tailwindcss -i ./src/styles/index.css -o ./dist/styles.css --minify && cp ./src/styles/tokens.css ./dist/tokens.css && cp -R ./src/styles/fonts ./dist/fonts && cat ./src/styles/fonts.css >> ./dist/styles.css",
     "build": "pnpm run build:js && pnpm run build:css",
+    "prepare": "pnpm run build",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "clean": "rm -rf dist"
   },
   "peerDependencies": {
@@ -47,18 +50,30 @@
     "sonner": "^2.0.7"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@fontsource/cormorant-garamond": "^5.2.11",
     "@fontsource/geist-sans": "^5.2.5",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@tailwindcss/cli": "4.3.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/culori": "^4.0.1",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.0.3",
+    "culori": "^4.0.2",
     "esbuild-fix-imports-plugin": "^1.0.23",
+    "eslint": "^10.6.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.7.0",
+    "jsdom": "^29.1.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwindcss": "4.3.0",
     "tsup": "^8.5.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.62.1",
+    "vitest": "^4.1.9"
   },
   "engines": {
     "node": ">=24",
