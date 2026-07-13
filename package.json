@@ -23,7 +23,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build:js": "tsup",
+    "build:js": "sleep 3 && tsup",
     "build:css": "tailwindcss -i ./src/styles/index.css -o ./dist/styles.css --minify && cp ./src/styles/tokens.css ./dist/tokens.css && cp -R ./src/styles/fonts ./dist/fonts && cat ./src/styles/fonts.css >> ./dist/styles.css",
     "build": "pnpm run build:js && pnpm run build:css",
     "prepare": "pnpm run build",
