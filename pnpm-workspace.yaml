@@ -5,3 +5,13 @@ allowBuilds:
   '@parcel/watcher': true
   '@tailwindcss/oxide': true
   esbuild: true
+
+# rollup-plugin-dts (a tsup transitive dep) pulls in rollup's native NAPI
+# binding. @rollup/rollup-linux-x64-gnu@4.62.2 crashes tsup's DTS worker on
+# real x86_64 glibc hardware (reproduced only on GitHub Actions' bare
+# ubuntu-latest runner — not in a local Docker repro matched on Node/pnpm/OS/
+# CPU-count/architecture, nor in the Alpine/musl Docker build, which uses a
+# different native variant and never hits this). Force Rollup's official
+# platform-independent WASM build instead of the native binding.
+overrides:
+  rollup: npm:@rollup/wasm-node@^4.62.2
