@@ -14,4 +14,9 @@ allowBuilds:
 # different native variant and never hits this). Force Rollup's official
 # platform-independent WASM build instead of the native binding.
 overrides:
+  'brace-expansion@>=4.0.0 <5.0.9': 5.0.9
+  'esbuild@>=0.27.3 <0.28.1': 0.28.1
+  'nanoid@<3.3.18': 3.3.18
+  'postcss@<8.5.23': 8.5.23
   rollup: npm:@rollup/wasm-node@^4.62.2
+  'undici@>=7.0.0 <7.29.0': 7.29.0
