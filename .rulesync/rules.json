@@ -1,7 +1,129 @@
-{"rules":[
-  {"id":"DESIGN-ARCH-001","level":"MUST","scope":"project","owner":"Misoto22/misoto22-design","sources":["README.md"],"enforcement":"review"},
-  {"id":"DESIGN-TOKEN-001","level":"MUST","scope":"project","owner":"Misoto22/misoto22-design","sources":["README.md","package.json"],"enforcement":"test"},
-  {"id":"DESIGN-API-001","level":"MUST","scope":"project","owner":"Misoto22/misoto22-design","sources":["package.json"],"enforcement":"review"},
-  {"id":"DESIGN-TEST-001","level":"MUST","scope":"project","owner":"Misoto22/misoto22-design","sources":["package.json"],"enforcement":"test"},
-  {"id":"DESIGN-SYNC-001","level":"MUST","scope":"project","owner":"Misoto22/misoto22-design","sources":["README.md"],"enforcement":"review"}
-]}
+{
+  "schemaVersion": 2,
+  "rules": [
+    {
+      "id": "DESIGN-ARCH-001",
+      "name": "Keep primitives reusable",
+      "level": "MUST",
+      "scope": "project",
+      "owner": "Misoto22/misoto22-design",
+      "status": "active",
+      "since": "0.1.0",
+      "statement": "Tokens and components may serve the public site and admin console but must not absorb either host's routes, data access, or business logic.",
+      "rationale": "This repository-owned constraint preserves its established architecture and delivery contract.",
+      "sources": [
+        {
+          "type": "policy",
+          "ref": "README.md"
+        }
+      ],
+      "enforcement": [
+        {
+          "kind": "review",
+          "check": "Repository-owned DESIGN-ARCH-001 review gate",
+          "blocking": true
+        }
+      ]
+    },
+    {
+      "id": "DESIGN-TOKEN-001",
+      "name": "Preserve token ownership",
+      "level": "MUST",
+      "scope": "project",
+      "owner": "Misoto22/misoto22-design",
+      "status": "active",
+      "since": "0.1.0",
+      "statement": "Change the canonical CSS and TypeScript token sources, then rebuild exported CSS and package artifacts instead of editing `dist/`.",
+      "rationale": "This repository-owned constraint preserves its established architecture and delivery contract.",
+      "sources": [
+        {
+          "type": "policy",
+          "ref": "README.md"
+        },
+        {
+          "type": "policy",
+          "ref": "package.json"
+        }
+      ],
+      "enforcement": [
+        {
+          "kind": "test",
+          "check": "Repository-owned DESIGN-TOKEN-001 test gate",
+          "blocking": true
+        }
+      ]
+    },
+    {
+      "id": "DESIGN-API-001",
+      "name": "Treat exports as consumer contracts",
+      "level": "MUST",
+      "scope": "project",
+      "owner": "Misoto22/misoto22-design",
+      "status": "active",
+      "since": "0.1.0",
+      "statement": "Review public exports, CSS entry points, peer dependencies, and accessible behavior before changing a primitive.",
+      "rationale": "This repository-owned constraint preserves its established architecture and delivery contract.",
+      "sources": [
+        {
+          "type": "policy",
+          "ref": "package.json"
+        }
+      ],
+      "enforcement": [
+        {
+          "kind": "review",
+          "check": "Repository-owned DESIGN-API-001 review gate",
+          "blocking": true
+        }
+      ]
+    },
+    {
+      "id": "DESIGN-TEST-001",
+      "name": "Run package gates",
+      "level": "MUST",
+      "scope": "project",
+      "owner": "Misoto22/misoto22-design",
+      "status": "active",
+      "since": "0.1.0",
+      "statement": "Use `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build` for affected code and output.",
+      "rationale": "This repository-owned constraint preserves its established architecture and delivery contract.",
+      "sources": [
+        {
+          "type": "policy",
+          "ref": "package.json"
+        }
+      ],
+      "enforcement": [
+        {
+          "kind": "test",
+          "check": "Repository-owned DESIGN-TEST-001 test gate",
+          "blocking": true
+        }
+      ]
+    },
+    {
+      "id": "DESIGN-SYNC-001",
+      "name": "Keep Claude Design sync interactive",
+      "level": "MUST",
+      "scope": "project",
+      "owner": "Misoto22/misoto22-design",
+      "status": "active",
+      "since": "0.1.0",
+      "statement": "Use the documented skill only after local verification; do not move credentials or interactive approval into CI.",
+      "rationale": "This repository-owned constraint preserves its established architecture and delivery contract.",
+      "sources": [
+        {
+          "type": "policy",
+          "ref": "README.md"
+        }
+      ],
+      "enforcement": [
+        {
+          "kind": "review",
+          "check": "Repository-owned DESIGN-SYNC-001 review gate",
+          "blocking": true
+        }
+      ]
+    }
+  ]
+}
