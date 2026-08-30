@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 2,
+  "files": [
+    {
+      "path": ".github/workflows/misoto-harness.yml",
+      "sha256": "7297046f11ef92810bb5e6715d67ba2a4ca5bfebc0a094fd9f37afa4638e5017"
+    },
+    {
+      "path": ".rulesync/harness-check.py",
+      "sha256": "a83468c73ed9928cc6caf89486824bd6ce7ef6e693549977b8f00c8401020e4c"
+    },
+    {
+      "path": ".rulesync/rules/00-generated-metadata.md",
+      "sha256": "d28e311b74928948e8e80564b1ad2e97373654cb2eb2edb71221db2ea343a313"
+    },
+    {
+      "path": ".rulesync/rules/10-core-behavior.md",
+      "sha256": "63cb1ad920fb72a3afd66f892957b82a5a4800e9394c77b9e2c45c28fa2461d5"
+    },
+    {
+      "path": ".rulesync/rules/10-core-git.md",
+      "sha256": "d9a304cefb8027fb08b7bb29e49b633039df6048802e4bdff8bd029f1b29ebd5"
+    },
+    {
+      "path": ".rulesync/rules/10-core-security.md",
+      "sha256": "8143456468bfae48ef9a51803387a0718f574688ac096b8cd63774792a565ef8"
+    },
+    {
+      "path": ".rulesync/rules/10-core-testing.md",
+      "sha256": "4b42b46eaabe0fb5448b0f722d1fcb708d5ed18c99df53e0e0d62f00abed0593"
+    },
+    {
+      "path": ".rulesync/rules/20-stack-typescript.md",
+      "sha256": "1246207c45378f26e2c4cacbe50350f146db9c704c1e4c867310feedbdd14e3c"
+    },
+    {
+      "path": ".rulesync/shared-rules.json",
+      "sha256": "ff3911fad1bc60bf4026675331595ed5affa1ab488840469c4a01b7b3319c417"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "5be5ae7cc44e8f78bcb63e84dcbeca7d7505501f45152061505e6bd61740ec6a"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "df1bb35bfeab8483cfe5b85ff40435b60b106c6eb010b6e21d12f76aefbbb228"
+    },
+    {
+      "path": "GEMINI.md",
+      "sha256": "53ff43713d49bc42816a7f062ea6647e54e49ef14a9de23988e993a48363d79f"
+    },
+    {
+      "path": "rulesync.jsonc",
+      "sha256": "06575d7cc265187bd7f9e80ebf95b1623bad991472d541c83b1d2c5f805ec17f"
+    },
+    {
+      "path": "rulesync.lock.json",
+      "sha256": "e828fd22f1d150d1d8a25767f49e20093787b7c15ef550c3606ce7d566493c79"
+    }
+  ]
+}

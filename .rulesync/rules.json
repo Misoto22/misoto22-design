@@ -1,0 +1,7 @@
+{"rules":[
+  {"id":"DESIGN-ARCH-001","level":"MUST","scope":"project","owner":"Misoto22/misoto22-design","sources":["README.md"],"enforcement":"review"},
+  {"id":"DESIGN-TOKEN-001","level":"MUST","scope":"project","owner":"Misoto22/misoto22-design","sources":["README.md","package.json"],"enforcement":"test"},
+  {"id":"DESIGN-API-001","level":"MUST","scope":"project","owner":"Misoto22/misoto22-design","sources":["package.json"],"enforcement":"review"},
+  {"id":"DESIGN-TEST-001","level":"MUST","scope":"project","owner":"Misoto22/misoto22-design","sources":["package.json"],"enforcement":"test"},
+  {"id":"DESIGN-SYNC-001","level":"MUST","scope":"project","owner":"Misoto22/misoto22-design","sources":["README.md"],"enforcement":"review"}
+]}
