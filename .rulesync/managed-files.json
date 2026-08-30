@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 2,
+  "files": [
+    {
+      "path": ".github/workflows/misoto-harness.yml",
+      "sha256": "3b88b1f714f56a154dac358862d94eaf81a8d92d0dc344854ac8dad31b4221e6"
+    },
+    {
+      "path": ".rulesync/harness-check.py",
+      "sha256": "a83468c73ed9928cc6caf89486824bd6ce7ef6e693549977b8f00c8401020e4c"
+    },
+    {
+      "path": ".rulesync/rules/00-generated-metadata.md",
+      "sha256": "80a13e15faa17a603fe3b669dcec0a26c4c7ecee2378aafa02104e58779ac796"
+    },
+    {
+      "path": ".rulesync/rules/10-core-behavior.md",
+      "sha256": "63cb1ad920fb72a3afd66f892957b82a5a4800e9394c77b9e2c45c28fa2461d5"
+    },
+    {
+      "path": ".rulesync/rules/10-core-git.md",
+      "sha256": "d9a304cefb8027fb08b7bb29e49b633039df6048802e4bdff8bd029f1b29ebd5"
+    },
+    {
+      "path": ".rulesync/rules/10-core-security.md",
+      "sha256": "8143456468bfae48ef9a51803387a0718f574688ac096b8cd63774792a565ef8"
+    },
+    {
+      "path": ".rulesync/rules/10-core-testing.md",
+      "sha256": "4b42b46eaabe0fb5448b0f722d1fcb708d5ed18c99df53e0e0d62f00abed0593"
+    },
+    {
+      "path": ".rulesync/rules/20-stack-typescript.md",
+      "sha256": "1246207c45378f26e2c4cacbe50350f146db9c704c1e4c867310feedbdd14e3c"
+    },
+    {
+      "path": ".rulesync/shared-rules.json",
+      "sha256": "ff3911fad1bc60bf4026675331595ed5affa1ab488840469c4a01b7b3319c417"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "6e4a8803a8f49c0d41fe6aed876aa18afefec92aa7f9e06a3f503eb33c0f73a0"
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "b67f18cf0345631ecccdb6e9fad0ba8a92c2186dd642f747928290007d5c9909"
+    },
+    {
+      "path": "GEMINI.md",
+      "sha256": "d5b774e75ce344f15dd4adde2d0d0edce7b94f56173e5c18b031feb2de5b261c"
+    },
+    {
+      "path": "rulesync.jsonc",
+      "sha256": "06575d7cc265187bd7f9e80ebf95b1623bad991472d541c83b1d2c5f805ec17f"
+    },
+    {
+      "path": "rulesync.lock.json",
+      "sha256": "6c328ca7b85f1ab04f80e3454a39e67e93933c71aac18341216ba362e38138ad"
+    }
+  ]
+}
