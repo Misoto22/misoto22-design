@@ -3,15 +3,15 @@
   "files": [
     {
       "path": ".cursor/rules/misoto-harness.mdc",
-      "sha256": "e6c54a051649eab8b76849a6fd18faceb8895cd54bb413d07645f66b5344ec56"
+      "sha256": "0b20615323b9b39c7dc6d290ebe6dc514f61dbd6011509c61fea76036713dd70"
     },
     {
       "path": ".github/workflows/misoto-harness.yml",
-      "sha256": "da9c901ce00e6c06f34b8f1eb19acd3e95560cc41ca20a15af3e00ccd5fc73ba"
+      "sha256": "e0bc33ac05b1fa530cc1c0006937c8c3f22039b0f8191cf18a89000d0c221f82"
     },
     {
       "path": ".rulesync/harness-check.py",
-      "sha256": "45f342452bb1b92c4bd250b1d1f8cb11df46d31b47e987b4d6682fb0892e11bc"
+      "sha256": "50626b4abc4fc96c2269dd8d38404fdd30eea045fe0f544dc26f00b57a6f99f7"
     },
     {
       "path": ".rulesync/package.json",
@@ -23,7 +23,7 @@
     },
     {
       "path": ".rulesync/rules/00-generated-metadata.md",
-      "sha256": "9efa94d7e8425fb75251e9d3b4edf99d74660b5442aa6f15a46d6137c98d1ae5"
+      "sha256": "75232834b4879488c5631991a67e5abd9391790aa45b26354260783827dbfba5"
     },
     {
       "path": ".rulesync/rules/10-core-behavior.md",
@@ -59,19 +59,19 @@
     },
     {
       "path": ".rulesync/shared-rules.json",
-      "sha256": "cef6898ff40446520eadbd2cf15dc69ceef8cf19bb9ab54111cf20d1b4ceb4d5"
+      "sha256": "ca01e3897d6d5a3caf95b421adf2b1ce098563c61d93778bd960178d00bc7679"
     },
     {
       "path": "AGENTS.md",
-      "sha256": "371a5f53af0f1c3d2490a7db79083de11e5fc1e19c7f2e90a6f00c7f05757624"
+      "sha256": "3da7994ca56df5fd3de7bb8356b340ee2381ec1a912f0933db5095c5893199a5"
     },
     {
       "path": "CLAUDE.md",
-      "sha256": "5bd53d9dc871723dbdd40f721f6567a546bdf7410a9ec320818b3aef57884b18"
+      "sha256": "00520bbe5d0cf6dd57f4ebe303b713f1c69ee7285e36c87b2a1669d4d35b02d0"
     },
     {
       "path": "GEMINI.md",
-      "sha256": "38a5883e7c3ed4bfa23e49a9df26242cd05eebf7c8808a4f600d4d86cbec1880"
+      "sha256": "68e562ac148b71ea99fb30234189238d17597dd568ee7b245accf2e521438e9b"
     },
     {
       "path": "rulesync.jsonc",
@@ -79,7 +79,7 @@
     },
     {
       "path": "rulesync.lock.json",
-      "sha256": "1d22a6381b38188f0cdb0ea4ff7458266c6b7ca2f33fe0b74faa5a3149455e16"
+      "sha256": "2722ac0650f1a56c137d206c0e263757b4b847230e260d4a9fc59b095d1617f8"
     }
   ]
 }
