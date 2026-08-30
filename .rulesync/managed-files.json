@@ -11,7 +11,7 @@
     },
     {
       "path": ".rulesync/rules/00-generated-metadata.md",
-      "sha256": "62be5c369c4fbb1644a43c768e28885cd0d74e430de96e99ea9f3725abb9f01f"
+      "sha256": "06302aba8d89889bf03f860045eac34a3cad691e7eaecd31c5f865e4925cdcdb"
     },
     {
       "path": ".rulesync/rules/10-core-behavior.md",
@@ -39,15 +39,15 @@
     },
     {
       "path": "AGENTS.md",
-      "sha256": "172b28f5eea2656d926b9987e549cac440a999c6a29972d02c9b62cb84c7ee50"
+      "sha256": "e497acaa73cbcf9510073dd8d6e39ccdee0f4ea9481ed52d604f250332c1d1e0"
     },
     {
       "path": "CLAUDE.md",
-      "sha256": "47dd62157e2bb8aa39833167c96ef1d675da4197b227ce0f36a66b9ebd51e4e3"
+      "sha256": "8ecb444f495643187fba4aed8372db6c9cde2d5dba09bd89e1e19ded3eb641f1"
     },
     {
       "path": "GEMINI.md",
-      "sha256": "ce3e8fea65897d2bf721e10634dee8ce873d7ddba26613c640fb07809a69f982"
+      "sha256": "5a085d5ec610333292989c72f94fafd450bdabdda77b08230d2b5bb64023d8cc"
     },
     {
       "path": "rulesync.jsonc",
@@ -55,7 +55,7 @@
     },
     {
       "path": "rulesync.lock.json",
-      "sha256": "4fdfab25b9b45969a9dc97f905fd2a425b3b00e1ffcdd4c4acd8b1cd844edbbd"
+      "sha256": "8d3a0bf932128793f492cdfe59050a88f8db01d284ba458f70171d397b320fb3"
     }
   ]
 }
