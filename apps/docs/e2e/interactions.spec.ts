@@ -299,30 +299,38 @@ test('calendar: the year picker is our listbox, and the day it selects is round'
 })
 
 test('toggle group: the sliding pill lands on its segment, scaled or not', async ({ page }) => {
-  const measure = (scope: string) =>
-    page.evaluate((selector) => {
-      const group = [...document.querySelectorAll(selector)].find((element) =>
-        /Grid/.test(element.textContent ?? ''),
+  // The pill only renders once the strip has measured itself, so this polls
+  // rather than reading once — and allows a pixel for sub-pixel layout, not for
+  // a pill that missed.
+  const landsOnTarget = async (scope: string) => {
+    await expect(page.locator(`${scope} span[aria-hidden]`).first()).toBeVisible()
+    await expect
+      .poll(async () =>
+        page.evaluate((selector) => {
+          const group = [...document.querySelectorAll(selector)].find((element) =>
+            /Grid/.test(element.textContent ?? ''),
+          )
+          const pill = group?.querySelector('span[aria-hidden]')
+          const segment = group?.querySelector('[role="radio"]')
+          if (!pill || !segment) return -1
+          const a = pill.getBoundingClientRect()
+          const b = segment.getBoundingClientRect()
+          return Math.round(
+            Math.max(Math.abs(a.left - b.left), Math.abs(a.top - b.top), Math.abs(a.width - b.width)),
+          )
+        }, scope),
       )
-      if (!group) return null
-      const pill = group.querySelector('span[aria-hidden]')!.getBoundingClientRect()
-      const segment = group.querySelector('[role="radio"]')!.getBoundingClientRect()
-      return {
-        dx: Math.round(pill.left - segment.left),
-        dy: Math.round(pill.top - segment.top),
-        dw: Math.round(pill.width - segment.width),
-      }
-    }, scope)
+      .toBeLessThanOrEqual(1)
+  }
 
   await page.goto('/components/toggle-group/')
   await ready(page)
-  expect(await measure('[data-density] [role="radiogroup"]')).toEqual({ dx: 0, dy: 0, dw: 0 })
+  await landsOnTarget('[data-density] [role="radiogroup"]')
 
   // And inside the zoomed thumbnails on the index. The indicator used to
   // measure with getBoundingClientRect, which reports VISUAL pixels — so in any
   // scaled or zoomed container the pill landed short by the scale factor while
   // looking perfectly fine everywhere else.
   await page.goto('/components/')
-  await expect(page.locator('[inert] [role="radiogroup"]').first()).toBeVisible()
-  expect(await measure('[inert] [role="radiogroup"]')).toEqual({ dx: 0, dy: 0, dw: 0 })
+  await landsOnTarget('[inert] [role="radiogroup"]')
 })
