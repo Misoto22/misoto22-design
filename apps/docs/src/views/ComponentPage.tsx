@@ -1,3 +1,4 @@
+import { apiCopy } from '@/i18n/api'
 import { componentCopy, groupName } from '@/i18n/content'
 import { localePath, type Locale } from '@/i18n/locales'
 import { getMessages } from '@/i18n/messages'
@@ -50,12 +51,6 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
         </Alert>
       )}
 
-      {locale !== 'en' && (
-        <p className="m-0 max-w-(--w-reading) border-s border-(--rule-2) ps-4 text-[13px] leading-relaxed text-(--ink-3-aa)">
-          {t.apiNote}
-        </p>
-      )}
-
       {examples.length > 0 && (
         <section className="flex flex-col gap-6">
           <SectionHeading id="examples">{t.section.examples}</SectionHeading>
@@ -76,7 +71,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
       {primary?.description && (
         <section className="flex flex-col gap-4">
           <SectionHeading id="notes">{t.section.notes}</SectionHeading>
-          <Prose text={primary.description} />
+          <Prose text={apiCopy(locale, `${entry.dir}.${primary.name}`, primary.description)} />
         </section>
       )}
 
@@ -84,6 +79,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
         <SectionHeading id="props">{t.section.props}</SectionHeading>
         <PropsTable
           name={primary?.name ?? entry.name}
+          dir={entry.dir}
           rows={primary?.props ?? []}
           passthrough={primary?.passthrough ?? []}
           locale={locale}
@@ -102,9 +98,12 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
               <div className="flex items-baseline gap-3">
                 <h3 className="m-0 font-mono text-sm text-(--ink)">{part.name}</h3>
               </div>
-              {part.description && <Prose text={part.description} small />}
+              {part.description && (
+                <Prose text={apiCopy(locale, `${entry.dir}.${part.name}`, part.description)} small />
+              )}
               <PropsTable
                 name={part.name}
+                dir={entry.dir}
                 rows={part.props}
                 passthrough={part.passthrough}
                 locale={locale}
@@ -123,7 +122,9 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
                 <code className="font-mono text-sm text-(--ink)">
                   {item.name} = {item.reexport}
                 </code>
-                {item.description && <Prose text={item.description} small />}
+                {item.description && (
+                  <Prose text={apiCopy(locale, `${entry.dir}.${item.name}`, item.description)} small />
+                )}
               </div>
             ))}
           </div>
@@ -148,7 +149,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
               </TR>
             </THead>
             <TBody>
-              {entry.keyboard.map((row) => (
+              {entry.keyboard.map((row, index) => (
                 <TR key={row.keys.join('+')}>
                   <TD className="align-top">
                     <span className="flex flex-wrap gap-1.5">
@@ -158,7 +159,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
                     </span>
                   </TD>
                   <TD className="max-w-(--measure-record) align-top text-[13px] leading-relaxed">
-                    {row.does}
+                    {zh.keyboard?.[index] ?? row.does}
                   </TD>
                 </TR>
               ))}

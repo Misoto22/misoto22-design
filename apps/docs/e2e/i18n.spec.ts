@@ -23,18 +23,21 @@ test.describe('locales', () => {
     await ready(page)
     await expect(page.locator('html')).toHaveAttribute('lang', 'zh-Hans')
     // The summary, the "when to reach for it" note and the section headings.
-    await expect(page.getByText('系统的动作')).toBeVisible()
+    await expect(page.getByText('这套系统的动作')).toBeVisible()
     await expect(page.getByRole('heading', { name: '示例' })).toBeVisible()
     await expect(page.getByRole('heading', { name: '键盘操作' })).toBeVisible()
   })
 
-  test('the API reference stays in English, and says so', async ({ page }) => {
+  test('the API reference is translated too, and the code is not', async ({ page }) => {
     await page.goto('/zh/components/button/')
     await ready(page)
-    // Prop descriptions are parsed from the package source; translating them
-    // would be a second copy that drifts on the first doc-comment edit.
-    await expect(page.getByText(/直接来自包的源码，保持英文/)).toBeVisible()
-    await expect(page.getByRole('table', { name: /Button props/ })).toBeVisible()
+    // Prop descriptions are parsed from the package source, so translating
+    // them risks drift — `api.ts` records a fingerprint of the English beside
+    // each one, and the build fails when a doc comment moves out from under it.
+    const table = page.getByRole('table', { name: /Button props/ })
+    await expect(table).toContainText('这个屏幕最希望你做的那一件事')
+    // Identifiers and type signatures stay as they are; they are code.
+    await expect(table).toContainText('ButtonVariant')
   })
 
   test('the switcher goes to the same page, not the home page', async ({ page }) => {
@@ -67,4 +70,34 @@ test.describe('locales', () => {
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/\/zh\/components\/pagination\//)
   })
+})
+
+test('the Chinese pages translate the API reference too', async ({ page }) => {
+  await page.goto('/zh/components/badge/')
+
+  // The Notes section and the prop table used to stay English by design. They
+  // are translated now, with a fingerprint of the English beside each one so a
+  // changed doc comment fails the build rather than going stale in silence.
+  const notes = page.locator('#notes').locator('..')
+  await expect(notes).toContainText('徽章不可交互')
+
+  const table = page.getByRole('table', { name: /Badge/ })
+  await expect(table).toContainText('是这套系统里唯一的彩色')
+
+  // Identifiers and type signatures are code and stay as they are.
+  await expect(table).toContainText('BadgeTone')
+})
+
+test('the keyboard table is translated, key by key', async ({ page }) => {
+  await page.goto('/zh/components/select/')
+  const table = page.getByRole('table', { name: /keyboard/i })
+  await expect(table).toContainText('展开列表')
+  await expect(table).toContainText('首字母跳转')
+  // Keys themselves are keys.
+  await expect(table).toContainText('Enter')
+})
+
+test('no page promises the reference is in English any more', async ({ page }) => {
+  await page.goto('/zh/components/button/')
+  await expect(page.getByText('保持英文')).toHaveCount(0)
 })
