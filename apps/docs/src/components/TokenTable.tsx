@@ -1,0 +1,101 @@
+import { TBody, TD, TH, THead, TR, Table } from '@misoto22/design'
+
+export interface TokenRow {
+  name: string
+  value: string
+  comment?: string
+  category: string
+}
+
+/** Values that can be drawn as a chip rather than only printed. */
+function swatchFor(value: string): string | undefined {
+  if (/^(#|rgba?\(|color-mix|oklch)/.test(value)) return value
+  // A token whose value is another token still resolves to a colour at runtime,
+  // so the chip is drawn from the reference rather than being skipped.
+  const reference = value.match(/^var\((--[\w-]+)\)$/)
+  return reference ? `var(${reference[1]})` : undefined
+}
+
+export interface TokenTableProps {
+  title: string
+  note?: string
+  rows: TokenRow[]
+  /** The same tokens under `[data-mode='dark']`, keyed by name. */
+  dark?: Map<string, string>
+}
+
+/**
+ * One category of tokens, read out of the package's CSS at build time.
+ *
+ * The swatch is painted with the token itself — `background: var(--paper)`, not
+ * a hex copied into this file — so a chip cannot show a colour the system no
+ * longer has. It also means the whole table re-paints when the theme flips,
+ * which is the fastest way to see what a token actually does.
+ */
+export function TokenTable({ title, note, rows, dark }: TokenTableProps) {
+  if (rows.length === 0) return null
+
+  return (
+    <section className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1.5">
+        <h3 className="m-0 font-heading text-[length:var(--fs-item)] font-normal text-(--ink)">
+          {title}
+        </h3>
+        {note && (
+          <p className="m-0 max-w-(--measure-record) text-[13px] leading-relaxed text-(--ink-3-aa)">
+            {note}
+          </p>
+        )}
+      </div>
+
+      <Table caption={`${title} tokens`}>
+        <THead>
+          <TR>
+            <TH className="w-10" />
+            <TH>Token</TH>
+            <TH>Value</TH>
+            {dark && <TH>Dark</TH>}
+            <TH>Notes</TH>
+          </TR>
+        </THead>
+        <TBody>
+          {rows.map((row) => {
+            const swatch = swatchFor(row.value)
+            const darkValue = dark?.get(row.name)
+            return (
+              <TR key={row.name}>
+                <TD className="align-top">
+                  {swatch ? (
+                    <span
+                      aria-hidden
+                      className="mt-0.5 block size-5 rounded-(--radius-sm) border border-(--rule-2)"
+                      style={{ background: swatch }}
+                    />
+                  ) : null}
+                </TD>
+                <TD className="whitespace-nowrap align-top">
+                  <code className="font-mono text-xs text-(--ink)">--{row.name}</code>
+                </TD>
+                <TD className="align-top">
+                  <code className="font-mono text-xs text-(--ink-2)">{row.value}</code>
+                </TD>
+                {dark && (
+                  <TD className="align-top">
+                    {darkValue ? (
+                      <code className="font-mono text-xs text-(--ink-2)">{darkValue}</code>
+                    ) : (
+                      <span className="mono-meta text-(--ink-3-aa)">same</span>
+                    )}
+                  </TD>
+                )}
+                <TD className="max-w-(--measure-record) align-top text-[13px] leading-relaxed">
+                  {row.comment ?? <span className="text-(--rule-2)">—</span>}
+                </TD>
+              </TR>
+            )
+          })}
+        </TBody>
+      </Table>
+    </section>
+  )
+}

@@ -1,79 +1,81 @@
-# misoto22-design — component conventions
+# Component conventions
 
-The single styling + API contract every primitive in this package follows. New
-components match these exactly so the system reads as one hand.
+What every component in `packages/design/src/components` is expected to do, and
+why. These are the rules a review checks against; the visual rules live on
+[ui.misoto22.com/principles](https://ui.misoto22.com/principles/).
 
-## Tech
+## Shape
 
-- React 19 function components, TypeScript strict. Ref is a plain prop in React
-  19 — no `forwardRef`.
-- Styling: **Tailwind v4 arbitrary-property syntax** against CSS custom-property
-  tokens (`bg-(--accent)`, `text-(--foreground)`, `rounded-(--radius)`). Never
-  hardcode colors — tokens auto-swap under `.dark`.
-- **Framework-agnostic**: no next-intl, no `next/image`, no app imports. A
-  component that navigates renders a plain `<a>`; the app wraps with its router.
-- Interactive components (state, portals, Radix) start with `'use client'`.
-- Compose classes with `clsx`. Use **full literal class strings** — never
-  interpolate a token name into a class — so Tailwind's scanner sees them.
+- **One directory per component**, named for the component: `Button/Button.tsx`,
+  and its test beside it as `Button/Button.test.tsx`. The documentation
+  generator keys off that directory name, so a mismatch is caught by
+  `apps/docs/src/content/__tests__/registry.test.ts` rather than by a blank page.
+- **Named export plus a default.** The named export is the contract; the default
+  exists so a call site can import either way.
+- **`'use client'` only when the component owns state, an effect, or a browser
+  API.** Buttons, cards, badges and tables stay server-renderable; anything
+  wrapping Radix does not.
 
-## Tokens (the only color/shape vocabulary)
+## Styling
 
-Surfaces: `--background`, `--background-elevated`, `--card-background`,
-`--code-background`, `--nav-background`.
-Text: `--foreground`, `--foreground-muted`, `--secondary-text`, `--on-dark`.
-Lines: `--border-color`, `--border-subtle`.
-Accent: `--accent`, `--accent-hover`, `--accent-muted` (12% wash for fills),
-`--accent-wash` (4% tint), `--accent-foreground` (text/icon on an accent fill).
-Status: `--success`, `--danger`, `--warning`, `--info`.
-Spacing: `--space-1`…`--space-10` (4px base). Type scale is Tailwind's built-in
-`--text-*` / `--leading-*`; custom label tracking is `--tracking-label`.
-Focus / state: `--ring`, `--ring-offset`, `--overlay` (modal scrim),
-`--disabled-opacity`. Z-index: `--z-dropdown|sticky|overlay|modal|toast`.
+- **Read semantic tokens, never primitives.** `text-(--ink)` and
+  `border-(--rule)`, not a hex and not `--paper` where `--background` is meant.
+  Dark mode is a value swap on those names, so a component that reads the right
+  layer inherits it for free.
+- **Merge the caller's `className` last, through `cn`.** `clsx` alone emits both
+  sides of a conflict and lets the stylesheet's own order decide the winner,
+  which means an override works or does not for reasons neither side can see.
+- **No blurred shadow.** `--shadow*` resolves to `none` on purpose. Depth is a
+  hairline, a change of ground, or `--lift` — a hard ink offset with no blur.
+- **Full literal class strings for variants.** Tailwind only generates what it
+  can see verbatim, so a side or a size is looked up in a `Record`, never
+  interpolated into a template string.
+- **Durations and easing come from tokens.** `duration-(--duration-fast)`, not
+  `duration-150`.
 
-Radius: `--radius-sm` 8px (chips/keycaps) · `--radius` 12px (controls:
-buttons/inputs/selects) · `--radius-lg` 18px (surfaces: cards/dialogs/panels) ·
-`--radius-pill` (pills/dots).
-Elevation: `--shadow-sm`, `--shadow`, `--shadow-lg`.
-Motion: `--ease-out-expo`, `--duration-fast|base|slow`. Fonts: `font-sans`,
-`font-heading` (Cormorant display), `font-mono`.
+## Behaviour
 
-## Idioms
+- **Reach for Radix before re-implementing a pattern.** Focus traps, roving
+  tabindex, typeahead and portal placement are where a hand-rolled component
+  quietly becomes unusable with a keyboard.
+- **Frameworks stay out.** No router import. A component that navigates takes
+  `asChild` so the call site supplies its own `Link`.
+- **A prop that is required for accessibility is required in the type.**
+  `Table.caption`, `Progress.label`, `Avatar.alt`, `FloatingIconButton.label`.
+  If it can be forgotten, it will be.
 
-- Hover (color only): `transition-colors duration-300`.
-- Controls (lift/shadow): `transition-all duration-150 ease-(--ease-out-expo)`.
-- Mono labels: the `eyebrow` utility (uppercase kicker) and `mono-meta` (inline
-  metadata); pair `eyebrow` with a `text-*` color.
-- Chips: `font-mono text-xs tracking-wide … rounded-(--radius-sm)`.
-- Focus: a global `:focus-visible` outline (`--ring`) exists; custom controls
-  restore it with `focus-visible:outline-2 focus-visible:outline-(--ring) outline-offset-2`.
-- Disabled: `disabled:opacity-50 disabled:pointer-events-none`.
+## Accessibility
 
-## File + export shape
+- **Decoration is `aria-hidden`.** A status dot beside the word "Available"
+  repeats it; an arrow inside a link is read as "north east arrow".
+- **Colour is never the only carrier.** Every status tone is doubled by an icon,
+  by the words, or by both.
+- **44px is the pointer-target floor** for anything a finger has to hit.
+- **Motion is gated behind `motion-safe`**, and every animated element carries
+  `data-m22-animated` so the one reduced-motion rule in `keyframes.css` can
+  reach it.
 
+## Documentation
+
+A component's JSDoc IS its documentation — the site parses it. So:
+
+- The description says what the component is FOR and, where there is a
+  neighbour it could be confused with, which one to reach for.
+- Every prop that is not self-evident carries its own doc comment; the site
+  prints an em dash where one is missing.
+- Defaults are written as destructuring defaults in the implementation, not as
+  `@default` tags. The generator reads the implementation, so the two cannot
+  disagree.
+- At least one `@example`, and at least one live example under
+  `apps/docs/src/examples/<Component>/NN-name.tsx`. The registry test fails a
+  component that has none.
+
+## Gates
+
+```bash
+pnpm lint && pnpm typecheck && pnpm test && pnpm build
 ```
-src/components/<Name>/<Name>.tsx     // 'use client' if interactive
-```
 
-```ts
-export interface <Name>Props { … ; className?: string }
-export function <Name>(props: <Name>Props) { … }
-export default <Name>
-```
-
-Every component is re-exported (named) from `src/index.ts`. Each gets a usage
-example in its own doc comment. `className` is always accepted and merged last.
-
-## Reference: Button (the canonical control)
-
-```tsx
-const BASE =
-  'inline-flex items-center gap-2.5 px-4 py-[11px] rounded-(--radius) text-sm transition-all duration-150 ease-(--ease-out-expo) hover:shadow-(--shadow) hover:-translate-y-px disabled:opacity-50 disabled:pointer-events-none'
-const VARIANT = {
-  primary: 'bg-(--foreground) text-(--background) border border-(--foreground) hover:bg-(--accent) hover:border-(--accent) hover:text-(--accent-foreground)',
-  secondary: 'border border-(--border-color) text-(--foreground) hover:border-(--accent) hover:text-(--accent)',
-}
-```
-
-Interactive primitives wrap **Radix UI** (Dialog, DropdownMenu, Tabs, Switch,
-Checkbox), toast uses **sonner**, icons use **lucide-react** — all styled with
-the tokens above, never Radix's defaults.
+New or changed behaviour needs a test that exercises the real boundary — see
+`Field.test.tsx` for the shape: it asserts what a screen reader receives, not
+which classes were emitted.

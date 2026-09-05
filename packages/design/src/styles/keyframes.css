@@ -1,0 +1,162 @@
+/* ==========================================================================
+   MOTION — the system's named animations
+   --------------------------------------------------------------------------
+   Portable, like tokens.css: plain CSS, no Tailwind. Every component that
+   animates reaches for one of these rather than declaring its own, so the
+   whole system arrives and leaves on the same curve.
+
+   Durations are NOT baked in here — a keyframe says what moves, a call site
+   says how fast, using --fast / --mid / --slow. Reduced motion is honoured in
+   one place, at the bottom.
+   ========================================================================== */
+
+/* A surface arriving in place — a panel, a menu, a tab's contents. Short and
+   small: the page did not change, only part of it. */
+@keyframes m22-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* A page arriving. Longer travel than a panel, because more of the view is
+   being replaced. */
+@keyframes m22-route-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* An overlay's ground. No travel — a scrim does not slide, it appears. */
+@keyframes m22-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes m22-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* A toast entering from the edge it is docked to. */
+@keyframes m22-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The system's "working" pulse — a dimming, not a shimmer. A skeleton that
+   shimmers implies a light source the White Reset does not have. */
+@keyframes m22-pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+/* The determinate/indeterminate bar's sweep. Travels 1.6× its own width so the
+   bar clears the track completely at each end. */
+@keyframes m22-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+/* The spinner. A rotation, and only a rotation — the arc that makes it read as
+   a spinner is drawn by the component's own conic gradient, not animated. */
+@keyframes m22-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* The three-dot "thinking" run, staggered by delay at the call site. */
+@keyframes m22-bounce-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+/* A live indicator's halo. Grows and dissolves; never loops a hard edge. */
+@keyframes m22-halo {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  70% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* A disclosure panel opening and closing. Radix measures the panel and
+   publishes its height as --radix-accordion-content-height, so the panel
+   animates to its REAL height rather than to a guessed max-height — which is
+   what makes a long answer open at the same speed as a short one instead of
+   sitting still for half the duration. */
+@keyframes m22-accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes m22-accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+/* One place, not per-component. A user who has asked for less motion gets the
+   end state immediately rather than a faster version of the same move. */
+@media (prefers-reduced-motion: reduce) {
+  [class*='m22-anim'],
+  [data-m22-animated] {
+    animation: none !important;
+  }
+}

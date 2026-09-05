@@ -1,0 +1,142 @@
+'use client'
+
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import type { HTMLAttributes } from 'react'
+import { cn } from '../../lib/cn'
+
+export interface PaginationProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange'> {
+  /** 1-based. */
+  page: number
+  /** Total pages. A value of 1 or less renders nothing. */
+  pageCount: number
+  onPageChange: (page: number) => void
+  /** How many numbered pages sit either side of the current one. */
+  siblings?: number
+  label?: string
+}
+
+const GAP = '…' as const
+
+/**
+ * Builds the visible page list: always the first and last page, a window around
+ * the current one, and an ellipsis wherever the sequence skips.
+ *
+ * Returned as numbers and a literal ellipsis rather than as pre-rendered nodes,
+ * so the shape is testable without a DOM — the off-by-one at the window edges
+ * is the whole difficulty of this component.
+ */
+export function paginationRange(page: number, pageCount: number, siblings = 1): (number | typeof GAP)[] {
+  const first = 1
+  const last = pageCount
+
+  // Below the width the elided form would occupy — first, last, the window and
+  // two ellipses — printing every page is both shorter and more useful. Without
+  // this, a five-page list renders "1 2 … 5", which hides a page to save
+  // nothing.
+  const widest = 2 * siblings + 5
+  if (pageCount <= widest) {
+    return Array.from({ length: pageCount }, (_, index) => index + 1)
+  }
+
+  const start = Math.max(first, page - siblings)
+  const end = Math.min(last, page + siblings)
+
+  const pages: (number | typeof GAP)[] = []
+  if (start > first) {
+    pages.push(first)
+    // A single skipped page is printed, not elided: "1 … 3" is longer than
+    // "1 2 3" and tells the reader less.
+    if (start > first + 2) pages.push(GAP)
+    else if (start === first + 2) pages.push(first + 1)
+  }
+  for (let n = start; n <= end; n += 1) pages.push(n)
+  if (end < last) {
+    if (end < last - 2) pages.push(GAP)
+    else if (end === last - 2) pages.push(last - 1)
+    pages.push(last)
+  }
+  return pages
+}
+
+const STEP =
+  'inline-flex size-9 items-center justify-center rounded-(--radius-pill) border transition-colors duration-(--duration-fast) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none'
+
+/**
+ * Numbered pagination.
+ *
+ * A `<nav>` wrapping a list, and the current page is a `<button aria-current>`
+ * rather than a styled `<span>` — a reader jumping by landmark needs to find
+ * the control, and a reader on the current page needs to be told they are
+ * already there.
+ *
+ * Renders nothing at one page or fewer. A pager for a single page is furniture.
+ *
+ * @example
+ * <Pagination page={page} pageCount={12} onPageChange={setPage} />
+ */
+export function Pagination({
+  page,
+  pageCount,
+  onPageChange,
+  siblings = 1,
+  label = 'Pagination',
+  className,
+  ...rest
+}: PaginationProps) {
+  if (pageCount <= 1) return null
+  const pages = paginationRange(page, pageCount, siblings)
+
+  return (
+    <nav aria-label={label} className={cn('flex items-center gap-1.5', className)} {...rest}>
+      <button
+        type="button"
+        aria-label="Previous page"
+        disabled={page <= 1}
+        onClick={() => onPageChange(page - 1)}
+        className={cn(STEP, 'border-(--rule-2) text-(--ink-2) hover:border-(--ink) hover:text-(--ink)')}
+      >
+        <ChevronLeft size={16} strokeWidth={1.5} aria-hidden />
+      </button>
+
+      <ol className="m-0 flex list-none items-center gap-1 p-0">
+        {pages.map((entry, index) =>
+          entry === GAP ? (
+            <li key={`gap-${index}`} aria-hidden="true" className="px-1 mono-meta text-(--ink-3-aa)">
+              {GAP}
+            </li>
+          ) : (
+            <li key={entry}>
+              <button
+                type="button"
+                aria-current={entry === page ? 'page' : undefined}
+                aria-label={`Page ${entry}`}
+                onClick={() => onPageChange(entry)}
+                className={cn(
+                  STEP,
+                  'mono-meta tabular-nums',
+                  entry === page
+                    ? 'border-(--ink) bg-(--ink) text-(--paper)'
+                    : 'border-transparent text-(--ink-2) hover:border-(--rule-2) hover:text-(--ink)',
+                )}
+              >
+                {entry}
+              </button>
+            </li>
+          ),
+        )}
+      </ol>
+
+      <button
+        type="button"
+        aria-label="Next page"
+        disabled={page >= pageCount}
+        onClick={() => onPageChange(page + 1)}
+        className={cn(STEP, 'border-(--rule-2) text-(--ink-2) hover:border-(--ink) hover:text-(--ink)')}
+      >
+        <ChevronRight size={16} strokeWidth={1.5} aria-hidden />
+      </button>
+    </nav>
+  )
+}
+
+export default Pagination

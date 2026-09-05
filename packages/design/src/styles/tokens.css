@@ -1,0 +1,214 @@
+/* ==========================================================================
+   WHITE RESET — design tokens
+   --------------------------------------------------------------------------
+   The portable layer of @misoto22/design: plain CSS custom properties, no
+   Tailwind dependency. Import this alone and any consumer — a Tailwind app, a
+   plain-CSS app, a preview sandbox — gets the same look.
+
+   A pure-white monochrome system for software, writing, and photography. The
+   ground is paper-white, the mark is near-black, and the only chroma left in
+   the file is status, which is bound to state and never to brand.
+
+   Two blocks, and only two: the primitives below, and the semantic aliases in
+   `semantic.css` that name what a primitive is FOR. A component never reads a
+   primitive directly — it reads the alias — so recolouring the system is one
+   edit here rather than a sweep through every component.
+
+   Hex mirrors for surfaces that cannot read CSS custom properties (OpenGraph
+   cards, build scripts, `theme-color`) live in `tokens/brand.ts`, and a test
+   holds the two in sync.
+   ========================================================================== */
+
+:root,
+[data-mode='light'] {
+  --paper: #ffffff;
+  --paper-2: #f7f7f5;
+  --bar: var(--stone);
+  --bar-2: var(--stone);
+
+  /* Two text steps and nothing lighter. --ink-3-aa is the floor — it clears
+     AA on white at 6.7:1, and every step above it is darker. --ink-3 is the
+     same weight expressed as alpha, for rules and washes that must sit over a
+     photograph as well as over paper. */
+  --ink: #101010;
+  --ink-2: #4a4a4a;
+  --ink-3: rgba(16, 16, 16, 0.55);
+  --ink-3-aa: #5c5c5c;
+
+  /* The second editorial voice is not a hue — it is one more neutral step,
+     sitting between --ink and --ink-2, so a byline separates from body copy
+     without introducing colour. */
+  --forest: #3a3a3a;
+  --mist: var(--stone);
+  --stone: #f2f1ee;
+
+  /* Monochrome collapses the pointer onto the mark: the accent IS ink. What
+     used to be carried by hue is now carried by weight, rule and reversal —
+     an ink pill, an ink underline, an ink-filled plate. */
+  --clay: var(--ink);
+  --clay-ink: var(--clay);
+
+  /* The one reversed plate, and the one place the ramp needs a tenth step.
+     Set to var(--ink) it was the page's darkest possible mark used as a field,
+     which on a white page reads as a hole punched through it rather than as a
+     panel. Two steps lighter keeps the reversal — 15.1:1 for paper-white type
+     on it — and matches the dark side. */
+  --feature-surface: #262626;
+  --on-feature: var(--paper);
+  --focus-on-feature: var(--on-feature);
+  --on-photo: var(--paper);
+  --photo-caption-surface: var(--ink);
+  --photo-shadow: 0 1px 6px rgb(0 0 0 / 0.72);
+
+  /* Three rule weights, because a monochrome page has no colour left to
+     separate one band from the next: hairline, edge, and hard. */
+  --rule: #edebe6;
+  --rule-2: #dbdbd6;
+  --rule-hard: var(--ink);
+
+  /* Historic role names, kept so a consumer written against the previous
+     palette keeps resolving. Their hue is now ink; the role remains "the
+     single editorial pointer". */
+  --red: var(--clay);
+  --red-ink: var(--clay);
+  --red-soft: rgba(16, 16, 16, 0.07);
+  --on-red: var(--paper);
+
+  --shadow-offset: var(--clay);
+
+  color-scheme: light;
+}
+
+[data-mode='dark'] {
+  --paper: #0d0d0d;
+  --paper-2: #161616;
+  --bar: var(--stone);
+  --bar-2: var(--stone);
+
+  --ink: #f4f4f2;
+  --ink-2: #b4b4b0;
+  --ink-3: rgba(244, 244, 242, 0.55);
+  --ink-3-aa: #9a9a96;
+
+  --forest: #c9c9c5;
+  --mist: var(--stone);
+  --stone: #1f1f1f;
+  --clay: var(--ink);
+  --clay-ink: var(--clay);
+  --feature-surface: #1a1a1a;
+  --on-feature: var(--ink);
+  --focus-on-feature: var(--on-feature);
+
+  /* A photograph is a dark ground in both themes, so this one does not swap
+     with --paper. It sits a shade off pure white because the light side has
+     already spent pure white on the page ground, and one hex serves one role. */
+  --on-photo: #fbfbfa;
+  --photo-caption-surface: var(--paper);
+  --photo-shadow: 0 1px 6px rgb(0 0 0 / 0.72);
+
+  --rule: rgba(244, 244, 242, 0.14);
+  --rule-2: rgba(244, 244, 242, 0.26);
+  --rule-hard: var(--ink);
+
+  --red: var(--clay);
+  --red-ink: var(--clay);
+  --red-soft: rgba(244, 244, 242, 0.12);
+  --on-red: var(--paper);
+
+  --shadow-offset: var(--clay);
+
+  color-scheme: dark;
+}
+
+:root {
+  /* ─── Type ───────────────────────────────────────────────────────────────
+     Three faces and their CJK fallbacks. The `--font-*` names are supplied by
+     `fonts.css` (or by a host framework's font loader, e.g. next/font), so a
+     consumer can swap the delivery mechanism without touching the stacks. */
+  --sans: var(--font-hanken), 'Hanken Grotesk', var(--cjk-sans), 'Helvetica Neue', Arial, sans-serif;
+  --serif: var(--font-newsreader), 'Newsreader', var(--cjk-serif), Georgia, serif;
+  --mono: var(--font-plex-mono), 'IBM Plex Mono', var(--cjk-sans), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --cjk-serif: var(--font-noto-serif-sc), 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', STSong, SimSun, serif;
+  --cjk-sans: var(--font-noto-sans-sc), 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+
+  --lh-cjk: 1.8;
+  --ls-cjk: 0;
+
+  /* Heading scale — the single ladder every surface climbs. Five steps, each
+     fluid between a phone and the 1288px page, and nothing sits above
+     --fs-title: a page has exactly one thing larger than its own records.
+
+     Steps sit close together by design — the ladder separates records of the
+     same kind, not a heading from its own sub-heading. Two headings that nest
+     must skip a step: --fs-lead over --fs-sub reads as a hierarchy (1.33),
+     --fs-lead over --fs-heading does not (1.14). */
+  --fs-title: clamp(2.5rem, 4.6vw, 3.375rem); /* page h1        40 → 54px */
+  --fs-lead: clamp(1.875rem, 3vw, 2.625rem); /* band heading   30 → 42px */
+  --fs-heading: clamp(1.5rem, 2.1vw, 1.8125rem); /* record title   24 → 29px */
+  --fs-sub: clamp(1.3125rem, 1.7vw, 1.5625rem); /* card sub-head  21 → 25px */
+  --fs-item: clamp(1.125rem, 1.35vw, 1.25rem); /* in-card title  18 → 20px */
+
+  /* ─── Space & measure ─── */
+  --pad: clamp(18px, 4.4vw, 64px);
+  --sec: clamp(54px, 7vw, 96px);
+  --sec-tight: clamp(40px, 5vw, 68px);
+  --maxw: 1288px;
+  --col: 8.3333%;
+  --row: 52px;
+
+  /* ─── Radius ─────────────────────────────────────────────────────────────
+     Four steps, and there is no fifth. The old law was "0 everywhere"; the
+     White Reset replaces that with a scale small enough to stay quiet on a
+     white page. A 50% circle is geometry rather than a corner and is not a
+     step here. */
+  --radius-sm: 6px; /* images, thumbnails, media frames */
+  --radius: 8px; /* inputs, buttons, small plates */
+  --radius-lg: 14px; /* feature panels, dark plates */
+  --radius-pill: 999px; /* tabs, chips, counters, circular controls */
+
+  /* ─── Motion ─── */
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --fast: 0.13s;
+  --mid: 0.22s;
+  --slow: 0.34s;
+
+  /* ─── Stacking ─── seven ranks, named for what sits at each. */
+  --z-rule: 1;
+  --z-sticky: 10;
+  --z-drawer: 100;
+  --z-scrim: 200;
+  --z-modal: 210;
+  --z-palette: 220;
+  --z-toast: 300;
+
+  /* ─── Focus ─── */
+  --focus: var(--red);
+  --focus-w: 2px;
+  --focus-off: 3px;
+
+  /* ─── Icons ─── one stroke weight, three sizes. */
+  --ico-s: 14px;
+  --ico-m: 16px;
+  --ico-l: 20px;
+  --ico-stroke: 1.5;
+
+  /* ─── Status ─── the only chroma in the system, and it is bound to state. */
+  --ok: #3d6b34;
+  --ok-soft: rgba(61, 107, 52, 0.13);
+  --warn: #8a5a00;
+  --warn-soft: rgba(138, 90, 0, 0.13);
+  --danger: #a83214;
+  --danger-soft: rgba(168, 50, 20, 0.14);
+  --scrim: color-mix(in srgb, var(--ink) 62%, transparent);
+}
+
+[data-mode='dark'] {
+  --ok: #84b47b;
+  --ok-soft: rgba(132, 180, 123, 0.16);
+  --warn: #d9a55d;
+  --warn-soft: rgba(217, 165, 93, 0.16);
+  --danger: #ee8b68;
+  --danger-soft: rgba(238, 139, 104, 0.16);
+  --scrim: color-mix(in srgb, #000 72%, transparent);
+}

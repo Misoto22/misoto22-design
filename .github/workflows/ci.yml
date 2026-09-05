@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Never cancel a production deploy mid-upload; a half-uploaded Pages deployment
+# is a half-broken site.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      # The docs app reads the design package from `dist`, so the library is
+      # built before anything typechecks against it. This is also the step that
+      # would catch a token file that no longer compiles.
+      - name: Build the design package
+        run: pnpm build:design
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build the documentation site
+        run: pnpm build:docs
+
+      - name: Upload the static export
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-out
+          path: apps/docs/out
+          retention-days: 3
+
+  deploy:
+    needs: verify
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production
+      url: https://ui.misoto22.com
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: docs-out
+          path: out
+
+      # Deploys the exact directory `verify` built and tested, rather than
+      # rebuilding here — a second build is a second chance to ship something
+      # the gates never saw.
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy out --project-name=misoto22-ui --branch=main
+
+      - name: Smoke-test the live routes
+        run: |
+          set -euo pipefail
+          # Pages serves the new deployment behind the custom domain within a
+          # few seconds; give it a short grace period before failing the run.
+          for route in / /components/ /components/button/ /foundations/colour/ /principles/; do
+            for attempt in 1 2 3 4 5 6; do
+              status=$(curl -sS -o /dev/null -w '%{http_code}' "https://ui.misoto22.com${route}" || echo 000)
+              [ "$status" = "200" ] && break
+              sleep 10
+            done
+            echo "${route} -> ${status}"
+            [ "$status" = "200" ] || exit 1
+          done

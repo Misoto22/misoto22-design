@@ -1,0 +1,103 @@
+/*
+ * Tailwind entry for @misoto22/design.
+ *
+ * Compiled by the Tailwind CLI into dist/styles.css — the self-contained
+ * stylesheet a standalone consumer imports. It pulls Tailwind, the portable
+ * layers, and promotes only fonts and breakpoints to utilities.
+ *
+ * Semantic colours are deliberately NOT promoted to @theme colour utilities.
+ * They are consumed with Tailwind's arbitrary-property syntax — text-(--ink),
+ * bg-(--paper), border-(--rule) — so adding or recolouring a role is one edit
+ * in semantic.css and nothing here.
+ */
+@import 'tailwindcss';
+@import './tokens.css';
+@import './semantic.css';
+@import './keyframes.css';
+
+/* Matches the site: the mode is an attribute on <html>, not a class, so the
+   value can be written by an inline script before first paint without a class
+   list to reconcile. */
+@custom-variant dark (&:is([data-mode='dark'] *));
+
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-nav: 900px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  --line-clamp-2: 2;
+
+  --font-sans: var(--sans);
+  /* The White Reset sets headings in the editorial serif. A component that
+     genuinely wants the interface face asks for --font-sans by name. */
+  --font-heading: var(--serif);
+  --font-serif: var(--serif);
+  --font-mono: var(--mono);
+}
+
+@layer base {
+  /* Tailwind v4 defaults every border to `currentcolor`, which would make an
+     un-coloured hairline take on the text colour of whatever it sits in. */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--rule);
+  }
+
+  /* WCAG 2.4.7 — one visible focus indicator, defined once. */
+  :focus-visible {
+    outline: var(--focus-w) solid var(--focus);
+    outline-offset: var(--focus-off);
+  }
+}
+
+/* ─── Mono label idioms ───
+   The two label voices, defined once. Colour is deliberately left to a paired
+   text-* utility so an over-photo or accent variant stays explicit rather than
+   depending on utility precedence.
+
+   eyebrow   → the uppercase kicker ("01 / COMPONENTS")
+   mono-meta → inline numeric / timing / metadata labels (not uppercased) */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+@utility mono-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+/* ─── Scroll surfaces ───
+   scroll-slim → a hairline scrollbar tinted with the rule token. Standard
+                 properties only: defining any ::-webkit-scrollbar rule opts
+                 Chrome and Safari out of overlay scrollbars and permanently
+                 reserves a classic gutter, which is the look this replaces.
+   scroll-fade → dissolves the first and last rows at the container edge so
+                 content meets a border by fading rather than being sliced
+                 mid-glyph. The scroll-padding matches the fade so a
+                 keyboard-driven scrollIntoView parks the active row just
+                 inside the opaque area. */
+@utility scroll-slim {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-2) transparent;
+  scrollbar-gutter: stable;
+}
+@utility scroll-fade {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 14px,
+    #000 calc(100% - 14px),
+    transparent 100%
+  );
+  scroll-padding-block: 14px;
+}
