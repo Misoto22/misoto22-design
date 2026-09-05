@@ -539,10 +539,14 @@ export const COMPONENTS: ComponentEntry[] = [
     dir: 'Table',
     name: 'Table',
     group: 'Surfaces',
-    summary: 'A ruled data table that scrolls inside its own box.',
+    summary: 'A ruled data table — alignment, sorting and rules all per column.',
+    when: 'Alignment is per column and numbers belong at the end edge, so digits line up. Sorting is opt-in per column: a table where every header is a button invites sorting a column the data cannot be ordered by.',
     accessibility: [
       'caption is required: an unnamed table on a page with three tables is unnavigable.',
       'Column labels are <th scope="col">, so a cell can be traced back to its heading.',
+      'A sortable header is a button INSIDE the th, not a click handler on the cell — a cell with an onClick is not focusable and not announced, so the sort would exist only for a mouse.',
+      'aria-sort is set from sortDirection, which is the only way a screen reader learns the table is ordered at all.',
+      'No zebra striping at any border setting: in a monochrome system a striped row is a second surface competing with the page ground.',
     ],
     related: ['card', 'figure-band'],
     keyboard: [
@@ -593,6 +597,8 @@ export const COMPONENTS: ComponentEntry[] = [
     accessibility: [
       'The trigger prints the date in the visitor’s own locale, not a fixed dd/mm/yyyy.',
       'DateRangePicker keeps the panel open until both ends are chosen — a range is not a value until it has a second date.',
+      'The shortcut rail is plain buttons, not a menu: they set the same value the grid beside them sets, so they belong to one control and Tab in the same pass.',
+      'Presets are computed on click, so “today” means today even on a tab left open overnight.',
     ],
     related: ['calendar', 'field'],
     keyboard: [
@@ -690,6 +696,26 @@ export const COMPONENTS: ComponentEntry[] = [
     previewHeight: 'min-h-[20rem]',
   },
   {
+    slug: 'searchable-menu',
+    dir: 'SearchableMenu',
+    name: 'SearchableMenu',
+    group: 'Overlays',
+    summary: 'A menu of actions you can type into.',
+    when: 'A DropdownMenu past about a dozen rows stops being scannable, and nesting submenus makes it worse. This is the same list with a filter over it. Not a Command palette: that is page-level and modal; this is anchored to a control.',
+    accessibility: [
+      'The rows are options inside a listbox rather than menuitems, because filtering requires it — the highlight moves through aria-activedescendant while focus stays in the input, and a menu cannot do that.',
+      'The trade is deliberate: a menu that cannot be filtered is worse for the reader than a listbox that runs actions.',
+    ],
+    keyboard: [
+      { keys: ['Enter', 'Space'], does: 'Opens the menu.' },
+      { keys: ['↑', '↓'], does: 'Moves the highlight while focus stays in the filter.' },
+      { keys: ['Enter'], does: 'Runs the highlighted action.' },
+      { keys: ['Escape'], does: 'Closes without running anything.' },
+    ],
+    previewHeight: 'min-h-[26rem]',
+    related: ['dropdown-menu', 'command', 'combobox'],
+  },
+  {
     slug: 'command',
     dir: 'Command',
     name: 'Command',
@@ -732,6 +758,8 @@ export const COMPONENTS: ComponentEntry[] = [
     accessibility: [
       'Arrows move a day, Page keys move a month, Home and End reach the week’s ends.',
       '“Today” is an outline and “selected” is a fill — one is a fact about the calendar, the other a choice the reader made, and they must not look alike.',
+      'Month and year are the system’s own Select, not the platform’s: a native list of a hundred years is a scroll rather than a choice, and it arrives styled by the operating system.',
+      'The default span is ten years either side. A birth date needs a wider one, and asks for it with startMonth.',
     ],
     related: ['date-picker'],
     keyboard: [

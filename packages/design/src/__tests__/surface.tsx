@@ -57,6 +57,7 @@ import {
   RadioGroupItem,
   NativeSelect,
   ScrollArea,
+  SearchableMenu,
   Select,
   SelectItem,
   Separator,
@@ -243,9 +244,21 @@ export const SURFACE: SurfaceEntry[] = [
     <label><Switch defaultChecked /> Email notifications</label>
   ) },
   { dir: 'Table', render: () => (
-    <Table caption="Recent deploys">
-      <THead><TR><TH>Commit</TH><TH>Duration</TH></TR></THead>
-      <TBody><TR><TD>a1b2c3d</TD><TD>2m 14s</TD></TR></TBody>
+    <Table caption="Recent deploys" borders="bordered-grid" density="compact">
+      <THead>
+        <TR>
+          <TH>Commit</TH>
+          <TH align="end" sortable sortDirection="ascending" onSort={() => {}}>
+            Duration
+          </TH>
+        </TR>
+      </THead>
+      <TBody>
+        <TR>
+          <TD>a1b2c3d</TD>
+          <TD align="end">2m 14s</TD>
+        </TR>
+      </TBody>
     </Table>
   ) },
   { dir: 'Tabs', render: () => (
@@ -312,6 +325,17 @@ export const SURFACE: SurfaceEntry[] = [
       <p>a1b2c3d deployed</p>
       <p>9f8e7d6 deployed</p>
     </ScrollArea>
+  ) },
+  { dir: 'SearchableMenu', opensWith: 'Actions', render: () => (
+    <SearchableMenu
+      label="Actions"
+      actions={[
+        { id: 'copy', label: 'Copy link', onSelect: () => {} },
+        { id: 'delete', label: 'Delete', destructive: true, onSelect: () => {} },
+      ]}
+    >
+      Actions
+    </SearchableMenu>
   ) },
   { dir: 'Sheet', opensWith: 'Open filters', render: () => (
     <Sheet>

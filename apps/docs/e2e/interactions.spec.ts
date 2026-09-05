@@ -199,3 +199,98 @@ test('switch: the label follows the state', async ({ page }) => {
   await row.getByRole('switch').click()
   await expect(row).toContainText('Off')
 })
+
+test('table: only the column that opted in can sort, and it says which way', async ({ page }) => {
+  await page.goto('/components/table/')
+  await ready(page)
+
+  const table = page.getByRole('table', { name: 'Recent deploys' }).first()
+  // Three of the four headers carry no sort affordance at all. A table where
+  // every header is a button invites sorting a column the data cannot order by.
+  await expect(table.getByRole('columnheader').filter({ hasText: /Commit|Branch|State/ })).toHaveCount(3)
+  await expect(table.getByRole('columnheader').getByRole('button')).toHaveCount(1)
+
+  const duration = table.getByRole('columnheader', { name: 'Duration' })
+  await expect(duration).toHaveAttribute('aria-sort', 'none')
+
+  const seconds = () => table.locator('tbody tr td:nth-child(3)').allInnerTexts()
+  expect(await seconds()).toEqual(['2m 14s', '2m 41s', '1m 02s', '2m 20s'])
+
+  await duration.getByRole('button').click()
+  await expect(duration).toHaveAttribute('aria-sort', 'ascending')
+  expect(await seconds()).toEqual(['1m 02s', '2m 14s', '2m 20s', '2m 41s'])
+
+  await duration.getByRole('button').click()
+  await expect(duration).toHaveAttribute('aria-sort', 'descending')
+  expect(await seconds()).toEqual(['2m 41s', '2m 20s', '2m 14s', '1m 02s'])
+})
+
+test('table: alignment and borders are settings, not per-cell classes', async ({ page }) => {
+  await page.goto('/components/table/')
+  await ready(page)
+
+  const table = page.getByRole('table', { name: 'Recent deploys' }).first()
+  await expect(table.locator('tbody tr').first().locator('td').nth(2)).toHaveCSS('text-align', 'end')
+  await expect(table.locator('tbody tr').first().locator('td').nth(3)).toHaveCSS('text-align', 'center')
+
+  // `grid` rules between columns; `rows` does not. Both are drawn from the
+  // wrapper, so a cell never has to be told what its table decided.
+  const grid = page.getByRole('table', { name: 'grid example' })
+  await expect(grid.locator('tbody tr').first().locator('td').first()).toHaveCSS('border-right-width', '1px')
+  const rows = page.getByRole('table', { name: 'rows example' })
+  await expect(rows.locator('tbody tr').first().locator('td').first()).toHaveCSS('border-right-width', '0px')
+})
+
+test('searchable menu: the filter narrows nine actions to one', async ({ page }) => {
+  await page.goto('/components/searchable-menu/')
+  await ready(page)
+
+  await page.getByRole('button', { name: 'Actions' }).first().click()
+  const list = page.getByRole('listbox')
+  await expect(list.getByRole('option')).toHaveCount(9)
+
+  // Keywords search too: "iframe" is nowhere in the visible label.
+  await page.getByPlaceholder('Filter actions…').fill('iframe')
+  await expect(list.getByRole('option')).toHaveCount(1)
+  await page.keyboard.press('Enter')
+
+  await expect(page.getByText('ran: Copy embed code')).toBeVisible()
+  await expect(list).toBeHidden()
+})
+
+test('date picker: a shortcut fills both ends of the range at once', async ({ page }) => {
+  await page.goto('/components/date-picker/')
+  await ready(page)
+
+  const trigger = page.getByRole('button', { name: 'Reporting period' }).first()
+  await trigger.click()
+  await page.getByRole('button', { name: 'Last 30 days' }).click()
+
+  // A preset is a complete value, so unlike picking a start date it closes.
+  await expect(page.locator('.rdp-root')).toBeHidden()
+  await expect(trigger).toHaveText(/\w+ \d+, \d{4} – \w+ \d+, \d{4}/)
+})
+
+test('calendar: the year picker is our listbox, and the day it selects is round', async ({ page }) => {
+  await page.goto('/components/calendar/')
+  await ready(page)
+
+  // Not the native <select>, whose thousand-row list opened pinned to the top
+  // of the screen. Ours is the same popover every other Select uses.
+  const year = page.getByRole('combobox', { name: /Choose the Year/ }).first()
+  await year.click()
+  const options = page.getByRole('listbox').getByRole('option')
+  await expect(options).toHaveCount(21)
+  const box = await page.getByRole('listbox').boundingBox()
+  expect(box!.height).toBeLessThan(400)
+  await page.keyboard.press('Escape')
+
+  const day = page.locator('.rdp-root').getByRole('button', { name: /15th/ }).first()
+  await day.click()
+  // react-day-picker states the selection in the label, not in aria-selected.
+  await expect(day).toHaveAttribute('aria-label', /selected/)
+  // The pill radius, not the square that a doubled range-end override produced.
+  const radius = await day.evaluate((el) => getComputedStyle(el).borderTopLeftRadius)
+  expect(Number.parseFloat(radius)).toBeGreaterThan(8)
+  await expect(day).toHaveCSS('background-color', /rgba?\((?!0, 0, 0, 0)/)
+})

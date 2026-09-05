@@ -9,6 +9,114 @@ import { Popover, PopoverContent, PopoverTrigger } from '../Popover/Popover'
 
 export type { DateRange }
 
+/** A named shortcut in the rail beside the calendar. */
+export interface DatePreset<T> {
+  label: string
+  /** Computed when clicked, not when rendered — "today" must mean today. */
+  value: () => T
+}
+
+/** `n` days back from today, inclusive of today. */
+const daysAgo = (n: number): DateRange => {
+  const to = new Date()
+  const from = new Date()
+  from.setDate(from.getDate() - (n - 1))
+  return { from, to }
+}
+
+/**
+ * The shortcuts a range picker is asked for on nearly every screen it appears
+ * on, so they ship rather than being rebuilt per dashboard.
+ *
+ * Computed on click: a preset list built at render time freezes "today" at
+ * whenever the page loaded, which is wrong for anything left open overnight.
+ */
+export const RANGE_PRESETS: DatePreset<DateRange>[] = [
+  { label: 'Last 7 days', value: () => daysAgo(7) },
+  { label: 'Last 30 days', value: () => daysAgo(30) },
+  { label: 'Last 90 days', value: () => daysAgo(90) },
+  { label: 'Last 12 months', value: () => daysAgo(365) },
+  {
+    label: 'Month to date',
+    value: () => {
+      const to = new Date()
+      return { from: new Date(to.getFullYear(), to.getMonth(), 1), to }
+    },
+  },
+  {
+    label: 'Year to date',
+    value: () => {
+      const to = new Date()
+      return { from: new Date(to.getFullYear(), 0, 1), to }
+    },
+  },
+]
+
+/** The single-date equivalent. */
+export const DATE_PRESETS: DatePreset<Date>[] = [
+  { label: 'Today', value: () => new Date() },
+  {
+    label: 'Tomorrow',
+    value: () => {
+      const date = new Date()
+      date.setDate(date.getDate() + 1)
+      return date
+    },
+  },
+  {
+    label: 'In a week',
+    value: () => {
+      const date = new Date()
+      date.setDate(date.getDate() + 7)
+      return date
+    },
+  },
+  {
+    label: 'In a month',
+    value: () => {
+      const date = new Date()
+      date.setMonth(date.getMonth() + 1)
+      return date
+    },
+  },
+]
+
+/**
+ * The rail of shortcuts.
+ *
+ * A `<nav>`-less list of plain buttons rather than a menu: they set the same
+ * value the grid beside them sets, so they are part of one control and should
+ * Tab in the same pass rather than opening something.
+ */
+function PresetRail<T>({
+  presets,
+  onPick,
+  label,
+}: {
+  presets: DatePreset<T>[]
+  onPick: (value: T) => void
+  label: string
+}) {
+  return (
+    <div
+      role="group"
+      aria-label={label}
+      className="flex shrink-0 flex-col gap-0.5 border-b border-(--rule) p-2 sm:border-b-0 sm:border-e max-sm:flex-row max-sm:flex-wrap"
+    >
+      {presets.map((preset) => (
+        <button
+          key={preset.label}
+          type="button"
+          onClick={() => onPick(preset.value())}
+          className="rounded-(--radius-sm) px-2.5 py-1.5 text-start text-[13px] text-(--ink-2) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)"
+        >
+          {preset.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 const TRIGGER =
   'flex w-full items-center justify-between gap-2 rounded-(--radius) border border-(--rule-2) bg-(--paper) px-(--field-px) py-(--field-py) text-start text-sm transition-colors duration-(--duration-fast) hover:border-(--rule-hard) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none'
 
@@ -34,6 +142,11 @@ export interface DatePickerProps {
   disabledDates?: ComponentProps<typeof Calendar>['disabled']
   /** How the chosen date is printed on the trigger. */
   format?: (date: Date) => string
+  /**
+   * Shortcuts shown beside the grid. Pass `true` for the built-in set, an array
+   * for your own, or leave it off for none.
+   */
+  presets?: boolean | DatePreset<Date>[]
   className?: string
 }
 
@@ -62,8 +175,10 @@ export function DatePicker({
   disabled = false,
   disabledDates,
   format = formatDate,
+  presets,
   className,
 }: DatePickerProps) {
+  const rail = presets === true ? DATE_PRESETS : presets || undefined
   const [open, setOpen] = useState(false)
   const [uncontrolled, setUncontrolled] = useState<Date | undefined>(defaultValue)
   const current = value ?? uncontrolled
@@ -85,7 +200,16 @@ export function DatePicker({
         <CalendarDays size={14} strokeWidth={1.5} aria-hidden className="shrink-0 text-(--ink-3-aa)" />
       </PopoverTrigger>
       <PopoverContent label={label} align="start" className="w-auto overflow-hidden p-0">
-        <Calendar mode="single" selected={current} onSelect={choose} disabled={disabledDates} autoFocus />
+        <div className="flex flex-col sm:flex-row">
+          {rail && <PresetRail presets={rail} onPick={choose} label={`${label} shortcuts`} />}
+          <Calendar
+            mode="single"
+            selected={current}
+            onSelect={choose}
+            disabled={disabledDates}
+            autoFocus
+          />
+        </div>
       </PopoverContent>
     </Popover>
   )
@@ -102,6 +226,15 @@ export interface DateRangePickerProps {
   /** How many months are shown side by side. Falls back to one under `sm`. */
   months?: number
   format?: (date: Date) => string
+  /**
+   * Shortcuts shown beside the grid — Last 30 days and its neighbours. `true`
+   * for the built-in set, an array for your own.
+   *
+   * On by default here and off on the single picker, because "last 30 days" is
+   * most of what a range picker is ever asked for, while a single date is
+   * usually a specific one.
+   */
+  presets?: boolean | DatePreset<DateRange>[]
   className?: string
 }
 
@@ -130,8 +263,10 @@ export function DateRangePicker({
   disabledDates,
   months = 2,
   format = formatDate,
+  presets = true,
   className,
 }: DateRangePickerProps) {
+  const rail = presets === true ? RANGE_PRESETS : presets || undefined
   const [open, setOpen] = useState(false)
   const [uncontrolled, setUncontrolled] = useState<DateRange | undefined>(defaultValue)
   const current = value ?? uncontrolled
@@ -177,14 +312,30 @@ export function DateRangePicker({
         <CalendarDays size={14} strokeWidth={1.5} aria-hidden className="shrink-0 text-(--ink-3-aa)" />
       </PopoverTrigger>
       <PopoverContent label={label} align="start" className="w-auto overflow-hidden p-0">
-        <Calendar
-          mode="range"
-          selected={current}
-          onSelect={choose}
-          disabled={disabledDates}
-          numberOfMonths={months}
-          autoFocus
-        />
+        <div className="flex flex-col sm:flex-row">
+          {rail && (
+            <PresetRail
+              presets={rail}
+              onPick={(next) => {
+                // A preset is a complete range in one gesture, so the panel
+                // closes — unlike a first click on the grid, which is half an
+                // answer.
+                if (value === undefined) setUncontrolled(next)
+                onValueChange?.(next)
+                setOpen(false)
+              }}
+              label={`${label} shortcuts`}
+            />
+          )}
+          <Calendar
+            mode="range"
+            selected={current}
+            onSelect={choose}
+            disabled={disabledDates}
+            numberOfMonths={months}
+            autoFocus
+          />
+        </div>
       </PopoverContent>
     </Popover>
   )
