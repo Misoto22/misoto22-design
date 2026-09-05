@@ -79,17 +79,43 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy out --project-name=misoto22-ui --branch=main
 
-      - name: Smoke-test the live routes
+      # Two checks, because they can fail independently and for different
+      # reasons: the deployment can be broken, or the custom domain can have
+      # come detached from the project.
+      #
+      # The routes are checked on the project's own *.pages.dev host rather than
+      # on ui.misoto22.com. The custom domain sits behind the misoto22.com
+      # zone's bot protection, which answers a GitHub runner with 403 — a real
+      # 403 that says nothing at all about whether the site works. Checking the
+      # origin the deployment actually serves is the honest test; the domain
+      # attachment is then verified through the API, where a runner is a first-
+      # class client.
+      - name: Smoke-test the deployed routes
         run: |
           set -euo pipefail
-          # Pages serves the new deployment behind the custom domain within a
-          # few seconds; give it a short grace period before failing the run.
           for route in / /components/ /components/button/ /foundations/colour/ /principles/; do
             for attempt in 1 2 3 4 5 6; do
-              status=$(curl -sS -o /dev/null -w '%{http_code}' "https://ui.misoto22.com${route}" || echo 000)
+              status=$(curl -sS -o /dev/null -w '%{http_code}' "https://misoto22-ui.pages.dev${route}" || echo 000)
               [ "$status" = "200" ] && break
               sleep 10
             done
             echo "${route} -> ${status}"
             [ "$status" = "200" ] || exit 1
           done
+
+      - name: Confirm ui.misoto22.com is still attached to the project
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          curl -sS -H "Authorization: Bearer $CF_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/misoto22-ui/domains" \
+            | python3 -c "
+          import json, sys
+          domains = json.load(sys.stdin)['result']
+          found = [d for d in domains if d['name'] == 'ui.misoto22.com']
+          if not found:
+              sys.exit('ui.misoto22.com is not attached to the misoto22-ui project')
+          print('ui.misoto22.com ->', found[0]['status'])
+          "
