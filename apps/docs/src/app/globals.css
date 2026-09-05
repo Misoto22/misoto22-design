@@ -103,23 +103,36 @@
    accents to actually need it.
 
    Each is checked against paper and against the dark ground below. */
+/* Every accent's own colour, readable no matter which accent is ACTIVE.
+   A picker has to draw all five at once, and `--accent` only ever holds the
+   chosen one. These are also the source the blocks below read, so a hue is
+   written once per theme rather than once per consumer — a swatch hardcoded in
+   TypeScript was invisible against the dark ground, which is how this started. */
+:root {
+  --swatch-ink: #101010;
+  --swatch-clay: #8a3f24;
+  --swatch-forest: #2f5d42;
+  --swatch-cobalt: #2b4c9b;
+  --swatch-plum: #6b3a72;
+}
+
 [data-accent='clay'] {
-  --clay: #8a3f24;
+  --clay: var(--swatch-clay);
   --clay-ink: #7a3720;
   --red-soft: rgba(138, 63, 36, 0.1);
 }
 [data-accent='forest'] {
-  --clay: #2f5d42;
+  --clay: var(--swatch-forest);
   --clay-ink: #2a5439;
   --red-soft: rgba(47, 93, 66, 0.1);
 }
 [data-accent='cobalt'] {
-  --clay: #2b4c9b;
+  --clay: var(--swatch-cobalt);
   --clay-ink: #27448a;
   --red-soft: rgba(43, 76, 155, 0.1);
 }
 [data-accent='plum'] {
-  --clay: #6b3a72;
+  --clay: var(--swatch-plum);
   --clay-ink: #613468;
   --red-soft: rgba(107, 58, 114, 0.1);
 }
@@ -128,23 +141,31 @@
    accent that only had a light-mode value would fail contrast the moment
    someone switched theme — which is the failure the two-block theme used to
    have, and the reason the token layer swaps by value rather than by block. */
+[data-mode='dark'] {
+  --swatch-ink: #f4f4f2;
+  --swatch-clay: #e08a68;
+  --swatch-forest: #7fbd97;
+  --swatch-cobalt: #8aaaf0;
+  --swatch-plum: #cf9dd6;
+}
+
 [data-mode='dark'][data-accent='clay'] {
-  --clay: #e08a68;
+  --clay: var(--swatch-clay);
   --clay-ink: #e8a184;
   --red-soft: rgba(224, 138, 104, 0.14);
 }
 [data-mode='dark'][data-accent='forest'] {
-  --clay: #7fbd97;
+  --clay: var(--swatch-forest);
   --clay-ink: #98caab;
   --red-soft: rgba(127, 189, 151, 0.14);
 }
 [data-mode='dark'][data-accent='cobalt'] {
-  --clay: #8aaaf0;
+  --clay: var(--swatch-cobalt);
   --clay-ink: #a3bcf4;
   --red-soft: rgba(138, 170, 240, 0.14);
 }
 [data-mode='dark'][data-accent='plum'] {
-  --clay: #cf9dd6;
+  --clay: var(--swatch-plum);
   --clay-ink: #dab0e0;
   --red-soft: rgba(207, 157, 214, 0.14);
 }

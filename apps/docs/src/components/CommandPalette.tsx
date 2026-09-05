@@ -3,17 +3,33 @@
 import {
   CommandDialog,
   CommandEmpty,
+  CommandFooter,
   CommandGroup,
+  CommandHint,
   CommandInput,
   CommandItem,
   CommandList,
   CommandSeparator,
 } from '@misoto22/design'
+import {
+  Box,
+  Circle,
+  History,
+  House,
+  LayoutGrid,
+  LayoutTemplate,
+  Move,
+  Palette,
+  Ruler,
+  Scale,
+  SunMoon,
+  Type,
+} from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { ACCENTS, useAccent } from './AccentProvider'
 import { FOUNDATIONS } from '@/content/foundations'
-import { COMPONENTS, groupedComponents } from '@/content/registry'
+import { COMPONENTS } from '@/content/registry'
 import { componentCopy, foundationCopy, groupName } from '@/i18n/content'
 import { localePath } from '@/i18n/locales'
 import { useLocale, useMessages } from '@/i18n/useLocale'
@@ -28,7 +44,19 @@ import { useLocale, useMessages } from '@/i18n/useLocale'
  *
  * The list is the same registry the sidebar reads, so a new component appears
  * in both or in neither.
+ *
+ * Every row carries a glyph and, for a component, its group. Forty rows of bare
+ * text cannot be scanned — the eye sorts by shape before it reads, and the
+ * first version gave it nothing to sort.
  */
+
+/** One icon per foundation page, keyed by slug. */
+const FOUNDATION_ICON: Record<string, typeof Palette> = {
+  colour: Palette,
+  typography: Type,
+  space: Ruler,
+  motion: Move,
+}
 export function CommandPalette() {
   const [open, setOpen] = useState(false)
   const router = useRouter()
@@ -61,63 +89,49 @@ export function CommandPalette() {
         <CommandEmpty>{t.palette.empty}</CommandEmpty>
 
         <CommandGroup heading={t.palette.goTo}>
-          <CommandItem value="overview" onSelect={() => go('/')}>
+          <CommandItem value="overview" icon={<House />} onSelect={() => go('/')}>
             {t.nav.overview}
           </CommandItem>
-          <CommandItem value="principles" onSelect={() => go('/principles/')}>
+          <CommandItem value="principles" icon={<Scale />} onSelect={() => go('/principles/')}>
             {t.nav.principles}
           </CommandItem>
-          <CommandItem value="components index" onSelect={() => go('/components/')}>
+          <CommandItem
+            value="components index"
+            icon={<LayoutGrid />}
+            meta={String(COMPONENTS.length)}
+            onSelect={() => go('/components/')}
+          >
             {t.nav.allComponents}
           </CommandItem>
-          <CommandItem value="templates" onSelect={() => go('/templates/')}>
+          <CommandItem value="templates" icon={<LayoutTemplate />} onSelect={() => go('/templates/')}>
             {t.nav.templates}
           </CommandItem>
-          <CommandItem value="changelog" onSelect={() => go('/changelog/')}>
+          <CommandItem value="changelog" icon={<History />} onSelect={() => go('/changelog/')}>
             {t.nav.changelog}
           </CommandItem>
-          {FOUNDATIONS.map((page) => (
-            <CommandItem
-              key={page.slug}
-              value={`foundations ${page.title}`}
-              onSelect={() => go(`/foundations/${page.slug}/`)}
-            >
-              {foundationCopy(locale, page.slug).title ?? page.title}
-            </CommandItem>
-          ))}
+          {FOUNDATIONS.map((page) => {
+            const Icon = FOUNDATION_ICON[page.slug] ?? Box
+            return (
+              <CommandItem
+                key={page.slug}
+                value={`foundations ${page.title}`}
+                icon={<Icon />}
+                onSelect={() => go(`/foundations/${page.slug}/`)}
+              >
+                {foundationCopy(locale, page.slug).title ?? page.title}
+              </CommandItem>
+            )
+          })}
         </CommandGroup>
 
         <CommandSeparator />
-
-        {groupedComponents().map((section) => (
-          <CommandGroup key={section.group} heading={groupName(locale, section.group)}>
-            {section.entries.map((entry) => (
-              <CommandItem
-                key={entry.slug}
-                // The summary is in the searchable text but not on the row: a
-                // palette that prints a sentence per option stops being
-                // scannable at about six of them.
-                value={entry.name}
-                keywords={[
-                  entry.summary,
-                  componentCopy(locale, entry.slug).summary ?? '',
-                  entry.group,
-                  groupName(locale, entry.group),
-                  entry.dir,
-                ]}
-                onSelect={() => go(`/components/${entry.slug}/`)}
-              >
-                {entry.name}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        ))}
 
         <CommandSeparator />
 
         <CommandGroup heading={t.palette.appearance}>
           <CommandItem
             value="toggle theme light dark"
+            icon={<SunMoon />}
             onSelect={() => {
               const next = document.documentElement.dataset.mode === 'dark' ? 'light' : 'dark'
               document.documentElement.dataset.mode = next
@@ -135,19 +149,63 @@ export function CommandPalette() {
             <CommandItem
               key={option.id}
               value={`accent ${option.name}`}
+              icon={
+                <Circle
+                  // The swatch IS the answer to "what does this one look like",
+                  // which a row of five names cannot give.
+                  className="fill-current"
+                  style={{ color: option.swatch }}
+                />
+              }
+              meta={accent === option.id ? t.appearance.current : undefined}
               onSelect={() => {
                 setAccent(option.id)
                 setOpen(false)
               }}
             >
               {t.appearance.accentTitle}: {option.name}
-              {accent === option.id && (
-                <span className="ms-auto mono-meta text-(--ink-3-aa)">{t.appearance.current}</span>
-              )}
             </CommandItem>
           ))}
         </CommandGroup>
+        <CommandSeparator />
+
+        {/* One group, not one per section. cmdk ranks WITHIN a group and renders
+            groups in DOM order, so with a group per section an exact match on a
+            late section sank below loose matches in an early one — typing
+            "table" listed Tag, FigureBand and Alert above Table. The section is
+            still on every row, as its meta. */}
+        <CommandGroup heading={t.palette.components}>
+          {COMPONENTS.map((entry) => (
+            <CommandItem
+              key={entry.slug}
+              // The summary is searchable but not printed: a palette that shows
+              // a sentence per option stops being scannable at about six.
+              value={entry.name}
+              keywords={[
+                entry.summary,
+                componentCopy(locale, entry.slug).summary ?? '',
+                entry.group,
+                groupName(locale, entry.group),
+                entry.dir,
+              ]}
+              icon={<Box />}
+              // The group again on the row, because a filtered list has no
+              // headings to read it from.
+              meta={groupName(locale, entry.group)}
+              onSelect={() => go(`/components/${entry.slug}/`)}
+            >
+              {entry.name}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+
       </CommandList>
+
+      <CommandFooter>
+        <CommandHint keys={['↑', '↓']}>{t.palette.navigate}</CommandHint>
+        <CommandHint keys={['↵']}>{t.palette.open}</CommandHint>
+        <CommandHint keys={['esc']}>{t.palette.close}</CommandHint>
+      </CommandFooter>
     </CommandDialog>
   )
 }

@@ -6,6 +6,7 @@ export interface AccentOption {
   id: string
   name: string
   /** The swatch shown in the picker — the accent as it renders on paper. */
+  /** A `var()` reference, not a hex: the swatch has to swap with the theme. */
   swatch: string
   note: string
 }
@@ -24,11 +25,11 @@ export interface AccentOption {
  * is the constraint that actually limits the choice.
  */
 export const ACCENTS: AccentOption[] = [
-  { id: 'ink', name: 'Ink', swatch: '#101010', note: 'The system as it ships — law 7, one pointer, and the pointer is the mark.' },
-  { id: 'clay', name: 'Clay', swatch: '#8a3f24', note: 'The warm editorial red the site carried before the White Reset.' },
-  { id: 'forest', name: 'Forest', swatch: '#2f5d42', note: 'A cool neutral green — quiet enough to sit under a lot of type.' },
-  { id: 'cobalt', name: 'Cobalt', swatch: '#2b4c9b', note: 'The most conventional software blue that still clears AA on paper.' },
-  { id: 'plum', name: 'Plum', swatch: '#6b3a72', note: 'A darker chroma for a brand that wants presence without heat.' },
+  { id: 'ink', name: 'Ink', swatch: 'var(--swatch-ink)', note: 'The system as it ships — law 7, one pointer, and the pointer is the mark.' },
+  { id: 'clay', name: 'Clay', swatch: 'var(--swatch-clay)', note: 'The warm editorial red the site carried before the White Reset.' },
+  { id: 'forest', name: 'Forest', swatch: 'var(--swatch-forest)', note: 'A cool neutral green — quiet enough to sit under a lot of type.' },
+  { id: 'cobalt', name: 'Cobalt', swatch: 'var(--swatch-cobalt)', note: 'The most conventional software blue that still clears AA on paper.' },
+  { id: 'plum', name: 'Plum', swatch: 'var(--swatch-plum)', note: 'A darker chroma for a brand that wants presence without heat.' },
 ]
 
 const STORAGE_KEY = 'm22-accent'

@@ -68,7 +68,7 @@ export function CommandList({
 }: ComponentProps<typeof CommandPrimitive.List>) {
   return (
     <CommandPrimitive.List
-      className={cn('max-h-72 overflow-y-auto overflow-x-hidden p-1.5 scroll-slim', className)}
+      className={cn('max-h-72 overflow-y-auto overflow-x-hidden p-2 scroll-slim', className)}
       {...props}
     />
   )
@@ -78,9 +78,53 @@ export function CommandList({
 export function CommandEmpty(props: ComponentProps<typeof CommandPrimitive.Empty>) {
   return (
     <CommandPrimitive.Empty
-      className="px-3 py-8 text-center text-sm text-(--ink-3-aa)"
+      className="px-3 py-10 text-center text-sm text-(--ink-3-aa)"
       {...props}
     />
+  )
+}
+
+/**
+ * The key-hint strip along the bottom.
+ *
+ * A palette is a keyboard surface whose keys are invisible: nothing on screen
+ * says the arrows move the row or that Enter runs it, and a reader who reaches
+ * for the mouse has been failed by the design rather than by themselves.
+ *
+ * @example
+ * <CommandFooter>
+ *   <CommandHint keys={['↑', '↓']}>navigate</CommandHint>
+ *   <CommandHint keys={['↵']}>open</CommandHint>
+ * </CommandFooter>
+ */
+export function CommandFooter({ className, ...props }: ComponentProps<'div'>) {
+  return (
+    <div
+      className={cn(
+        'flex items-center gap-4 border-t border-(--rule) bg-(--paper-2) px-3.5 py-2',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+export interface CommandHintProps extends Omit<ComponentProps<'span'>, 'children'> {
+  /** The keys this hint describes, printed as `Kbd` chips. */
+  keys: string[]
+  /** What they do — a verb, lowercase, no sentence. */
+  children: ReactNode
+}
+
+/** One key-and-verb pair inside a `CommandFooter`. */
+export function CommandHint({ keys, children, className, ...props }: CommandHintProps) {
+  return (
+    <span className={cn('flex items-center gap-1.5 mono-meta text-(--ink-3-aa)', className)} {...props}>
+      {keys.map((key) => (
+        <Kbd key={key}>{key}</Kbd>
+      ))}
+      {children}
+    </span>
   )
 }
 
@@ -125,19 +169,44 @@ export function CommandSeparator({
 export interface CommandItemProps extends ComponentProps<typeof CommandPrimitive.Item> {
   /** A shortcut printed at the end of the row. */
   shortcut?: string
+  /**
+   * A leading glyph. Pass the icon element, sized 16.
+   *
+   * It is what makes a long list scannable — the eye sorts by shape before it
+   * reads, and forty identical rows of text defeat that.
+   */
+  icon?: ReactNode
+  /**
+   * A quiet note at the end of the row — what kind of thing this is, or its
+   * current state. Not a description: a palette that prints a sentence per row
+   * stops being scannable at about six of them.
+   */
+  meta?: ReactNode
 }
 
-export function CommandItem({ shortcut, className, children, ...props }: CommandItemProps) {
+export function CommandItem({ shortcut, icon, meta, className, children, ...props }: CommandItemProps) {
   return (
     <CommandPrimitive.Item
       className={cn(
-        'flex cursor-pointer items-center gap-2.5 rounded-(--radius-sm) px-2.5 py-2 text-sm text-(--ink-2) outline-none transition-colors duration-(--duration-fast) data-[selected=true]:bg-(--stone) data-[selected=true]:text-(--ink) data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-(--disabled-opacity)',
+        'flex cursor-pointer items-center gap-2.5 rounded-(--radius-sm) px-2.5 py-2 text-sm text-(--ink-2) outline-none transition-colors duration-(--duration-fast)',
+        // The highlighted row is a chosen state, and law 7 says a chosen state
+        // reads --accent. The leading rule gives it an edge the eye catches
+        // while scrolling, which a fill alone does not.
+        'relative data-[selected=true]:bg-(--accent-muted) data-[selected=true]:text-(--ink)',
+        'before:absolute before:inset-y-1 before:start-0 before:w-0.5 before:rounded-(--radius-pill) before:bg-transparent data-[selected=true]:before:bg-(--accent)',
+        'data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-(--disabled-opacity)',
         className,
       )}
       {...props}
     >
+      {icon && (
+        <span className="grid size-4 shrink-0 place-items-center text-(--ink-3-aa) [&_svg]:size-4">
+          {icon}
+        </span>
+      )}
       {children}
-      {shortcut && <Kbd className="ms-auto">{shortcut}</Kbd>}
+      {meta && <span className="ms-auto ps-3 mono-meta text-(--ink-3-aa)">{meta}</span>}
+      {shortcut && <Kbd className={cn(meta ? '' : 'ms-auto')}>{shortcut}</Kbd>}
     </CommandPrimitive.Item>
   )
 }
@@ -163,9 +232,14 @@ export function CommandDialog({ open, onOpenChange, label, children }: CommandDi
         title={label}
         hideTitle
         showClose={false}
-        className="w-[min(92vw,34rem)] overflow-hidden p-0"
+        // Above centre, not at it. A palette is read as a layer over the page
+        // rather than as a message about it, and centring it puts the list
+        // under the reader's own hands on a laptop.
+        className="top-[12vh] w-[min(92vw,40rem)] translate-y-0 overflow-hidden p-0"
       >
-        <Command label={label} className="rounded-none border-0">
+        {/* The modal has the whole screen, so its list may be taller than the
+            default an inline menu should keep. */}
+        <Command label={label} className="rounded-none border-0 [&_[cmdk-list]]:max-h-[22rem]">
           {children}
         </Command>
       </DialogContent>

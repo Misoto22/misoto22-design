@@ -84,10 +84,14 @@ const en = {
   palette: {
     label: 'Command palette',
     placeholder: 'Jump to a component, a page, or change the theme…',
-    empty: 'Nothing matches that.',
+    empty: 'Nothing matches that. Try a component name, a group, or “dark”.',
     goTo: 'Go to',
+    components: 'Components',
     appearance: 'Appearance',
     toggleTheme: 'Toggle light / dark',
+    navigate: 'navigate',
+    open: 'open',
+    close: 'close',
   },
   apiNote:
     'The API reference below — prop descriptions, notes and type signatures — is read straight out of the package source and stays in English.',
@@ -180,10 +184,14 @@ const zh: Messages = {
   palette: {
     label: '命令面板',
     placeholder: '跳到某个组件、某个页面，或切换主题…',
-    empty: '没有匹配的结果。',
+    empty: '没有匹配的结果。试试组件名、分组，或者输入 “dark”。',
     goTo: '前往',
+    components: '组件',
     appearance: '外观',
     toggleTheme: '切换亮色 / 暗色',
+    navigate: '移动',
+    open: '打开',
+    close: '关闭',
   },
   apiNote:
     '下方的 API 参考——属性说明、注释与类型签名——直接来自包的源码，保持英文。',
