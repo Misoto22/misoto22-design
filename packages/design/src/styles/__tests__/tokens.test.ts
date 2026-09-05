@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -9,6 +9,23 @@ const read = (file: string) => readFileSync(join(HERE, '..', file), 'utf8')
 const TOKENS = read('tokens.css')
 const SEMANTIC = read('semantic.css')
 const FONTS = read('fonts.css')
+
+const COMPONENTS = join(HERE, '..', '..', 'components')
+
+/** Every component source, as `[file, text]`. */
+function componentSources(): [string, string][] {
+  return readdirSync(COMPONENTS)
+    .filter((entry) => statSync(join(COMPONENTS, entry)).isDirectory())
+    .map((dir) => [`${dir}/${dir}.tsx`, join(COMPONENTS, dir, `${dir}.tsx`)] as const)
+    .filter(([, path]) => {
+      try {
+        return statSync(path).isFile()
+      } catch {
+        return false
+      }
+    })
+    .map(([file, path]) => [file, readFileSync(path, 'utf8')])
+}
 
 /** Declarations as `[name, value]`, comments stripped. */
 function declarations(css: string): [string, string][] {
@@ -81,5 +98,61 @@ describe('the semantic layer', () => {
       .flatMap(([, value]) => [...value.matchAll(/var\(\s*(--[\w-]+)/g)].map((m) => m[1]!.slice(2)))
       .filter((name) => !primitives.has(name) && !aliases.has(name))
     expect([...new Set(dangling)]).toEqual([])
+  })
+})
+
+describe('lengths inside calc()', () => {
+  /**
+   * A unitless zero is not a length, and `calc()` will not take one.
+   *
+   * This is the same IACVT trap the font stacks above guard, reached from the
+   * other side. `--table-pad-x` was `0`, which is a perfectly good value for
+   * `padding-inline: var(--table-pad-x)` — and makes `calc(0 + 1.5rem)` invalid
+   * at computed-value time the moment a second rule adds to it. The declaration
+   * is discarded whole rather than falling back, so the table lost its column
+   * gutter everywhere and nothing said so: no build error, no console warning,
+   * and an `align="end"` column simply touching its neighbour.
+   *
+   * Anything a `calc()` reads must therefore carry a unit, fallbacks included.
+   */
+  const CALC = /calc\((?:[^()]|\([^()]*\))*\)/g
+  const VAR = /var\(\s*(--[\w-]+)\s*(?:,\s*([^()]*?)\s*)?\)/g
+  const UNITLESS_ZERO = /^[+-]?0+(?:\.0+)?$/
+
+  /** Every `calc()` in the system, with the file that writes it. */
+  function calcExpressions(): [string, string][] {
+    const sources: [string, string][] = [
+      ['tokens.css', TOKENS],
+      ['semantic.css', SEMANTIC],
+      ...componentSources(),
+    ]
+    return sources.flatMap(([file, text]) =>
+      [...text.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(CALC)].map(
+        (match) => [file, match[0]] as [string, string],
+      ),
+    )
+  }
+
+  it('reads no token that is declared as a bare zero', () => {
+    const declared = new Map(declarations(TOKENS))
+    const offenders = calcExpressions().flatMap(([file, expression]) =>
+      [...expression.matchAll(VAR)]
+        .map((match) => match[1]!.slice(2))
+        .filter((name) => UNITLESS_ZERO.test(declared.get(name) ?? ''))
+        .map((name) => `${file}: ${expression} reads --${name}: ${declared.get(name)}`),
+    )
+    expect(offenders).toEqual([])
+  })
+
+  it('writes no bare zero as an inline fallback', () => {
+    // `var(--x, 0)` is discarded exactly like `var(--x)` pointing at a bare
+    // zero — and it is the harder one to spot, because it looks like a default
+    // that makes the calc safe.
+    const offenders = calcExpressions().flatMap(([file, expression]) =>
+      [...expression.matchAll(VAR)]
+        .filter((match) => match[2] !== undefined && UNITLESS_ZERO.test(match[2]))
+        .map((match) => `${file}: ${expression} falls back to ${match[2]}`),
+    )
+    expect(offenders).toEqual([])
   })
 })
