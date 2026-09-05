@@ -31,7 +31,7 @@ export function StatusPill({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-2.5 rounded-(--radius-pill) border border-(--rule-2) bg-(--paper) py-1.5 pl-2.5 pr-3 eyebrow tracking-[0.12em] text-(--ink-2)',
+        'inline-flex items-center gap-2.5 rounded-(--radius-pill) border border-(--rule-2) bg-(--paper) py-1.5 ps-2.5 pe-3 eyebrow tracking-[0.12em] text-(--ink-2)',
         className,
       )}
       {...rest}

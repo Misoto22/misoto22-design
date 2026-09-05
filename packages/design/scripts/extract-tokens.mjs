@@ -1,11 +1,13 @@
 /**
- * Reads the design package's CSS and emits the token tables the Foundations
- * pages render.
+ * Parses the package's own CSS into structured tokens.
  *
- * The alternative — a hand-kept list of swatches — is the same trap as a
- * hand-kept prop table, and worse: a colour chip that no longer matches the
- * token it names is a documentation site actively misleading the person reading
- * it. Here the page cannot show a token the CSS does not declare.
+ * This lives in the PACKAGE, not in the documentation site, because the answer
+ * it produces is not a documentation concern: a Satori card, a native app, a
+ * Figma sync and a build script all need the token values, and none of them can
+ * read a stylesheet. Shipping `dist/tokens.json` beside `dist/tokens.css` means
+ * there is one parser and one answer rather than one per consumer.
+ *
+ * The documentation site is simply the first consumer.
  *
  * Comments are carried through, because in this system the comment above a
  * token is usually the only place the REASON for it is written down.
@@ -52,6 +54,7 @@ function parseBody(body) {
  * unrecognised one lands in `other`, visibly, rather than vanishing.
  */
 function classify(name, value) {
+  if (/^(control-|field-)/.test(name)) return 'density'
   if (/^(fs-|sans|serif|mono|cjk-|lh-|ls-)/.test(name)) return 'type'
   if (/^radius/.test(name)) return 'radius'
   if (/^(ease|fast|mid|slow|duration)/.test(name)) return 'motion'

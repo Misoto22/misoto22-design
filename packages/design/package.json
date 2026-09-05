@@ -23,14 +23,19 @@
     "./tokens.css": "./dist/tokens.css",
     "./semantic.css": "./dist/semantic.css",
     "./keyframes.css": "./dist/keyframes.css",
-    "./fonts.css": "./dist/fonts.css"
+    "./fonts.css": "./dist/fonts.css",
+    "./tokens.json": "./dist/tokens.json",
+    "./tokens": {
+      "types": "./dist/tokens.d.ts",
+      "import": "./dist/tokens.js"
+    }
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "build:fonts": "node scripts/vendor-fonts.mjs",
     "build:js": "NODE_OPTIONS=--max-old-space-size=6144 tsup",
-    "build:css": "tailwindcss -i ./src/styles/index.css -o ./dist/styles.css --minify && node scripts/copy-portable-css.mjs",
+    "build:css": "tailwindcss -i ./src/styles/index.css -o ./dist/styles.css --minify && node scripts/copy-portable-css.mjs && node scripts/emit-tokens.mjs",
     "build": "pnpm run build:fonts && pnpm run build:js && pnpm run build:css",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",

@@ -14,7 +14,7 @@ export const DialogClose = DialogPrimitive.Close
 function DialogHeader({ title, description }: { title?: ReactNode; description?: ReactNode }) {
   if (title === undefined && description === undefined) return null
   return (
-    <div className="mb-4 flex flex-col gap-1 pr-8">
+    <div className="mb-4 flex flex-col gap-1 pe-8">
       {title !== undefined && (
         <DialogPrimitive.Title className="m-0 font-heading text-[length:var(--fs-item)] font-normal text-(--ink)">
           {title}
@@ -91,7 +91,7 @@ export function DialogContent({
         {showClose && (
           <DialogPrimitive.Close
             aria-label="Close"
-            className="absolute right-3 top-3 grid size-9 place-items-center rounded-(--radius-pill) text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)"
+            className="absolute end-3 top-3 grid size-9 place-items-center rounded-(--radius-pill) text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)"
           >
             <X size={16} strokeWidth={1.5} aria-hidden />
           </DialogPrimitive.Close>

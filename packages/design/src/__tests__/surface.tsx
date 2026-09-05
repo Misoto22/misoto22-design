@@ -169,7 +169,7 @@ export const SURFACE: SurfaceEntry[] = [
     />
   ) },
   { dir: 'FloatingIconButton', render: () => (
-    <FloatingIconButton position="right" label="Back to top"><span aria-hidden>↑</span></FloatingIconButton>
+    <FloatingIconButton position="end" label="Back to top"><span aria-hidden>↑</span></FloatingIconButton>
   ) },
   { dir: 'Input', render: () => <Field label="Search"><Input type="search" /></Field> },
   { dir: 'Kbd', render: () => <p>Press <Kbd>⌘</Kbd> <Kbd>K</Kbd></p> },

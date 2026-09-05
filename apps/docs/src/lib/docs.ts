@@ -45,6 +45,16 @@ export interface ExampleData {
   html: string
 }
 
+/** One token, as `@misoto22/design` emits it. */
+export interface TokenRecord {
+  layer: 'tokens' | 'semantic'
+  category: string
+  light: string
+  /** Absent when the token holds the same value in both themes. */
+  dark?: string
+  comment?: string
+}
+
 export interface TokenEntry {
   name: string
   value: string
@@ -56,10 +66,7 @@ const PROPS = propsJson as unknown as Record<string, ComponentSource>
 const EXAMPLES = examplesJson as unknown as Record<string, ExampleData[]>
 const SNIPPETS = snippetsJson as unknown as Record<string, string>
 const TYPES = typesJson as unknown as Record<string, HighlightedCode>
-const TOKENS = tokensJson as unknown as Record<
-  'tokens' | 'semantic',
-  { light: TokenEntry[]; dark: TokenEntry[] }
->
+const TOKENS = tokensJson as unknown as Record<string, TokenRecord>
 
 export function componentSource(dir: string): ComponentSource {
   return PROPS[dir] ?? { components: [], exportedTypes: [] }
@@ -111,20 +118,17 @@ export function tokensByCategory(category: string): {
   rows: TokenEntry[]
   dark: Map<string, string>
 } {
-  const light = [...TOKENS.tokens.light, ...TOKENS.semantic.light].filter(
-    (entry) => entry.category === category,
-  )
-  const dark = new Map(
-    [...TOKENS.tokens.dark, ...TOKENS.semantic.dark]
-      .filter((entry) => entry.category === category)
-      .map((entry) => [entry.name, entry.value]),
-  )
-  return { rows: light, dark }
+  const rows: TokenEntry[] = []
+  const dark = new Map<string, string>()
+  for (const [name, record] of Object.entries(TOKENS)) {
+    if (record.category !== category) continue
+    rows.push({ name, value: record.light, comment: record.comment, category: record.category })
+    if (record.dark) dark.set(name, record.dark)
+  }
+  return { rows, dark }
 }
 
 /** How many tokens the system declares, for the landing page's figure band. */
 export function tokenCount(): number {
-  return new Set(
-    [...TOKENS.tokens.light, ...TOKENS.semantic.light].map((entry) => entry.name),
-  ).size
+  return Object.keys(TOKENS).length
 }

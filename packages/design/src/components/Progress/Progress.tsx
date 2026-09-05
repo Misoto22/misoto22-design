@@ -52,13 +52,20 @@ export function Progress({ value = null, label, showValue = false, className, ..
           <span
             data-m22-animated
             // A quarter-width bar travelling the track. `transform` only, so it
-            // runs on the compositor and never triggers layout.
-            className="absolute inset-y-0 left-0 w-1/4 rounded-(--radius-pill) bg-(--ink) motion-safe:animate-[m22-sweep_1.4s_var(--ease)_infinite] motion-reduce:w-full motion-reduce:opacity-40"
+            // runs on the compositor and never triggers layout. `rtl:-scale-x-100`
+            // mirrors the whole motion rather than needing a second keyframe:
+            // in a right-to-left document the sweep has to run the other way, or
+            // it reads as progress running backwards.
+            className="absolute inset-y-0 start-0 w-1/4 rounded-(--radius-pill) bg-(--ink) rtl:-scale-x-100 motion-safe:animate-[m22-sweep_1.4s_var(--ease)_infinite] motion-reduce:w-full motion-reduce:opacity-40"
           />
         ) : (
           <ProgressPrimitive.Indicator
-            className="h-full rounded-(--radius-pill) bg-(--ink) transition-transform duration-(--duration-slow) ease-(--ease-out-expo)"
-            style={{ transform: `translateX(-${100 - clamped}%)` }}
+            // Width, not a translate. A `translateX(-N%)` fill has to be negated
+            // in a right-to-left document, and an inline style cannot carry a
+            // direction variant — so the bar grew from the wrong edge. Width
+            // grows from the inline start on its own, in either direction.
+            className="h-full rounded-(--radius-pill) bg-(--ink) transition-[width] duration-(--duration-slow) ease-(--ease-out-expo)"
+            style={{ width: `${clamped}%` }}
           />
         )}
       </ProgressPrimitive.Root>

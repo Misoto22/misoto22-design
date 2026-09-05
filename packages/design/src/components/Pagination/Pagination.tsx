@@ -59,7 +59,7 @@ export function paginationRange(page: number, pageCount: number, siblings = 1): 
 }
 
 const STEP =
-  'inline-flex size-9 items-center justify-center rounded-(--radius-pill) border transition-colors duration-(--duration-fast) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none'
+  'inline-flex size-(--control-h-sm) items-center justify-center rounded-(--radius-pill) border transition-colors duration-(--duration-fast) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none'
 
 /**
  * Numbered pagination.

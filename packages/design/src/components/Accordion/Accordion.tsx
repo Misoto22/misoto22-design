@@ -42,7 +42,7 @@ export function AccordionItem({ title, children, className, ...rest }: Accordion
       {...rest}
     >
       <AccordionPrimitive.Header className="m-0">
-        <AccordionPrimitive.Trigger className="group flex w-full items-center justify-between gap-4 py-4 text-left font-sans text-sm text-(--ink) transition-colors duration-(--duration-fast) hover:text-(--ink-2)">
+        <AccordionPrimitive.Trigger className="group flex w-full items-center justify-between gap-4 py-4 text-start font-sans text-sm text-(--ink) transition-colors duration-(--duration-fast) hover:text-(--ink-2)">
           {title}
           <Plus
             size={16}
@@ -53,7 +53,7 @@ export function AccordionItem({ title, children, className, ...rest }: Accordion
         </AccordionPrimitive.Trigger>
       </AccordionPrimitive.Header>
       <AccordionPrimitive.Content className="overflow-hidden text-sm leading-relaxed text-(--ink-2) data-[state=closed]:animate-[m22-accordion-up_var(--duration-base)_var(--ease)] data-[state=open]:animate-[m22-accordion-down_var(--duration-base)_var(--ease)]">
-        <div className="pb-4 pr-8">{children}</div>
+        <div className="pb-4 pe-8">{children}</div>
       </AccordionPrimitive.Content>
     </AccordionPrimitive.Item>
   )

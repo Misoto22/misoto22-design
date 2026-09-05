@@ -52,8 +52,23 @@ skips a second copy of the utilities:
 @custom-variant dark (&:is([data-mode='dark'] *));
 ```
 
-The mode is an attribute on `<html>` — `data-mode="dark"` — so it can be written
-by an inline script before the first paint and never flashes the wrong theme.
+## Two axes, both attributes
+
+```html
+<html data-mode="dark">          <!-- light | dark  -->
+  <div data-density="compact">   <!-- comfortable | compact -->
+```
+
+The mode is an attribute rather than a class so it can be written by an inline
+script before the first paint and never flashes the wrong theme. Density is the
+only other axis: set it on any container and every control below tightens —
+44px at the default (the pointer target WCAG 2.5.5 asks for), 36px compact
+(which still clears 2.5.8 and no longer meets 2.5.5, so it is for a dense
+desktop tool driven by a mouse).
+
+Every component is written in logical properties, so `dir="rtl"` mirrors the
+whole system with no stylesheet of its own. A test fails the build on a physical
+one.
 
 ## What is inside
 
@@ -66,6 +81,10 @@ by an inline script before the first paint and never flashes the wrong theme.
 - **Brand** (`tokens/brand.ts`) — hex mirrors for surfaces that cannot read a
   custom property (OpenGraph cards, a web manifest, a build script). A test
   parses the CSS and fails if the two drift.
+- **Machine-readable tokens** (`@misoto22/design/tokens`) — every token with its
+  light value, dark value, category and the comment that explains it, as JSON
+  and as a typed module. For a Figma sync, a native app, a script: anything that
+  needs the values and cannot read a stylesheet.
 - **Components** — 36 primitives styled with Tailwind's arbitrary-property
   syntax against the tokens. Radix underneath wherever behaviour is involved,
   lucide for icons, sonner for toasts, and clsx + tailwind-merge so a caller's
