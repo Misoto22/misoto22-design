@@ -13,6 +13,9 @@ concurrency:
 permissions:
   contents: write
   pull-requests: write
+  # Mints the short-lived OIDC token npmjs exchanges for publish rights. It is
+  # the whole reason no npm credential is stored anywhere — see docs/releasing.md.
+  id-token: write
 
 jobs:
   release:
@@ -29,10 +32,12 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-          # Writes the `.npmrc` that `changeset publish` authenticates with, so
-          # NODE_AUTH_TOKEN below is the credential and nothing on disk holds a
-          # value. The package is public under a scope, which npm treats as
-          # restricted unless told otherwise — `publishConfig.access` says so.
+          # Points the `.npmrc` at npmjs. It also writes a literal
+          # `_authToken=${NODE_AUTH_TOKEN}` line, and nothing sets that variable
+          # — pnpm 11.1.3 and later drop an unresolved placeholder rather than
+          # sending it as a bearer token, which is what lets OIDC take over.
+          # Below that version the placeholder reached the registry verbatim and
+          # every publish 404'd (pnpm#11513); this repository pins 11.9.0.
           registry-url: https://registry.npmjs.org
           scope: '@misoto22'
 
@@ -57,13 +62,11 @@ jobs:
           commit: 'chore(release): version packages'
           title: 'chore(release): version packages'
         env:
-          # Two different credentials: GITHUB_TOKEN opens the version pull
-          # request, NPM_TOKEN publishes. The workflow's own token cannot reach
-          # npmjs, so a missing NPM_TOKEN fails the publish rather than
-          # silently shipping nothing.
+          # The only credential here, and it is not an npm one: GITHUB_TOKEN
+          # opens the version pull request. Publishing authenticates through
+          # OIDC against the trusted publisher configured on the package, so
+          # there is no NPM_TOKEN to leak, rotate or expire.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # The action decides whether anything shipped by PARSING the publish CLI's
       # human-readable output, and does not recognise this CLI version's
