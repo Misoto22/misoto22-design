@@ -1,5 +1,131 @@
 # @misoto22/design
 
+## 0.3.0
+
+### Minor Changes
+
+- [#21](https://github.com/Misoto22/misoto22-design/pull/21) [`30a3f0c`](https://github.com/Misoto22/misoto22-design/commit/30a3f0c5061a824e9babffe27a980dac36a5a745) Thanks [@Misoto22](https://github.com/Misoto22)! - Configurable Table, a searchable action menu, and calendar/date-picker repairs.
+  
+  - `Table` takes `borders` (`rows` | `grid` | `bordered` | `bordered-grid` | `none`),
+    `density`, per-column `align`, and per-column opt-in `sortable` with
+    `sortDirection` / `onSort`. All rules are drawn from the wrapper, so the
+    component stays server-renderable.
+  - New `SearchableMenu`: a filterable menu of actions, for the case
+    `DropdownMenu` outgrows and `Combobox` does not fit (it sets no value).
+  - `Calendar` month and year pickers are our own `Select` rather than the native
+    dropdown, and span 10 years either side instead of the full century.
+  - A selected day is round again. In range mode a one-day selection was both
+    range start and range end, and the two overrides summed to `border-radius: 0`.
+  - `DatePicker` and `DateRangePicker` take `presets`: a shortcut rail (Last 30
+    days, Last 90 days, Year to date…), computed on click so "today" means today.
+
+- [#23](https://github.com/Misoto22/misoto22-design/pull/23) [`de06cfb`](https://github.com/Misoto22/misoto22-design/commit/de06cfbeff0e83cac3b432cfa9f9158d5207fb65) Thanks [@Misoto22](https://github.com/Misoto22)! - `Command` rows carry a glyph and a note, and the palette says which keys do what.
+  
+  - `CommandItem` takes `icon` and `meta`. Forty rows of bare text cannot be
+    scanned — the eye sorts by shape before it reads.
+  - New `CommandFooter` and `CommandHint`: the key-hint strip a palette needs,
+    because nothing else on screen says the arrows move the row.
+  - The highlighted row reads `--accent` with a leading rule, rather than a flat
+    grey fill.
+  - `CommandDialog` is wider and sits above centre, where a palette belongs.
+
+- [#17](https://github.com/Misoto22/misoto22-design/pull/17) [`5278356`](https://github.com/Misoto22/misoto22-design/commit/52783560faddae03d4f282999ac4fe17ce0d3a4c) Thanks [@Misoto22](https://github.com/Misoto22)! - Fix the interactions that were drawn but not wired, and give selection
+  something that moves.
+  
+  `Select` is now the styled control and the native one becomes `NativeSelect`.
+  The old default stopped being part of the system the moment it opened — the
+  option list is drawn by the operating system and carries none of these tokens.
+  The one genuine argument for staying native was the keyboard contract, and
+  Radix answers it: typeahead, arrows, Home and End, Escape without choosing.
+  
+  `Slider` printed a figure that never moved. It read the value off the props, and
+  an uncontrolled slider's `defaultValue` does not change — so the number sat at
+  its starting point while the thumb travelled, which is the one thing `showValue`
+  exists to prevent.
+  
+  `ToggleGroup` looked identical whether it held one value or several, so a
+  multiple-value group looked like a broken single one. A single-value strip now
+  moves ONE pill between its options and a multiple-value strip fills each
+  pressed option separately. `Pagination` gets the same treatment: a shape that
+  travels reads as the one thing that changed, where two backgrounds cross-fading
+  reads as two.
+  
+  `Combobox` takes several values, keeps the panel open while you pick them, and
+  clips the command list to its own corners — the list's square edges had been
+  poking through the panel's radius.
+  
+  `Calendar` navigates by month and year dropdowns rather than two arrows.
+  Twenty-four clicks to reach two years ago is not a navigation model. Its nav
+  also sat above the grid rather than beside the caption, because the nav renders
+  first in the DOM and was left in the flow.
+  
+  `DateRangePicker` is new. It shows two months, and closes only once two days
+  have actually been clicked — the library reports `{ from, to }` on the FIRST
+  click, so a completeness check closed the panel instantly and produced a
+  one-day range every time.
+  
+  `Switch` narrows its thumb as it travels, and `Slider`'s grows as it is
+  grabbed, so both read as something being moved rather than a value blinking to
+  a new state.
+
+- [#19](https://github.com/Misoto22/misoto22-design/pull/19) [`1580754`](https://github.com/Misoto22/misoto22-design/commit/15807547bb628e59a0d2283b75582fe47cbe0401) Thanks [@Misoto22](https://github.com/Misoto22)! - Route every chosen-state surface through the accent pointer.
+  
+  Law 7 says the system has one pointer and that the pointer is ink. Half the
+  components were reading `--ink` directly instead — a primary button, a checked
+  box, an active tab, the current page, a slider's filled range, a selected day.
+  While the accent IS ink the two render identically, which is exactly why nobody
+  noticed, and why the law was true on the principles page and not in the code.
+  
+  They read `--accent` now. Nothing changes at the default, and re-pointing that
+  one token re-skins the system without a component being touched — which is what
+  having a pointer was for.
+
+- [#22](https://github.com/Misoto22/misoto22-design/pull/22) [`81ae658`](https://github.com/Misoto22/misoto22-design/commit/81ae658dba21127790f6b03fc8749dc7e52c97f2) Thanks [@Misoto22](https://github.com/Misoto22)! - Overlays and the fluid scale can be re-based onto a bounded frame.
+  
+  - New `OverlayContainer`: names the element that `Popover`, `Select`,
+    `DropdownMenu`, `ContextMenu` and `Tooltip` should render into. Panels then
+    collide with that element's edges rather than the viewport's, and inherit the
+    `dir` and `data-density` set on it. `Dialog` and `Sheet` still cover the
+    viewport, which is what they are for.
+  - New `--fluid` token, `1vw` by default. A frame that declares
+    `container-type: inline-size` and sets `--fluid: 1cqi` on an element inside
+    it carrying `data-fluid-frame` re-bases the whole type and spacing ramp onto
+    its own width.
+  - `FigureBand` is a query container and reads its own width, so four figures
+    across is a decision about the band rather than about the window.
+
+- [#27](https://github.com/Misoto22/misoto22-design/pull/27) [`46cfdde`](https://github.com/Misoto22/misoto22-design/commit/46cfdde90ae2f0ef283bd1da5863e3e428a304cf) Thanks [@Misoto22](https://github.com/Misoto22)! - Published to npmjs, publicly, instead of to GitHub Packages.
+  
+  The repository has been public and MIT-licensed for a while, but the package it
+  ships was restricted on a registry that needs a token to read — so the install
+  instructions were a gate rather than a command. It now publishes to the default
+  registry with `access: public`, which every client reads without an `.npmrc`.
+  
+  Two consequences for anything already installing it. The scope no longer needs
+  pointing anywhere, so the `@misoto22:registry` and `_authToken` lines can come
+  out of the consumer's `.npmrc`; and the versions published to GitHub Packages
+  stay where they are — nothing was copied across, and `0.3.0` is the first
+  version on npmjs.
+  
+  The manifest's `description` also changes. It, the repository's About field and
+  the README's opening line each carried a different sentence, so two of them were
+  always the stale one; they now say the same thing, and it carries no component
+  count, because a number in a manifest has nothing to check it and had already
+  drifted by two.
+
+- [#24](https://github.com/Misoto22/misoto22-design/pull/24) [`6110ccc`](https://github.com/Misoto22/misoto22-design/commit/6110ccc4898286d4aa2503e296414f63521967ae) Thanks [@Misoto22](https://github.com/Misoto22)! - New `themes.css`: theming beyond the accent.
+  
+  Six axes, each an attribute that re-points tokens the package already defines —
+  `data-surface`, `data-radius`, `data-rules`, `data-type`, `data-motion`, and the
+  existing `data-density`. No component reads any of them, and the layer
+  introduces no token of its own; a theme re-points, it does not invent.
+  
+  Nothing is anchored to `:root`, so an axis can sit on any element and the
+  subtree below takes it. That is what lets a page print five themes side by side
+  without five documents.
+  
+  Available as `@misoto22/design/themes.css`, and included in `styles.css`.
+
 ## 0.2.0
 
 ### Minor Changes
