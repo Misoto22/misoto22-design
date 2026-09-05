@@ -1,37 +1,131 @@
+# What happens to `main`. Everything that leaves this repository leaves from
+# here: the documentation site to Cloudflare Pages, the package to npmjs.
+#
+# The name is load-bearing. npmjs matches a trusted publisher on the caller
+# workflow's filename, so renaming this file stops publishing until the npmjs
+# side is updated to match — and npm validates neither half when you save it,
+# so the failure arrives as a 404 at publish time. See docs/releasing.md.
 name: Release
 
 on:
   push:
     branches: [main]
 
-# One release at a time, and never cancelled: a half-published package is worse
-# than a late one.
+# One at a time, and never cancelled mid-flight: a half-uploaded Pages
+# deployment is a half-broken site, and a half-published package is worse.
+#
+# This protects a run that has STARTED. GitHub keeps only one queued run per
+# group, so a run still waiting its turn is superseded by the next push — which
+# is harmless here, because the later commit carries the same bumped version and
+# the same built site, and publishes both.
 concurrency:
   group: release
   cancel-in-progress: false
 
 permissions:
-  contents: write
-  pull-requests: write
-  # Mints the short-lived OIDC token npmjs exchanges for publish rights. It is
-  # the whole reason no npm credential is stored anywhere — see docs/releasing.md.
-  id-token: write
+  contents: read
 
 jobs:
-  release:
+  # The same two gates a pull request gets, from the same definitions. Deploying
+  # and publishing hang off them, so nothing ships that they have not seen.
+  verify:
+    uses: ./.github/workflows/verify.yml
+
+  browser:
+    needs: verify
+    uses: ./.github/workflows/browser.yml
+
+  deploy:
+    needs: [verify, browser]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production
+      url: https://ui.misoto22.com
+    steps:
+      - name: Download the static export
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: docs-out
+          path: out
+
+      # Deploys the exact directory `verify` built and tested, rather than
+      # rebuilding here — a second build is a second chance to ship something
+      # the gates never saw.
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy out --project-name=misoto22-ui --branch=main
+
+      # Two checks, because they can fail independently and for different
+      # reasons: the deployment can be broken, or the custom domain can have
+      # come detached from the project.
+      #
+      # The routes are checked on the project's own *.pages.dev host rather than
+      # on ui.misoto22.com. The custom domain sits behind the misoto22.com
+      # zone's bot protection, which answers a GitHub runner with 403 — a real
+      # 403 that says nothing at all about whether the site works. Checking the
+      # origin the deployment actually serves is the honest test; the domain
+      # attachment is then verified through the API, where a runner is a first-
+      # class client.
+      - name: Smoke-test the deployed routes
+        run: |
+          set -euo pipefail
+          for route in / /components/ /components/button/ /foundations/colour/ /principles/; do
+            # Six tries at ten seconds: a Pages deployment is live within a
+            # minute, and a route that is not by then is a route that is broken.
+            for _ in 1 2 3 4 5 6; do
+              status=$(curl -sS -o /dev/null -w '%{http_code}' "https://misoto22-ui.pages.dev${route}" || echo 000)
+              [ "$status" = "200" ] && break
+              sleep 10
+            done
+            echo "${route} -> ${status}"
+            [ "$status" = "200" ] || exit 1
+          done
+
+      - name: Confirm ui.misoto22.com is still attached to the project
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          curl -sS -H "Authorization: Bearer $CF_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/misoto22-ui/domains" \
+            | python3 -c "
+          import json, sys
+          domains = json.load(sys.stdin)['result']
+          found = [d for d in domains if d['name'] == 'ui.misoto22.com']
+          if not found:
+              sys.exit('ui.misoto22.com is not attached to the misoto22-ui project')
+          print('ui.misoto22.com ->', found[0]['status'])
+          "
+
+  # Deliberately a job in this file rather than a reusable workflow: npmjs
+  # matches the trusted publisher on the caller, and keeping the publish here
+  # means `job_workflow_ref` and `workflow_ref` name the same file, with nothing
+  # to get out of step.
+  publish:
+    needs: [verify, browser]
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      # Pushes the version commit and the release tags.
+      contents: write
+      # Opens and updates the "Version Packages" pull request.
+      pull-requests: write
+      # Mints the short-lived OIDC token npmjs exchanges for publish rights, and
+      # the whole reason no npm credential is stored anywhere.
+      id-token: write
     steps:
-      - uses: actions/checkout@v5
+      # Changesets reads the history to work out what has been released.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v5
+      - uses: ./.github/actions/setup
         with:
-          node-version: 24
-          cache: pnpm
           # Points the `.npmrc` at npmjs. It also writes a literal
           # `_authToken=${NODE_AUTH_TOKEN}` line, and nothing sets that variable
           # — pnpm 11.1.3 and later drop an unresolved placeholder rather than
@@ -41,21 +135,19 @@ jobs:
           registry-url: https://registry.npmjs.org
           scope: '@misoto22'
 
-      - run: pnpm install --frozen-lockfile
-
-      # The gates the package is released against are the same ones CI runs, and
-      # they run again here rather than trusting a green check on a different
-      # commit.
-      - run: pnpm lint
-      - run: pnpm build:design
-      - run: pnpm typecheck
-      - run: pnpm test
-
       # Opens (or updates) a "Version Packages" pull request while changesets
       # are pending, and publishes once that PR is merged and none are left.
+      # `pnpm release` builds the package before publishing it.
+      #
+      # Held at v1 on purpose. v2 renames every input and reports published
+      # packages through a file instead of by parsing stdout — which would let
+      # the tag step below go away — but no bundle in v2 mentions OIDC or
+      # `ACTIONS_ID_TOKEN_REQUEST_URL`, and v1's does. Until a release has
+      # actually gone out over OIDC, the publish path is not the place to find
+      # out what changed.
       - name: Version or publish
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1
         with:
           version: pnpm version-packages
           publish: pnpm release

@@ -1,0 +1,22 @@
+# What happens to a pull request. Nothing here leaves the runner.
+name: PR
+
+on:
+  pull_request:
+
+# A superseded pull-request run is wasted compute and nothing else, so cancel it.
+# `release.yml` deliberately does the opposite.
+concurrency:
+  group: pr-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    uses: ./.github/workflows/verify.yml
+
+  browser:
+    needs: verify
+    uses: ./.github/workflows/browser.yml
