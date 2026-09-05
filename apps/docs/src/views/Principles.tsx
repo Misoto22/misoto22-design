@@ -2,6 +2,7 @@ import { lawCopy, PAGE_ZH } from '@/i18n/content'
 import type { Locale } from '@/i18n/locales'
 import { PageIntro } from '@/components/PageIntro'
 import { LAWS } from '@/content/principles'
+import { LawDemo } from '@/components/LawDemo'
 
 /**
  * The rules, and — more usefully — what each one FORBIDS.
@@ -42,6 +43,10 @@ export function Principles({ locale }: { locale: Locale }) {
                   <br />
                   {translated?.rules_out ?? law.rules_out}
                 </p>
+                {/* Built only from the primitives the laws were written
+                    against. A rule illustrated with a component added later to
+                    satisfy it argues in a circle. */}
+                <LawDemo n={law.n} />
               </div>
             </article>
           )

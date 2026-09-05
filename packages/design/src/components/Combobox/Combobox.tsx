@@ -186,7 +186,12 @@ export function Combobox(props: ComboboxProps) {
         className="w-(--radix-popover-trigger-width) overflow-hidden p-0"
         align="start"
       >
-        <Command label={label} className="rounded-none border-0">
+        <Command label={`${label}: ${searchPlaceholder}`} className="rounded-none border-0">
+          {/* The panel's own name is "<label>: <placeholder>", set on Command
+              above. cmdk points the input's aria-labelledby at it, and
+              aria-labelledby beats aria-label — so naming the input directly
+              did nothing, and a screen reader met two comboboxes called "Tags",
+              one inside the other. */}
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
             <CommandEmpty>{emptyMessage}</CommandEmpty>

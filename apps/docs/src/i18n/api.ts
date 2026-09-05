@@ -162,6 +162,7 @@ export const API_ZH: Record<string, ApiCopy> = {
   'SearchableMenu.SearchableMenu#label': { hash: 'cf88326d', zh: '给这个菜单起名字，供辅助技术使用。' },
   'Select.SelectRoot': { hash: '65e6057c', zh: 'Radix Select 的根节点、分组和标签，带类型的原样透传。' },
   'Select.Select': { hash: 'd911a380', zh: '从一个列表里选一项，从上到下都是自己的样式。\n\n选项列表是我们自己的——用的是和别处同一套 token，所以它不会一打开就换掉字体、间距和选中色。这正是它取代原生控件成为默认值的全部理由：一个最常用的表单控件一被点击就不再属于这套系统的设计系统，那不是设计系统，那是一份只管闭合状态的样式表。\n\n键盘约定是 Radix 的，也就是平台的：首字母跳转能用，方向键能走，Home 和 End 到两端，Escape 不选中直接关闭。那本来是留在原生方案上唯一真正站得住的论据，现在它被回答了。\n\n超过大约十几个选项就换 `Combobox`——一个没法筛的列表，比一个能打字进去的更难用。在平台选择器确实更好的地方——手机上，或者一个必须在没有 JavaScript 时也能活的表单——换 `NativeSelect`。' },
+  'Select.Select#contentClassName': { hash: '6c46f199', zh: '给选项**面板**用的类名，不是给触发器的。\n\n`className` 设的是触发器，那是常见情况。这个是给不常见的那种：一个放在有边界的表面里的 select——默认 18rem 的列表会盖住读者正要为之做选择的那个东西，比如年份选择器盖住它自己的日历。' },
   'Select.Select#label': { hash: 'a6ac7635', zh: '给控件命名。必填——触发器上显示的是值，而值不是名字。' },
   'Select.Select#invalid': { hash: 'f49e1f62', zh: '把静止态的边框画成 `--danger`，并反映到 `aria-invalid` 上。' },
   'Select.Select#children': { hash: '8dad0af2', zh: '若干 `SelectItem`，也可以用带 `SelectLabel` 的 `SelectGroup` 包起来。' },

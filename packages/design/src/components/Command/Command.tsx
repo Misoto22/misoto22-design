@@ -238,8 +238,14 @@ export function CommandDialog({ open, onOpenChange, label, children }: CommandDi
         className="top-[12vh] w-[min(92vw,40rem)] translate-y-0 overflow-hidden p-0"
       >
         {/* The modal has the whole screen, so its list may be taller than the
-            default an inline menu should keep. */}
-        <Command label={label} className="rounded-none border-0 [&_[cmdk-list]]:max-h-[22rem]">
+            default an inline menu should keep.
+
+            `scroll-hairline` rather than `scroll-slim`: eleven pixels of grey
+            down the side of a palette is the widest thing in it. */}
+        <Command
+          label={label}
+          className="rounded-none border-0 [&_[cmdk-list]]:max-h-[22rem] [&_[cmdk-list]]:scroll-hairline"
+        >
           {children}
         </Command>
       </DialogContent>

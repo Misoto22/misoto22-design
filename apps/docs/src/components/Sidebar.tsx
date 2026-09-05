@@ -1,159 +1,87 @@
 'use client'
 
-import { Input, Kbd, NavItem, cn } from '@misoto22/design'
+import { NavItem, cn } from '@misoto22/design'
+import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { COMPONENTS, groupedComponents, type ComponentEntry } from '@/content/registry'
+import { useState } from 'react'
+import { groupedComponents } from '@/content/registry'
 import { FOUNDATIONS } from '@/content/foundations'
 import { foundationCopy, groupName } from '@/i18n/content'
 import { localePath } from '@/i18n/locales'
-import { fill } from '@/i18n/messages'
 import { useLocale, useMessages } from '@/i18n/useLocale'
-import propsJson from '@/generated/props.json'
 
 /**
- * Everything about a component a reader might plausibly type.
+ * The site's index.
  *
- * The name and the summary are the obvious half. The rest is the half that
- * makes search useful rather than decorative: someone looking for "aria-sort"
- * or "asChild" or "focus trap" is looking for a component, and matching only
- * titles sends them away empty. Built once at module load, from data the build
- * already produced.
- */
-const HAYSTACK = new Map<string, string>(
-  COMPONENTS.map((entry) => {
-    type Prop = { name: string; type: string; description: string }
-    const source = (propsJson as Record<string, { components?: { props?: Prop[] }[] }>)[entry.dir]
-    // Names, types AND descriptions: someone searching for "aria-sort" is
-    // looking for the table, and only the description says so. A search that
-    // stops at prop names is a search that answers the questions you did not
-    // need to ask.
-    const props = (source?.components ?? []).flatMap((component) =>
-      (component.props ?? []).flatMap((prop) => [prop.name, prop.type, prop.description]),
-    )
-    return [
-      entry.slug,
-      [
-        entry.name,
-        entry.dir,
-        entry.group,
-        entry.summary,
-        entry.when ?? '',
-        ...(entry.accessibility ?? []),
-        ...(entry.keyboard ?? []).flatMap((row) => [...row.keys, row.does]),
-        ...props,
-      ]
-        .join(' ')
-        .toLowerCase(),
-    ]
-  }),
-)
-
-const matches = (entry: ComponentEntry, needle: string) =>
-  (HAYSTACK.get(entry.slug) ?? '').includes(needle)
-
-/**
- * The site's index, and its search.
+ * It used to carry its own search field. That was a second search box beside
+ * ⌘K answering the same question with less reach, and two of them meant
+ * neither was obviously the one to use — so the field is gone and everything it
+ * could match moved into the palette (see `content/haystack.ts`).
  *
- * Filtering happens here rather than through a search index: the whole
- * navigable surface is forty-odd titles that ship in the bundle anyway, so
- * matching them in a `useMemo` is both smaller and instant. A search that has
- * to fetch anything would be slower than the page it is finding.
+ * The component groups collapse. Forty-nine rows under seven headings is a
+ * column taller than most screens, and a reader looking at Button has no use
+ * for the other forty-eight being permanently unrolled beneath it.
  */
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
   const locale = useLocale()
   const t = useMessages()
-  const [query, setQuery] = useState('')
-  const searchRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === '/' && !/^(INPUT|TEXTAREA)$/.test((event.target as HTMLElement)?.tagName)) {
-        event.preventDefault()
-        searchRef.current?.focus()
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
-
-  const needle = query.trim().toLowerCase()
-  const sections = useMemo(() => {
-    if (!needle) return groupedComponents()
-    return groupedComponents()
-      .map((section) => ({
-        ...section,
-        entries: section.entries.filter((entry) => matches(entry, needle)),
-      }))
-      .filter((section) => section.entries.length > 0)
-  }, [needle])
-
-  const hits = needle
-    ? sections.reduce((total, section) => total + section.entries.length, 0)
-    : 0
-
-  const foundations = FOUNDATIONS.filter((page) => {
-    if (!needle) return true
-    const title = foundationCopy(locale, page.slug).title ?? page.title
-    return title.toLowerCase().includes(needle) || page.title.toLowerCase().includes(needle)
-  })
+  const sections = groupedComponents()
 
   return (
-    <div className="flex h-full flex-col gap-6">
-      <div className="relative">
-        <Input
-          ref={searchRef}
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder={t.search}
-          aria-label={t.searchAria}
-          className="pr-12"
-        />
-        <Kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2">/</Kbd>
-      </div>
+    <nav
+      aria-label={t.nav.documentation}
+      className="flex h-full flex-col gap-5 overflow-y-auto scroll-slim pb-6"
+    >
+      <Section title={t.nav.start}>
+        <Row href={localePath(locale, '/')} pathname={pathname} onNavigate={onNavigate}>
+          {t.nav.overview}
+        </Row>
+        <Row href={localePath(locale, '/principles/')} pathname={pathname} onNavigate={onNavigate}>
+          {t.nav.principles}
+        </Row>
+        <Row href={localePath(locale, '/components/')} pathname={pathname} onNavigate={onNavigate}>
+          {t.nav.allComponents}
+        </Row>
+        <Row href={localePath(locale, '/templates/')} pathname={pathname} onNavigate={onNavigate}>
+          {t.nav.templates}
+        </Row>
+        <Row href={localePath(locale, '/themes/')} pathname={pathname} onNavigate={onNavigate}>
+          {t.themes.title}
+        </Row>
+        <Row href={localePath(locale, '/changelog/')} pathname={pathname} onNavigate={onNavigate}>
+          {t.nav.changelog}
+        </Row>
+      </Section>
 
-      <nav aria-label={t.nav.documentation} className="flex flex-col gap-6 overflow-y-auto scroll-slim">
-        <Section title={t.nav.start}>
-          <Row href={localePath(locale, '/')} pathname={pathname} onNavigate={onNavigate}>
-            {t.nav.overview}
+      <Section title={t.nav.foundations}>
+        {FOUNDATIONS.map((page) => (
+          <Row
+            key={page.slug}
+            href={localePath(locale, `/foundations/${page.slug}/`)}
+            pathname={pathname}
+            onNavigate={onNavigate}
+          >
+            {foundationCopy(locale, page.slug).title ?? page.title}
           </Row>
-          <Row href={localePath(locale, '/principles/')} pathname={pathname} onNavigate={onNavigate}>
-            {t.nav.principles}
-          </Row>
-          <Row href={localePath(locale, '/components/')} pathname={pathname} onNavigate={onNavigate}>
-            {t.nav.allComponents}
-          </Row>
-          <Row href={localePath(locale, '/templates/')} pathname={pathname} onNavigate={onNavigate}>
-            {t.nav.templates}
-          </Row>
-          <Row href={localePath(locale, '/themes/')} pathname={pathname} onNavigate={onNavigate}>
-            {t.themes.title}
-          </Row>
-          <Row href={localePath(locale, '/changelog/')} pathname={pathname} onNavigate={onNavigate}>
-            {t.nav.changelog}
-          </Row>
-        </Section>
+        ))}
+      </Section>
 
-        {foundations.length > 0 && (
-          <Section title={t.nav.foundations}>
-            {foundations.map((page) => (
-              <Row
-                key={page.slug}
-                href={localePath(locale, `/foundations/${page.slug}/`)}
-                pathname={pathname}
-                onNavigate={onNavigate}
-              >
-                {foundationCopy(locale, page.slug).title ?? page.title}
-              </Row>
-            ))}
-          </Section>
-        )}
-
-        {sections.map((section) => (
-          <Section key={section.group} title={groupName(locale, section.group)}>
+      {sections.map((section) => {
+        // The group holding the page you are on opens itself. Everything else
+        // stays rolled up until asked for.
+        const holdsCurrent = section.entries.some((entry) =>
+          pathname.includes(`/components/${entry.slug}/`),
+        )
+        return (
+          <Section
+            key={section.group}
+            title={groupName(locale, section.group)}
+            count={section.entries.length}
+            collapsible
+            defaultOpen={holdsCurrent}
+          >
             {section.entries.map((entry) => (
               <Row
                 key={entry.slug}
@@ -165,29 +93,55 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
               </Row>
             ))}
           </Section>
-        ))}
-
-        {needle && (hits > 0 || foundations.length > 0) && (
-          <p className="m-0 px-3 mono-meta text-(--ink-3-aa)" role="status">
-            {fill(t.matching, { count: hits + foundations.length })}
-          </p>
-        )}
-
-        {needle && sections.length === 0 && foundations.length === 0 && (
-          <p className="m-0 px-3 text-sm text-(--ink-3-aa)" role="status">
-            {fill(t.searchEmpty, { query })}
-          </p>
-        )}
-      </nav>
-    </div>
+        )
+      })}
+    </nav>
   )
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+interface SectionProps {
+  title: string
+  count?: number
+  collapsible?: boolean
+  defaultOpen?: boolean
+  children: React.ReactNode
+}
+
+function Section({ title, count, collapsible = false, defaultOpen = true, children }: SectionProps) {
+  const [open, setOpen] = useState(defaultOpen)
+
+  if (!collapsible) {
+    return (
+      <div className="flex flex-col gap-1">
+        <p className="m-0 px-3 pb-1 eyebrow text-(--ink-3-aa)">{title}</p>
+        {children}
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-1">
-      <p className="m-0 px-3 pb-1 eyebrow text-(--ink-3-aa)">{title}</p>
-      {children}
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((previous) => !previous)}
+        className="flex items-center gap-1.5 rounded-(--radius-sm) px-3 py-1 text-start transition-colors duration-(--duration-fast) hover:bg-(--stone)"
+      >
+        <ChevronRight
+          size={12}
+          strokeWidth={2}
+          aria-hidden
+          className={cn(
+            'shrink-0 text-(--ink-3-aa) transition-transform duration-(--duration-fast) ease-(--ease-out-expo)',
+            open && 'rotate-90',
+          )}
+        />
+        <span className="eyebrow text-(--ink-3-aa)">{title}</span>
+        {count !== undefined && (
+          <span className="ms-auto mono-meta text-(--ink-3-aa)">{count}</span>
+        )}
+      </button>
+      {open && <div className="flex flex-col gap-1">{children}</div>}
     </div>
   )
 }

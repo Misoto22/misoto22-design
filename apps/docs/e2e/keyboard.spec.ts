@@ -81,21 +81,46 @@ test('the theme toggle is reachable and flips the document', async ({ page }) =>
   await expect(page.locator('html')).not.toHaveAttribute('data-mode', before ?? 'light')
 })
 
-test('search narrows the sidebar and "/" focuses it', async ({ page }) => {
+test('the sidebar groups collapse, so the index is not one long column', async ({ page }) => {
   await page.goto('/')
-  // The "/" shortcut is registered by an effect, so the key press has to wait
-  // for hydration. The theme toggle only gets its accessible name after mount,
-  // which makes it a reliable signal that effects have run — a fixed timeout
-  // would be a flake waiting for a slower runner.
   await expect(page.getByRole('button', { name: /Switch to the (light|dark) theme/ })).toBeVisible()
-  await page.keyboard.press('/')
-  const search = page.getByRole('searchbox', { name: 'Search the documentation' })
-  await expect(search).toBeFocused()
 
-  await search.fill('pagination')
   const nav = page.getByRole('navigation', { name: 'Documentation' })
-  await expect(nav.getByRole('link', { name: 'Pagination' })).toBeVisible()
-  await expect(nav.getByRole('link', { name: 'Button', exact: true })).toBeHidden()
+  const surfaces = nav.getByRole('button', { name: /Surfaces/ })
+
+  // Forty-nine rows under seven headings is taller than most screens, and a
+  // reader looking at one component has no use for the other forty-eight.
+  await expect(surfaces).toHaveAttribute('aria-expanded', 'false')
+  await expect(nav.getByRole('link', { name: 'Table', exact: true })).toBeHidden()
+
+  await surfaces.click()
+  await expect(surfaces).toHaveAttribute('aria-expanded', 'true')
+  await expect(nav.getByRole('link', { name: 'Table', exact: true })).toBeVisible()
+})
+
+test('the group holding the current page opens itself', async ({ page }) => {
+  await page.goto('/components/table/')
+  const nav = page.getByRole('navigation', { name: 'Documentation' })
+  await expect(nav.getByRole('button', { name: /Surfaces/ })).toHaveAttribute('aria-expanded', 'true')
+  await expect(nav.getByRole('link', { name: 'Table', exact: true })).toBeVisible()
+})
+
+test('the sidebar can be put away, and stays away', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByRole('button', { name: /Switch to the (light|dark) theme/ })).toBeVisible()
+
+  const nav = page.getByRole('navigation', { name: 'Documentation' })
+  await expect(nav).toBeVisible()
+
+  await page.getByRole('button', { name: 'Collapse the sidebar' }).click()
+  await expect(nav).toBeHidden()
+
+  // A reader who put it away did not mean "until the next page".
+  await page.goto('/components/button/')
+  await expect(page.getByRole('navigation', { name: 'Documentation' })).toBeHidden()
+
+  await page.getByRole('button', { name: 'Show the sidebar' }).click()
+  await expect(page.getByRole('navigation', { name: 'Documentation' })).toBeVisible()
 })
 
 test('the playground renders what you type', async ({ page }) => {
@@ -112,7 +137,9 @@ test('the playground renders what you type', async ({ page }) => {
   await page.keyboard.press('ControlOrMeta+a')
   await page.keyboard.type('<Badge tone="danger">Typed live</Badge>')
 
-  await expect(page.getByText('Typed live')).toBeVisible()
+  // The preview, not the editor: both show the same words, and the claim under
+  // test is that the rendered half followed.
+  await expect(page.locator('[data-playground-preview]').getByText('Typed live')).toBeVisible()
 })
 
 test('the playground reports a mistake instead of blanking', async ({ page }) => {
@@ -131,23 +158,43 @@ test('the playground reports a mistake instead of blanking', async ({ page }) =>
   await expect(errors).toContainText(/Error/)
 })
 
-test('search reaches beyond titles, into props and keyboard keys', async ({ page }) => {
+test('the palette reaches beyond titles, into props and keyboard keys', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('button', { name: /Switch to the (light|dark) theme/ })).toBeVisible()
-  const search = page.getByRole('searchbox', { name: 'Search the documentation' })
-  const nav = page.getByRole('navigation', { name: 'Documentation' })
+  await page.getByRole('button', { name: /Search/ }).first().click()
+  const filter = page.getByRole('combobox').first()
 
-  // A prop name nobody would guess is a component title.
-  await search.fill('aria-sort')
-  await expect(nav.getByRole('link', { name: 'Table', exact: true })).toBeVisible()
+  // This reach used to belong to the sidebar's own search field. That was a
+  // second search box beside ⌘K answering the same question with less of the
+  // page behind it, so the field went and the reach moved here.
+  await filter.fill('sortDirection')
+  await expect(page.getByRole('option').first()).toContainText('Table')
 
   // And a key.
-  await search.fill('Page Up')
-  await expect(nav.getByRole('link', { name: 'Slider', exact: true })).toBeVisible()
+  await filter.fill('')
+  await filter.fill('PageUp')
+  await expect(page.getByRole('option').first()).toContainText('Slider')
 })
 
 test('the changelog page reads the repository CHANGELOG', async ({ page }) => {
   await page.goto('/changelog/')
   await expect(page.getByRole('heading', { name: 'Changelog', level: 1 })).toBeVisible()
   await expect(page.getByRole('heading', { name: '0.1.0', level: 2 })).toBeVisible()
+})
+
+test('the playground resolves a name to the component, not to the icon', async ({ page }) => {
+  await page.goto('/components/table/')
+  await page.getByRole('button', { name: 'Edit' }).first().click()
+
+  const editor = page.getByRole('textbox', { name: 'Editable example source' })
+  await editor.click()
+  await page.keyboard.press('ControlOrMeta+a')
+  await page.keyboard.type('<Badge tone="success">shipped</Badge>')
+
+  // lucide ships icons called Badge, Table, Command and Dialog. With icons last
+  // in the scope, typing one of those names drew a small grey outline and no
+  // error — the package spreads last so it wins every collision.
+  const preview = page.locator('[data-playground-preview]')
+  await expect(preview.getByText('shipped')).toBeVisible()
+  await expect(preview.locator('svg.lucide-badge')).toHaveCount(0)
 })

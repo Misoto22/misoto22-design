@@ -116,7 +116,9 @@ test('combobox: several at once, and the panel stays open', async ({ page }) => 
   await page.goto('/components/combobox/')
   await ready(page)
 
-  const trigger = page.getByRole('combobox', { name: 'Tags' })
+  // `exact`, because the panel's filter is a combobox too and is named
+  // "Tags: Search…" — deliberately, so the two are told apart.
+  const trigger = page.getByRole('combobox', { name: 'Tags', exact: true })
   await trigger.click()
 
   const list = page.getByRole('listbox')
@@ -245,7 +247,8 @@ test('searchable menu: the filter narrows nine actions to one', async ({ page })
   await page.goto('/components/searchable-menu/')
   await ready(page)
 
-  await page.getByRole('button', { name: 'Actions' }).first().click()
+  // Scoped to the example: the sidebar has a collapsible group of the same name.
+  await page.locator('[data-density]').getByRole('button', { name: 'Actions' }).first().click()
   const list = page.getByRole('listbox')
   await expect(list.getByRole('option')).toHaveCount(9)
 

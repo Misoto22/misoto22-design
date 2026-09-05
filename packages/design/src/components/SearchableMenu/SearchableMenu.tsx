@@ -102,7 +102,7 @@ export function SearchableMenu({
         <ChevronDown size={14} strokeWidth={1.5} aria-hidden className="shrink-0 text-(--ink-3-aa)" />
       </PopoverTrigger>
       <PopoverContent label={label} align={align} className="w-64 overflow-hidden p-0">
-        <Command label={label} className="rounded-none border-0">
+        <Command label={`${label}: ${searchPlaceholder}`} className="rounded-none border-0">
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
             <CommandEmpty>{emptyMessage}</CommandEmpty>

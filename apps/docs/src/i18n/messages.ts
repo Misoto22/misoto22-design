@@ -27,6 +27,8 @@ const en = {
     sidebar: 'Sidebar',
     openNav: 'Open the navigation',
     closeNav: 'Close the navigation',
+    collapseNav: 'Collapse the sidebar',
+    expandNav: 'Show the sidebar',
     skip: 'Skip to content',
   },
   section: {
@@ -160,6 +162,8 @@ const zh: Messages = {
     sidebar: '侧边栏',
     openNav: '打开导航',
     closeNav: '关闭导航',
+    collapseNav: '收起侧栏',
+    expandNav: '展开侧栏',
     skip: '跳到正文',
   },
   section: {

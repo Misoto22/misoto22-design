@@ -14,7 +14,8 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 
 const VARIANT = {
   outline: 'border border-(--rule) bg-(--paper)',
-  plate: 'border border-(--feature-surface) bg-(--feature-surface) text-(--on-feature)',
+  plate:
+    'border border-(--feature-surface) bg-(--feature-surface) text-(--on-feature) [--card-title:var(--on-feature)]',
   flat: 'border border-transparent bg-transparent',
 } as const
 
@@ -73,7 +74,14 @@ export function CardTitle({
 }: HTMLAttributes<HTMLHeadingElement> & { as?: 'h2' | 'h3' | 'h4' }) {
   return (
     <Comp
-      className={cn('m-0 font-heading text-[length:var(--fs-item)] font-normal text-(--ink)', className)}
+      // Reads the card's own title colour rather than --ink directly. A plate
+      // is a reversed surface, and a hardcoded ink title on it came out at
+      // 1.25:1 — invisible, and invisible only on the one variant whose whole
+      // job is to be different.
+      className={cn(
+        'm-0 font-heading text-[length:var(--fs-item)] font-normal text-[var(--card-title,var(--ink))]',
+        className,
+      )}
       {...rest}
     >
       {children}

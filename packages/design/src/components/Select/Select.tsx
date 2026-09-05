@@ -12,6 +12,15 @@ export const SelectRoot = SelectPrimitive.Root
 export const SelectGroup = SelectPrimitive.Group
 
 export interface SelectProps extends ComponentProps<typeof SelectPrimitive.Root> {
+  /**
+   * Classes for the option PANEL, not the trigger.
+   *
+   * `className` styles the trigger, which is the common case. This exists for
+   * the uncommon one: a select inside a bounded surface, where the default
+   * 18rem of list would cover the thing the reader is choosing for — a year
+   * picker over its own calendar, say.
+   */
+  contentClassName?: string
   /** Names the control. Required — the trigger shows a value, and a value is not a name. */
   label: string
   placeholder?: string
@@ -57,6 +66,7 @@ export function Select({
   invalid,
   disabled,
   className,
+  contentClassName,
   children,
   ...props
 }: SelectProps) {
@@ -95,7 +105,8 @@ export function Select({
           data-m22-animated
           className={cn(
             'z-(--z-dropdown) max-h-72 min-w-(--radix-select-trigger-width) overflow-hidden rounded-(--radius) border border-(--rule-2) bg-(--paper)',
-            'data-[state=open]:animate-[m22-panel-in_var(--duration-fast)_var(--ease)]',
+            contentClassName,
+            'data-[state=open]:animate-[m22-pop-in_var(--duration-fast)_var(--ease-out-expo)] data-[state=closed]:animate-[m22-pop-out_var(--duration-fast)_var(--ease)] origin-(--radix-popper-transform-origin)',
           )}
         >
           <SelectPrimitive.ScrollUpButton className="flex h-6 items-center justify-center text-(--ink-3-aa)">

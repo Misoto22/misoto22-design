@@ -92,6 +92,30 @@
   scrollbar-color: var(--rule-2) transparent;
   scrollbar-gutter: stable;
 }
+/* A scrollbar for a bounded panel, where `scroll-slim`'s eleven pixels are the
+   widest thing on screen.
+
+   This DOES define ::-webkit-scrollbar, which opts Chrome and Safari out of
+   overlay scrollbars for this element — the reason `scroll-slim` refuses to. It
+   is the right trade here and nowhere else: a palette is already a fixed box
+   with a permanent list, so there is no overlay behaviour left to lose, and six
+   pixels of hairline reads as an edge rather than as furniture. */
+@utility scroll-hairline {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-2) transparent;
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--rule-2);
+    border-radius: var(--radius-pill);
+  }
+}
+
 @utility scroll-fade {
   mask-image: linear-gradient(
     to bottom,
