@@ -27,8 +27,12 @@ export interface TemplateFrameProps {
  * the opposite by needing its own copy of everything.
  *
  * The width is set with `max-width` on a centred wrapper rather than by resizing
- * anything, so the component's own container queries and breakpoints respond the
- * way they would in a narrower window.
+ * anything, and that wrapper is the query container: the templates are written
+ * with `@2xl:` / `@3xl:` / `@5xl:` rather than `sm:` / `md:` / `lg:`, so they
+ * answer the frame's width.
+ *
+ * They used to use the viewport breakpoints, which never changed — picking
+ * "Mobile" on a desktop left a two-column dashboard crushed into 390px.
  */
 export function TemplateFrame({ templateId, name }: TemplateFrameProps) {
   const [size, setSize] = useState<Size>('desktop')
@@ -77,10 +81,15 @@ export function TemplateFrame({ templateId, name }: TemplateFrameProps) {
           // documentation page.
           role="region"
           aria-label={`${name} preview`}
-          className="mx-auto overflow-hidden rounded-(--radius) border border-(--rule) bg-(--paper) transition-[max-width] duration-(--duration-slow) ease-(--ease-out-expo)"
+          className="@container mx-auto overflow-hidden rounded-(--radius) border border-(--rule) bg-(--paper) transition-[max-width] duration-(--duration-slow) ease-(--ease-out-expo)"
           style={{ maxWidth: WIDTHS[size].width || undefined }}
         >
-          <Template />
+          {/* Inside the container, not on it: a container query unit resolves
+              against an ancestor container, so the element that re-bases the
+              fluid ramp cannot be the one declaring the container. */}
+          <div data-fluid-frame className="[--fluid:1cqi]">
+            <Template />
+          </div>
         </div>
       </div>
     </div>

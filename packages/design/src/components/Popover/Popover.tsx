@@ -4,6 +4,7 @@ import * as PopoverPrimitive from '@radix-ui/react-popover'
 import { X } from 'lucide-react'
 import type { ComponentProps } from 'react'
 import { cn } from '../../lib/cn'
+import { useOverlayContainer } from '../../lib/overlay-container'
 
 /** Radix Popover root, trigger, anchor and close, as typed passthroughs. */
 export const Popover = PopoverPrimitive.Root
@@ -48,9 +49,13 @@ export function PopoverContent({
   children,
   ...rest
 }: PopoverContentProps) {
+  const container = useOverlayContainer()
+
   return (
-    <PopoverPrimitive.Portal>
+    <PopoverPrimitive.Portal container={container ?? undefined}>
       <PopoverPrimitive.Content
+        collisionBoundary={container ?? undefined}
+        collisionPadding={8}
         aria-label={label}
         sideOffset={sideOffset}
         data-m22-animated

@@ -4,6 +4,7 @@ import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
 import type { LucideIcon } from 'lucide-react'
 import type { ComponentProps } from 'react'
 import { cn } from '../../lib/cn'
+import { useOverlayContainer } from '../../lib/overlay-container'
 
 /** Radix DropdownMenu root + trigger, re-exported as typed passthroughs. */
 export const DropdownMenu = DropdownMenuPrimitive.Root
@@ -36,9 +37,13 @@ export function DropdownMenuContent({
   children,
   ...rest
 }: DropdownMenuContentProps) {
+  const container = useOverlayContainer()
+
   return (
-    <DropdownMenuPrimitive.Portal>
+    <DropdownMenuPrimitive.Portal container={container ?? undefined}>
       <DropdownMenuPrimitive.Content
+        collisionBoundary={container ?? undefined}
+        collisionPadding={8}
         sideOffset={sideOffset}
         data-m22-animated
         className={cn(

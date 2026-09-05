@@ -3,6 +3,7 @@
 import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 import type { ComponentProps, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+import { useOverlayContainer } from '../../lib/overlay-container'
 
 /**
  * Wrap the app — or the smallest subtree that has tooltips — once. Radix needs
@@ -50,11 +51,15 @@ export function Tooltip({
   sideOffset = 6,
   ...root
 }: TooltipProps) {
+  const container = useOverlayContainer()
+
   return (
     <TooltipPrimitive.Root {...root}>
       <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
-      <TooltipPrimitive.Portal>
+      <TooltipPrimitive.Portal container={container ?? undefined}>
         <TooltipPrimitive.Content
+        collisionBoundary={container ?? undefined}
+        collisionPadding={8}
           side={side}
           sideOffset={sideOffset}
           data-m22-animated

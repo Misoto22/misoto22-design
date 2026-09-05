@@ -53,8 +53,8 @@ export function Dashboard() {
   const [range, setRange] = useState('30')
 
   return (
-    <div className="grid min-h-[36rem] grid-cols-1 md:grid-cols-[13rem_minmax(0,1fr)]">
-      <aside className="hidden flex-col gap-1 border-e border-(--rule) p-3 md:flex">
+    <div className="grid min-h-[36rem] grid-cols-1 @3xl:grid-cols-[13rem_minmax(0,1fr)]">
+      <aside className="hidden flex-col gap-1 border-e border-(--rule) p-3 @3xl:flex">
         <div className="flex items-center gap-2 px-3 pb-3">
           <Avatar alt="" fallback="M" size="sm" />
           <span className="font-heading text-[15px] text-(--ink)">Console</span>
@@ -138,7 +138,7 @@ export function Dashboard() {
             </TabsContent>
 
             <TabsContent value="jobs">
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4 @2xl:grid-cols-2">
                 <Card>
                   <CardHeader>
                     <CardTitle>Reindex</CardTitle>

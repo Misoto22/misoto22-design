@@ -4,6 +4,7 @@ import * as ContextMenuPrimitive from '@radix-ui/react-context-menu'
 import type { LucideIcon } from 'lucide-react'
 import type { ComponentProps } from 'react'
 import { cn } from '../../lib/cn'
+import { useOverlayContainer } from '../../lib/overlay-container'
 
 /** Radix ContextMenu root and trigger, as typed passthroughs. */
 export const ContextMenu = ContextMenuPrimitive.Root
@@ -30,9 +31,13 @@ export function ContextMenuContent({
   className,
   ...rest
 }: ComponentProps<typeof ContextMenuPrimitive.Content>) {
+  const container = useOverlayContainer()
+
   return (
-    <ContextMenuPrimitive.Portal>
+    <ContextMenuPrimitive.Portal container={container ?? undefined}>
       <ContextMenuPrimitive.Content
+        collisionBoundary={container ?? undefined}
+        collisionPadding={8}
         data-m22-animated
         className={cn(
           'z-(--z-dropdown) min-w-44 rounded-(--radius) border border-(--rule-2) bg-(--paper) p-1.5',

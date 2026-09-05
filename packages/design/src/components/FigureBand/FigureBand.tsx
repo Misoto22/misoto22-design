@@ -66,8 +66,11 @@ export function FigureBand({
     <dl
       aria-label={label}
       className={cn(
-        'm-0 grid grid-cols-2 border-y border-(--rule) lg:grid-cols-4',
-        '[&>div]:border-(--rule) max-lg:[&>div:nth-child(even)]:border-s max-lg:[&>div:nth-child(n+3)]:border-t lg:[&>div:not(:first-child)]:border-s',
+        // A container, not a viewport reader: four figures across is a decision
+        // about how wide THIS band is, and it is wrong in a 390px frame inside a
+        // 1440px window.
+        '@container m-0 grid grid-cols-2 border-y border-(--rule) @5xl:grid-cols-4',
+        '[&>div]:border-(--rule) @max-5xl:[&>div:nth-child(even)]:border-s @max-5xl:[&>div:nth-child(n+3)]:border-t @5xl:[&>div:not(:first-child)]:border-s',
         className,
       )}
       {...rest}
@@ -75,7 +78,7 @@ export function FigureBand({
       {figures.map((figure) => (
         <div
           key={figure.id}
-          className="bg-transparent px-[clamp(1rem,3vw,1.625rem)] py-[clamp(1.5rem,4vw,2.25rem)]"
+          className="bg-transparent px-[clamp(1rem,calc(3*var(--fluid)),1.625rem)] py-[clamp(1.5rem,calc(4*var(--fluid)),2.25rem)]"
         >
           <dt className="mb-3 eyebrow text-(--ink-3-aa)">{figure.label}</dt>
           <dd className={cn('m-0 font-heading font-normal text-(--ink)', VALUE_SCALE[scale])}>

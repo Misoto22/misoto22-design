@@ -1,6 +1,6 @@
 'use client'
 
-import { Button, cn } from '@misoto22/design'
+import { Button, OverlayContainer, cn } from '@misoto22/design'
 import { Code2, Eye, Pencil } from 'lucide-react'
 import { lazy, Suspense, useState } from 'react'
 import { EXAMPLES } from '@/generated/example-registry'
@@ -52,6 +52,7 @@ type View = 'preview' | 'code' | 'edit'
  */
 export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: ExampleCanvasProps) {
   const [view, setView] = useState<View>('preview')
+  const [frame, setFrame] = useState<HTMLElement | null>(null)
   const [direction, setDirection] = useState<Direction>('ltr')
   const [density, setDensity] = useState<Density>('comfortable')
   const t = useMessages()
@@ -120,13 +121,19 @@ export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: Exam
 
       {view === 'preview' && (
         <div
+          ref={setFrame}
           dir={direction}
           data-density={density}
-          className={cn('flex min-h-32 items-start justify-center p-8', previewHeight)}
+          className={cn('relative flex min-h-32 items-start justify-center p-8', previewHeight)}
         >
-          <div className="flex w-full max-w-full justify-center">
-            <Example />
-          </div>
+          {/* An overlay portalled to the body is positioned against the viewport,
+              so it flipped above this card whenever the card sat low on the
+              screen — and it never saw the direction and density set here. */}
+          <OverlayContainer container={frame}>
+            <div className="flex w-full max-w-full justify-center">
+              <Example />
+            </div>
+          </OverlayContainer>
         </div>
       )}
 

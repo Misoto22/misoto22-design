@@ -122,7 +122,7 @@ const COMPONENTS_ZH: Record<string, ComponentCopy> = {
   select: {
     summary: '从一个列表里选一项，从头到尾都由我们绘制。',
     when: '大约十几个选项以内。再多就该用 Combobox——一个没法筛的列表，扫起来比能打字筛的更慢。',
-    accessibility: [
+    accessibility: ['在有边界的框里——设备预览、内嵌控制台——用 `<OverlayContainer container={el}>` 包住这棵子树。面板会渲染进那个元素，按它的边界翻转，而不是按视口；框上设的 `dir` 和 `data-density` 也就跟着生效了。', 
       '选项列表是我们自己的，所以它不会在打开的一瞬间换掉字体、间距和选中色——那正是原生 select 会做的事。',
       '键盘行为仍是平台的那一套：首字母跳转、方向键、Home 和 End、Escape 关闭且不选。',
       'label 必填。触发器上显示的是值，值不是名字。',
@@ -169,17 +169,17 @@ const COMPONENTS_ZH: Record<string, ComponentCopy> = {
   'dropdown-menu': {
     summary: '一组动作构成的菜单。',
     when: '动作。会跳转的项属于导航；会设定某个值的是 Select 或 RadioGroup。',
-    accessibility: ['高亮由 data-highlighted 驱动，同时覆盖悬停和键盘焦点——只写 :hover 会让键盘用户看不见自己在哪。'],
+    accessibility: ['在有边界的框里——设备预览、内嵌控制台——用 `<OverlayContainer container={el}>` 包住这棵子树。面板会渲染进那个元素，按它的边界翻转，而不是按视口；框上设的 `dir` 和 `data-density` 也就跟着生效了。', '高亮由 data-highlighted 驱动，同时覆盖悬停和键盘焦点——只写 :hover 会让键盘用户看不见自己在哪。'],
   },
   tooltip: {
     summary: '悬停和获得焦点时出现的一句短标签。',
     when: '任何读者“需要”的东西都不能只放在这里：触屏摸不到它，扫读的人也看不见它。',
-    accessibility: ['触发器用 asChild，所以子元素必须可聚焦——一个 div 触发器就是没有键盘 tooltip，这个 API 形状让它显性而不是无声。', '它不是无障碍名称。只有图标的按钮仍然需要自己的 aria-label。'],
+    accessibility: ['在有边界的框里——设备预览、内嵌控制台——用 `<OverlayContainer container={el}>` 包住这棵子树。面板会渲染进那个元素，按它的边界翻转，而不是按视口；框上设的 `dir` 和 `data-density` 也就跟着生效了。', '触发器用 asChild，所以子元素必须可聚焦——一个 div 触发器就是没有键盘 tooltip，这个 API 形状让它显性而不是无声。', '它不是无障碍名称。只有图标的按钮仍然需要自己的 aria-label。'],
   },
   popover: {
     summary: '锚在控件上的面板，里面装可以交互的内容。',
     when: '任何带链接、字段或按钮的东西。tooltip 描述而不能被进入——把控件放进 tooltip，它就再也够不到了。',
-    accessibility: ['label 必填：popover 是一个 dialog，没有名字的 dialog 什么都没播报。', '里面的内容像页面其他部分一样用 Tab 走，不像菜单那样用方向键。'],
+    accessibility: ['在有边界的框里——设备预览、内嵌控制台——用 `<OverlayContainer container={el}>` 包住这棵子树。面板会渲染进那个元素，按它的边界翻转，而不是按视口；框上设的 `dir` 和 `data-density` 也就跟着生效了。', 'label 必填：popover 是一个 dialog，没有名字的 dialog 什么都没播报。', '里面的内容像页面其他部分一样用 Tab 走，不像菜单那样用方向键。'],
   },
   sheet: {
     summary: '停靠在视口某一边的面板。',
@@ -190,7 +190,7 @@ const COMPONENTS_ZH: Record<string, ComponentCopy> = {
   'searchable-menu': {
     summary: '一个能打字筛选的动作菜单。',
     when: 'DropdownMenu 超过十几行就不再能扫读，而用二级菜单去救只会更糟。这就是同一份列表加上一个过滤框。它不是 Command 面板：那个是页面级的、模态的；这个锚在某个控件上。',
-    accessibility: [
+    accessibility: ['在有边界的框里——设备预览、内嵌控制台——用 `<OverlayContainer container={el}>` 包住这棵子树。面板会渲染进那个元素，按它的边界翻转，而不是按视口；框上设的 `dir` 和 `data-density` 也就跟着生效了。', 
       '行是 listbox 里的 option 而不是 menuitem，因为过滤这件事要求如此——高亮通过 aria-activedescendant 移动，焦点留在输入框里，而菜单做不到。',
       '这个取舍是刻意的：一个没法筛的菜单，对读者来说比一个会执行动作的 listbox 更糟。',
     ],
