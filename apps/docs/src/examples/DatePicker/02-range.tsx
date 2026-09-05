@@ -6,7 +6,7 @@ export function Example() {
   return (
     <Field
       label="Reporting period"
-      hint="Two months at once, because a range that crosses a boundary is the common case."
+      hint="Last 30 days and its neighbours are one click; the grid is for everything else."
       className="w-full max-w-sm"
     >
       <DateRangePicker label="Reporting period" />

@@ -72,6 +72,7 @@ export * from './components/Popover/Popover'
 export * from './components/Sheet/Sheet'
 export * from './components/ContextMenu/ContextMenu'
 export * from './components/Command/Command'
+export * from './components/SearchableMenu/SearchableMenu'
 
 // ─── Navigation ───
 export * from './components/Tabs/Tabs'

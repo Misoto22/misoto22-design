@@ -2,6 +2,55 @@ import { ArrowDown, ArrowUp, ChevronsUpDown } from 'lucide-react'
 import type { HTMLAttributes, TableHTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from 'react'
 import { cn } from '../../lib/cn'
 
+export type TableAlign = 'start' | 'center' | 'end'
+
+/**
+ * Which rules the table draws.
+ *
+ * `rows` is the default and the right answer for reading down a column: one
+ * hairline between records and nothing else, so the eye tracks a line across
+ * without a grid competing for it. `grid` adds the vertical rules a dense
+ * numeric table needs to keep columns apart. `bordered` puts an edge around the
+ * whole thing, for a table that sits loose on a page rather than inside a card
+ * that already has one. `none` is for a table inside something that draws its
+ * own structure.
+ */
+export type TableBorders = 'rows' | 'grid' | 'bordered' | 'bordered-grid' | 'none'
+
+const ALIGN: Record<TableAlign, string> = {
+  start: 'text-start',
+  center: 'text-center',
+  end: 'text-end',
+}
+
+/**
+ * Every rule the table draws, expressed from ONE element.
+ *
+ * Not React context, which was the first attempt: `createContext` makes the
+ * module client-only, which turned every table on every page into a hydration
+ * boundary and took the static build down with it. Descendant selectors from
+ * the wrapper reach the same cells, cost nothing at runtime, and keep the whole
+ * component server-renderable.
+ *
+ * `--table-pad-x` rather than a padding class per mode, because the ruled
+ * variants need symmetric padding inside their boxes while the plain one wants
+ * a trailing gap and no leading one.
+ */
+const ROWS =
+  '[&_thead]:border-b [&_thead]:border-(--rule-hard) [&_tbody_tr]:border-b [&_tbody_tr]:border-(--rule) [&_tbody_tr:last-child]:border-b-0'
+const SOFT_HEAD = '[&_thead]:border-(--rule-2)'
+const COLUMNS =
+  '[&_th]:border-e [&_td]:border-e [&_th]:border-(--rule) [&_td]:border-(--rule) [&_th:last-child]:border-e-0 [&_td:last-child]:border-e-0'
+const BOXED = 'rounded-(--radius) border border-(--rule-2) [--table-pad-x:0.75rem]'
+
+const BORDERS: Record<TableBorders, string> = {
+  rows: ROWS,
+  grid: cn(ROWS, COLUMNS, '[--table-pad-x:0.75rem]'),
+  bordered: cn(ROWS, SOFT_HEAD, BOXED),
+  'bordered-grid': cn(ROWS, SOFT_HEAD, COLUMNS, BOXED),
+  none: '',
+}
+
 export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
   /**
    * Describes the table for a screen reader, which cannot see the heading above
@@ -16,6 +65,10 @@ export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
    * container — otherwise the page scrolls, not the table, and nothing sticks.
    */
   stickyHeader?: boolean
+  /** Which rules to draw. See {@link TableBorders}. */
+  borders?: TableBorders
+  /** Tightens the row padding, for a table that is mostly numbers. */
+  density?: 'comfortable' | 'compact'
 }
 
 /**
@@ -28,24 +81,26 @@ export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
  * That container is focusable, and it has to be. A scrollable region whose
  * contents are not themselves focusable is unreachable by keyboard: there is no
  * element to Tab to and therefore no way to press an arrow key at it, so the
- * columns past the fold simply do not exist for anyone not using a mouse. The
- * `tabIndex` gives it a stop; the `role` and label say what the reader has
- * landed on rather than announcing an anonymous group.
+ * columns past the fold simply do not exist for anyone not using a mouse.
  *
- * Rules only: no zebra striping, no cell borders. In a monochrome system a
- * striped row is a second surface competing with the page ground, and the
- * hairline between rows is already enough to track a line across.
+ * No zebra striping at any border setting. In a monochrome system a striped row
+ * is a second surface competing with the page ground, and the hairline between
+ * rows is already enough to track a line across.
  *
  * @example
  * <Table caption="Deploy history">
- *   <THead><TR><TH>Commit</TH><TH align="right">Duration</TH></TR></THead>
- *   <TBody><TR><TD>a1b2c3d</TD><TD align="right">2m 14s</TD></TR></TBody>
+ *   <THead><TR><TH>Commit</TH><TH align="end" sortable sortDirection={dir} onSort={sort}>Duration</TH></TR></THead>
+ *   <TBody><TR><TD>a1b2c3d</TD><TD align="end">2m 14s</TD></TR></TBody>
  * </Table>
+ * @example
+ * <Table caption="Inventory" borders="bordered-grid" density="compact">…</Table>
  */
 export function Table({
   caption,
   showCaption = false,
   stickyHeader = false,
+  borders = 'rows',
+  density = 'comfortable',
   className,
   children,
   ...rest
@@ -55,21 +110,19 @@ export function Table({
       tabIndex={0}
       role="region"
       aria-label={caption}
-      className="w-full overflow-x-auto scroll-slim"
+      data-table-density={density}
+      className={cn('w-full overflow-x-auto scroll-slim', BORDERS[borders])}
     >
       <table
         className={cn(
           'w-full border-collapse text-start text-sm',
-          stickyHeader && '[&_thead]:sticky [&_thead]:top-0 [&_thead]:z-(--z-rule) [&_thead]:bg-(--paper)',
+          stickyHeader &&
+            '[&_thead]:sticky [&_thead]:top-0 [&_thead]:z-(--z-rule) [&_thead]:bg-(--paper)',
           className,
         )}
         {...rest}
       >
-        <caption
-          className={cn(
-            showCaption ? 'pb-3 text-start eyebrow text-(--ink-3-aa)' : 'sr-only',
-          )}
-        >
+        <caption className={cn(showCaption ? 'pb-3 text-start eyebrow text-(--ink-3-aa)' : 'sr-only')}>
           {caption}
         </caption>
         {children}
@@ -78,9 +131,9 @@ export function Table({
   )
 }
 
-/** Header group. Draws the hard rule that separates labels from data. */
+/** Header group. The rule under it is drawn by the table's border setting. */
 export function THead({ className, ...rest }: HTMLAttributes<HTMLTableSectionElement>) {
-  return <thead className={cn('border-b border-(--rule-hard)', className)} {...rest} />
+  return <thead className={className} {...rest} />
 }
 
 export function TBody({ className, ...rest }: HTMLAttributes<HTMLTableSectionElement>) {
@@ -88,12 +141,14 @@ export function TBody({ className, ...rest }: HTMLAttributes<HTMLTableSectionEle
 }
 
 export function TR({ className, ...rest }: HTMLAttributes<HTMLTableRowElement>) {
-  return <tr className={cn('border-b border-(--rule) last:border-b-0', className)} {...rest} />
+  return <tr className={className} {...rest} />
 }
 
 export type SortDirection = 'ascending' | 'descending' | 'none'
 
-export interface THProps extends ThHTMLAttributes<HTMLTableCellElement> {
+export interface THProps extends Omit<ThHTMLAttributes<HTMLTableCellElement>, 'align'> {
+  /** Which edge the column's contents sit against. Numbers belong at `end`. */
+  align?: TableAlign
   /** Makes the label a button and shows the sort marker. */
   sortable?: boolean
   /**
@@ -104,6 +159,16 @@ export interface THProps extends ThHTMLAttributes<HTMLTableCellElement> {
   sortDirection?: SortDirection
   onSort?: () => void
 }
+
+/**
+ * Cell padding, in one string both cells share.
+ *
+ * `--table-pad-x` is 0 by default and set by the ruled variants, so the plain
+ * table keeps its trailing gap and no leading one while a boxed table gets
+ * symmetric padding inside its border.
+ */
+const CELL =
+  'px-[var(--table-pad-x,0)] [&:not(:last-child)]:pe-[calc(var(--table-pad-x,0px)+1.5rem)]'
 
 const SORT_ICON = {
   ascending: ArrowUp,
@@ -117,21 +182,36 @@ const SORT_ICON = {
  * When sortable, the label becomes a `<button>` INSIDE the `<th>` rather than
  * the `<th>` becoming clickable: a cell with a click handler is not focusable
  * and not announced as a control, so the sort exists only for a mouse.
+ *
+ * Sorting is per column and opt-in. A table where every header is a button
+ * invites the reader to try sorting a column the data cannot be ordered by.
  */
-export function TH({ sortable = false, sortDirection = 'none', onSort, className, children, ...rest }: THProps) {
+export function TH({
+  align = 'start',
+  sortable = false,
+  sortDirection = 'none',
+  onSort,
+  className,
+  children,
+  ...rest
+}: THProps) {
   const Icon = SORT_ICON[sortDirection]
+
   return (
     <th
       scope="col"
       aria-sort={sortable ? sortDirection : undefined}
-      className={cn('py-3 pe-6 last:pe-0 align-bottom eyebrow text-(--ink-3-aa)', className)}
+      className={cn(CELL, 'py-3 align-bottom eyebrow text-(--ink-3-aa)', ALIGN[align], className)}
       {...rest}
     >
       {sortable ? (
         <button
           type="button"
           onClick={onSort}
-          className="group inline-flex items-center gap-1.5 eyebrow text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:text-(--ink) aria-[sort]:text-(--ink)"
+          className={cn(
+            'group inline-flex items-center gap-1.5 eyebrow transition-colors duration-(--duration-fast) hover:text-(--ink)',
+            sortDirection === 'none' ? 'text-(--ink-3-aa)' : 'text-(--ink)',
+          )}
         >
           {children}
           <Icon
@@ -151,8 +231,18 @@ export function TH({ sortable = false, sortDirection = 'none', onSort, className
   )
 }
 
-export function TD({ className, ...rest }: TdHTMLAttributes<HTMLTableCellElement>) {
-  return <td className={cn('py-3.5 pe-6 last:pe-0 align-top text-(--ink-2)', className)} {...rest} />
+export interface TDProps extends Omit<TdHTMLAttributes<HTMLTableCellElement>, 'align'> {
+  /** Which edge the cell's contents sit against. Match the column's header. */
+  align?: TableAlign
+}
+
+export function TD({ align = 'start', className, ...rest }: TDProps) {
+  return (
+    <td
+      className={cn(CELL, 'py-[var(--table-pad-y)] align-top text-(--ink-2)', ALIGN[align], className)}
+      {...rest}
+    />
+  )
 }
 
 export default Table

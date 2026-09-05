@@ -187,6 +187,14 @@ const COMPONENTS_ZH: Record<string, ComponentCopy> = {
     accessibility: ['复用 Dialog 的焦点陷阱、Escape 与滚动锁定，而不是再实现一遍——第二个焦点陷阱就是第二个会出错的焦点陷阱。', '标题必填，无论可不可见。'],
   },
   'context-menu': { summary: '右键打开的菜单。', when: '永远不能是通往某个动作的唯一路径。触屏、触控板和纯键盘用户可能根本打不开它。' },
+  'searchable-menu': {
+    summary: '一个能打字筛选的动作菜单。',
+    when: 'DropdownMenu 超过十几行就不再能扫读，而用二级菜单去救只会更糟。这就是同一份列表加上一个过滤框。它不是 Command 面板：那个是页面级的、模态的；这个锚在某个控件上。',
+    accessibility: [
+      '行是 listbox 里的 option 而不是 menuitem，因为过滤这件事要求如此——高亮通过 aria-activedescendant 移动，焦点留在输入框里，而菜单做不到。',
+      '这个取舍是刻意的：一个没法筛的菜单，对读者来说比一个会执行动作的 listbox 更糟。',
+    ],
+  },
   command: {
     summary: '可筛选的动作列表——⌘K 那个面。',
     accessibility: ['列表随打字过滤，高亮随方向键移动，焦点始终留在输入框里。最后这条是 ARIA combobox 模式，也是自制面板一定会做错的地方。'],
@@ -208,8 +216,12 @@ const COMPONENTS_ZH: Record<string, ComponentCopy> = {
   'nav-item': { summary: '侧边栏里的一行。', accessibility: ['aria-current="page"，而且不只靠颜色：当前行同时由字重和填充底色承担。'] },
   card: { summary: '一块有边界的表面，下面没有阴影。', when: '需要读作“浮起来”的卡片是 plate，它靠反色分离，而不是靠模糊。' },
   table: {
-    summary: '一张有细线的数据表，在自己的盒子里横向滚动。',
-    accessibility: ['caption 必填：一个页面上三张表，其中没有名字的那张是没法导航的。', '列标题是 <th scope="col">，所以一个单元格能被追溯回它的表头。'],
+    summary: '一张数据表——对齐、排序、边框都可以按列配置。',
+    when: '对齐按列设置，数字靠尾边，这样每一位才能对齐。排序按列开启：每个表头都是按钮，等于在邀请读者去排一个数据本来就排不了的列。',
+    accessibility: [
+      '可排序的表头是 th 里面的 button，而不是给单元格挂 onClick——带 onClick 的单元格既不可聚焦也不会被播报，那个排序就只对鼠标存在。',
+      'aria-sort 由 sortDirection 设置，这是读屏用户得知这张表已被排序的唯一途径。',
+      '任何边框设置下都没有斑马纹：在单色系统里，一条被染色的行是又一个和页面底色抢注意力的表面。','caption 必填：一个页面上三张表，其中没有名字的那张是没法导航的。', '列标题是 <th scope="col">，所以一个单元格能被追溯回它的表头。'],
   },
   'scroll-area': {
     summary: '一个会滚动的盒子，滚动条在哪都长一样。',

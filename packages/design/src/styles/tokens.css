@@ -219,6 +219,12 @@
   --field-px: 0.875rem;
   --field-py: 0.625rem;
 
+  /* A table's own row padding. Separate from the control scale because a table
+     row is neither a control nor a field — it is a line of text with a rule
+     under it, and it tightens on its own axis. */
+  --table-pad-y: 0.875rem;
+  --table-pad-x: 0;
+
   /* ─── Motion ─── */
   --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
   --fast: 0.13s;
@@ -278,4 +284,11 @@
   --control-gap: 0.5rem;
   --field-px: 0.625rem;
   --field-py: 0.375rem;
+  --table-pad-y: 0.5rem;
+}
+
+/* A table can be tightened on its own, without the whole subtree going
+   compact — a dashboard often wants a dense grid inside comfortable chrome. */
+[data-table-density='compact'] {
+  --table-pad-y: 0.5rem;
 }

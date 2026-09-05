@@ -1,29 +1,54 @@
-import { Badge, TBody, TD, TH, THead, TR, Table } from '@misoto22/design'
+'use client'
+
+import { Badge, TBody, TD, TH, THead, TR, Table, type SortDirection } from '@misoto22/design'
+import { useState } from 'react'
 
 const ROWS = [
-  { sha: 'a1b2c3d', branch: 'main', duration: '2m 14s', state: 'passed' },
-  { sha: '9f8e7d6', branch: 'codex/ui-library', duration: '2m 41s', state: 'passed' },
-  { sha: '4c5b6a7', branch: 'codex/photo-cache', duration: '1m 02s', state: 'failed' },
+  { sha: 'a1b2c3d', branch: 'main', seconds: 134, state: 'passed' as const },
+  { sha: '9f8e7d6', branch: 'codex/ui-library', seconds: 161, state: 'passed' as const },
+  { sha: '4c5b6a7', branch: 'codex/photo-cache', seconds: 62, state: 'failed' as const },
+  { sha: '77aa2b1', branch: 'main', seconds: 140, state: 'passed' as const },
 ]
 
+const format = (seconds: number) => `${Math.floor(seconds / 60)}m ${String(seconds % 60).padStart(2, '0')}s`
+
 export function Example() {
+  const [sort, setSort] = useState<SortDirection>('none')
+
+  const rows =
+    sort === 'none'
+      ? ROWS
+      : [...ROWS].sort((a, b) => (sort === 'ascending' ? a.seconds - b.seconds : b.seconds - a.seconds))
+
   return (
     <Table caption="Recent deploys">
       <THead>
         <TR>
           <TH>Commit</TH>
           <TH>Branch</TH>
-          <TH className="text-right">Duration</TH>
-          <TH>State</TH>
+          {/* Sorting is opt-in per column: a table where every header is a
+              button invites sorting a column the data cannot be ordered by. */}
+          <TH
+            align="end"
+            sortable
+            sortDirection={sort}
+            onSort={() => setSort(sort === 'ascending' ? 'descending' : 'ascending')}
+          >
+            Duration
+          </TH>
+          <TH align="center">State</TH>
         </TR>
       </THead>
       <TBody>
-        {ROWS.map((row) => (
+        {rows.map((row) => (
           <TR key={row.sha}>
             <TD className="font-mono text-xs">{row.sha}</TD>
             <TD>{row.branch}</TD>
-            <TD className="text-right tabular-nums">{row.duration}</TD>
-            <TD>
+            {/* Numbers belong at the end edge, so their digits line up. */}
+            <TD align="end" className="tabular-nums">
+              {format(row.seconds)}
+            </TD>
+            <TD align="center">
               <Badge tone={row.state === 'passed' ? 'success' : 'danger'}>{row.state}</Badge>
             </TD>
           </TR>
