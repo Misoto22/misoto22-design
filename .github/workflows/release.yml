@@ -12,9 +12,7 @@ concurrency:
 
 permissions:
   contents: write
-  packages: write
   pull-requests: write
-  id-token: write
 
 jobs:
   release:
@@ -31,11 +29,11 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-          # GitHub Packages rather than npmjs: the npm automation token expired
-          # and minting a new one needs an interactive login, while GITHUB_TOKEN
-          # already authorizes this registry. Publishing to npmjs as well is one
-          # secret away — see docs/releasing.md.
-          registry-url: https://npm.pkg.github.com
+          # Writes the `.npmrc` that `changeset publish` authenticates with, so
+          # NODE_AUTH_TOKEN below is the credential and nothing on disk holds a
+          # value. The package is public under a scope, which npm treats as
+          # restricted unless told otherwise — `publishConfig.access` says so.
+          registry-url: https://registry.npmjs.org
           scope: '@misoto22'
 
       - run: pnpm install --frozen-lockfile
@@ -59,8 +57,13 @@ jobs:
           commit: 'chore(release): version packages'
           title: 'chore(release): version packages'
         env:
+          # Two different credentials: GITHUB_TOKEN opens the version pull
+          # request, NPM_TOKEN publishes. The workflow's own token cannot reach
+          # npmjs, so a missing NPM_TOKEN fails the publish rather than
+          # silently shipping nothing.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # The action decides whether anything shipped by PARSING the publish CLI's
       # human-readable output, and does not recognise this CLI version's

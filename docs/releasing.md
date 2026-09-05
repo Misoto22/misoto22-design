@@ -1,9 +1,9 @@
 # Releasing
 
-`@misoto22/design` is published to **GitHub Packages** as a restricted package
-under the `@misoto22` scope. Versioning is driven by changesets, so the
-changelog is written by whoever made the change, at the moment they understood
-it — rather than reconstructed from commit subjects a month later.
+`@misoto22/design` is published to **npmjs** as a public package under the
+`@misoto22` scope. Versioning is driven by changesets, so the changelog is
+written by whoever made the change, at the moment they understood it — rather
+than reconstructed from commit subjects a month later.
 
 ## Shipping a change
 
@@ -23,33 +23,36 @@ versioned.
 
 ## Consuming it
 
-GitHub Packages needs the scope pointed at its registry and an authenticated
-read. In the consuming repository's `.npmrc`:
-
-```
-@misoto22:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
-```
-
-`GITHUB_TOKEN` needs `read:packages`. In GitHub Actions the workflow's own
-token is enough; locally, use a personal access token from 1Password rather
-than pasting one into the file — the `${VAR}` form above reads the environment,
-so the file itself stays free of the value.
+Nothing to configure. The package is public on the default registry, so every
+package manager reads it without a token or an `.npmrc` — `npm`, `pnpm`, `yarn`
+and `bun` are four clients of one registry, not four places to publish.
 
 ```bash
 pnpm add @misoto22/design
 ```
 
-## Why not npmjs
+## The publish credential
 
-The npm automation token in 1Password (`npm-registry-token`) is expired, and
-minting a replacement requires an interactive login that CI cannot perform.
-GitHub Packages needs no new credential: `GITHUB_TOKEN` already authorizes it.
+`NPM_TOKEN` is an npmjs **automation** token — the granular kind, scoped to
+read and write `@misoto22/*` and nothing else. Automation rather than
+publish-classic because a classic token is refused when the account has 2FA on
+publish, which is where an account holding a public package should be.
 
-Publishing to npmjs as well is one secret away — add `NPM_TOKEN` to the
-repository, drop the `registry` line from the package's `publishConfig`, and
-add a second `setup-node` step with `registry-url: https://registry.npmjs.org`.
-Do that when someone outside these repositories needs to install it.
+It lives in two places and no third:
+
+| Where | What it is for |
+|---|---|
+| 1Password `01 Personal Development`, item `npm-registry-token` | the durable copy, tagged `project/personal-website` · `provider/npm` · `env/production` |
+| the repository's Actions secret `NPM_TOKEN` | what the release workflow reads |
+
+Minting one needs an interactive npmjs login, so it is a job for a person and
+never for CI. Rotating it means replacing both copies; the workflow reads only
+the secret, so a stale 1Password entry fails silently the next time someone
+needs it by hand.
+
+If the publish step ever fails with `402 Payment Required`, the cause is
+`publishConfig.access` — npm treats a scoped package as private unless told
+`public`, and a private package needs a paid account.
 
 ## Tags
 
