@@ -1,32 +1,46 @@
 import { describe, expect, it } from 'vitest'
-import { readFileSync, readdirSync, statSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { readFileSync, readdirSync } from 'node:fs'
+import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const COMPONENTS = join(dirname(fileURLToPath(import.meta.url)), '..', 'components')
+const SRC = join(dirname(fileURLToPath(import.meta.url)), '..')
 
+/**
+ * Every hand-written `.tsx` under `src`, which is where this app's class names
+ * live — `.ts` here holds copy, and its prose names the physical sides in order
+ * to explain the rule.
+ *
+ * `generated` is skipped: it is build output rebuilt from the design package on
+ * every `pnpm generate`, and the package guards its own source.
+ */
 function sources(): { file: string; text: string }[] {
-  return readdirSync(COMPONENTS)
-    .filter((entry) => statSync(join(COMPONENTS, entry)).isDirectory())
-    .map((dir) => ({ file: `${dir}/${dir}.tsx`, path: join(COMPONENTS, dir, `${dir}.tsx`) }))
-    .filter((entry) => {
-      try {
-        return statSync(entry.path).isFile()
-      } catch {
-        return false
+  const found: { file: string; text: string }[] = []
+  const walk = (dir: string) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const path = join(dir, entry.name)
+      if (entry.isDirectory()) {
+        if (entry.name !== 'generated') walk(path)
+      } else if (entry.name.endsWith('.tsx')) {
+        found.push({ file: relative(SRC, path), text: readFileSync(path, 'utf8') })
       }
-    })
-    .map((entry) => ({ file: entry.file, text: readFileSync(entry.path, 'utf8') }))
+    }
+  }
+  walk(SRC)
+  return found
 }
 
 /**
  * Physical direction utilities, and what to write instead.
  *
- * The system is not translated today, and that is exactly why this is enforced
- * now: retrofitting direction into forty components after the fact is a sweep
- * nobody schedules, and the failure mode is silent — an Arabic or Hebrew page
- * where every icon sits on the wrong side of its label and no test says so.
- * Writing `pe-6` instead of `pr-6` costs nothing at the moment of writing.
+ * The same table the design package enforces on its own components, applied to
+ * the site that documents them. It is duplicated rather than imported because
+ * the dependency only runs one way: the package must build and publish without
+ * this app present, so its test cannot reach in here, and exporting a rule list
+ * from the package would put an internal lint rule into a consumer contract.
+ *
+ * The docs site makes the same RTL promise the components do — it renders every
+ * example, in a shell of its own — so a physical utility in this app breaks the
+ * promise just as visibly, and until now nothing said so.
  */
 const PHYSICAL: { pattern: RegExp; instead: string }[] = [
   { pattern: /\B-?\bml-(?![a-z])/, instead: 'ms-' },
@@ -125,6 +139,11 @@ function unpaired(text: string): string[] {
 }
 
 describe('direction independence', () => {
+  it('finds the app source to scan', () => {
+    // A walk that silently matches nothing would pass every assertion below.
+    expect(sources().length).toBeGreaterThan(20)
+  })
+
   it.each(sources())('$file uses logical properties', ({ text }) => {
     const found = PHYSICAL.filter(({ pattern }) => pattern.test(code(text))).map(
       ({ pattern, instead }) => `${pattern.source} → use ${instead}`,
