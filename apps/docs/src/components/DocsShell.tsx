@@ -7,7 +7,10 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState, type ReactNode } from 'react'
 import { AccentMenu } from './AccentMenu'
 import { CommandPalette } from './CommandPalette'
+<<<<<<< HEAD
 import { LocaleMenu } from './LocaleMenu'
+=======
+>>>>>>> origin/main
 import { Sidebar } from './Sidebar'
 import { ThemeToggle } from './ThemeToggle'
 import { localePath } from '@/i18n/locales'
@@ -116,7 +119,11 @@ export function DocsShell({ children }: { children: ReactNode }) {
               className="gap-2 text-(--ink-3-aa)"
             >
               <Search size={14} strokeWidth={1.5} aria-hidden />
+<<<<<<< HEAD
               <span className="max-sm:sr-only">{t.search}</span>
+=======
+              <span className="max-sm:sr-only">Search</span>
+>>>>>>> origin/main
               <Kbd className="max-sm:hidden">⌘K</Kbd>
             </Button>
             <Button
@@ -129,7 +136,10 @@ export function DocsShell({ children }: { children: ReactNode }) {
             >
               GitHub
             </Button>
+<<<<<<< HEAD
             <LocaleMenu />
+=======
+>>>>>>> origin/main
             <AccentMenu />
             <ThemeToggle />
           </div>
