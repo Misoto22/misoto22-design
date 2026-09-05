@@ -6,6 +6,10 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { COMPONENTS, groupedComponents, type ComponentEntry } from '@/content/registry'
 import { FOUNDATIONS } from '@/content/foundations'
+import { foundationCopy, groupName } from '@/i18n/content'
+import { localePath } from '@/i18n/locales'
+import { fill } from '@/i18n/messages'
+import { useLocale, useMessages } from '@/i18n/useLocale'
 import propsJson from '@/generated/props.json'
 
 /**
@@ -59,6 +63,8 @@ const matches = (entry: ComponentEntry, needle: string) =>
  */
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
+  const locale = useLocale()
+  const t = useMessages()
   const [query, setQuery] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
 
@@ -88,9 +94,11 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     ? sections.reduce((total, section) => total + section.entries.length, 0)
     : 0
 
-  const foundations = FOUNDATIONS.filter(
-    (page) => !needle || page.title.toLowerCase().includes(needle),
-  )
+  const foundations = FOUNDATIONS.filter((page) => {
+    if (!needle) return true
+    const title = foundationCopy(locale, page.slug).title ?? page.title
+    return title.toLowerCase().includes(needle) || page.title.toLowerCase().includes(needle)
+  })
 
   return (
     <div className="flex h-full flex-col gap-6">
@@ -100,53 +108,53 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search"
-          aria-label="Search the documentation"
+          placeholder={t.search}
+          aria-label={t.searchAria}
           className="pr-12"
         />
         <Kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2">/</Kbd>
       </div>
 
-      <nav aria-label="Documentation" className="flex flex-col gap-6 overflow-y-auto scroll-slim">
-        <Section title="Start">
-          <Row href="/" pathname={pathname} onNavigate={onNavigate}>
-            Overview
+      <nav aria-label={t.nav.documentation} className="flex flex-col gap-6 overflow-y-auto scroll-slim">
+        <Section title={t.nav.start}>
+          <Row href={localePath(locale, '/')} pathname={pathname} onNavigate={onNavigate}>
+            {t.nav.overview}
           </Row>
-          <Row href="/principles/" pathname={pathname} onNavigate={onNavigate}>
-            Principles
+          <Row href={localePath(locale, '/principles/')} pathname={pathname} onNavigate={onNavigate}>
+            {t.nav.principles}
           </Row>
-          <Row href="/components/" pathname={pathname} onNavigate={onNavigate}>
-            All components
+          <Row href={localePath(locale, '/components/')} pathname={pathname} onNavigate={onNavigate}>
+            {t.nav.allComponents}
           </Row>
-          <Row href="/templates/" pathname={pathname} onNavigate={onNavigate}>
-            Templates
+          <Row href={localePath(locale, '/templates/')} pathname={pathname} onNavigate={onNavigate}>
+            {t.nav.templates}
           </Row>
-          <Row href="/changelog/" pathname={pathname} onNavigate={onNavigate}>
-            Changelog
+          <Row href={localePath(locale, '/changelog/')} pathname={pathname} onNavigate={onNavigate}>
+            {t.nav.changelog}
           </Row>
         </Section>
 
         {foundations.length > 0 && (
-          <Section title="Foundations">
+          <Section title={t.nav.foundations}>
             {foundations.map((page) => (
               <Row
                 key={page.slug}
-                href={`/foundations/${page.slug}/`}
+                href={localePath(locale, `/foundations/${page.slug}/`)}
                 pathname={pathname}
                 onNavigate={onNavigate}
               >
-                {page.title}
+                {foundationCopy(locale, page.slug).title ?? page.title}
               </Row>
             ))}
           </Section>
         )}
 
         {sections.map((section) => (
-          <Section key={section.group} title={section.group}>
+          <Section key={section.group} title={groupName(locale, section.group)}>
             {section.entries.map((entry) => (
               <Row
                 key={entry.slug}
-                href={`/components/${entry.slug}/`}
+                href={localePath(locale, `/components/${entry.slug}/`)}
                 pathname={pathname}
                 onNavigate={onNavigate}
               >
@@ -158,14 +166,13 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
         {needle && (hits > 0 || foundations.length > 0) && (
           <p className="m-0 px-3 mono-meta text-(--ink-3-aa)" role="status">
-            {hits + foundations.length} matching
+            {fill(t.matching, { count: hits + foundations.length })}
           </p>
         )}
 
         {needle && sections.length === 0 && foundations.length === 0 && (
           <p className="m-0 px-3 text-sm text-(--ink-3-aa)" role="status">
-            Nothing matches “{query}”. The index covers names, summaries, props, keyboard keys and
-            the accessibility notes.
+            {fill(t.searchEmpty, { query })}
           </p>
         )}
       </nav>

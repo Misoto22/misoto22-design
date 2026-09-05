@@ -15,10 +15,10 @@ export async function generateMetadata({
   const { slug } = await params
   const entry = BY_SLUG.get(slug)
   if (!entry) return {}
-  return { title: entry.name, description: componentCopy('en', slug).summary ?? entry.summary }
+  return { title: entry.name, description: componentCopy('zh', slug).summary ?? entry.summary }
 }
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  return <ComponentPage locale="en" slug={slug} />
+  return <ComponentPage locale="zh" slug={slug} />
 }

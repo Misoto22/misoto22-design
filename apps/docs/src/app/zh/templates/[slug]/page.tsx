@@ -15,10 +15,10 @@ export async function generateMetadata({
   const { slug } = await params
   const entry = TEMPLATE_BY_SLUG.get(slug)
   if (!entry) return {}
-  return { title: templateCopy('en', slug).name ?? entry.name, description: templateCopy('en', slug).summary ?? entry.summary }
+  return { title: templateCopy('zh', slug).name ?? entry.name, description: templateCopy('zh', slug).summary ?? entry.summary }
 }
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  return <TemplatePage locale="en" slug={slug} />
+  return <TemplatePage locale="zh" slug={slug} />
 }

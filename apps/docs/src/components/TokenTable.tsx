@@ -1,4 +1,6 @@
 import { TBody, TD, TH, THead, TR, Table } from '@misoto22/design'
+import type { Locale } from '@/i18n/locales'
+import { getMessages } from '@/i18n/messages'
 
 export interface TokenRow {
   name: string
@@ -22,6 +24,7 @@ export interface TokenTableProps {
   rows: TokenRow[]
   /** The same tokens under `[data-mode='dark']`, keyed by name. */
   dark?: Map<string, string>
+  locale?: Locale
 }
 
 /**
@@ -32,7 +35,8 @@ export interface TokenTableProps {
  * longer has. It also means the whole table re-paints when the theme flips,
  * which is the fastest way to see what a token actually does.
  */
-export function TokenTable({ title, note, rows, dark }: TokenTableProps) {
+export function TokenTable({ title, note, rows, dark, locale = 'en' }: TokenTableProps) {
+  const t = getMessages(locale)
   if (rows.length === 0) return null
 
   return (
@@ -52,10 +56,10 @@ export function TokenTable({ title, note, rows, dark }: TokenTableProps) {
         <THead>
           <TR>
             <TH className="w-10" />
-            <TH>Token</TH>
-            <TH>Value</TH>
-            {dark && <TH>Dark</TH>}
-            <TH>Notes</TH>
+            <TH>{t.table.token}</TH>
+            <TH>{t.table.value}</TH>
+            {dark && <TH>{t.table.dark}</TH>}
+            <TH>{t.table.notes}</TH>
           </TR>
         </THead>
         <TBody>
@@ -84,7 +88,7 @@ export function TokenTable({ title, note, rows, dark }: TokenTableProps) {
                     {darkValue ? (
                       <code className="font-mono text-xs text-(--ink-2)">{darkValue}</code>
                     ) : (
-                      <span className="mono-meta text-(--ink-3-aa)">same</span>
+                      <span className="mono-meta text-(--ink-3-aa)">{t.table.same}</span>
                     )}
                   </TD>
                 )}

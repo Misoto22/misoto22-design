@@ -18,6 +18,12 @@ export const metadata: Metadata = {
     siteName: 'misoto22 design',
     url: 'https://ui.misoto22.com',
   },
+  alternates: {
+    languages: {
+      en: 'https://ui.misoto22.com',
+      'zh-Hans': 'https://ui.misoto22.com/zh',
+    },
+  },
 }
 
 export const viewport: Viewport = {
@@ -45,6 +51,12 @@ try {
 } catch (_) {
   document.documentElement.dataset.mode = 'light'
 }
+// The root layout sits above the locale routes and has no params, so the
+// document's language is set from the path here — before first paint, so the
+// element is correct for anything reading it afterwards rather than being
+// corrected on hydration.
+var zh = location.pathname === '/zh' || location.pathname.indexOf('/zh/') === 0
+document.documentElement.lang = zh ? 'zh-Hans' : 'en'
 `.trim()
 
 export default function RootLayout({ children }: { children: ReactNode }) {

@@ -3,6 +3,7 @@
 import { Button } from '@misoto22/design'
 import { Moon, Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useMessages } from '@/i18n/useLocale'
 
 type Mode = 'light' | 'dark'
 
@@ -16,6 +17,7 @@ type Mode = 'light' | 'dark'
  */
 export function ThemeToggle() {
   const [mode, setMode] = useState<Mode | null>(null)
+  const t = useMessages()
 
   useEffect(() => {
     const current = document.documentElement.dataset.mode
@@ -40,7 +42,7 @@ export function ThemeToggle() {
       size="sm"
       variant="ghost"
       onClick={toggle}
-      aria-label={mode === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme'}
+      aria-label={mode === 'dark' ? t.appearance.toLight : t.appearance.toDark}
     >
       {mode === null ? (
         <span className="size-4" aria-hidden />

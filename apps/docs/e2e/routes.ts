@@ -10,7 +10,7 @@ import { TEMPLATES } from '../src/content/templates'
  * checked, which is the failure mode a documentation site's own tests exist to
  * prevent.
  */
-export const ROUTES: string[] = [
+const EN_ROUTES: string[] = [
   '/',
   '/principles/',
   '/components/',
@@ -19,4 +19,17 @@ export const ROUTES: string[] = [
   ...FOUNDATIONS.map((page) => `/foundations/${page.slug}/`),
   ...COMPONENTS.map((entry) => `/components/${entry.slug}/`),
   ...TEMPLATES.map((template) => `/templates/${template.slug}/`),
+]
+
+/**
+ * Both languages, from one list.
+ *
+ * The Chinese pages are the same routes under `/zh`, so enumerating them
+ * separately would only create a way for the two to fall out of step — which is
+ * precisely the failure an accessibility sweep is meant to catch rather than
+ * inherit.
+ */
+export const ROUTES: string[] = [
+  ...EN_ROUTES,
+  ...EN_ROUTES.map((route) => (route === '/' ? '/zh/' : `/zh${route}`)),
 ]

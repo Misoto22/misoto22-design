@@ -7,8 +7,11 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState, type ReactNode } from 'react'
 import { AccentMenu } from './AccentMenu'
 import { CommandPalette } from './CommandPalette'
+import { LocaleMenu } from './LocaleMenu'
 import { Sidebar } from './Sidebar'
 import { ThemeToggle } from './ThemeToggle'
+import { localePath } from '@/i18n/locales'
+import { useLocale, useMessages } from '@/i18n/useLocale'
 
 /**
  * The frame every page sits in: a fixed sidebar on a desktop, a drawer under
@@ -24,6 +27,8 @@ import { ThemeToggle } from './ThemeToggle'
 export function DocsShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const locale = useLocale()
+  const t = useMessages()
 
   // Close on navigation: a drawer left open over the page the reader just asked
   // for is the most common mobile-nav bug.
@@ -44,13 +49,13 @@ export function DocsShell({ children }: { children: ReactNode }) {
         href="#content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-(--z-toast) focus:rounded-(--radius) focus:bg-(--ink) focus:px-4 focus:py-2 focus:text-sm focus:text-(--paper)"
       >
-        Skip to content
+        {t.nav.skip}
       </a>
 
       {open && (
         <button
           type="button"
-          aria-label="Close the navigation"
+          aria-label={t.nav.closeNav}
           onClick={() => setOpen(false)}
           className="fixed inset-0 z-(--z-scrim) bg-(--scrim) lg:hidden"
         />
@@ -58,22 +63,22 @@ export function DocsShell({ children }: { children: ReactNode }) {
 
       <aside
         id="docs-sidebar"
-        aria-label="Sidebar"
+        aria-label={t.nav.sidebar}
         className={`fixed inset-y-0 left-0 z-(--z-modal) flex w-[17rem] flex-col gap-5 border-r border-(--rule) bg-(--paper) px-4 py-5 transition-transform duration-(--duration-slow) ease-(--ease-out-expo) ${
           open ? 'translate-x-0' : '-translate-x-full'
         } lg:sticky lg:top-0 lg:z-auto lg:h-svh lg:translate-x-0`}
       >
         <div className="flex items-center justify-between gap-2 px-1">
-          <Link href="/" className="flex flex-col leading-tight">
+          <Link href={localePath(locale, '/')} className="flex flex-col leading-tight">
             <span className="font-heading text-[19px] text-(--ink)">misoto22 design</span>
-            <span className="mono-meta text-(--ink-3-aa)">the White Reset</span>
+            <span className="mono-meta text-(--ink-3-aa)">{t.tagline}</span>
           </Link>
           <Button
             iconOnly
             size="sm"
             variant="ghost"
             className="lg:hidden"
-            aria-label="Close the navigation"
+            aria-label={t.nav.closeNav}
             onClick={() => setOpen(false)}
           >
             <X size={16} strokeWidth={1.5} aria-hidden />
@@ -92,7 +97,7 @@ export function DocsShell({ children }: { children: ReactNode }) {
             size="sm"
             variant="ghost"
             className="lg:hidden"
-            aria-label="Open the navigation"
+            aria-label={t.nav.openNav}
             aria-expanded={open}
             aria-controls="docs-sidebar"
             onClick={() => setOpen(true)}
@@ -111,7 +116,7 @@ export function DocsShell({ children }: { children: ReactNode }) {
               className="gap-2 text-(--ink-3-aa)"
             >
               <Search size={14} strokeWidth={1.5} aria-hidden />
-              <span className="max-sm:sr-only">Search</span>
+              <span className="max-sm:sr-only">{t.search}</span>
               <Kbd className="max-sm:hidden">⌘K</Kbd>
             </Button>
             <Button
@@ -124,6 +129,7 @@ export function DocsShell({ children }: { children: ReactNode }) {
             >
               GitHub
             </Button>
+            <LocaleMenu />
             <AccentMenu />
             <ThemeToggle />
           </div>
