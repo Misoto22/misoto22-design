@@ -83,8 +83,8 @@ export function DocsShell({ children }: { children: ReactNode }) {
       <aside
         id="docs-sidebar"
         aria-label={t.nav.sidebar}
-        className={`fixed inset-y-0 left-0 z-(--z-modal) flex w-[17rem] flex-col border-r border-(--rule) bg-(--paper) transition-transform duration-(--duration-slow) ease-(--ease-out-expo) ${
-          open ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 start-0 z-(--z-modal) flex w-[17rem] flex-col border-e border-(--rule) bg-(--paper) transition-transform duration-(--duration-slow) ease-(--ease-out-expo) ${
+          open ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full'
         } lg:sticky lg:top-0 lg:z-auto lg:h-svh lg:translate-x-0 ${docked ? '' : 'lg:hidden'}`}
       >
         {/* The same 3.5rem as the header beside it, and its own bottom rule, so
