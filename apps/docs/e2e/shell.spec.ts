@@ -36,6 +36,51 @@ test.describe('command palette', () => {
     await expect(page.getByRole('dialog')).toBeVisible()
   })
 
+  test('ranks an exact name above a loose one', async ({ page }) => {
+    await page.goto('/')
+    await ready(page)
+    await page.getByRole('button', { name: /Search/ }).first().click()
+
+    // With a group per section, cmdk ranked only WITHIN a group and rendered
+    // groups in registry order, so typing "table" listed Tag, FigureBand and
+    // Alert above Table. One group, and the section moved onto the row.
+    await page.getByRole('combobox').fill('table')
+    await expect(page.getByRole('option').first()).toContainText('Table')
+
+    await page.getByRole('combobox').fill('')
+    await page.getByRole('combobox').fill('dark')
+    await expect(page.getByRole('option').first()).toContainText(/dark/i)
+  })
+
+  test('says which keys do what', async ({ page }) => {
+    await page.goto('/')
+    await ready(page)
+    await page.getByRole('button', { name: /Search/ }).first().click()
+
+    // A palette is a keyboard surface whose keys are otherwise invisible.
+    const palette = page.getByRole('dialog')
+    await expect(palette).toContainText('navigate')
+    await expect(palette).toContainText('open')
+    await expect(palette).toContainText('close')
+  })
+
+  test('draws each accent in its own colour, in either theme', async ({ page }) => {
+    await page.goto('/')
+    await ready(page)
+    await page.getByRole('button', { name: /Search/ }).first().click()
+
+    const swatch = page.getByRole('option', { name: /Accent: Clay/ }).locator('svg')
+    const colour = () => swatch.evaluate((el) => getComputedStyle(el).color)
+
+    // The swatch used to be a hex in TypeScript, which meant Ink was drawn at
+    // #101010 against a #0d0d0d ground — invisible.
+    const light = await colour()
+    await page.evaluate(() => {
+      document.documentElement.dataset.mode = 'dark'
+    })
+    await expect.poll(colour).not.toBe(light)
+  })
+
   test('carries the things that are not pages', async ({ page }) => {
     await page.goto('/')
     await ready(page)
