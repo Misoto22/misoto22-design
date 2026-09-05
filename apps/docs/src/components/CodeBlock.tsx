@@ -9,6 +9,8 @@ export interface CodeBlockProps {
   html: string
   /** The raw text, for the copy button. */
   source: string
+  /** Names the scroll region. Defaults to something generic; pass better. */
+  label?: string
   className?: string
 }
 
@@ -19,7 +21,7 @@ export interface CodeBlockProps {
  * highlighter is a few hundred kilobytes of grammar, and shipping it to
  * re-derive spans that never change would be the largest thing on the page.
  */
-export function CodeBlock({ html, source, className }: CodeBlockProps) {
+export function CodeBlock({ html, source, label = 'Code', className }: CodeBlockProps) {
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
@@ -60,7 +62,14 @@ export function CodeBlock({ html, source, className }: CodeBlockProps) {
           <Copy size={14} strokeWidth={1.5} aria-hidden />
         )}
       </Button>
+      {/* Focusable, because a snippet that scrolls sideways and contains
+          nothing focusable is unreachable by keyboard — there is no element to
+          Tab to, so the right-hand half of a long line does not exist for
+          anyone not using a mouse. */}
       <div
+        tabIndex={0}
+        role="region"
+        aria-label={label}
         className="overflow-x-auto px-4 py-3.5 scroll-slim [&_pre]:m-0 [&_pre]:bg-transparent"
         dangerouslySetInnerHTML={{ __html: html }}
       />

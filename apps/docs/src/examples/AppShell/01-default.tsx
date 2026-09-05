@@ -8,6 +8,9 @@ export function Example() {
   return (
     <div className="h-96 w-full overflow-hidden rounded-(--radius) border border-(--rule) [&_[class*=min-h-svh]]:min-h-0">
       <AppShell
+        // A page may have only one <main>, and this preview sits inside the
+        // documentation site's own.
+        contentAs="div"
         brand={<span className="font-heading text-base">Console</span>}
         sidebar={
           <>

@@ -12,6 +12,16 @@ export interface AppShellProps extends HTMLAttributes<HTMLDivElement> {
   topbar?: ReactNode
   /** Optional brand lockup pinned to the top of the sidebar. */
   brand?: ReactNode
+  /**
+   * Which element the content well renders as.
+   *
+   * `main` is right for the shell of an application, and is the default. A
+   * document may contain exactly one `main` landmark, so an AppShell rendered
+   * INSIDE another page — a preview on a documentation site, a screenshot
+   * harness — must pass `div`, or the page has two and assistive tech can no
+   * longer answer "where is the content".
+   */
+  contentAs?: 'main' | 'div'
   children: ReactNode
 }
 
@@ -28,7 +38,15 @@ export interface AppShellProps extends HTMLAttributes<HTMLDivElement> {
  *   <Card>…</Card>
  * </AppShell>
  */
-export function AppShell({ sidebar, topbar, brand, children, className, ...rest }: AppShellProps) {
+export function AppShell({
+  sidebar,
+  topbar,
+  brand,
+  contentAs: Content = 'main',
+  children,
+  className,
+  ...rest
+}: AppShellProps) {
   const [open, setOpen] = useState(false)
   const sidebarId = useId()
 
@@ -90,7 +108,7 @@ export function AppShell({ sidebar, topbar, brand, children, className, ...rest 
           {topbar}
         </header>
 
-        <main className="mx-auto w-full max-w-(--w-page) px-(--page-pad) py-8">{children}</main>
+        <Content className="mx-auto w-full max-w-(--w-page) px-(--page-pad) py-8">{children}</Content>
       </div>
     </div>
   )

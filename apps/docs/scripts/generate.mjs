@@ -89,9 +89,14 @@ async function main() {
 
   // ─── Examples ───
   const highlighter = await createHighlighter({
-    // Two themes, because the site has two. Shiki emits both as CSS variables
-    // on one markup pass, so switching mode does not re-highlight anything.
-    themes: ['github-light', 'github-dark'],
+    // The HIGH-CONTRAST pair, not the plain one. github-light puts #d73a49 on
+    // the code block's --paper-2 ground, which is 4.26:1 — below AA, and caught
+    // by the browser axe pass rather than by anyone's eye. These two are
+    // published for this reason.
+    //
+    // Two themes because the site has two: Shiki emits both as CSS variables on
+    // one markup pass, so switching mode does not re-highlight anything.
+    themes: ['github-light-high-contrast', 'github-dark-high-contrast'],
     langs: ['tsx', 'css', 'bash', 'json', 'html'],
   })
 
@@ -116,7 +121,7 @@ async function main() {
           snippet,
           html: highlighter.codeToHtml(snippet, {
             lang: 'tsx',
-            themes: { light: 'github-light', dark: 'github-dark' },
+            themes: { light: 'github-light-high-contrast', dark: 'github-dark-high-contrast' },
             defaultColor: false,
           }),
         }
@@ -153,7 +158,7 @@ async function main() {
   for (const [id, snippet] of Object.entries(JSON.parse(readFileSync(snippetsFile, 'utf8')))) {
     snippets[id] = highlighter.codeToHtml(snippet.code, {
       lang: snippet.lang,
-      themes: { light: 'github-light', dark: 'github-dark' },
+      themes: { light: 'github-light-high-contrast', dark: 'github-dark-high-contrast' },
       defaultColor: false,
     })
   }
@@ -173,7 +178,7 @@ async function main() {
       source: code,
       html: highlighter.codeToHtml(code, {
         lang: 'tsx',
-        themes: { light: 'github-light', dark: 'github-dark' },
+        themes: { light: 'github-light-high-contrast', dark: 'github-dark-high-contrast' },
         defaultColor: false,
       }),
     }
