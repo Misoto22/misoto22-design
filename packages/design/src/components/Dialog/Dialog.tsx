@@ -94,7 +94,7 @@ export function DialogContent({
       <DialogPrimitive.Content
         data-m22-animated
         className={cn(
-          'fixed left-1/2 top-1/2 z-(--z-modal) max-h-[85vh] w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 overflow-auto rounded-(--radius-lg) border border-(--rule-2) bg-(--paper) p-6 scroll-slim',
+          'fixed left-1/2 top-1/2 z-(--z-modal) max-h-[85vh] w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 overflow-auto rounded-(--radius-lg) border border-(--panel-border) bg-(--panel-bg) p-6 panel-blur scroll-slim',
           'data-[state=open]:animate-[m22-panel-in_var(--duration-base)_var(--ease)]',
           className,
         )}

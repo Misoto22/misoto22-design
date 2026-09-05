@@ -60,7 +60,7 @@ export function PopoverContent({
         sideOffset={sideOffset}
         data-m22-animated
         className={cn(
-          'z-(--z-dropdown) w-72 rounded-(--radius) border border-(--rule-2) bg-(--paper) p-4',
+          'z-(--z-dropdown) w-72 rounded-(--radius-lg) border border-(--panel-border) bg-(--panel-bg) p-4 panel-blur',
           'data-[state=open]:animate-[m22-pop-in_var(--duration-fast)_var(--ease-out-expo)] data-[state=closed]:animate-[m22-pop-out_var(--duration-fast)_var(--ease)] origin-(--radix-popper-transform-origin)',
           className,
         )}

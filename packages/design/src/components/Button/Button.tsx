@@ -9,18 +9,26 @@ export type ButtonSize = 'sm' | 'md' | 'lg'
 /**
  * The base every variant shares.
  *
- * A pill, and it does not move on hover. An earlier base lifted a pixel and
- * asked for a shadow the White Reset does not have — `--shadow` resolves to
- * `none`, so that hover state was invisible on every button in the system while
- * still costing a transition. Opacity carries the filled hover; the border
- * carries the outlined one.
+ * It reads `--radius`, the CONTROL step, which is the same corner an `Input`,
+ * a `Select` trigger and a `Textarea` draw. It used to be a pill, and a pill
+ * beside an 8px field is two different ideas of what a control is — the one
+ * inconsistency in the system that every reader noticed and none of the
+ * component pages could explain. Everything on the control line now agrees,
+ * and the capsule is kept for the things that genuinely are one: a badge, a
+ * status pill, a segmented strip, a progress track.
+ *
+ * It does not move on hover. An earlier base lifted a pixel and asked for a
+ * shadow the White Reset does not have — `--shadow` resolves to `none`, so that
+ * hover state was invisible on every button in the system while still costing a
+ * transition. Opacity carries the filled hover; the border carries the outlined
+ * one.
  *
  * The transition names its properties rather than using `all`, so a layout
  * change (a width that grows when the label becomes "Saving…") is instant
  * instead of sliding.
  */
 const BASE =
-  'inline-flex items-center justify-center gap-(--control-gap) rounded-(--radius-pill) font-sans transition-[opacity,color,border-color,background-color] duration-(--duration-fast) ease-(--ease-out-expo) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none aria-disabled:opacity-(--disabled-opacity) aria-disabled:pointer-events-none'
+  'inline-flex items-center justify-center gap-(--control-gap) rounded-(--radius) font-sans transition-[opacity,color,border-color,background-color] duration-(--duration-fast) ease-(--ease-out-expo) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none aria-disabled:opacity-(--disabled-opacity) aria-disabled:pointer-events-none'
 
 const VARIANT: Record<ButtonVariant, string> = {
   primary: 'bg-(--accent) text-(--accent-foreground) border border-(--accent) hover:opacity-85',
@@ -104,7 +112,7 @@ export type ButtonProps = ButtonAsLink | ButtonAsButton
 
 function Keycap({ glyph }: { glyph: string }) {
   return (
-    <span className="rounded-(--radius-pill) border border-current px-2 py-0.5 font-mono text-[11px] opacity-55">
+    <span className="rounded-(--radius-sm) border border-current px-2 py-0.5 font-mono text-[11px] opacity-55">
       {glyph}
     </span>
   )

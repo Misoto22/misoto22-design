@@ -10,6 +10,7 @@ import { CommandPalette } from './CommandPalette'
 import { LocaleMenu } from './LocaleMenu'
 import { Sidebar } from './Sidebar'
 import { ThemeToggle } from './ThemeToggle'
+import { HAS_SIDEBAR, SECTIONS, SECTION_ROOT, sectionFor, type SectionId } from '@/content/sections'
 import { localePath } from '@/i18n/locales'
 import { useLocale, useMessages } from '@/i18n/useLocale'
 
@@ -61,6 +62,14 @@ export function DocsShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const locale = useLocale()
   const t = useMessages()
+  const section = sectionFor(pathname)
+  const sidebar = HAS_SIDEBAR[section]
+  const SECTION_LABEL: Record<SectionId, string> = {
+    docs: t.nav.docs,
+    components: t.section.components,
+    templates: t.nav.templates,
+    themes: t.themes.title,
+  }
 
   // Close on navigation: a drawer left open over the page the reader just asked
   // for is the most common mobile-nav bug.
@@ -76,7 +85,15 @@ export function DocsShell({ children }: { children: ReactNode }) {
   return (
     <TooltipProvider>
       <CommandPalette />
-    <div className="min-h-svh lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
+    {/* The column list has to follow the sidebar. `lg:hidden` takes the aside
+        out of the grid, and with a fixed 17rem first track the CONTENT then
+        landed in it — a 272px column on a 1440px screen, which is why
+        collapsing the sidebar crushed the page instead of widening it. */}
+    <div
+      className={`min-h-svh lg:grid ${
+        sidebar && docked ? 'lg:grid-cols-[17rem_minmax(0,1fr)]' : 'lg:grid-cols-[minmax(0,1fr)]'
+      }`}
+    >
       <a
         href="#content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-(--z-toast) focus:rounded-(--radius) focus:bg-(--ink) focus:px-4 focus:py-2 focus:text-sm focus:text-(--paper)"
@@ -102,12 +119,20 @@ export function DocsShell({ children }: { children: ReactNode }) {
         inert={isDrawer && !open}
         className={`fixed inset-y-0 start-0 z-(--z-modal) flex w-[17rem] flex-col border-e border-(--rule) bg-(--paper) transition-transform duration-(--duration-slow) ease-(--ease-out-expo) ${
           open ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full'
-        } lg:sticky lg:top-0 lg:z-auto lg:h-svh lg:translate-x-0 ${docked ? '' : 'lg:hidden'}`}
+        } lg:sticky lg:top-0 lg:z-auto lg:h-svh lg:translate-x-0 ${
+          sidebar && docked ? '' : 'lg:hidden'
+        }`}
       >
         {/* The same 3.5rem as the header beside it, and its own bottom rule, so
             the two run as one line across the page. They used to be a
             content-height block against a fixed-height bar, and the rules did
             not meet. */}
+        {/* The wordmark, and on a phone the drawer's close button. The DESKTOP
+            collapse control is not here: it used to sit beside the wordmark and
+            move to the masthead once the sidebar was away, so the same action
+            was in two places depending on the state it was in — which is why
+            neither was findable. It is one button in the masthead now, and it
+            stays put. */}
         <div className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-(--rule) px-4">
           <Link href={localePath(locale, '/')} className="flex flex-col leading-none">
             <span className="font-heading text-[17px] leading-tight text-(--ink)">
@@ -125,16 +150,22 @@ export function DocsShell({ children }: { children: ReactNode }) {
           >
             <X size={16} strokeWidth={1.5} aria-hidden />
           </Button>
-          <Button
-            iconOnly
-            size="sm"
-            variant="ghost"
-            className="max-lg:hidden"
-            aria-label={t.nav.collapseNav}
-            onClick={() => setDocked(false)}
-          >
-            <PanelLeftClose size={16} strokeWidth={1.5} aria-hidden />
-          </Button>
+        </div>
+        <div className="flex flex-col gap-1 border-b border-(--rule) px-2 py-2 nav:hidden">
+          {SECTIONS.map((id) => {
+            const href = localePath(locale, SECTION_ROOT[id])
+            return (
+              <Link
+                key={id}
+                href={href}
+                aria-current={section === id ? 'page' : undefined}
+                onClick={() => setOpen(false)}
+                className="rounded-(--radius-row) px-3 py-1.5 text-sm text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink) aria-[current=page]:bg-(--stone) aria-[current=page]:text-(--ink)"
+              >
+                {SECTION_LABEL[id]}
+              </Link>
+            )
+          })}
         </div>
         <div className="min-h-0 flex-1 px-4 pt-4">
           <Sidebar onNavigate={() => setOpen(false)} />
@@ -159,16 +190,43 @@ export function DocsShell({ children }: { children: ReactNode }) {
           >
             <Menu size={18} strokeWidth={1.5} aria-hidden />
           </Button>
-          <Button
-            iconOnly
-            size="sm"
-            variant="ghost"
-            className={docked ? 'hidden' : 'max-lg:hidden'}
-            aria-label={t.nav.expandNav}
-            onClick={() => setDocked(true)}
-          >
-            <PanelLeftOpen size={16} strokeWidth={1.5} aria-hidden />
-          </Button>
+          {sidebar && (
+            <Button
+              iconOnly
+              size="sm"
+              variant="ghost"
+              className="max-lg:hidden"
+              aria-label={docked ? t.nav.collapseNav : t.nav.expandNav}
+              aria-expanded={docked}
+              onClick={() => setDocked((previous) => !previous)}
+            >
+              {docked ? (
+                <PanelLeftClose size={16} strokeWidth={1.5} aria-hidden />
+              ) : (
+                <PanelLeftOpen size={16} strokeWidth={1.5} aria-hidden />
+              )}
+            </Button>
+          )}
+
+          {/* The four sections, in the masthead rather than as four rows among
+              sixteen in the sidebar. A reader arriving on a component page had
+              no way to see that templates and themes existed at all. */}
+          <nav aria-label={t.nav.sections} className="flex items-center gap-1 max-nav:hidden">
+            {SECTIONS.map((id) => {
+              const href = localePath(locale, SECTION_ROOT[id])
+              return (
+                <Link
+                  key={id}
+                  href={href}
+                  aria-current={section === id ? 'page' : undefined}
+                  className="rounded-(--radius-row) px-3 py-1.5 text-sm text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:text-(--ink) aria-[current=page]:text-(--ink)"
+                >
+                  {SECTION_LABEL[id]}
+                </Link>
+              )
+            })}
+          </nav>
+
           <div className="flex-1" />
           <div className="flex items-center gap-1">
             {/* A visible way in, because a shortcut nobody is told about is a
@@ -176,9 +234,7 @@ export function DocsShell({ children }: { children: ReactNode }) {
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => document.dispatchEvent(
-                new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }),
-              )}
+              onClick={() => document.dispatchEvent(new CustomEvent('m22:palette'))}
               className="gap-2 text-(--ink-3-aa)"
             >
               <Search size={14} strokeWidth={1.5} aria-hidden />

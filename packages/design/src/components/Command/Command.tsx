@@ -35,7 +35,7 @@ export function Command({
   return (
     <CommandPrimitive
       className={cn(
-        'flex w-full flex-col overflow-hidden rounded-(--radius) border border-(--rule-2) bg-(--paper)',
+        'flex w-full flex-col overflow-hidden rounded-(--radius-lg) border border-(--panel-border) bg-(--panel-bg) panel-blur',
         className,
       )}
       {...props}
@@ -49,11 +49,11 @@ export function CommandInput({
   ...props
 }: ComponentProps<typeof CommandPrimitive.Input>) {
   return (
-    <div className="flex items-center gap-2.5 border-b border-(--rule) px-3.5">
-      <Search size={16} strokeWidth={1.5} aria-hidden className="shrink-0 text-(--ink-3-aa)" />
+    <div className="flex items-center gap-3 border-b border-(--rule) px-4">
+      <Search size={18} strokeWidth={1.5} aria-hidden className="shrink-0 text-(--ink-3-aa)" />
       <CommandPrimitive.Input
         className={cn(
-          'h-11 w-full bg-transparent text-sm text-(--ink) outline-none placeholder:text-(--ink-3-aa)',
+          'h-13 w-full bg-transparent text-[15px] text-(--ink) outline-none placeholder:text-(--ink-3-aa)',
           className,
         )}
         {...props}
@@ -188,7 +188,7 @@ export function CommandItem({ shortcut, icon, meta, className, children, ...prop
   return (
     <CommandPrimitive.Item
       className={cn(
-        'flex cursor-pointer items-center gap-2.5 rounded-(--radius-sm) px-2.5 py-2 text-sm text-(--ink-2) outline-none transition-colors duration-(--duration-fast)',
+        'flex cursor-pointer items-center gap-3 rounded-(--radius-row) px-3 py-2.5 text-[15px] text-(--ink-2) outline-none transition-colors duration-(--duration-fast)',
         // The highlighted row is a chosen state, and law 7 says a chosen state
         // reads --accent. The leading rule gives it an edge the eye catches
         // while scrolling, which a fill alone does not.
@@ -235,7 +235,12 @@ export function CommandDialog({ open, onOpenChange, label, children }: CommandDi
         // Above centre, not at it. A palette is read as a layer over the page
         // rather than as a message about it, and centring it puts the list
         // under the reader's own hands on a laptop.
-        className="top-[12vh] w-[min(92vw,40rem)] translate-y-0 overflow-hidden p-0"
+        // `scrollbar-gutter: auto` undoes the `stable` that `Dialog`'s own
+        // `scroll-slim` sets. The dialog never scrolls — the list inside it
+        // does — but the reserved gutter was still there, so the list stopped
+        // thirteen pixels short of the panel and drew its own hairline inside
+        // an empty channel. Two bars, one of them permanently blank.
+        className="top-[10vh] w-[min(94vw,44rem)] translate-y-0 overflow-hidden p-0 [scrollbar-gutter:auto]"
       >
         {/* The modal has the whole screen, so its list may be taller than the
             default an inline menu should keep.
@@ -244,7 +249,7 @@ export function CommandDialog({ open, onOpenChange, label, children }: CommandDi
             down the side of a palette is the widest thing in it. */}
         <Command
           label={label}
-          className="rounded-none border-0 [&_[cmdk-list]]:max-h-[22rem] [&_[cmdk-list]]:scroll-hairline"
+          className="rounded-none border-0 [&_[cmdk-list]]:max-h-[26rem] [&_[cmdk-list]]:scroll-hairline"
         >
           {children}
         </Command>

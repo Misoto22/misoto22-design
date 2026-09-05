@@ -5,11 +5,14 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-  Separator,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
   ToggleGroup,
   ToggleGroupItem,
 } from '@misoto22/design'
-import { Palette, RotateCcw } from 'lucide-react'
+import { Check, Palette, RotateCcw } from 'lucide-react'
 import { useMessages } from '@/i18n/useLocale'
 import { ACCENTS } from './AccentProvider'
 import { AXES, DEFAULTS, PRESETS, RESET_PRESET, useTheme, type Axis } from './ThemeProvider'
@@ -20,16 +23,21 @@ const ORDER: Axis[] = ['surface', 'radius', 'rules', 'type', 'motion', 'density'
 /**
  * The theme panel.
  *
- * The old version offered five accents and called itself a theme switcher,
- * which was fair comment: it changed one token. This changes the ground, the
- * corners, the rules the system draws, which face carries a heading, how fast
- * anything moves, and how tight the rows are — and none of it touches a
- * component. That is the claim the token layer has been making all along, and
- * this is where it is testable.
+ * It changes the ground, the corners, the rules the system draws, which face
+ * carries a heading, how fast anything moves, and how tight the rows are — and
+ * none of it touches a component. That is the claim the token layer has been
+ * making all along, and this is where it is testable.
  *
- * Presets first, because most readers want a look rather than six decisions;
- * the axes below them, because the ones who want the decisions should not have
- * to accept somebody's bundle to get at them.
+ * TWO TABS, not one long scroll. The previous version stacked the presets on
+ * top of the axes in one column: the panel opened showing four preset rows and
+ * nothing else, so it read as a theme picker and the six axes below the fold
+ * were found by people who already knew they were there. A reader should not
+ * have to scroll to learn that a control exists — a tab strip says it in the
+ * first line, before anything is scrolled at all.
+ *
+ * Presets open first, because most readers want a look rather than six
+ * decisions; the axes are one click away, because the ones who want the
+ * decisions should not have to accept somebody's bundle to get at them.
  */
 export function ThemeMenu() {
   const { theme, set, apply, matching } = useTheme()
@@ -45,7 +53,7 @@ export function ThemeMenu() {
       <PopoverContent
         label={t.appearance.theme}
         align="end"
-        className="max-h-[min(34rem,80vh)] w-[21rem] overflow-y-auto p-0 scroll-slim"
+        className="flex max-h-[min(34rem,80vh)] w-[21rem] flex-col p-0"
       >
         <div className="flex items-baseline justify-between gap-3 px-4 pb-2 pt-4">
           <h2 className="m-0 font-heading text-[length:var(--fs-item)] text-(--ink)">
@@ -63,80 +71,102 @@ export function ThemeMenu() {
           </Button>
         </div>
 
-        <div className="flex flex-col gap-1 px-2 pb-3">
-          {PRESETS.map((preset) => (
-            <button
-              key={preset.id}
-              type="button"
-              aria-pressed={matching?.id === preset.id}
-              onClick={() => apply(preset)}
-              className="flex flex-col items-start gap-0.5 rounded-(--radius-sm) px-2.5 py-2 text-start transition-colors duration-(--duration-fast) hover:bg-(--stone) aria-pressed:bg-(--accent-muted)"
-            >
-              <span className="flex w-full items-center gap-2 text-sm text-(--ink)">
-                {t.themes.presets[preset.id]?.name ?? preset.name}
-                {matching?.id === preset.id && (
-                  <span className="ms-auto mono-meta text-(--ink-3-aa)">{t.appearance.current}</span>
-                )}
-              </span>
-              <span className="text-[12px] leading-snug text-(--ink-3-aa)">
-                {t.themes.presets[preset.id]?.note ?? preset.note}
-              </span>
-            </button>
-          ))}
-        </div>
+        <Tabs
+          defaultValue="presets"
+          className="flex min-h-0 flex-1 flex-col"
+          aria-label={t.appearance.theme}
+        >
+          <TabsList className="shrink-0 px-3">
+            <TabsTrigger value="presets">{t.appearance.presetsTab}</TabsTrigger>
+            <TabsTrigger value="custom">{t.appearance.customTab}</TabsTrigger>
+          </TabsList>
 
-        <Separator />
-
-        <div className="flex flex-col gap-4 p-4">
-          <p className="m-0 text-[12px] leading-relaxed text-(--ink-3-aa)">{t.appearance.axesNote}</p>
-
-          {ORDER.map((axis) => (
-            <div key={axis} className="flex flex-col gap-1.5">
-              <span className="eyebrow text-(--ink-3-aa)">{t.themes.axes[axis]}</span>
-              <ToggleGroup
-                type="single"
-                value={theme[axis]}
-                aria-label={t.themes.axes[axis]}
-                // A strip cannot be emptied: unpicking the ground leaves the
-                // page with no ground, so an empty value falls back.
-                onValueChange={(next) => set(axis, next || DEFAULTS[axis])}
-                className="w-full"
-              >
-                {AXES[axis].map((option) => (
-                  <ToggleGroupItem key={option} value={option} className="flex-1 text-[13px]">
-                    {t.themes.values[option] ?? option}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
+          <TabsContent
+            value="presets"
+            className="min-h-0 flex-1 overflow-y-auto p-2 pt-2 scroll-slim"
+          >
+            <div className="flex flex-col gap-1">
+              {PRESETS.map((preset) => {
+                const active = matching?.id === preset.id
+                return (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => apply(preset)}
+                    className="flex flex-col items-start gap-0.5 rounded-(--radius-row) px-2.5 py-2 text-start transition-colors duration-(--duration-fast) hover:bg-(--stone) aria-pressed:bg-(--accent-muted)"
+                  >
+                    <span className="flex w-full items-center gap-2 text-sm text-(--ink)">
+                      {t.themes.presets[preset.id]?.name ?? preset.name}
+                      {active && (
+                        <span className="ms-auto flex items-center gap-1 mono-meta text-(--ink-3-aa)">
+                          <Check size={12} strokeWidth={1.5} aria-hidden />
+                          {t.appearance.current}
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-[12px] leading-snug text-(--ink-3-aa)">
+                      {t.themes.presets[preset.id]?.note ?? preset.note}
+                    </span>
+                  </button>
+                )
+              })}
             </div>
-          ))}
+          </TabsContent>
 
-          <div className="flex flex-col gap-1.5">
-            <span className="eyebrow text-(--ink-3-aa)">{t.appearance.accentTitle}</span>
-            <div className="flex flex-wrap gap-1.5">
-              {ACCENTS.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  aria-pressed={theme.accent === option.id}
-                  aria-label={option.name}
-                  title={option.name}
-                  onClick={() => set('accent', option.id)}
-                  className="grid size-8 place-items-center rounded-(--radius-sm) border border-transparent transition-colors duration-(--duration-fast) hover:border-(--rule-2) aria-pressed:border-(--ink)"
+          <TabsContent
+            value="custom"
+            className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 pt-4 scroll-slim"
+          >
+            {ORDER.map((axis) => (
+              <div key={axis} className="flex flex-col gap-1.5">
+                <span className="eyebrow text-(--ink-3-aa)">{t.themes.axes[axis]}</span>
+                <ToggleGroup
+                  type="single"
+                  value={theme[axis]}
+                  aria-label={t.themes.axes[axis]}
+                  // A strip cannot be emptied: unpicking the ground leaves the
+                  // page with no ground, so an empty value falls back.
+                  onValueChange={(next) => set(axis, next || DEFAULTS[axis])}
+                  className="w-full"
                 >
-                  <span
-                    aria-hidden
-                    className="size-4 rounded-full border border-(--rule-2)"
-                    style={{ background: option.swatch }}
-                  />
-                </button>
-              ))}
+                  {AXES[axis].map((option) => (
+                    <ToggleGroupItem key={option} value={option} className="flex-1 text-[13px]">
+                      {t.themes.values[option] ?? option}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
+              </div>
+            ))}
+
+            <div className="flex flex-col gap-1.5">
+              <span className="eyebrow text-(--ink-3-aa)">{t.appearance.accentTitle}</span>
+              <div className="flex flex-wrap gap-1.5">
+                {ACCENTS.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    aria-pressed={theme.accent === option.id}
+                    aria-label={option.name}
+                    title={option.name}
+                    onClick={() => set('accent', option.id)}
+                    className="grid size-8 place-items-center rounded-(--radius-sm) border border-transparent transition-colors duration-(--duration-fast) hover:border-(--rule-2) aria-pressed:border-(--ink)"
+                  >
+                    <span
+                      aria-hidden
+                      className="size-4 rounded-full border border-(--rule-2)"
+                      style={{ background: option.swatch }}
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
+
             <p className="m-0 text-[12px] leading-relaxed text-(--ink-3-aa)">
-              {t.appearance.accentNote}
+              {t.appearance.axesNote}
             </p>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       </PopoverContent>
     </Popover>
   )

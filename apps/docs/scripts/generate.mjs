@@ -22,6 +22,8 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHighlighter } from 'shiki'
 import { extractChangelog } from './extract-changelog.mjs'
+import { HIGHLIGHT, WHITE_RESET_DARK, WHITE_RESET_LIGHT } from './shiki-theme.mjs'
+import { createRenderer } from './render-markdown.mjs'
 import { extractProps } from './extract-props.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
@@ -91,15 +93,15 @@ async function main() {
 
   // ─── Examples ───
   const highlighter = await createHighlighter({
-    // The HIGH-CONTRAST pair, not the plain one. github-light puts #d73a49 on
-    // the code block's --paper-2 ground, which is 4.26:1 — below AA, and caught
-    // by the browser axe pass rather than by anyone's eye. These two are
-    // published for this reason.
+    // The system's own pair, not GitHub's. See `shiki-theme.mjs`: structure is
+    // carried by weight, and the only two hues are the two the system already
+    // spends on status. A published theme put seven of them on a page whose
+    // argument is that it has none.
     //
     // Two themes because the site has two: Shiki emits both as CSS variables on
     // one markup pass, so switching mode does not re-highlight anything.
-    themes: ['github-light-high-contrast', 'github-dark-high-contrast'],
-    langs: ['tsx', 'css', 'bash', 'json', 'html'],
+    themes: [WHITE_RESET_LIGHT, WHITE_RESET_DARK],
+    langs: ['tsx', 'ts', 'css', 'bash', 'json', 'html', 'md'],
   })
 
   const examplesDir = join(DOCS, 'src', 'examples')
@@ -121,11 +123,8 @@ async function main() {
           // directory listing instead of hidden in a second registry.
           title: id.replace(/^\d+-/, '').replace(/-/g, ' '),
           snippet,
-          html: highlighter.codeToHtml(snippet, {
-            lang: 'tsx',
-            themes: { light: 'github-light-high-contrast', dark: 'github-dark-high-contrast' },
-            defaultColor: false,
-          }),
+          lang: 'tsx',
+          html: highlighter.codeToHtml(snippet, { lang: 'tsx', ...HIGHLIGHT }),
         }
       })
   }
@@ -166,11 +165,8 @@ async function main() {
     const id = file.replace(/\.tsx$/, '')
     templates[id] = {
       source,
-      html: highlighter.codeToHtml(source, {
-        lang: 'tsx',
-        themes: { light: 'github-light-high-contrast', dark: 'github-dark-high-contrast' },
-        defaultColor: false,
-      }),
+      lang: 'tsx',
+      html: highlighter.codeToHtml(source, { lang: 'tsx', ...HIGHLIGHT }),
     }
   }
   writeFileSync(join(OUT, 'templates.json'), JSON.stringify(templates, null, 2))
@@ -191,12 +187,32 @@ async function main() {
       `\n}\n`,
   )
 
+  // ─── Posts ───
+  // Markdown rendered here rather than in the browser: a parser, a highlighter
+  // and a maths renderer are a few hundred kilobytes to re-derive markup that
+  // never changes. What ships is blocks — HTML for the prose, a spec for each
+  // diagram, because a diagram is a component and cannot arrive as a string.
+  const renderMarkdown = createRenderer({ highlighter })
+  const postsDir = join(DOCS, 'src', 'content', 'posts')
+  const posts = {}
+  for (const file of readdirSync(postsDir).filter((name) => name.endsWith('.md')).sort()) {
+    const slug = file.replace(/\.md$/, '')
+    posts[slug] = { slug, ...renderMarkdown(readFileSync(join(postsDir, file), 'utf8')) }
+  }
+  writeFileSync(join(OUT, 'posts.json'), JSON.stringify(posts, null, 2))
+
   // ─── Changelog ───
-  // Read from the repository root, so the page and the published package tell
-  // the same story — a second hand-kept "what's new" list is a second story.
+  // The PACKAGE's file first — that is the one changesets writes, and the one
+  // that ships to npm — then the repository root's, which holds the
+  // hand-written pre-changeset history and nothing since. Reading only the root
+  // is what froze this page at 0.1.0 while two releases went out.
   writeFileSync(
     join(OUT, 'changelog.json'),
-    JSON.stringify(extractChangelog(join(DESIGN, '..', '..', 'CHANGELOG.md')), null, 2),
+    JSON.stringify(
+      extractChangelog([join(DESIGN, 'CHANGELOG.md'), join(DESIGN, '..', '..', 'CHANGELOG.md')]),
+      null,
+      2,
+    ),
   )
 
   // ─── Search ───
@@ -212,11 +228,14 @@ async function main() {
   const snippets = {}
   const snippetsFile = join(DOCS, 'src', 'content', 'snippets.json')
   for (const [id, snippet] of Object.entries(JSON.parse(readFileSync(snippetsFile, 'utf8')))) {
-    snippets[id] = highlighter.codeToHtml(snippet.code, {
+    // The language travels with the markup. A code block that does not say what
+    // language it is in makes the reader infer it from the syntax, which is the
+    // one thing they came to the block to learn.
+    snippets[id] = {
       lang: snippet.lang,
-      themes: { light: 'github-light-high-contrast', dark: 'github-dark-high-contrast' },
-      defaultColor: false,
-    })
+      source: snippet.code,
+      html: highlighter.codeToHtml(snippet.code, { lang: snippet.lang, ...HIGHLIGHT }),
+    }
   }
   writeFileSync(join(OUT, 'snippets.json'), JSON.stringify(snippets, null, 2))
 
@@ -232,11 +251,8 @@ async function main() {
       .join('\n')
     types[dir] = {
       source: code,
-      html: highlighter.codeToHtml(code, {
-        lang: 'tsx',
-        themes: { light: 'github-light-high-contrast', dark: 'github-dark-high-contrast' },
-        defaultColor: false,
-      }),
+      lang: 'tsx',
+      html: highlighter.codeToHtml(code, { lang: 'tsx', ...HIGHLIGHT }),
     }
   }
   writeFileSync(join(OUT, 'types.json'), JSON.stringify(types, null, 2))
@@ -246,7 +262,8 @@ async function main() {
   const exampleCount = Object.values(examples).reduce((n, list) => n + list.length, 0)
   console.log(
     `generate: ${componentCount} components, ${exampleCount} examples, ` +
-      `${templateCount} templates, ${Object.keys(tokens).length} tokens → src/generated/`,
+      `${templateCount} templates, ${Object.keys(posts).length} posts, ` +
+      `${Object.keys(tokens).length} tokens → src/generated/`,
   )
 }
 

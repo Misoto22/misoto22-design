@@ -32,7 +32,7 @@ import { ACCENTS, useAccent } from './AccentProvider'
 import { FOUNDATIONS } from '@/content/foundations'
 import { COMPONENTS } from '@/content/registry'
 import { SEARCH_TERMS } from '@/content/haystack'
-import { foundationCopy, groupName } from '@/i18n/content'
+import { componentName, foundationCopy, groupName } from '@/i18n/content'
 import { localePath } from '@/i18n/locales'
 import { useLocale, useMessages } from '@/i18n/useLocale'
 
@@ -72,11 +72,27 @@ export function CommandPalette() {
       // Claimed before the browser sees it: ⌘K is Chrome's search-bar focus,
       // and a palette that only works when the page happens to have focus in
       // the right place is a palette nobody trusts.
+      //
+      // In the CAPTURE phase, and that is the fix for the second palette. The
+      // Command component's own example registers the same shortcut on
+      // `document` to demonstrate it, so on `/components/command/` ⌘K used to
+      // open two dialogs — the example's little two-row list first, and this
+      // one behind it. A capture listener on `document` always runs before any
+      // bubble listener on `document`, whatever order they were added in, so
+      // this one marks the event handled and the example stands down.
       event.preventDefault()
       setOpen((previous) => !previous)
     }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
+    const onRequest = () => setOpen((previous) => !previous)
+    document.addEventListener('keydown', onKey, true)
+    // The header's search button asks for the palette by name rather than
+    // faking a ⌘K: a synthetic KeyboardEvent is not trusted, cannot be
+    // prevented meaningfully, and reached every other ⌘K listener on the page.
+    document.addEventListener('m22:palette', onRequest)
+    return () => {
+      document.removeEventListener('keydown', onKey, true)
+      document.removeEventListener('m22:palette', onRequest)
+    }
   }, [])
 
   const go = (href: string) => {
@@ -190,6 +206,9 @@ export function CommandPalette() {
               keywords={[
                 ...(SEARCH_TERMS.get(entry.slug) ?? []),
                 groupName(locale, entry.group),
+                // The Chinese name too, so typing 按钮 finds Button on the
+                // Chinese pages — the whole point of naming it in both.
+                componentName(locale, entry.slug, entry.name),
               ]}
               icon={<Box />}
               // The group again on the row, because a filtered list has no
@@ -197,7 +216,7 @@ export function CommandPalette() {
               meta={groupName(locale, entry.group)}
               onSelect={() => go(`/components/${entry.slug}/`)}
             >
-              {entry.name}
+              {componentName(locale, entry.slug, entry.name)}
             </CommandItem>
           ))}
         </CommandGroup>

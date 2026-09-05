@@ -138,6 +138,8 @@ export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: Exam
       )}
 
       {view === 'code' && (
+        // No language strip here: the canvas already has a toolbar directly
+        // above, and two bars stacked read as a header for a header.
         <CodeBlock html={html} source={snippet} label={exampleKey} className="rounded-none border-0" />
       )}
 

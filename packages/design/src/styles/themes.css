@@ -47,18 +47,64 @@
   --stone: #1c2026;
 }
 
+/* Glass, and the one place this system allows a blur.
+ *
+ * Law 2 says depth is a hairline and never a blur, and this does not break it:
+ * the blur is not UNDER a surface pretending to be a shadow, it is BEHIND one,
+ * which is a different claim. A shadow says "this is raised above the page"; a
+ * frosted panel says "the page is still there, and you are looking through
+ * something at it". The first is a fiction about light the White Reset has no
+ * source for. The second is a material, and it is honest about what it costs:
+ * only surfaces that actually float get it, because a card on the page ground
+ * has nothing behind it and would be blurring its own background.
+ *
+ * The panel's own edge is brighter than the page's rules on purpose. Glass has
+ * a specular edge — it is the one cue that says the surface is a sheet rather
+ * than a hole, and without it a translucent panel reads as a smudge.
+ */
+
+[data-surface='glass'] {
+  --paper: #f7f8fa;
+  --paper-2: #eef0f4;
+  --stone: #e7eaf0;
+  --rule: #e2e5ec;
+  --rule-2: #ced3dd;
+
+  --panel-bg: color-mix(in srgb, #ffffff 62%, transparent);
+  --panel-border: color-mix(in srgb, #ffffff 85%, transparent);
+  /* Saturation as well as blur. A blur alone greys whatever is behind it,
+     because averaging colour is what a blur does; pushing saturation back is
+     what makes the result read as glass rather than as fog. */
+  --panel-filter: blur(20px) saturate(180%);
+}
+[data-mode='dark'][data-surface='glass'],
+[data-mode='dark'] [data-surface='glass'] {
+  --paper: #0e1013;
+  --paper-2: #16191e;
+  --stone: #1d2127;
+  --rule: rgba(244, 244, 242, 0.12);
+  --rule-2: rgba(244, 244, 242, 0.22);
+
+  --panel-bg: color-mix(in srgb, #1b1f26 62%, transparent);
+  --panel-border: color-mix(in srgb, #ffffff 16%, transparent);
+  --panel-filter: blur(20px) saturate(160%);
+}
+
 /* ─── Radius ───────────────────────────────────────────────────────────────
-   The pill is exempt in every case: a pill is a shape, not a corner. */
+   One number, not four.
+
+   This axis used to re-type every step, which let the ladder go out of
+   proportion with itself — and a corner nested inside another corner is only
+   ever right when the two are in proportion. The factor scales the whole
+   ladder, the pill included, so `sharp` means square everywhere a corner is a
+   corner: a square theme that left every button a capsule was not a square
+   theme. A true circle is geometry and is not on this axis at all. */
 
 [data-radius='sharp'] {
-  --radius-sm: 0px;
-  --radius: 0px;
-  --radius-lg: 0px;
+  --radius-factor: 0;
 }
 [data-radius='round'] {
-  --radius-sm: 10px;
-  --radius: 14px;
-  --radius-lg: 22px;
+  --radius-factor: 2;
 }
 
 /* ─── Rules ────────────────────────────────────────────────────────────────

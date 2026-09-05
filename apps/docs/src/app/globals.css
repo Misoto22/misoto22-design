@@ -14,6 +14,7 @@
 @import '../../../../packages/design/src/styles/tokens.css';
 @import '../../../../packages/design/src/styles/semantic.css';
 @import '../../../../packages/design/src/styles/themes.css';
+@import '../../../../packages/design/src/styles/article.css';
 @import '../../../../packages/design/src/styles/keyframes.css';
 /* Generated: the package's vendored faces, rewritten to the paths a static
    export actually serves them from. See scripts/generate.mjs. */
@@ -30,6 +31,8 @@
   --breakpoint-*: initial;
   --breakpoint-sm: 640px;
   --breakpoint-md: 768px;
+  /* Where the masthead has room for four section links beside the toolbar. */
+  --breakpoint-nav: 900px;
   --breakpoint-lg: 1024px;
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1536px;
@@ -85,6 +88,11 @@
   scrollbar-color: var(--rule-2) transparent;
   scrollbar-gutter: stable;
 }
+@utility panel-blur {
+  -webkit-backdrop-filter: var(--panel-filter);
+  backdrop-filter: var(--panel-filter);
+}
+
 @utility scroll-fade {
   mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
   scroll-padding-block: 14px;

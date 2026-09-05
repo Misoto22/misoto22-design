@@ -44,6 +44,8 @@ export interface ExampleData {
   title: string
   snippet: string
   html: string
+  /** What the block is written in, printed on the block itself. */
+  lang: string
 }
 
 /** One token, as `@misoto22/design` emits it. */
@@ -65,7 +67,7 @@ export interface TokenEntry {
 
 const PROPS = propsJson as unknown as Record<string, ComponentSource>
 const EXAMPLES = examplesJson as unknown as Record<string, ExampleData[]>
-const SNIPPETS = snippetsJson as unknown as Record<string, string>
+const SNIPPETS = snippetsJson as unknown as Record<string, HighlightedCode>
 const TYPES = typesJson as unknown as Record<string, HighlightedCode>
 const TEMPLATES_SOURCE = templatesJson as unknown as Record<string, HighlightedCode>
 const TOKENS = tokensJson as unknown as Record<string, TokenRecord>
@@ -81,6 +83,8 @@ export function componentExamples(dir: string): ExampleData[] {
 export interface HighlightedCode {
   source: string
   html: string
+  /** The language the block is written in. Printed on the block. */
+  lang: string
 }
 
 /** A component's exported type aliases, highlighted at build time. */
@@ -93,26 +97,32 @@ export function templateSource(id: string): HighlightedCode | undefined {
   return TEMPLATES_SOURCE[id]
 }
 
-export function snippet(id: string): string {
-  const html = SNIPPETS[id]
-  if (!html) throw new Error(`snippet "${id}" is not in content/snippets.json`)
-  return html
+/**
+ * One standalone snippet: its markup, its raw text and its language.
+ *
+ * All three come out of the generator together. The raw text used to be read
+ * back from `content/snippets.json` on this side, which meant the copy button
+ * and the highlighted block were two reads of one file that could disagree
+ * about whitespace; and the language was dropped entirely, so no block on the
+ * site said what it was written in.
+ */
+export function snippet(id: string): HighlightedCode {
+  const found = SNIPPETS[id]
+  if (!found) throw new Error(`snippet "${id}" is not in content/snippets.json`)
+  return found
 }
 
-/** Raw snippet text, for the copy button — parsed back out of the source file. */
-export function snippetSource(id: string): string {
-  return SNIPPET_SOURCE[id] ?? ''
+/**
+ * The steps on the radius ladder, for the landing page's figure band.
+ *
+ * Counted from the emitted tokens rather than written as a number, because the
+ * number on that page was `4` in a string literal and the ladder has since
+ * grown a step — which nothing would have caught.
+ */
+const RADIUS_LADDER = ['radius-xs', 'radius-sm', 'radius', 'radius-lg', 'radius-pill']
+export function radiusSteps(): number {
+  return RADIUS_LADDER.filter((name) => name in TOKENS).length
 }
-
-// The generator highlights the snippets but the raw text is still needed for
-// "copy". Read from the same file it highlighted, so the two cannot diverge.
-import snippetsSource from '@/content/snippets.json'
-const SNIPPET_SOURCE = Object.fromEntries(
-  Object.entries(snippetsSource as Record<string, { code: string }>).map(([id, value]) => [
-    id,
-    value.code,
-  ]),
-)
 
 /**
  * Tokens for one foundations category, with the dark overrides alongside.

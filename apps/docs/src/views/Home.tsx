@@ -7,7 +7,7 @@ import { COMPONENTS, groupedComponents } from '@/content/registry'
 import { foundationCopy, groupName, PAGE_ZH } from '@/i18n/content'
 import { localePath, type Locale } from '@/i18n/locales'
 import { fill, getMessages } from '@/i18n/messages'
-import { snippet, snippetSource, tokenCount } from '@/lib/docs'
+import { radiusSteps, snippet, tokenCount } from '@/lib/docs'
 
 const EN = {
   eyebrow: 'misoto22 design',
@@ -22,7 +22,7 @@ const EN = {
     tokens: 'Tokens',
     tokensNote: 'light and dark',
     radius: 'Radius steps',
-    radiusNote: 'and there is no fifth',
+    radiusNote: 'one factor moves them all',
     shadow: 'Blurred shadows',
     shadowNote: 'depth is a hairline',
   },
@@ -62,7 +62,12 @@ export function Home({ locale }: { locale: Locale }) {
             value: String(tokenCount()),
             note: copy.figures.tokensNote,
           },
-          { id: 'radius', label: copy.figures.radius, value: '4', note: copy.figures.radiusNote },
+          {
+            id: 'radius',
+            label: copy.figures.radius,
+            value: String(radiusSteps()),
+            note: copy.figures.radiusNote,
+          },
           { id: 'shadow', label: copy.figures.shadow, value: '0', note: copy.figures.shadowNote },
         ]}
       />
@@ -71,10 +76,10 @@ export function Home({ locale }: { locale: Locale }) {
         <SectionHeading id="install">{t.section.install}</SectionHeading>
         <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
           <div className="flex flex-col gap-4">
-            <CodeBlock html={snippet('install')} source={snippetSource('install')} />
+            <CodeBlock {...snippet('install')} />
             <p className="m-0 text-sm leading-relaxed text-(--ink-3-aa)">{copy.installNote}</p>
           </div>
-          <CodeBlock html={snippet('usage')} source={snippetSource('usage')} />
+          <CodeBlock {...snippet('usage')} />
         </div>
       </section>
 
@@ -129,10 +134,10 @@ export function Home({ locale }: { locale: Locale }) {
           {copy.tailwindNote}
         </p>
         <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
-          <CodeBlock html={snippet('tailwind')} source={snippetSource('tailwind')} />
+          <CodeBlock {...snippet('tailwind')} />
           <div className="flex flex-col gap-4">
-            <CodeBlock html={snippet('theme')} source={snippetSource('theme')} />
-            <CodeBlock html={snippet('override')} source={snippetSource('override')} />
+            <CodeBlock {...snippet('theme')} />
+            <CodeBlock {...snippet('override')} />
           </div>
         </div>
       </section>

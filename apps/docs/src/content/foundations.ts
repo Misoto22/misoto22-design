@@ -52,7 +52,7 @@ export const FOUNDATIONS: FoundationPage[] = [
     summary: 'The page gutter, the measures, and the four radii.',
     intro: [
       'Measures are capped in ch rather than px, so they track the type they are set in. --measure-record is a ceiling on a listed record’s description, not a width: a narrower column still wins.',
-      'There are four radius steps and there is no fifth. A 50% circle is geometry rather than a corner and is not a step here.',
+      'One ladder, and one factor that moves the whole of it: every step is a multiple of --radius-factor, so a theme sets one number and the steps keep their proportions. That is what makes nesting safe — two rounded edges separated by a gap of p are concentric only when the inner radius is the outer minus p, and --radius-row and --radius-frame name both directions. A 50% circle is geometry rather than a corner and is not on the ladder at all.',
       'Every component is written in logical properties — ps- and pe- rather than pl- and pr-, start- and end- rather than left- and right- — so a right-to-left document mirrors without a stylesheet of its own. A test fails the build on a physical one, because retrofitting direction into forty components after the fact is a sweep nobody schedules and a failure nobody sees. Flip any example above to RTL.',
     ],
     categories: [

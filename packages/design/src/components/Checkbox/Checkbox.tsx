@@ -26,7 +26,7 @@ export function Checkbox({ className, ...props }: CheckboxProps) {
   return (
     <CheckboxPrimitive.Root
       className={cn(
-        'inline-flex size-[18px] shrink-0 items-center justify-center rounded-(--radius-sm) border border-(--rule-2) bg-(--paper) text-(--accent-foreground) transition-colors duration-(--duration-fast) data-[state=checked]:border-(--accent) data-[state=checked]:bg-(--accent) data-[state=indeterminate]:border-(--accent) data-[state=indeterminate]:bg-(--accent) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none',
+        'inline-flex size-[18px] shrink-0 items-center justify-center rounded-(--radius-xs) border border-(--rule-2) bg-(--paper) text-(--accent-foreground) transition-colors duration-(--duration-fast) data-[state=checked]:border-(--accent) data-[state=checked]:bg-(--accent) data-[state=indeterminate]:border-(--accent) data-[state=indeterminate]:bg-(--accent) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none',
         className,
       )}
       {...props}

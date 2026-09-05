@@ -1,5 +1,5 @@
 import { apiCopy } from '@/i18n/api'
-import { componentCopy, groupName } from '@/i18n/content'
+import { componentCopy, componentName, groupName } from '@/i18n/content'
 import { localePath, type Locale } from '@/i18n/locales'
 import { getMessages } from '@/i18n/messages'
 import { Alert, Badge, Kbd, Separator, TBody, TD, TH, THead, TR, Table } from '@misoto22/design'
@@ -37,11 +37,11 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
     <article className="mx-auto flex w-full max-w-4xl flex-col gap-12">
       <PageIntro
         eyebrow={groupName(locale, entry.group)}
-        title={entry.name}
+        title={componentName(locale, entry.slug, entry.name)}
         summary={zh.summary ?? entry.summary}
         crumbs={[
           { label: t.section.components, href: localePath(locale, '/components/') },
-          { label: entry.name },
+          { label: componentName(locale, entry.slug, entry.name) },
         ]}
       />
 
@@ -134,7 +134,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
       {types && (
         <section className="flex flex-col gap-4">
           <SectionHeading id="types">{t.section.types}</SectionHeading>
-          <CodeBlock html={types.html} source={types.source} />
+          <CodeBlock {...types} />
         </section>
       )}
 
