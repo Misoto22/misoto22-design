@@ -21,6 +21,7 @@ import { cpSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync }
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHighlighter } from 'shiki'
+import { extractChangelog } from './extract-changelog.mjs'
 import { extractProps } from './extract-props.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
@@ -152,6 +153,23 @@ async function main() {
       `${imports.join('\n')}\n\n` +
       `export const EXAMPLES: Record<string, ComponentType> = {\n${rows.join('\n')}\n}\n`,
   )
+
+  // ─── Changelog ───
+  // Read from the repository root, so the page and the published package tell
+  // the same story — a second hand-kept "what's new" list is a second story.
+  writeFileSync(
+    join(OUT, 'changelog.json'),
+    JSON.stringify(extractChangelog(join(DESIGN, '..', '..', 'CHANGELOG.md')), null, 2),
+  )
+
+  // ─── Search ───
+  // One flat index over everything a reader might type. Built here rather than
+  // matched at runtime over three separate shapes, so the sidebar's filter and
+  // any future search UI ask the same question of the same text.
+  const searchIndex = Object.entries(examples).flatMap(([dir, list]) =>
+    list.map((example) => ({ dir, id: example.id, snippet: example.snippet })),
+  )
+  writeFileSync(join(OUT, 'search.json'), JSON.stringify(searchIndex, null, 2))
 
   // ─── Standalone snippets (installation, usage) ───
   const snippets = {}

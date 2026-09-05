@@ -39,6 +39,15 @@ export interface ComponentEntry {
   when?: string
   /** Promises the component keeps so a call site does not have to. */
   accessibility?: string[]
+  /**
+   * The keyboard contract, key by key.
+   *
+   * Written out rather than left implied, because "it is accessible" is not
+   * something a reader can act on and "Escape closes it, and focus returns to
+   * the trigger" is. It is also the part that quietly regresses: a wrapper that
+   * swallows a key looks identical until someone tries it.
+   */
+  keyboard?: { keys: string[]; does: string }[]
   /** Slugs of components a reader is likely to want next. */
   related?: string[]
 }
@@ -59,6 +68,10 @@ export const COMPONENTS: ComponentEntry[] = [
       'iconOnly has no text, so it requires aria-label — the single most common way a design system ships an unusable control.',
     ],
     related: ['floating-icon-button', 'spinner'],
+    keyboard: [
+      { keys: ['Enter'], does: 'Activates the button.' },
+      { keys: ['Space'], does: 'Activates the button. A native <button> answers to both; a styled <div> answers to neither.' },
+    ],
   },
   {
     slug: 'floating-icon-button',
@@ -298,6 +311,10 @@ export const COMPONENTS: ComponentEntry[] = [
     summary: 'A native <select>, restyled.',
     when: 'Native on purpose: a listbox rebuilt in divs re-implements typeahead, the mobile picker and every platform keyboard convention, for nothing visible in return.',
     related: ['field', 'radio-group'],
+    keyboard: [
+      { keys: ['Space', '↓'], does: 'Opens the platform picker.' },
+      { keys: ['a–z'], does: 'Typeahead, from the browser\'s own implementation.' },
+    ],
   },
   {
     slug: 'checkbox',
@@ -310,6 +327,9 @@ export const COMPONENTS: ComponentEntry[] = [
       'Supports the indeterminate state, which is what a “select all” header needs when only some rows are selected.',
     ],
     related: ['switch', 'radio-group'],
+    keyboard: [
+      { keys: ['Space'], does: 'Toggles it.' },
+    ],
   },
   {
     slug: 'radio-group',
@@ -322,6 +342,10 @@ export const COMPONENTS: ComponentEntry[] = [
       'The label is inside the <label>, so the whole row is the click target.',
     ],
     related: ['checkbox', 'select'],
+    keyboard: [
+      { keys: ['Tab'], does: 'Moves into the group, and out of it — the whole group is one stop.' },
+      { keys: ['↑', '↓', '←', '→'], does: 'Moves between options AND selects as it goes.' },
+    ],
   },
   {
     slug: 'switch',
@@ -331,6 +355,9 @@ export const COMPONENTS: ComponentEntry[] = [
     summary: 'A setting that takes effect immediately.',
     when: 'Inside a form with a Save button, a switch is a lie about when the change happened. Use a Checkbox.',
     related: ['checkbox'],
+    keyboard: [
+      { keys: ['Space', 'Enter'], does: 'Toggles it, and the change applies immediately.' },
+    ],
   },
 
   // ─── Overlays ───
@@ -345,6 +372,10 @@ export const COMPONENTS: ComponentEntry[] = [
       'A dialog without a visible heading still renders a hidden title, rather than shipping an unnamed modal.',
     ],
     related: ['dropdown-menu', 'tooltip'],
+    keyboard: [
+      { keys: ['Escape'], does: 'Closes it, and focus returns to the trigger it came from.' },
+      { keys: ['Tab'], does: 'Cycles inside the dialog; focus cannot leave while it is open.' },
+    ],
   },
   {
     slug: 'dropdown-menu',
@@ -357,6 +388,12 @@ export const COMPONENTS: ComponentEntry[] = [
       'Highlight is driven by data-highlighted, which covers hover AND keyboard focus — styling :hover alone leaves the keyboard user unable to see where they are.',
     ],
     related: ['dialog', 'select'],
+    keyboard: [
+      { keys: ['Enter', 'Space', '↓'], does: 'Opens the menu and lands on the first item.' },
+      { keys: ['↑', '↓'], does: 'Moves between items.' },
+      { keys: ['a–z'], does: 'Jumps to the next item starting with that letter.' },
+      { keys: ['Escape'], does: 'Closes the menu and returns focus to the trigger.' },
+    ],
   },
   {
     slug: 'tooltip',
@@ -370,6 +407,10 @@ export const COMPONENTS: ComponentEntry[] = [
       'Not an accessible name. An icon-only button still needs its own aria-label.',
     ],
     related: ['dialog'],
+    keyboard: [
+      { keys: ['Tab'], does: 'Shows the tip — focus reveals it, not only hover.' },
+      { keys: ['Escape'], does: 'Dismisses it.' },
+    ],
   },
 
   // ─── Navigation ───
@@ -384,6 +425,11 @@ export const COMPONENTS: ComponentEntry[] = [
       '44px tall, because a tab is a pointer target like any other.',
     ],
     related: ['accordion'],
+    keyboard: [
+      { keys: ['Tab'], does: 'Moves into the strip, and out of it — the whole strip is one stop.' },
+      { keys: ['←', '→'], does: 'Moves between tabs and switches the panel with them.' },
+      { keys: ['Home', 'End'], does: 'Jumps to the first or last tab.' },
+    ],
   },
   {
     slug: 'accordion',
@@ -393,6 +439,10 @@ export const COMPONENTS: ComponentEntry[] = [
     summary: 'Disclosure rows that open in place.',
     when: 'The marker is a plus, not a chevron: a plus says “this opens”, a chevron says “there is more below”.',
     related: ['tabs'],
+    keyboard: [
+      { keys: ['Tab'], does: 'Moves between rows.' },
+      { keys: ['Enter', 'Space'], does: 'Opens or closes the focused row.' },
+    ],
   },
   {
     slug: 'breadcrumb',
@@ -417,6 +467,10 @@ export const COMPONENTS: ComponentEntry[] = [
       'Renders nothing at one page. A pager for a single page is furniture.',
     ],
     related: ['breadcrumb'],
+    keyboard: [
+      { keys: ['Tab'], does: 'Reaches every control, including the current page.' },
+      { keys: ['Enter', 'Space'], does: 'Goes to that page.' },
+    ],
   },
   {
     slug: 'nav-item',
@@ -451,6 +505,10 @@ export const COMPONENTS: ComponentEntry[] = [
       'Column labels are <th scope="col">, so a cell can be traced back to its heading.',
     ],
     related: ['card', 'figure-band'],
+    keyboard: [
+      { keys: ['Tab'], does: 'Reaches the scroll region, and each sortable column header.' },
+      { keys: ['←', '→'], does: 'Scrolls the table sideways once the region has focus.' },
+    ],
   },
   {
     slug: 'app-shell',
@@ -477,6 +535,12 @@ export const COMPONENTS: ComponentEntry[] = [
       'label is required: the trigger prints a value, and a value is not a name.',
     ],
     related: ['select', 'command'],
+    keyboard: [
+      { keys: ['Enter', 'Space', '↓'], does: 'Opens the list.' },
+      { keys: ['↑', '↓'], does: 'Moves the highlight while focus stays in the filter.' },
+      { keys: ['Enter'], does: 'Chooses the highlighted option; choosing the current one clears it.' },
+      { keys: ['Escape'], does: 'Closes without choosing.' },
+    ],
   },
   {
     slug: 'date-picker',
@@ -489,6 +553,10 @@ export const COMPONENTS: ComponentEntry[] = [
       'The trigger prints the date in the visitor’s own locale, not a fixed dd/mm/yyyy.',
     ],
     related: ['calendar', 'field'],
+    keyboard: [
+      { keys: ['Enter', 'Space'], does: 'Opens the calendar.' },
+      { keys: ['Escape'], does: 'Closes it without choosing.' },
+    ],
   },
   {
     slug: 'slider',
@@ -502,6 +570,11 @@ export const COMPONENTS: ComponentEntry[] = [
       'Arrows step, Page keys jump, Home and End reach the ends.',
     ],
     related: ['progress'],
+    keyboard: [
+      { keys: ['←', '→'], does: 'Moves by one step.' },
+      { keys: ['Page Up', 'Page Down'], does: 'Moves by a larger step.' },
+      { keys: ['Home', 'End'], does: 'Jumps to the minimum or maximum.' },
+    ],
   },
   {
     slug: 'toggle-group',
@@ -514,6 +587,11 @@ export const COMPONENTS: ComponentEntry[] = [
       'type="single" gets radio semantics; type="multiple" gets independent toggles. Choosing wrong tells a screen reader that picking one option unpicks the others.',
     ],
     related: ['tabs', 'radio-group'],
+    keyboard: [
+      { keys: ['Tab'], does: 'Moves into the strip — one stop for the group.' },
+      { keys: ['←', '→'], does: 'Moves between segments.' },
+      { keys: ['Enter', 'Space'], does: 'Toggles the focused segment.' },
+    ],
   },
 
   // ─── Overlays (continued) ───
@@ -529,6 +607,11 @@ export const COMPONENTS: ComponentEntry[] = [
       'Its contents Tab like the rest of the page, unlike a menu’s arrow-key list.',
     ],
     related: ['tooltip', 'dropdown-menu'],
+    keyboard: [
+      { keys: ['Enter', 'Space'], does: 'Opens it.' },
+      { keys: ['Tab'], does: 'Moves through its contents like the rest of the page.' },
+      { keys: ['Escape'], does: 'Closes it and returns focus to the trigger.' },
+    ],
   },
   {
     slug: 'sheet',
@@ -542,6 +625,10 @@ export const COMPONENTS: ComponentEntry[] = [
       'The title is required, visible or not.',
     ],
     related: ['dialog', 'popover'],
+    keyboard: [
+      { keys: ['Escape'], does: 'Closes it, and focus returns to the trigger.' },
+      { keys: ['Tab'], does: 'Cycles inside the sheet.' },
+    ],
   },
   {
     slug: 'context-menu',
@@ -551,6 +638,11 @@ export const COMPONENTS: ComponentEntry[] = [
     summary: 'The menu a right-click opens.',
     when: 'Never as the only way to reach an action. Touch users, trackpad users and keyboard users may have no way to open it.',
     related: ['dropdown-menu'],
+    keyboard: [
+      { keys: ['Shift', 'F10'], does: 'Opens the menu from the keyboard, where the platform supports it.' },
+      { keys: ['↑', '↓'], does: 'Moves between items.' },
+      { keys: ['Escape'], does: 'Closes it.' },
+    ],
   },
   {
     slug: 'command',
@@ -562,6 +654,11 @@ export const COMPONENTS: ComponentEntry[] = [
       'The list filters as you type, the highlight moves with the arrow keys, and focus stays in the input. That last part is the ARIA combobox pattern and the part a home-made palette gets wrong.',
     ],
     related: ['combobox', 'dialog'],
+    keyboard: [
+      { keys: ['↑', '↓'], does: 'Moves the highlight. Focus stays in the input, so what you typed stays editable.' },
+      { keys: ['Enter'], does: 'Runs the highlighted item.' },
+      { keys: ['Escape'], does: 'Closes the palette.' },
+    ],
   },
 
   // ─── Navigation (continued) ───
@@ -573,6 +670,9 @@ export const COMPONENTS: ComponentEntry[] = [
     summary: 'One thing that opens, on its own.',
     when: 'The difference from Accordion is arithmetic: an accordion is a SET and can coordinate. An accordion of one manages a value nobody reads.',
     related: ['accordion'],
+    keyboard: [
+      { keys: ['Enter', 'Space'], does: 'Opens or closes it.' },
+    ],
   },
 
   // ─── Surfaces (continued) ───
@@ -588,6 +688,13 @@ export const COMPONENTS: ComponentEntry[] = [
       '“Today” is an outline and “selected” is a fill — one is a fact about the calendar, the other a choice the reader made, and they must not look alike.',
     ],
     related: ['date-picker'],
+    keyboard: [
+      { keys: ['←', '→'], does: 'Moves by a day.' },
+      { keys: ['↑', '↓'], does: 'Moves by a week.' },
+      { keys: ['Page Up', 'Page Down'], does: 'Moves by a month.' },
+      { keys: ['Home', 'End'], does: 'Jumps to the week\'s first or last day.' },
+      { keys: ['Enter', 'Space'], does: 'Chooses the focused day.' },
+    ],
   },
   {
     slug: 'scroll-area',
@@ -601,6 +708,10 @@ export const COMPONENTS: ComponentEntry[] = [
       'label is required, because an unnamed keyboard stop announces "group" and nothing else.',
     ],
     related: ['table'],
+    keyboard: [
+      { keys: ['Tab'], does: 'Moves focus into the region, which is what makes it scrollable at all without a mouse.' },
+      { keys: ['↑', '↓', 'Page Up', 'Page Down'], does: 'Scrolls it.' },
+    ],
   },
 ]
 

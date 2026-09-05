@@ -1,10 +1,11 @@
-import { Alert, Badge, Separator } from '@misoto22/design'
+import { Alert, Badge, Kbd, Separator, TBody, TD, TH, THead, TR, Table } from '@misoto22/design'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CodeBlock } from '@/components/CodeBlock'
 import { ExampleCanvas } from '@/components/ExampleCanvas'
 import { PageIntro, SectionHeading } from '@/components/PageIntro'
+import { Prose } from '@/components/Prose'
 import { PropsTable } from '@/components/PropsTable'
 import { BY_SLUG, COMPONENTS } from '@/content/registry'
 import { componentExamples, componentSource, componentTypes } from '@/lib/docs'
@@ -135,6 +136,36 @@ export default async function ComponentPage({ params }: { params: Promise<{ slug
         </section>
       )}
 
+      {entry.keyboard && entry.keyboard.length > 0 && (
+        <section className="flex flex-col gap-4">
+          <SectionHeading id="keyboard">Keyboard</SectionHeading>
+          <Table caption={`${entry.name} keyboard interactions`}>
+            <THead>
+              <TR>
+                <TH className="w-48">Key</TH>
+                <TH>Does</TH>
+              </TR>
+            </THead>
+            <TBody>
+              {entry.keyboard.map((row) => (
+                <TR key={row.keys.join('+')}>
+                  <TD className="align-top">
+                    <span className="flex flex-wrap gap-1.5">
+                      {row.keys.map((key) => (
+                        <Kbd key={key}>{key}</Kbd>
+                      ))}
+                    </span>
+                  </TD>
+                  <TD className="max-w-(--measure-record) align-top text-[13px] leading-relaxed">
+                    {row.does}
+                  </TD>
+                </TR>
+              ))}
+            </TBody>
+          </Table>
+        </section>
+      )}
+
       {entry.accessibility && entry.accessibility.length > 0 && (
         <section className="flex flex-col gap-4">
           <SectionHeading id="accessibility">Accessibility</SectionHeading>
@@ -170,32 +201,3 @@ export default async function ComponentPage({ params }: { params: Promise<{ slug
   )
 }
 
-/**
- * JSDoc prose, rendered as paragraphs with inline code.
- *
- * A full Markdown pipeline would be a dependency and a build step for the two
- * pieces of syntax these comments actually use — blank-line paragraphs, and
- * backticks. Anything richer belongs in the registry, not in a doc comment.
- */
-function Prose({ text, small = false }: { text: string; small?: boolean }) {
-  return (
-    <div className={`flex max-w-(--w-reading) flex-col gap-3 ${small ? 'text-[13px]' : 'text-sm'}`}>
-      {text.split(/\n\s*\n/).map((paragraph, index) => (
-        <p key={index} className="m-0 leading-relaxed text-(--ink-2)">
-          {paragraph.split(/(`[^`]+`)/).map((part, partIndex) =>
-            part.startsWith('`') && part.endsWith('`') ? (
-              <code
-                key={partIndex}
-                className="rounded-(--radius-sm) bg-(--stone) px-1.5 py-0.5 font-mono text-xs text-(--ink)"
-              >
-                {part.slice(1, -1)}
-              </code>
-            ) : (
-              <span key={partIndex}>{part.replace(/\n/g, ' ')}</span>
-            ),
-          )}
-        </p>
-      ))}
-    </div>
-  )
-}

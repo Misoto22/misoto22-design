@@ -2,7 +2,7 @@
   "name": "@misoto22/design",
   "version": "0.1.0",
   "private": false,
-  "description": "misoto22 design system — White Reset tokens, brand mirrors, and accessible React primitives",
+  "description": "misoto22 design system \u2014 White Reset tokens, brand mirrors, and accessible React primitives",
   "license": "MIT",
   "author": "Henry Chen",
   "type": "module",
@@ -42,7 +42,8 @@
     "lint": "eslint src",
     "test": "vitest run",
     "test:watch": "vitest",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "check:size": "node scripts/check-size.mjs"
   },
   "peerDependencies": {
     "react": "^19.0.0",
@@ -88,6 +89,7 @@
     "@vitejs/plugin-react": "^6.1.0",
     "axe-core": "^4.13.0",
     "culori": "^4.0.2",
+    "esbuild": "^0.28.2",
     "esbuild-fix-imports-plugin": "^1.0.23",
     "jsdom": "^29.1.1",
     "react": "^19.2.8",

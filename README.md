@@ -98,7 +98,22 @@ pnpm install
 pnpm dev            # the docs site on http://localhost:4023
 pnpm build          # the package, then the site
 pnpm lint && pnpm typecheck && pnpm test
+pnpm --filter @misoto22/design-docs test:e2e   # axe + keyboard, in a browser
+pnpm --filter @misoto22/design check:size      # size and tree-shaking budget
 ```
+
+### How it is tested
+
+| Suite | Runs in | Answers |
+|---|---|---|
+| unit | jsdom | roles, names, `aria-*`, labelling — every component, from one fixture |
+| server-render | node, no DOM | does anything touch `window` at import time |
+| keyboard | jsdom | the interactions axe cannot see |
+| browser | Chromium | colour contrast, page-level rules, RTL, density, the live editor |
+| size | esbuild | did it grow; does tree shaking still work |
+
+`coverage.test.ts` fails when a component has no fixture, so "every component is
+checked" is a property the build enforces rather than a claim to audit.
 
 The docs site reads the package from `packages/design/dist`, so run
 `pnpm build:design` after changing a component before `pnpm dev` picks it up.

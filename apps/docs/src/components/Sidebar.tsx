@@ -4,8 +4,50 @@ import { Input, Kbd, NavItem, cn } from '@misoto22/design'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { COMPONENTS, groupedComponents } from '@/content/registry'
+import { COMPONENTS, groupedComponents, type ComponentEntry } from '@/content/registry'
 import { FOUNDATIONS } from '@/content/foundations'
+import propsJson from '@/generated/props.json'
+
+/**
+ * Everything about a component a reader might plausibly type.
+ *
+ * The name and the summary are the obvious half. The rest is the half that
+ * makes search useful rather than decorative: someone looking for "aria-sort"
+ * or "asChild" or "focus trap" is looking for a component, and matching only
+ * titles sends them away empty. Built once at module load, from data the build
+ * already produced.
+ */
+const HAYSTACK = new Map<string, string>(
+  COMPONENTS.map((entry) => {
+    type Prop = { name: string; type: string; description: string }
+    const source = (propsJson as Record<string, { components?: { props?: Prop[] }[] }>)[entry.dir]
+    // Names, types AND descriptions: someone searching for "aria-sort" is
+    // looking for the table, and only the description says so. A search that
+    // stops at prop names is a search that answers the questions you did not
+    // need to ask.
+    const props = (source?.components ?? []).flatMap((component) =>
+      (component.props ?? []).flatMap((prop) => [prop.name, prop.type, prop.description]),
+    )
+    return [
+      entry.slug,
+      [
+        entry.name,
+        entry.dir,
+        entry.group,
+        entry.summary,
+        entry.when ?? '',
+        ...(entry.accessibility ?? []),
+        ...(entry.keyboard ?? []).flatMap((row) => [...row.keys, row.does]),
+        ...props,
+      ]
+        .join(' ')
+        .toLowerCase(),
+    ]
+  }),
+)
+
+const matches = (entry: ComponentEntry, needle: string) =>
+  (HAYSTACK.get(entry.slug) ?? '').includes(needle)
 
 /**
  * The site's index, and its search.
@@ -34,17 +76,17 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const needle = query.trim().toLowerCase()
   const sections = useMemo(() => {
     if (!needle) return groupedComponents()
-    const matches = COMPONENTS.filter(
-      (entry) =>
-        entry.name.toLowerCase().includes(needle) || entry.summary.toLowerCase().includes(needle),
-    )
     return groupedComponents()
       .map((section) => ({
         ...section,
-        entries: section.entries.filter((entry) => matches.includes(entry)),
+        entries: section.entries.filter((entry) => matches(entry, needle)),
       }))
       .filter((section) => section.entries.length > 0)
   }, [needle])
+
+  const hits = needle
+    ? sections.reduce((total, section) => total + section.entries.length, 0)
+    : 0
 
   const foundations = FOUNDATIONS.filter(
     (page) => !needle || page.title.toLowerCase().includes(needle),
@@ -75,6 +117,9 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           </Row>
           <Row href="/components/" pathname={pathname} onNavigate={onNavigate}>
             All components
+          </Row>
+          <Row href="/changelog/" pathname={pathname} onNavigate={onNavigate}>
+            Changelog
           </Row>
         </Section>
 
@@ -108,8 +153,17 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           </Section>
         ))}
 
+        {needle && (hits > 0 || foundations.length > 0) && (
+          <p className="m-0 px-3 mono-meta text-(--ink-3-aa)" role="status">
+            {hits + foundations.length} matching
+          </p>
+        )}
+
         {needle && sections.length === 0 && foundations.length === 0 && (
-          <p className="m-0 px-3 text-sm text-(--ink-3-aa)">Nothing matches “{query}”.</p>
+          <p className="m-0 px-3 text-sm text-(--ink-3-aa)" role="status">
+            Nothing matches “{query}”. The index covers names, summaries, props, keyboard keys and
+            the accessibility notes.
+          </p>
         )}
       </nav>
     </div>
