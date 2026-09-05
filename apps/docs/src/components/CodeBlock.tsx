@@ -44,7 +44,11 @@ export function CodeBlock({ html, source, label = 'Code', className }: CodeBlock
   return (
     <div
       className={cn(
-        'group relative overflow-hidden rounded-(--radius) border border-(--rule) bg-(--paper-2)',
+        // `min-w-0` is what lets the scroller inside actually scroll. A grid or
+        // flex item defaults to `min-width: auto`, so without it the block grew
+        // to the min-content width of its longest line — an unbroken install
+        // command — and pushed the whole page sideways on a phone.
+        'group relative min-w-0 overflow-hidden rounded-(--radius) border border-(--rule) bg-(--paper-2)',
         className,
       )}
     >
@@ -54,7 +58,10 @@ export function CodeBlock({ html, source, label = 'Code', className }: CodeBlock
         variant="ghost"
         onClick={copy}
         aria-label={copied ? 'Copied' : 'Copy the snippet'}
-        className="absolute end-2 top-2 z-1 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+        // Hidden until hover on a mouse; always there, and tappable, on a touch
+        // screen. A control that only appears on hover does not exist on a
+        // phone, and 36px is under the pointer-target floor once it does.
+        className="absolute end-2 top-2 z-1 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 pointer-coarse:min-h-11 pointer-coarse:min-w-11 pointer-coarse:opacity-100"
       >
         {copied ? (
           <Check size={14} strokeWidth={1.5} aria-hidden />

@@ -69,7 +69,7 @@ export function Home({ locale }: { locale: Locale }) {
 
       <section className="flex flex-col gap-5">
         <SectionHeading id="install">{t.section.install}</SectionHeading>
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
           <div className="flex flex-col gap-4">
             <CodeBlock html={snippet('install')} source={snippetSource('install')} />
             <p className="m-0 text-sm leading-relaxed text-(--ink-3-aa)">{copy.installNote}</p>
@@ -128,7 +128,7 @@ export function Home({ locale }: { locale: Locale }) {
         <p className="m-0 max-w-(--w-reading) text-sm leading-relaxed text-(--ink-2)">
           {copy.tailwindNote}
         </p>
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
           <CodeBlock html={snippet('tailwind')} source={snippetSource('tailwind')} />
           <div className="flex flex-col gap-4">
             <CodeBlock html={snippet('theme')} source={snippetSource('theme')} />
