@@ -25,7 +25,7 @@ export function Switch({ className, ...props }: SwitchProps) {
   return (
     <SwitchPrimitive.Root
       className={cn(
-        'group inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-(--radius-pill) border border-(--rule-2) bg-(--stone) px-0.5 transition-colors duration-(--duration-fast) hover:border-(--rule-hard) data-[state=checked]:border-(--ink) data-[state=checked]:bg-(--ink) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none',
+        'group inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-(--radius-pill) border border-(--rule-2) bg-(--stone) px-0.5 transition-colors duration-(--duration-fast) hover:border-(--rule-hard) data-[state=checked]:border-(--accent) data-[state=checked]:bg-(--accent) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none',
         className,
       )}
       {...props}

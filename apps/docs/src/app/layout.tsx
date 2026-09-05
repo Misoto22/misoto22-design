@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
+import { AccentProvider } from '@/components/AccentProvider'
 import { DocsShell } from '@/components/DocsShell'
 import { BRAND } from '@misoto22/design'
 import './globals.css'
@@ -39,6 +40,8 @@ try {
   var stored = localStorage.getItem('m22-mode')
   var system = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   document.documentElement.dataset.mode = stored === 'light' || stored === 'dark' ? stored : system
+  var accent = localStorage.getItem('m22-accent')
+  if (accent) document.documentElement.dataset.accent = accent
 } catch (_) {
   document.documentElement.dataset.mode = 'light'
 }
@@ -51,7 +54,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body>
-        <DocsShell>{children}</DocsShell>
+        <AccentProvider>
+          <DocsShell>{children}</DocsShell>
+        </AccentProvider>
       </body>
     </html>
   )

@@ -2,6 +2,7 @@ import examplesJson from '@/generated/examples.json'
 import propsJson from '@/generated/props.json'
 import snippetsJson from '@/generated/snippets.json'
 import tokensJson from '@/generated/tokens.json'
+import templatesJson from '@/generated/templates.json'
 import typesJson from '@/generated/types.json'
 
 /**
@@ -66,6 +67,7 @@ const PROPS = propsJson as unknown as Record<string, ComponentSource>
 const EXAMPLES = examplesJson as unknown as Record<string, ExampleData[]>
 const SNIPPETS = snippetsJson as unknown as Record<string, string>
 const TYPES = typesJson as unknown as Record<string, HighlightedCode>
+const TEMPLATES_SOURCE = templatesJson as unknown as Record<string, HighlightedCode>
 const TOKENS = tokensJson as unknown as Record<string, TokenRecord>
 
 export function componentSource(dir: string): ComponentSource {
@@ -84,6 +86,11 @@ export interface HighlightedCode {
 /** A component's exported type aliases, highlighted at build time. */
 export function componentTypes(dir: string): HighlightedCode | undefined {
   return TYPES[dir]
+}
+
+/** A template's own source, highlighted at build time. */
+export function templateSource(id: string): HighlightedCode | undefined {
+  return TEMPLATES_SOURCE[id]
 }
 
 export function snippet(id: string): string {

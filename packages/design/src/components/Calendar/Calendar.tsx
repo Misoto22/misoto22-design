@@ -79,7 +79,7 @@ export function Calendar({ className, classNames, captionLayout, ...props }: Cal
         day_button:
           'inline-flex size-9 items-center justify-center rounded-(--radius-pill) text-sm text-(--ink-2) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)',
         // Filled ink, matching every other "selected" in the system.
-        selected: '[&>button]:bg-(--ink) [&>button]:text-(--paper) [&>button:hover]:bg-(--ink)',
+        selected: '[&>button]:bg-(--accent) [&>button]:text-(--accent-foreground) [&>button:hover]:bg-(--accent)',
         // Today is an outline, not a fill — it is a fact about the calendar,
         // not a choice the reader made, and the two must not look alike.
         today: '[&>button]:ring-1 [&>button]:ring-(--rule-hard) [&>button]:ring-inset',

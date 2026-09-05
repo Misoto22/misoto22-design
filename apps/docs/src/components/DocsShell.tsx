@@ -1,10 +1,12 @@
 'use client'
 
-import { Button, Separator } from '@misoto22/design'
-import { Menu, X } from 'lucide-react'
+import { Button, Kbd, Separator, TooltipProvider } from '@misoto22/design'
+import { Menu, Search, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState, type ReactNode } from 'react'
+import { AccentMenu } from './AccentMenu'
+import { CommandPalette } from './CommandPalette'
 import { Sidebar } from './Sidebar'
 import { ThemeToggle } from './ThemeToggle'
 
@@ -35,6 +37,8 @@ export function DocsShell({ children }: { children: ReactNode }) {
   }, [open])
 
   return (
+    <TooltipProvider>
+      <CommandPalette />
     <div className="min-h-svh lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
       <a
         href="#content"
@@ -96,6 +100,20 @@ export function DocsShell({ children }: { children: ReactNode }) {
             <Menu size={18} strokeWidth={1.5} aria-hidden />
           </Button>
           <div className="flex items-center gap-1">
+            {/* A visible way in, because a shortcut nobody is told about is a
+                shortcut for the person who built it. */}
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => document.dispatchEvent(
+                new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }),
+              )}
+              className="gap-2 text-(--ink-3-aa)"
+            >
+              <Search size={14} strokeWidth={1.5} aria-hidden />
+              <span className="max-sm:sr-only">Search</span>
+              <Kbd className="max-sm:hidden">⌘K</Kbd>
+            </Button>
             <Button
               size="sm"
               variant="ghost"
@@ -106,6 +124,7 @@ export function DocsShell({ children }: { children: ReactNode }) {
             >
               GitHub
             </Button>
+            <AccentMenu />
             <ThemeToggle />
           </div>
         </header>
@@ -115,5 +134,6 @@ export function DocsShell({ children }: { children: ReactNode }) {
         </main>
       </div>
     </div>
+    </TooltipProvider>
   )
 }

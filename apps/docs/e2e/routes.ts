@@ -1,5 +1,6 @@
 import { COMPONENTS } from '../src/content/registry'
 import { FOUNDATIONS } from '../src/content/foundations'
+import { TEMPLATES } from '../src/content/templates'
 
 /**
  * Every page the site publishes, derived from the same registries the pages
@@ -14,6 +15,8 @@ export const ROUTES: string[] = [
   '/principles/',
   '/components/',
   '/changelog/',
+  '/templates/',
   ...FOUNDATIONS.map((page) => `/foundations/${page.slug}/`),
   ...COMPONENTS.map((entry) => `/components/${entry.slug}/`),
+  ...TEMPLATES.map((template) => `/templates/${template.slug}/`),
 ]

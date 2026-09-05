@@ -80,10 +80,10 @@ export function RadioGroupItem({ children, className, id, onFocus, ...props }: R
       <RadioGroupPrimitive.Item
         id={id}
         onFocus={selectOnArrowFocus}
-        className="grid size-[18px] shrink-0 place-items-center rounded-full border border-(--rule-2) bg-(--paper) transition-colors duration-(--duration-fast) data-[state=checked]:border-(--ink) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none"
+        className="grid size-[18px] shrink-0 place-items-center rounded-full border border-(--rule-2) bg-(--paper) transition-colors duration-(--duration-fast) data-[state=checked]:border-(--accent) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none"
         {...props}
       >
-        <RadioGroupPrimitive.Indicator className="size-2.5 rounded-full bg-(--ink)" />
+        <RadioGroupPrimitive.Indicator className="size-2.5 rounded-full bg-(--accent)" />
       </RadioGroupPrimitive.Item>
       {children}
     </label>

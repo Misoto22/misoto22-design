@@ -206,7 +206,7 @@ export function Combobox(props: ComboboxProps) {
                       className={cn(
                         'grid size-4 shrink-0 place-items-center transition-opacity duration-(--duration-fast)',
                         multiple &&
-                          'rounded-(--radius-sm) border border-(--rule-2) text-(--paper) data-[on=true]:border-(--ink) data-[on=true]:bg-(--ink)',
+                          'rounded-(--radius-sm) border border-(--rule-2) text-(--accent-foreground) data-[on=true]:border-(--accent) data-[on=true]:bg-(--accent)',
                       )}
                       data-on={selected}
                     >

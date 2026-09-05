@@ -70,7 +70,7 @@ export function Slider({
         {...props}
       >
         <SliderPrimitive.Track className="relative h-1 w-full grow overflow-hidden rounded-(--radius-pill) bg-(--stone) transition-[height] duration-(--duration-fast) group-hover:h-1.5">
-          <SliderPrimitive.Range className="absolute h-full bg-(--ink)" />
+          <SliderPrimitive.Range className="absolute h-full bg-(--accent)" />
         </SliderPrimitive.Track>
         {current.map((_, index) => (
           <SliderPrimitive.Thumb
@@ -81,7 +81,7 @@ export function Slider({
             // `transition-transform` and not `all`: the thumb's own position is
             // set by Radix as a `left` percentage, and transitioning that would
             // make it lag the pointer. Only the grow-on-grab is animated.
-            className="relative block size-4 rounded-full border border-(--ink) bg-(--paper) transition-[transform,background-color] duration-(--duration-fast) ease-(--ease-out-expo) before:absolute before:left-1/2 before:top-1/2 before:size-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] hover:scale-110 hover:bg-(--stone) active:scale-125 data-[state=active]:scale-125 disabled:opacity-(--disabled-opacity) motion-reduce:transition-none"
+            className="relative block size-4 rounded-full border border-(--accent) bg-(--paper) transition-[transform,background-color] duration-(--duration-fast) ease-(--ease-out-expo) before:absolute before:left-1/2 before:top-1/2 before:size-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] hover:scale-110 hover:bg-(--stone) active:scale-125 data-[state=active]:scale-125 disabled:opacity-(--disabled-opacity) motion-reduce:transition-none"
           />
         ))}
       </SliderPrimitive.Root>
