@@ -21,6 +21,25 @@ A change to the documentation site, to CI, or to a test needs no changeset;
 `@misoto22/design-docs` is in the `ignore` list because it is deployed, not
 versioned.
 
+### What a publish is gated on
+
+`publish` is a job in `.github/workflows/release.yml` that `needs: [verify,
+browser]`, so the full pull-request gate — lint, typecheck, tests, both builds,
+the size and tree-shaking budget, and the axe, keyboard and RTL suite in a real
+browser — runs to green before anything reaches the registry.
+
+That ordering is the point. `publish` used to be its own workflow triggered by
+the same push, which meant it raced the checks rather than waiting for them: it
+finished in a minute and a quarter while the browser suite was still six minutes
+from done. A version that fails the a11y suite cannot be recalled, because npm
+does not let a version number be reused.
+
+> [!NOTE]
+> The **Version Packages** pull request is opened by the workflow's own
+> `GITHUB_TOKEN`, and GitHub does not trigger workflows for events from that
+> token — so that pull request carries no checks and cannot. Its tree is
+> verified after the merge, by the `main` run that publishes it.
+
 ## Consuming it
 
 Nothing to configure. The package is public on the default registry, so every

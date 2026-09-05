@@ -1,0 +1,50 @@
+# Everything that can be answered without a browser. Called by `pr.yml` and by
+# `release.yml`, so a pull request and a release are gated by one definition
+# rather than by two that drift.
+name: Verify
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+
+      - name: Lint
+        run: pnpm lint
+
+      # The docs app reads the design package from `dist`, so the library is
+      # built before anything typechecks against it. This is also the step that
+      # would catch a token file that no longer compiles.
+      - name: Build the design package
+        run: pnpm build:design
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      # Answers "did the package suddenly get bigger" and, more usefully, "does
+      # importing one component still avoid dragging in the other forty-eight".
+      - name: Size and tree-shaking budget
+        run: pnpm --filter @misoto22/design check:size
+
+      - name: Build the documentation site
+        run: pnpm build:docs
+
+      # Retained long enough that re-running the deploy job days later still
+      # finds the exact directory this run tested.
+      - name: Upload the static export
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: docs-out
+          path: apps/docs/out
+          retention-days: 14
