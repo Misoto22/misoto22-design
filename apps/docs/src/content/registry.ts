@@ -464,7 +464,146 @@ export const COMPONENTS: ComponentEntry[] = [
     ],
     related: ['nav-item'],
   },
+  // ─── Forms (continued) ───
+  {
+    slug: 'combobox',
+    dir: 'Combobox',
+    name: 'Combobox',
+    group: 'Forms',
+    summary: 'A select you can type into.',
+    when: 'Past roughly a dozen options. Below that a native Select is better: the platform picker on a phone, typeahead for free, no JavaScript.',
+    accessibility: [
+      'The highlight moves through aria-activedescendant while focus stays in the input — the ARIA combobox pattern. Hand-rolled comboboxes move focus into the list, and the typed text stops being editable.',
+      'label is required: the trigger prints a value, and a value is not a name.',
+    ],
+    related: ['select', 'command'],
+  },
+  {
+    slug: 'date-picker',
+    dir: 'DatePicker',
+    name: 'DatePicker',
+    group: 'Forms',
+    summary: 'A date, chosen from a calendar.',
+    when: 'Deliberately not a text input with a calendar attached: parsing a typed date needs a format, and 03/04 is March the fourth in one country and the third of April in the next.',
+    accessibility: [
+      'The trigger prints the date in the visitor’s own locale, not a fixed dd/mm/yyyy.',
+    ],
+    related: ['calendar', 'field'],
+  },
+  {
+    slug: 'slider',
+    dir: 'Slider',
+    name: 'Slider',
+    group: 'Forms',
+    summary: 'A value chosen along a range.',
+    accessibility: [
+      'label is required. A thumb that announces "42" and nothing else leaves a screen reader user with a number and no idea what it measures.',
+      'A 44px hit area sits invisibly around the 16px thumb.',
+      'Arrows step, Page keys jump, Home and End reach the ends.',
+    ],
+    related: ['progress'],
+  },
+  {
+    slug: 'toggle-group',
+    dir: 'ToggleGroup',
+    name: 'ToggleGroup',
+    group: 'Forms',
+    summary: 'A segmented control: several options, one strip.',
+    when: 'It changes a VALUE. Something that switches panels is Tabs.',
+    accessibility: [
+      'type="single" gets radio semantics; type="multiple" gets independent toggles. Choosing wrong tells a screen reader that picking one option unpicks the others.',
+    ],
+    related: ['tabs', 'radio-group'],
+  },
+
+  // ─── Overlays (continued) ───
+  {
+    slug: 'popover',
+    dir: 'Popover',
+    name: 'Popover',
+    group: 'Overlays',
+    summary: 'A panel anchored to a control, holding content you can interact with.',
+    when: 'Anything with a link, a field or a button in it. A tooltip describes and cannot be entered — put a control inside one and it becomes unreachable.',
+    accessibility: [
+      'label is required: a popover is a dialog, and an unnamed one announces nothing.',
+      'Its contents Tab like the rest of the page, unlike a menu’s arrow-key list.',
+    ],
+    related: ['tooltip', 'dropdown-menu'],
+  },
+  {
+    slug: 'sheet',
+    dir: 'Sheet',
+    name: 'Sheet',
+    group: 'Overlays',
+    summary: 'A panel docked to an edge of the viewport.',
+    when: 'A modal that needs room — a filter panel, a detail view. It IS a Dialog, docked; the sides are named in reading order, so `end` is the right in English and the left in Arabic.',
+    accessibility: [
+      'Shares Dialog’s focus trap, Escape handling and scroll lock rather than reproducing them — a second focus trap is a second one to get wrong.',
+      'The title is required, visible or not.',
+    ],
+    related: ['dialog', 'popover'],
+  },
+  {
+    slug: 'context-menu',
+    dir: 'ContextMenu',
+    name: 'ContextMenu',
+    group: 'Overlays',
+    summary: 'The menu a right-click opens.',
+    when: 'Never as the only way to reach an action. Touch users, trackpad users and keyboard users may have no way to open it.',
+    related: ['dropdown-menu'],
+  },
+  {
+    slug: 'command',
+    dir: 'Command',
+    name: 'Command',
+    group: 'Overlays',
+    summary: 'A filterable list of actions — the ⌘K surface.',
+    accessibility: [
+      'The list filters as you type, the highlight moves with the arrow keys, and focus stays in the input. That last part is the ARIA combobox pattern and the part a home-made palette gets wrong.',
+    ],
+    related: ['combobox', 'dialog'],
+  },
+
+  // ─── Navigation (continued) ───
+  {
+    slug: 'collapsible',
+    dir: 'Collapsible',
+    name: 'Collapsible',
+    group: 'Navigation',
+    summary: 'One thing that opens, on its own.',
+    when: 'The difference from Accordion is arithmetic: an accordion is a SET and can coordinate. An accordion of one manages a value nobody reads.',
+    related: ['accordion'],
+  },
+
+  // ─── Surfaces (continued) ───
+  {
+    slug: 'calendar',
+    dir: 'Calendar',
+    name: 'Calendar',
+    group: 'Surfaces',
+    summary: 'A month, as a grid of days.',
+    when: 'On its own for a range view or an availability grid; inside a DatePicker for choosing one.',
+    accessibility: [
+      'Arrows move a day, Page keys move a month, Home and End reach the week’s ends.',
+      '“Today” is an outline and “selected” is a fill — one is a fact about the calendar, the other a choice the reader made, and they must not look alike.',
+    ],
+    related: ['date-picker'],
+  },
+  {
+    slug: 'scroll-area',
+    dir: 'ScrollArea',
+    name: 'ScrollArea',
+    group: 'Surfaces',
+    summary: 'A box that scrolls, with a scrollbar that looks the same everywhere.',
+    when: 'A bounded panel — a long option list, a log. For page-level or prose scroll the scroll-slim utility is lighter and needs no component.',
+    accessibility: [
+      'The viewport stays focusable. A scrollable region whose contents are not focusable has nothing to Tab to, so everything past the fold does not exist without a mouse.',
+      'label is required, because an unnamed keyboard stop announces "group" and nothing else.',
+    ],
+    related: ['table'],
+  },
 ]
+
 
 export const BY_SLUG = new Map(COMPONENTS.map((entry) => [entry.slug, entry]))
 

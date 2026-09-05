@@ -83,6 +83,11 @@ test('the theme toggle is reachable and flips the document', async ({ page }) =>
 
 test('search narrows the sidebar and "/" focuses it', async ({ page }) => {
   await page.goto('/')
+  // The "/" shortcut is registered by an effect, so the key press has to wait
+  // for hydration. The theme toggle only gets its accessible name after mount,
+  // which makes it a reliable signal that effects have run — a fixed timeout
+  // would be a flake waiting for a slower runner.
+  await expect(page.getByRole('button', { name: /Switch to the (light|dark) theme/ })).toBeVisible()
   await page.keyboard.press('/')
   const search = page.getByRole('searchbox', { name: 'Search the documentation' })
   await expect(search).toBeFocused()

@@ -44,9 +44,10 @@ export default function Home() {
           <div className="flex flex-col gap-4">
             <CodeBlock html={snippet('install')} source={snippetSource('install')} />
             <p className="m-0 text-sm leading-relaxed text-(--ink-3-aa)">
-              Four runtime dependencies — Radix for the behaviour nobody should re-implement,
-              lucide for icons, sonner for toasts, and clsx + tailwind-merge to resolve a class
-              conflict in the caller’s favour. No router, no state library, no CSS-in-JS.
+              Six runtime dependencies — Radix for the behaviour nobody should re-implement,
+              cmdk for the combobox pattern, react-day-picker for the calendar, lucide for icons,
+              sonner for toasts, and clsx + tailwind-merge to resolve a class conflict in the
+              caller’s favour. No router, no state library, no CSS-in-JS.
             </p>
           </div>
           <CodeBlock html={snippet('usage')} source={snippetSource('usage')} />
