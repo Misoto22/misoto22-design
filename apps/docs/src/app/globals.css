@@ -13,6 +13,7 @@
 @import 'tailwindcss';
 @import '../../../../packages/design/src/styles/tokens.css';
 @import '../../../../packages/design/src/styles/semantic.css';
+@import '../../../../packages/design/src/styles/themes.css';
 @import '../../../../packages/design/src/styles/keyframes.css';
 /* Generated: the package's vendored faces, rewritten to the paths a static
    export actually serves them from. See scripts/generate.mjs. */

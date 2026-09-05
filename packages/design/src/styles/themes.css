@@ -1,0 +1,115 @@
+/*
+ * Theming beyond the accent.
+ *
+ * The accent proves one token can be re-pointed. This proves the rest can:
+ * five independent axes, each an attribute on the root, each re-pointing
+ * tokens that already exist. No component is touched by any of it, and nothing
+ * here introduces a token — a theme that needed a new token would be a second
+ * design system wearing the first one's name.
+ *
+ * The axes are independent on purpose. A named preset is a combination, not a
+ * block of its own, so "warm surface with sharp corners" is reachable even
+ * though nobody shipped it as a preset.
+ *
+ * Every axis has an unset default: the White Reset is what you get by writing
+ * no attribute at all.
+ */
+
+/* ─── Surface ──────────────────────────────────────────────────────────────
+   The ground and its two steps. Law 8 still holds — dark is a value swap, so
+   each surface defines both and neither is a separate palette. */
+
+[data-surface='warm'] {
+  --paper: #fdfcf9;
+  --paper-2: #f6f4ee;
+  --stone: #efece4;
+  --rule: #e8e4da;
+  --rule-2: #d8d3c6;
+}
+[data-mode='dark'][data-surface='warm'],
+[data-mode='dark'] [data-surface='warm'] {
+  --paper: #12110f;
+  --paper-2: #1a1814;
+  --stone: #221f1a;
+}
+
+[data-surface='cool'] {
+  --paper: #fcfdfe;
+  --paper-2: #f2f5f8;
+  --stone: #eceff3;
+  --rule: #e4e9ee;
+  --rule-2: #d2d9e1;
+}
+[data-mode='dark'][data-surface='cool'],
+[data-mode='dark'] [data-surface='cool'] {
+  --paper: #0c0e11;
+  --paper-2: #14171b;
+  --stone: #1c2026;
+}
+
+/* ─── Radius ───────────────────────────────────────────────────────────────
+   The pill is exempt in every case: a pill is a shape, not a corner. */
+
+[data-radius='sharp'] {
+  --radius-sm: 0px;
+  --radius: 0px;
+  --radius-lg: 0px;
+}
+[data-radius='round'] {
+  --radius-sm: 10px;
+  --radius: 14px;
+  --radius-lg: 22px;
+}
+
+/* ─── Rules ────────────────────────────────────────────────────────────────
+   How much the system draws its own edges. `firm` is the setting for a dense
+   console; `quiet` leans on the surface steps and is what a reading page
+   wants. */
+
+[data-rules='firm'] {
+  --rule: #cfccc4;
+  --rule-2: #a8a49a;
+}
+[data-mode='dark'][data-rules='firm'],
+[data-mode='dark'] [data-rules='firm'] {
+  --rule: rgba(244, 244, 242, 0.28);
+  --rule-2: rgba(244, 244, 242, 0.46);
+}
+
+[data-rules='quiet'] {
+  --rule: #f4f2ee;
+  --rule-2: #e8e5df;
+}
+[data-mode='dark'][data-rules='quiet'],
+[data-mode='dark'] [data-rules='quiet'] {
+  --rule: rgba(244, 244, 242, 0.08);
+  --rule-2: rgba(244, 244, 242, 0.15);
+}
+
+/* ─── Type ─────────────────────────────────────────────────────────────────
+   Which face carries a heading. The ramp itself does not move: the steps are a
+   hierarchy, and a theme that re-sized them would be re-deciding the
+   hierarchy rather than re-dressing it. */
+
+[data-type='grotesk'] {
+  --font-heading: var(--sans);
+}
+[data-type='bookish'] {
+  --font-sans: var(--serif);
+  --font-heading: var(--serif);
+}
+
+/* ─── Motion ───────────────────────────────────────────────────────────────
+   `prefers-reduced-motion` is honoured separately and is not a theme: a
+   reader's stated need is not one of five looks. This axis is taste. */
+
+[data-motion='snappy'] {
+  --fast: 90ms;
+  --mid: 140ms;
+  --slow: 220ms;
+}
+[data-motion='still'] {
+  --fast: 1ms;
+  --mid: 1ms;
+  --slow: 1ms;
+}

@@ -2,7 +2,7 @@
   "name": "@misoto22/design",
   "version": "0.2.0",
   "private": false,
-  "description": "misoto22 design system — White Reset tokens, brand mirrors, and accessible React primitives",
+  "description": "misoto22 design system \u2014 White Reset tokens, brand mirrors, and accessible React primitives",
   "license": "MIT",
   "author": "Henry Chen",
   "type": "module",
@@ -28,7 +28,8 @@
     "./tokens": {
       "types": "./dist/tokens.d.ts",
       "import": "./dist/tokens.js"
-    }
+    },
+    "./themes.css": "./dist/themes.css"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

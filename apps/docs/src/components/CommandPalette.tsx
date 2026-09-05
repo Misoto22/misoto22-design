@@ -106,6 +106,9 @@ export function CommandPalette() {
           <CommandItem value="templates" icon={<LayoutTemplate />} onSelect={() => go('/templates/')}>
             {t.nav.templates}
           </CommandItem>
+          <CommandItem value="themes" icon={<Palette />} onSelect={() => go('/themes/')}>
+            {t.themes.title}
+          </CommandItem>
           <CommandItem value="changelog" icon={<History />} onSelect={() => go('/changelog/')}>
             {t.nav.changelog}
           </CommandItem>

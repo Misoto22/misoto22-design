@@ -16,6 +16,7 @@ const EN_ROUTES: string[] = [
   '/components/',
   '/changelog/',
   '/templates/',
+  '/themes/',
   ...FOUNDATIONS.map((page) => `/foundations/${page.slug}/`),
   ...COMPONENTS.map((entry) => `/components/${entry.slug}/`),
   ...TEMPLATES.map((template) => `/templates/${template.slug}/`),

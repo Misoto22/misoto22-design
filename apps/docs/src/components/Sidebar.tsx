@@ -129,6 +129,9 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           <Row href={localePath(locale, '/templates/')} pathname={pathname} onNavigate={onNavigate}>
             {t.nav.templates}
           </Row>
+          <Row href={localePath(locale, '/themes/')} pathname={pathname} onNavigate={onNavigate}>
+            {t.themes.title}
+          </Row>
           <Row href={localePath(locale, '/changelog/')} pathname={pathname} onNavigate={onNavigate}>
             {t.nav.changelog}
           </Row>
