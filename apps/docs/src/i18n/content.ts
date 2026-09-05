@@ -8,11 +8,11 @@ import type { Locale } from './locales'
  * summaries, the "when to reach for it" note, the foundations prose, the
  * principles, the templates.
  *
- * What is NOT: the API reference. Prop descriptions, the "Notes" section and
- * the type signatures are parsed out of the package's own source, and a
- * translation of them would be a second copy that drifts the first time
- * somebody edits a doc comment. The Chinese pages say so in a line at the top
- * rather than leaving a reader to wonder.
+ * The API reference — prop descriptions and the "Notes" section — is translated
+ * too, and lives in `api.ts` rather than here because it is parsed out of the
+ * package's source and therefore needs a drift guard this layer does not.
+ *
+ * What is NOT translated: type signatures and identifiers. They are code.
  *
  * Anything missing here falls back to English rather than rendering blank,
  * which is the same rule misoto22.com follows for its own translated content.
@@ -22,6 +22,14 @@ export interface ComponentCopy {
   summary?: string
   when?: string
   accessibility?: string[]
+  /**
+   * The `does` column of the keyboard table, in the registry's own order.
+   *
+   * Positional rather than keyed by the keys themselves, because a key list is
+   * `['↑', '↓']` and would make a poor object key. `content.test.ts` fails when
+   * the two lists are different lengths, which is the drift this shape risks.
+   */
+  keyboard?: string[]
 }
 
 const GROUPS_ZH: Record<ComponentGroup, string> = {
@@ -34,7 +42,7 @@ const GROUPS_ZH: Record<ComponentGroup, string> = {
   Surfaces: '容器',
 }
 
-const COMPONENTS_ZH: Record<string, ComponentCopy> = {
+export const COMPONENTS_ZH: Record<string, ComponentCopy> = {
   button: {
     summary: '系统的动作，一颗不会在悬停时移动的胶囊。',
     when: '任何“会做点什么”的东西。如果它是跳转、而且长得像文字，那它是链接，不是幽灵按钮。',
@@ -44,6 +52,7 @@ const COMPONENTS_ZH: Record<string, ComponentCopy> = {
       '链接无法被 disabled，所以 href + loading 用 aria-disabled 并挡掉指针事件。',
       'iconOnly 没有文字，因此必须给 aria-label——这是设计系统交付一个不可用控件最常见的方式。',
     ],
+    keyboard: ['激活按钮。', '激活按钮。原生 <button> 两个键都认；套了样式的 <div> 一个都不认。'],
   },
   'floating-icon-button': {
     summary: '钉在屏幕角落的圆形动作。',
@@ -127,66 +136,79 @@ const COMPONENTS_ZH: Record<string, ComponentCopy> = {
       '键盘行为仍是平台的那一套：首字母跳转、方向键、Home 和 End、Escape 关闭且不选。',
       'label 必填。触发器上显示的是值，值不是名字。',
     ],
+    keyboard: ['展开列表。', '在选项之间移动。', '首字母跳转——跳到下一个以该字母开头的选项。', '跳到第一个或最后一个选项。', '不选中直接关闭。'],
   },
   'native-select': {
     summary: '平台自己的选择器，能改的地方改了。',
     when: '这是逃生口，不是默认值。用在平台确实更好的地方：手机上很长的列表、必须在没有 JavaScript 时也能用的表单、要抠最后一个 KB 的页面。',
     accessibility: ['首字母跳转和手机滚轮是浏览器白送的。', '它做不到的是打开之后仍然像这套系统——选项列表由操作系统绘制，带不上任何 token。'],
+    keyboard: ['打开系统自带的选择器。', '首字母跳转，由浏览器自己实现。'],
   },
   checkbox: {
     summary: '一个在表单提交时才生效的选择。',
     when: '立刻生效的开关是 Switch。',
     accessibility: ['支持不确定态，这正是“全选”表头在只选了一部分时需要的——普通的未勾选状态在那里表达的是相反的意思。'],
+    keyboard: ['切换勾选状态。'],
   },
   'radio-group': {
     summary: '一组互斥的选项。',
     accessibility: ['整组只有一个 Tab 停靠点，方向键在选项之间移动，符合 ARIA radiogroup 模式。', '标签在 <label> 里面，所以整行都是点击目标。'],
+    keyboard: ['进入和离开这一组——整组只占一个 Tab 停靠点。', '在选项间移动，并且移到哪就选中哪。'],
   },
-  switch: { summary: '一个立刻生效的设置。', when: '放在带保存按钮的表单里，开关就是在骗人——那种情况用 Checkbox。' },
+  switch: { summary: '一个立刻生效的设置。', when: '放在带保存按钮的表单里，开关就是在骗人——那种情况用 Checkbox。', keyboard: ['切换开关，改动立即生效。'] },
   combobox: {
     summary: '一个能打字的 select，可以选一个，也可以选多个。',
     when: '大约十几个选项以上。更少的时候 Select 更好：不用思考就能扫完。',
     accessibility: ['高亮通过 aria-activedescendant 移动，焦点留在输入框里——这是 ARIA combobox 模式。自己手搓的会把焦点挪进列表，然后打的字就没法改了。', 'label 必填：触发器上是值，值不是名字。'],
+    keyboard: ['展开列表。', '移动高亮，焦点始终留在筛选框里。', '选中高亮那一项；再选一次当前项就是取消。', '不选中直接关闭。'],
   },
   'date-picker': {
     summary: '一个日期——或者一段日期——从日历里选。',
     when: '刻意不做成“输入框加日历”：解析手打的日期需要格式，而 03/04 在一个国家是 3 月 4 日，在下一个国家是 4 月 3 日。日期很久远时，日历的月份和年份是下拉。',
-    accessibility: ['触发器按访问者自己的地区格式打印日期，而不是写死的 dd/mm/yyyy。', 'DateRangePicker 会等到两端都选完才关——一段范围在有第二个日期之前不算一个值。'],
+    accessibility: ['触发器按访问者自己的地区格式打印日期，而不是写死的 dd/mm/yyyy。', 'DateRangePicker 会等到两端都选完才关——一段范围在有第二个日期之前不算一个值。', '右侧快捷选项是普通按钮，不是菜单：它们设的值和旁边的日历格设的是同一个，所以它们属于同一个控件，Tab 也在同一轮里走到。', '快捷值是点击那一刻才算的，所以标签页开了一整夜，“今天”仍然是今天。'],
+    keyboard: ['打开日历。', '不选日期直接关闭。'],
   },
   slider: {
     summary: '在一段范围里选一个值。',
     accessibility: ['label 必填。一个只报“42”的滑块，给读屏用户留下一个数字和不知道它在量什么。', '16px 的滑块外面有一个看不见的 44px 命中区。', '方向键走一步，Page 键走一大步，Home 和 End 到两端。'],
+    keyboard: ['移动一个步长。', '移动一个更大的步长。', '跳到最小值或最大值。'],
   },
   'toggle-group': {
     summary: '分段控件：若干选项，一条。',
     when: '它改的是一个值。切换面板的是 Tabs。',
     accessibility: ['type="single" 有 radio 语义，type="multiple" 是彼此独立的开关。选错会告诉读屏用户：选中一个就会取消另一个。'],
+    keyboard: ['进入这一条——整组一个停靠点。', '在各段之间移动。', '切换当前聚焦的那一段。'],
   },
   dialog: {
     summary: '一个模态表面：portal、遮罩、居中面板。',
     accessibility: ['焦点陷阱、Escape、滚动锁定和 aria-modal 都由 Radix 负责。', '没有可见标题的对话框仍然会渲染一个隐藏标题，而不是交付一个没有名字的模态。'],
+    keyboard: ['关闭对话框，焦点回到它来的那个触发器。', '在对话框内部循环；打开期间焦点出不去。'],
   },
   'dropdown-menu': {
     summary: '一组动作构成的菜单。',
     when: '动作。会跳转的项属于导航；会设定某个值的是 Select 或 RadioGroup。',
     accessibility: ['在有边界的框里——设备预览、内嵌控制台——用 `<OverlayContainer container={el}>` 包住这棵子树。面板会渲染进那个元素，按它的边界翻转，而不是按视口；框上设的 `dir` 和 `data-density` 也就跟着生效了。', '高亮由 data-highlighted 驱动，同时覆盖悬停和键盘焦点——只写 :hover 会让键盘用户看不见自己在哪。'],
+    keyboard: ['打开菜单并落到第一项。', '在菜单项之间移动。', '跳到下一个以该字母开头的项。', '关闭菜单并把焦点还给触发器。'],
   },
   tooltip: {
     summary: '悬停和获得焦点时出现的一句短标签。',
     when: '任何读者“需要”的东西都不能只放在这里：触屏摸不到它，扫读的人也看不见它。',
     accessibility: ['在有边界的框里——设备预览、内嵌控制台——用 `<OverlayContainer container={el}>` 包住这棵子树。面板会渲染进那个元素，按它的边界翻转，而不是按视口；框上设的 `dir` 和 `data-density` 也就跟着生效了。', '触发器用 asChild，所以子元素必须可聚焦——一个 div 触发器就是没有键盘 tooltip，这个 API 形状让它显性而不是无声。', '它不是无障碍名称。只有图标的按钮仍然需要自己的 aria-label。'],
+    keyboard: ['显示提示——聚焦就会出现，不是只有悬停才行。', '关掉提示。'],
   },
   popover: {
     summary: '锚在控件上的面板，里面装可以交互的内容。',
     when: '任何带链接、字段或按钮的东西。tooltip 描述而不能被进入——把控件放进 tooltip，它就再也够不到了。',
     accessibility: ['在有边界的框里——设备预览、内嵌控制台——用 `<OverlayContainer container={el}>` 包住这棵子树。面板会渲染进那个元素，按它的边界翻转，而不是按视口；框上设的 `dir` 和 `data-density` 也就跟着生效了。', 'label 必填：popover 是一个 dialog，没有名字的 dialog 什么都没播报。', '里面的内容像页面其他部分一样用 Tab 走，不像菜单那样用方向键。'],
+    keyboard: ['打开它。', '像页面其他地方一样用 Tab 走过里面的内容。', '关闭它，并把焦点还给触发器。'],
   },
   sheet: {
     summary: '停靠在视口某一边的面板。',
     when: '需要空间的模态——筛选面板、详情视图。它本身就是一个 Dialog，只是靠边；边名按阅读顺序取，所以 end 在英文里是右、在阿拉伯语里是左。',
     accessibility: ['复用 Dialog 的焦点陷阱、Escape 与滚动锁定，而不是再实现一遍——第二个焦点陷阱就是第二个会出错的焦点陷阱。', '标题必填，无论可不可见。'],
+    keyboard: ['关闭它，焦点回到触发器。', '在面板内部循环。'],
   },
-  'context-menu': { summary: '右键打开的菜单。', when: '永远不能是通往某个动作的唯一路径。触屏、触控板和纯键盘用户可能根本打不开它。' },
+  'context-menu': { summary: '右键打开的菜单。', when: '永远不能是通往某个动作的唯一路径。触屏、触控板和纯键盘用户可能根本打不开它。', keyboard: ['在平台支持的地方，用键盘打开菜单。', '在菜单项之间移动。', '关闭它。'] },
   'searchable-menu': {
     summary: '一个能打字筛选的动作菜单。',
     when: 'DropdownMenu 超过十几行就不再能扫读，而用二级菜单去救只会更糟。这就是同一份列表加上一个过滤框。它不是 Command 面板：那个是页面级的、模态的；这个锚在某个控件上。',
@@ -194,17 +216,20 @@ const COMPONENTS_ZH: Record<string, ComponentCopy> = {
       '行是 listbox 里的 option 而不是 menuitem，因为过滤这件事要求如此——高亮通过 aria-activedescendant 移动，焦点留在输入框里，而菜单做不到。',
       '这个取舍是刻意的：一个没法筛的菜单，对读者来说比一个会执行动作的 listbox 更糟。',
     ],
+    keyboard: ['打开菜单。', '移动高亮，焦点始终留在筛选框里。', '执行高亮那一项动作。', '什么都不执行，直接关闭。'],
   },
   command: {
     summary: '可筛选的动作列表——⌘K 那个面。',
     accessibility: ['列表随打字过滤，高亮随方向键移动，焦点始终留在输入框里。最后这条是 ARIA combobox 模式，也是自制面板一定会做错的地方。'],
+    keyboard: ['移动高亮。焦点留在输入框里，所以你打的字还能继续改。', '执行高亮那一项。', '关闭面板。'],
   },
   tabs: {
     summary: '一条，若干面板。',
     accessibility: ['这条会横向滚动而不是折行：折到第二行会把下面每个标签都推走，读者刚要点的那个就没了。', '高 44px，标签页也是指针目标。'],
+    keyboard: ['进入和离开标签条——整条只占一个 Tab 停靠点。', '在标签之间移动，面板跟着换。', '跳到第一个或最后一个标签。'],
   },
-  accordion: { summary: '就地展开的折叠行。', when: '标记是加号不是尖角：加号说“这会展开”，尖角说“下面还有”。' },
-  collapsible: { summary: '一个自己开合的东西。', when: '和 Accordion 的差别是算术：手风琴是一个集合，集合才能协同。只有一项的手风琴在管理一个没人读的值。' },
+  accordion: { summary: '就地展开的折叠行。', when: '标记是加号不是尖角：加号说“这会展开”，尖角说“下面还有”。', keyboard: ['在各行之间移动。', '展开或收起当前聚焦的那一行。'] },
+  collapsible: { summary: '一个自己开合的东西。', when: '和 Accordion 的差别是算术：手风琴是一个集合，集合才能协同。只有一项的手风琴在管理一个没人读的值。', keyboard: ['展开或收起。'] },
   breadcrumb: {
     summary: '你在哪，画成一条路径。',
     accessibility: ['最后一节是带 aria-current="page" 的文字，永远不是指向自己的链接。', '分隔符是 aria-hidden 的，所以这条路径不会被念成“首页 斜杠 作品 斜杠”。'],
@@ -212,6 +237,7 @@ const COMPONENTS_ZH: Record<string, ComponentCopy> = {
   pagination: {
     summary: '带页码的分页，中间省略。',
     accessibility: ['当前页是带 aria-current 的按钮，不是加了样式的 span——按控件跳转的读者需要能找到它。', '只有一页时什么都不渲染。为一页做的分页器是摆设。'],
+    keyboard: ['能走到每一个控件，包括当前页。', '跳到那一页。'],
   },
   'nav-item': { summary: '侧边栏里的一行。', accessibility: ['aria-current="page"，而且不只靠颜色：当前行同时由字重和填充底色承担。'] },
   card: { summary: '一块有边界的表面，下面没有阴影。', when: '需要读作“浮起来”的卡片是 plate，它靠反色分离，而不是靠模糊。' },
@@ -222,16 +248,19 @@ const COMPONENTS_ZH: Record<string, ComponentCopy> = {
       '可排序的表头是 th 里面的 button，而不是给单元格挂 onClick——带 onClick 的单元格既不可聚焦也不会被播报，那个排序就只对鼠标存在。',
       'aria-sort 由 sortDirection 设置，这是读屏用户得知这张表已被排序的唯一途径。',
       '任何边框设置下都没有斑马纹：在单色系统里，一条被染色的行是又一个和页面底色抢注意力的表面。','caption 必填：一个页面上三张表，其中没有名字的那张是没法导航的。', '列标题是 <th scope="col">，所以一个单元格能被追溯回它的表头。'],
+    keyboard: ['走到滚动区域，以及每一个可排序的表头。', '区域拿到焦点后，横向滚动表格。'],
   },
   'scroll-area': {
     summary: '一个会滚动的盒子，滚动条在哪都长一样。',
     when: '有边界的面板——很长的选项列表、一段日志。页面级或正文滚动用 scroll-slim 工具类更轻，也不需要组件。',
     accessibility: ['视口保持可聚焦。一个内容本身不可聚焦的滚动区域没有 Tab 停靠点，折线之外的一切对没有鼠标的人等于不存在。', 'label 必填，因为一个没有名字的键盘停靠点只会播报“group”。'],
+    keyboard: ['把焦点移进这个区域——没有鼠标时，这一步才让它能滚。', '滚动它。'],
   },
   calendar: {
     summary: '一个月，画成一格一格的天。',
     when: '单独用来看范围或排期；放进 DatePicker 里用来选一天。',
-    accessibility: ['方向键走一天，Page 键走一个月，Home 和 End 到这一周的两端。', '“今天”是描边，“选中”是填充——一个是日历自身的事实，一个是读者做的选择，两者不能长得一样。'],
+    accessibility: ['方向键走一天，Page 键走一个月，Home 和 End 到这一周的两端。', '“今天”是描边，“选中”是填充——一个是日历自身的事实，一个是读者做的选择，两者不能长得一样。', '月份和年份用的是系统自己的 Select，不是平台的：一百年的原生列表是在滚动而不是在选择，而且样式由操作系统决定。', '默认前后各十年。生日需要更宽的范围，用 startMonth 去要。'],
+    keyboard: ['移动一天。', '移动一周。', '移动一个月。', '跳到本周的第一天或最后一天。', '选中当前聚焦的那一天。'],
   },
   'app-shell': {
     summary: '桌面上两栏，手机上一栏加抽屉。',

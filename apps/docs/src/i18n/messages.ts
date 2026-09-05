@@ -128,8 +128,6 @@ const en = {
     presets: {} as Record<string, { name: string; note: string }>,
     previewLabel: 'Theme preview',
   },
-  apiNote:
-    'The API reference below — prop descriptions, notes and type signatures — is read straight out of the package source and stays in English.',
 } as const
 
 /**
@@ -269,8 +267,6 @@ const zh: Messages = {
     },
     previewLabel: '主题预览',
   },
-  apiNote:
-    '下方的 API 参考——属性说明、注释与类型签名——直接来自包的源码，保持英文。',
 }
 
 const MESSAGES: Record<Locale, Messages> = { en, zh }

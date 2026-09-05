@@ -1,4 +1,5 @@
 import { Badge, TBody, TD, TH, THead, TR, Table } from '@misoto22/design'
+import { apiCopy } from '@/i18n/api'
 import type { Locale } from '@/i18n/locales'
 import { fill, getMessages } from '@/i18n/messages'
 
@@ -13,6 +14,8 @@ export interface PropRow {
 export interface PropsTableProps {
   /** The component these props belong to — used for the table's caption. */
   name: string
+  /** The directory key, so a row can find its translation. */
+  dir: string
   rows: PropRow[]
   /** Type expressions the extractor chose not to enumerate. */
   passthrough: string[]
@@ -27,7 +30,7 @@ export interface PropsTableProps {
  * component at all, and burying `caption` between `className` and `showCaption`
  * hides the one prop that will otherwise be forgotten.
  */
-export function PropsTable({ name, rows, passthrough, locale = 'en' }: PropsTableProps) {
+export function PropsTable({ name, dir, rows, passthrough, locale = 'en' }: PropsTableProps) {
   const t = getMessages(locale)
   const sorted = [...rows].sort((a, b) => {
     if (a.required !== b.required) return a.required ? -1 : 1
@@ -76,7 +79,9 @@ export function PropsTable({ name, rows, passthrough, locale = 'en' }: PropsTabl
                   )}
                 </TD>
                 <TD className="max-w-(--measure-record) align-top text-[13px] leading-relaxed">
-                  {row.description || <span className="text-(--ink-3-aa)">—</span>}
+                  {apiCopy(locale, `${dir}.${name}#${row.name}`, row.description) || (
+                    <span className="text-(--ink-3-aa)">—</span>
+                  )}
                 </TD>
               </TR>
             ))}
