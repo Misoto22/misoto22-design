@@ -175,7 +175,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
             {(zh.accessibility ?? entry.accessibility).map((note) => (
               <li
                 key={note}
-                className="max-w-(--w-reading) border-l border-(--rule-2) pl-4 text-sm leading-relaxed text-(--ink-2)"
+                className="max-w-(--w-reading) border-s border-(--rule-2) ps-4 text-sm leading-relaxed text-(--ink-2)"
               >
                 {note}
               </li>

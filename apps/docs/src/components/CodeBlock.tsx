@@ -54,7 +54,7 @@ export function CodeBlock({ html, source, label = 'Code', className }: CodeBlock
         variant="ghost"
         onClick={copy}
         aria-label={copied ? 'Copied' : 'Copy the snippet'}
-        className="absolute right-2 top-2 z-1 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+        className="absolute end-2 top-2 z-1 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
       >
         {copied ? (
           <Check size={14} strokeWidth={1.5} aria-hidden />
