@@ -1,10 +1,18 @@
 'use client'
 
 import { Button, cn } from '@misoto22/design'
-import { Code2, Eye } from 'lucide-react'
-import { useState } from 'react'
+import { Code2, Eye, Pencil } from 'lucide-react'
+import { lazy, Suspense, useState } from 'react'
 import { EXAMPLES } from '@/generated/example-registry'
 import { CodeBlock } from './CodeBlock'
+
+/**
+ * Lazily loaded, because react-live carries a transpiler and nobody should
+ * download one to look at a button. It arrives when a reader asks to edit.
+ */
+const Playground = lazy(() =>
+  import('./Playground').then((module) => ({ default: module.Playground })),
+)
 
 export interface ExampleCanvasProps {
   /**
@@ -22,6 +30,7 @@ export interface ExampleCanvasProps {
 
 type Direction = 'ltr' | 'rtl'
 type Density = 'comfortable' | 'compact'
+type View = 'preview' | 'code' | 'edit'
 
 /**
  * A live component beside the code that produced it, and the two axes that
@@ -39,7 +48,7 @@ type Density = 'comfortable' | 'compact'
  * it also shrank.
  */
 export function ExampleCanvas({ exampleKey, html, snippet }: ExampleCanvasProps) {
-  const [showCode, setShowCode] = useState(false)
+  const [view, setView] = useState<View>('preview')
   const [direction, setDirection] = useState<Direction>('ltr')
   const [density, setDensity] = useState<Density>('comfortable')
   const Example = EXAMPLES[exampleKey]
@@ -77,34 +86,62 @@ export function ExampleCanvas({ exampleKey, html, snippet }: ExampleCanvasProps)
             onChange={setDensity}
           />
         </div>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => setShowCode((previous) => !previous)}
-          aria-expanded={showCode}
-          className="gap-2"
-        >
-          {showCode ? (
-            <Eye size={14} strokeWidth={1.5} aria-hidden />
-          ) : (
-            <Code2 size={14} strokeWidth={1.5} aria-hidden />
-          )}
-          {showCode ? 'Preview' : 'Code'}
-        </Button>
-      </div>
-
-      <div
-        dir={direction}
-        data-density={density}
-        className={cn('flex min-h-32 items-center justify-center p-8', showCode && 'hidden')}
-      >
-        <div className="flex w-full max-w-full justify-center">
-          <Example />
+        <div className="flex items-center gap-1">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setView(view === 'code' ? 'preview' : 'code')}
+            aria-pressed={view === 'code'}
+            className="gap-2"
+          >
+            {view === 'code' ? (
+              <Eye size={14} strokeWidth={1.5} aria-hidden />
+            ) : (
+              <Code2 size={14} strokeWidth={1.5} aria-hidden />
+            )}
+            {view === 'code' ? 'Preview' : 'Code'}
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setView(view === 'edit' ? 'preview' : 'edit')}
+            aria-pressed={view === 'edit'}
+            className="gap-2"
+          >
+            <Pencil size={14} strokeWidth={1.5} aria-hidden />
+            {view === 'edit' ? 'Done' : 'Edit'}
+          </Button>
         </div>
       </div>
 
-      {showCode && (
+      {view === 'preview' && (
+        <div
+          dir={direction}
+          data-density={density}
+          className="flex min-h-32 items-center justify-center p-8"
+        >
+          <div className="flex w-full max-w-full justify-center">
+            <Example />
+          </div>
+        </div>
+      )}
+
+      {view === 'code' && (
         <CodeBlock html={html} source={snippet} label={exampleKey} className="rounded-none border-0" />
+      )}
+
+      {view === 'edit' && (
+        <div dir={direction} data-density={density}>
+          <Suspense
+            fallback={
+              <div className="grid min-h-32 place-items-center text-sm text-(--ink-3-aa)">
+                Loading the editor…
+              </div>
+            }
+          >
+            <Playground code={snippet} />
+          </Suspense>
+        </div>
       )}
     </div>
   )

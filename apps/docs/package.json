@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "ui.misoto22.com \u2014 the documentation and component gallery for @misoto22/design",
+  "description": "ui.misoto22.com — the documentation and component gallery for @misoto22/design",
   "scripts": {
     "predev": "node scripts/generate.mjs",
     "dev": "next dev --port ${PORT:-4023}",
@@ -23,7 +23,8 @@
     "lucide-react": "^1.33.0",
     "next": "16.3.2",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "react-live": "^4.1.8"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

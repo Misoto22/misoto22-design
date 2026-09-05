@@ -13,6 +13,7 @@ export const ROUTES: string[] = [
   '/',
   '/principles/',
   '/components/',
+  '/changelog/',
   ...FOUNDATIONS.map((page) => `/foundations/${page.slug}/`),
   ...COMPONENTS.map((entry) => `/components/${entry.slug}/`),
 ]

@@ -97,3 +97,57 @@ test('search narrows the sidebar and "/" focuses it', async ({ page }) => {
   await expect(nav.getByRole('link', { name: 'Pagination' })).toBeVisible()
   await expect(nav.getByRole('link', { name: 'Button', exact: true })).toBeHidden()
 })
+
+test('the playground renders what you type', async ({ page }) => {
+  await page.goto('/components/badge/')
+  await page.getByRole('button', { name: 'Edit' }).first().click()
+
+  const editor = page.getByRole('textbox', { name: 'Editable example source' })
+  await expect(editor).toBeVisible()
+
+  // Replace the whole snippet and check the preview followed. This is the
+  // claim the feature makes — that the code beside the component IS the
+  // component — and it is only true if editing it changes what renders.
+  await editor.click()
+  await page.keyboard.press('ControlOrMeta+a')
+  await page.keyboard.type('<Badge tone="danger">Typed live</Badge>')
+
+  await expect(page.getByText('Typed live')).toBeVisible()
+})
+
+test('the playground reports a mistake instead of blanking', async ({ page }) => {
+  await page.goto('/components/badge/')
+  await page.getByRole('button', { name: 'Edit' }).first().click()
+
+  const editor = page.getByRole('textbox', { name: 'Editable example source' })
+  await editor.click()
+  await page.keyboard.press('ControlOrMeta+a')
+  await page.keyboard.type('<NotAComponent')
+
+  // A live editor that renders nothing on a typo teaches nothing. What matters
+  // is that a message appears and names the problem — not which message, since
+  // that depends on whether the fragment failed to parse or failed to resolve.
+  const errors = page.getByRole('status', { name: 'Example errors' })
+  await expect(errors).toContainText(/Error/)
+})
+
+test('search reaches beyond titles, into props and keyboard keys', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByRole('button', { name: /Switch to the (light|dark) theme/ })).toBeVisible()
+  const search = page.getByRole('searchbox', { name: 'Search the documentation' })
+  const nav = page.getByRole('navigation', { name: 'Documentation' })
+
+  // A prop name nobody would guess is a component title.
+  await search.fill('aria-sort')
+  await expect(nav.getByRole('link', { name: 'Table', exact: true })).toBeVisible()
+
+  // And a key.
+  await search.fill('Page Up')
+  await expect(nav.getByRole('link', { name: 'Slider', exact: true })).toBeVisible()
+})
+
+test('the changelog page reads the repository CHANGELOG', async ({ page }) => {
+  await page.goto('/changelog/')
+  await expect(page.getByRole('heading', { name: 'Changelog', level: 1 })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '0.1.0', level: 2 })).toBeVisible()
+})
