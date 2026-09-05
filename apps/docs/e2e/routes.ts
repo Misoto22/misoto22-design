@@ -19,7 +19,6 @@ const EN_ROUTES: string[] = [
   ...FOUNDATIONS.map((page) => `/foundations/${page.slug}/`),
   ...COMPONENTS.map((entry) => `/components/${entry.slug}/`),
   ...TEMPLATES.map((template) => `/templates/${template.slug}/`),
-<<<<<<< HEAD
 ]
 
 /**
@@ -33,6 +32,4 @@ const EN_ROUTES: string[] = [
 export const ROUTES: string[] = [
   ...EN_ROUTES,
   ...EN_ROUTES.map((route) => (route === '/' ? '/zh/' : `/zh${route}`)),
-=======
->>>>>>> origin/main
 ]
