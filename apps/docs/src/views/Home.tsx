@@ -136,6 +136,30 @@ export function Home({ locale }: { locale: Locale }) {
           </div>
         </div>
       </section>
+
+      <section className="flex flex-col gap-5">
+        <SectionHeading id="agents">{t.section.agents}</SectionHeading>
+        <p className="m-0 max-w-(--w-reading) text-sm leading-relaxed text-(--ink-2)">
+          {t.agents.note}
+        </p>
+        <ul className="m-0 flex list-none flex-col gap-2 p-0">
+          {[
+            { href: '/llms.txt', note: t.agents.index },
+            { href: '/llms-full.txt', note: t.agents.full },
+            { href: '/components/button/llms.txt', note: t.agents.perComponent },
+          ].map((row) => (
+            <li key={row.href} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+              <a
+                href={row.href}
+                className="font-mono text-[13px] text-(--ink) underline decoration-(--rule-2) underline-offset-4 hover:decoration-(--ink)"
+              >
+                {row.href}
+              </a>
+              <span className="text-[13px] text-(--ink-3-aa)">{row.note}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
     </div>
   )
 }
