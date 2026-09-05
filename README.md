@@ -18,6 +18,14 @@ A pnpm monorepo, two workspaces:
 
 ## Install
 
+Published to GitHub Packages under the `@misoto22` scope. Point the scope at
+that registry in the consuming project's `.npmrc`:
+
+```
+@misoto22:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
 ```bash
 pnpm add @misoto22/design
 ```
@@ -87,6 +95,15 @@ from the code printed under it.
 The hand-written part is `apps/docs/src/content/registry.ts`: grouping, the
 one-line summaries, and the accessibility promises. A test fails the build if it
 falls out of step with what the package actually ships.
+
+## Release
+
+Every consumer-visible change ships with a changeset; `main` then opens a
+version pull request, and merging it publishes. See [docs/releasing.md](docs/releasing.md).
+
+```bash
+pnpm changeset
+```
 
 ## Deploy
 

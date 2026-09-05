@@ -3,14 +3,16 @@
   "version": "0.1.0",
   "private": false,
   "description": "misoto22 design system \u2014 White Reset tokens, brand mirrors, and accessible React primitives",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "author": "Henry Chen",
   "type": "module",
   "sideEffects": [
     "**/*.css"
   ],
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "README.md"
   ],
   "exports": {
     ".": {
@@ -89,5 +91,22 @@
     "type": "git",
     "url": "https://github.com/Misoto22/misoto22-design.git",
     "directory": "packages/design"
+  },
+  "keywords": [
+    "design-system",
+    "react",
+    "tailwind",
+    "radix",
+    "components",
+    "tokens",
+    "accessibility"
+  ],
+  "homepage": "https://ui.misoto22.com",
+  "bugs": {
+    "url": "https://github.com/Misoto22/misoto22-design/issues"
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com"
   }
 }

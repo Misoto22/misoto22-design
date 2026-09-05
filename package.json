@@ -13,7 +13,10 @@
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
-    "clean": "pnpm -r clean"
+    "clean": "pnpm -r clean",
+    "changeset": "changeset",
+    "version-packages": "changeset version && pnpm install --lockfile-only",
+    "release": "pnpm build:design && changeset publish"
   },
   "engines": {
     "node": ">=24",
@@ -21,6 +24,8 @@
   },
   "packageManager": "pnpm@11.9.0",
   "devDependencies": {
+    "@changesets/changelog-github": "^1.0.1",
+    "@changesets/cli": "^3.0.2",
     "@eslint/js": "^10.0.1",
     "eslint": "^10.9.0",
     "eslint-plugin-react-hooks": "^7.1.1",

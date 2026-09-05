@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+# One release at a time, and never cancelled: a half-published package is worse
+# than a late one.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+          # GitHub Packages rather than npmjs: the npm automation token expired
+          # and minting a new one needs an interactive login, while GITHUB_TOKEN
+          # already authorizes this registry. Publishing to npmjs as well is one
+          # secret away — see docs/releasing.md.
+          registry-url: https://npm.pkg.github.com
+          scope: '@misoto22'
+
+      - run: pnpm install --frozen-lockfile
+
+      # The gates the package is released against are the same ones CI runs, and
+      # they run again here rather than trusting a green check on a different
+      # commit.
+      - run: pnpm lint
+      - run: pnpm build:design
+      - run: pnpm typecheck
+      - run: pnpm test
+
+      # Opens (or updates) a "Version Packages" pull request while changesets
+      # are pending, and publishes once that PR is merged and none are left.
+      - name: Version or publish
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: pnpm version-packages
+          publish: pnpm release
+          commit: 'chore(release): version packages'
+          title: 'chore(release): version packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Say what happened
+        run: |
+          if [ "${{ steps.changesets.outputs.published }}" = "true" ]; then
+            echo "published: ${{ steps.changesets.outputs.publishedPackages }}"
+          else
+            echo "nothing to publish; a version PR is open if changesets were pending"
+          fi
