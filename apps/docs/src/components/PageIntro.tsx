@@ -17,7 +17,10 @@ export interface PageIntroProps {
  */
 export function PageIntro({ eyebrow, title, summary, crumbs, children }: PageIntroProps) {
   return (
-    <header className="mb-10 flex flex-col gap-4 border-b border-(--rule) pb-8">
+    // No bottom margin: every page that uses this sets its own gap on the
+    // column, and the two stacked into a gap half a screen tall on any page
+    // without a "when to reach for it" note under the rule.
+    <header className="flex flex-col gap-4 border-b border-(--rule) pb-8">
       {crumbs && <Breadcrumb items={crumbs} />}
       <div className="flex flex-col gap-3">
         {eyebrow && <p className="m-0 eyebrow text-(--ink-3-aa)">{eyebrow}</p>}

@@ -2,6 +2,13 @@ import { defineConfig } from 'tsup'
 import { fixImportsPlugin } from 'esbuild-fix-imports-plugin'
 
 /**
+ * `NODE_OPTIONS=--max-old-space-size=…` in the build script is not optional: the
+ * declaration pass bundles every entry through rollup, `pnpm-workspace.yaml`
+ * pins rollup to its WASM build (the native binding crashes the DTS worker on
+ * GitHub's runners), and WASM rollup over 36 entries exhausts the worker's
+ * default heap. It OOMs in CI and survives locally, which is the worst shape a
+ * build failure can take.
+ *
  * `bundle: false` compiles each source file 1:1 (transpile, not bundle), so the
  * output mirrors the module graph and esbuild keeps each file's `'use client'`
  * banner verbatim — a Next.js App Router app then gets correct server/client
