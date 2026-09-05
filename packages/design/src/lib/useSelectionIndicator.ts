@@ -48,17 +48,37 @@ export function useSelectionIndicator<T extends HTMLElement>(
       setStyle((previous) => ({ ...previous, ready: false }))
       return
     }
-    const box = container.getBoundingClientRect()
-    const target = selected.getBoundingClientRect()
+    // `offsetLeft` and friends, not `getBoundingClientRect`.
+    //
+    // The rect is in VISUAL pixels: inside a zoomed or scaled ancestor — a
+    // thumbnail, a device preview — it comes back multiplied, while the
+    // `transform` this feeds is interpreted in the element's own coordinate
+    // space. The pill then landed short of its segment by exactly the scale
+    // factor. The offset properties are layout values and are unaffected.
+    //
+    // Offsets are relative to `offsetParent`, which is usually the strip itself
+    // but need not be, so they are accumulated up to the container rather than
+    // read once.
+    let offset = 0
+    let top = 0
+    for (
+      let node: HTMLElement | null = selected;
+      node && node !== container;
+      node = node.offsetParent as HTMLElement | null
+    ) {
+      offset += node.offsetLeft
+      top += node.offsetTop
+    }
+
     setStyle({
-      // `left` relative to the container, not `inline-start`: the pill is
-      // positioned with `transform`, which is physical, and the measurement has
-      // to match. It comes out right in both directions because both sides of
-      // the subtraction flip together.
-      offset: target.left - box.left,
-      width: target.width,
-      height: target.height,
-      top: target.top - box.top,
+      // Physical `left`, not `inline-start`: the pill is positioned with
+      // `transform`, which is physical, and the measurement has to match. It
+      // comes out right in both directions because both sides of the
+      // subtraction flip together.
+      offset,
+      width: selected.offsetWidth,
+      height: selected.offsetHeight,
+      top,
       ready: true,
     })
   }, [])
