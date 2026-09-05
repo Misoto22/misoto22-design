@@ -249,7 +249,10 @@
      row is neither a control nor a field — it is a line of text with a rule
      under it, and it tightens on its own axis. */
   --table-pad-y: 0.875rem;
-  --table-pad-x: 0;
+  /* `0px`, not `0`. The cell rule adds to this inside a calc, and a unitless
+     zero makes `calc(0 + 1.5rem)` invalid at computed-value time — the whole
+     declaration is dropped and every column loses its gutter in silence. */
+  --table-pad-x: 0px;
 
   /* ─── Motion ─── */
   --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
