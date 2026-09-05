@@ -44,7 +44,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "clean": "rm -rf dist",
-    "check:size": "node scripts/check-size.mjs"
+    "check:size": "node scripts/check-size.mjs",
+    "check:publish": "node scripts/check-publish.mjs"
   },
   "peerDependencies": {
     "react": "^19.0.0",
@@ -78,6 +79,7 @@
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@fontsource/hanken-grotesk": "^5.2.5",
     "@fontsource/ibm-plex-mono": "^5.2.5",
     "@fontsource/newsreader": "^5.2.5",
@@ -94,6 +96,7 @@
     "esbuild": "^0.28.2",
     "esbuild-fix-imports-plugin": "^1.0.23",
     "jsdom": "^29.1.1",
+    "publint": "^0.3.24",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "tailwindcss": "4.3.3",
@@ -108,7 +111,7 @@
   "packageManager": "pnpm@11.9.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Misoto22/misoto22-design.git",
+    "url": "git+https://github.com/Misoto22/misoto22-design.git",
     "directory": "packages/design"
   },
   "keywords": [
