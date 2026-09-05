@@ -4,15 +4,33 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import globals from 'globals'
 
 /**
- * Flat config for `eslint src`. Non type-aware on purpose — fast, and the
- * component surface is small enough that syntactic + TS rules catch what matters.
+ * One flat config for the whole workspace. Each package runs `eslint src` from
+ * its own directory; ESLint resolves this file by walking up, and the `files`
+ * globs below are matched against paths relative to THIS file — hence
+ * `**​/src/**` rather than `src/**`, which would only ever match a package
+ * sitting at the repository root.
+ *
+ * Non type-aware on purpose: fast, and the surface is small enough that
+ * syntactic + TS rules catch what matters. `pnpm typecheck` is the type gate.
  */
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', '.ds-sync', 'ds-bundle', '.design-sync', 'coverage'] },
+  {
+    ignores: [
+      '**/dist/**',
+      '**/node_modules/**',
+      '**/.next/**',
+      '**/out/**',
+      '**/coverage/**',
+      '**/src/generated/**',
+      '.ds-sync',
+      'ds-bundle',
+      '.design-sync',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['src/**/*.{ts,tsx}'],
+    files: ['**/src/**/*.{ts,tsx}'],
     languageOptions: {
       globals: { ...globals.browser },
     },
@@ -24,6 +42,13 @@ export default tseslint.config(
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+    },
+  },
+  {
+    // Build scripts run in Node and are plain ESM, not part of any bundle.
+    files: ['**/scripts/**/*.{mjs,ts}'],
+    languageOptions: {
+      globals: { ...globals.node },
     },
   },
 )

@@ -1,0 +1,22 @@
+{
+  "install": {
+    "lang": "bash",
+    "code": "pnpm add @misoto22/design"
+  },
+  "usage": {
+    "lang": "tsx",
+    "code": "// Once, at your app root — the compiled stylesheet carries the tokens,\n// the utilities the components use, and the vendored faces.\nimport '@misoto22/design/styles.css'\n\nimport { Button, Field, Input } from '@misoto22/design'\n\nexport function SignIn() {\n  return (\n    <form className=\"flex flex-col gap-4\">\n      <Field label=\"Email\" required>\n        <Input type=\"email\" />\n      </Field>\n      <Button type=\"submit\">Continue</Button>\n    </form>\n  )\n}"
+  },
+  "tailwind": {
+    "lang": "css",
+    "code": "/* An app that already compiles Tailwind takes the token layers only, and\n   skips a second copy of the utilities. */\n@import 'tailwindcss';\n@import '@misoto22/design/tokens.css';\n@import '@misoto22/design/semantic.css';\n@import '@misoto22/design/keyframes.css';\n\n/* Generate the utilities the library's own components use. */\n@source '../node_modules/@misoto22/design/dist';\n\n@custom-variant dark (&:is([data-mode='dark'] *));"
+  },
+  "theme": {
+    "lang": "html",
+    "code": "<!-- The mode is an attribute on <html>, so it can be written before first\n     paint and never flashes the wrong theme. -->\n<html data-mode=\"dark\">"
+  },
+  "override": {
+    "lang": "tsx",
+    "code": "// Every component merges your className LAST, through tailwind-merge — so a\n// conflicting utility replaces the built-in one instead of racing it in the\n// stylesheet.\n<Button className=\"px-2\">Tight</Button>\n// → px-2 wins; the base px-6 is dropped, not emitted alongside it."
+  }
+}

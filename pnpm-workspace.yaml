@@ -1,18 +1,22 @@
+packages:
+  - 'packages/*'
+  - 'apps/*'
+
 # pnpm v11 build-script allowlist — only these trusted native deps may run
 # install/postinstall scripts. esbuild powers tsup; @parcel/watcher powers
-# tsup --watch; @tailwindcss/oxide is Tailwind v4's native engine.
+# tsup --watch; @tailwindcss/oxide is Tailwind v4's native engine; sharp is
+# Next's image pipeline.
 allowBuilds:
   '@parcel/watcher': true
   '@tailwindcss/oxide': true
   esbuild: true
+  sharp: true
+  unrs-resolver: true
 
 # rollup-plugin-dts (a tsup transitive dep) pulls in rollup's native NAPI
 # binding. @rollup/rollup-linux-x64-gnu@4.62.2 crashes tsup's DTS worker on
 # real x86_64 glibc hardware (reproduced only on GitHub Actions' bare
-# ubuntu-latest runner — not in a local Docker repro matched on Node/pnpm/OS/
-# CPU-count/architecture, nor in the Alpine/musl Docker build, which uses a
-# different native variant and never hits this). Force Rollup's official
-# platform-independent WASM build instead of the native binding.
+# ubuntu-latest runner). Force Rollup's platform-independent WASM build.
 overrides:
   'brace-expansion@>=4.0.0 <5.0.9': 5.0.9
   'esbuild@>=0.27.3 <0.28.1': 0.28.1

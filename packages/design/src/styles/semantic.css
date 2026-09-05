@@ -1,0 +1,118 @@
+/* ==========================================================================
+   SEMANTIC ALIASES — what a primitive is FOR
+   --------------------------------------------------------------------------
+   `tokens.css` owns values; this file owns roles. Components read only from
+   here, which is why recolouring the system is one edit in the primitive layer
+   and nothing in a component.
+
+   There is no dark-mode counterpart to this block and there must not be one.
+   The dark story is a value swap on --paper / --ink, so an alias pointing at
+   var(--ink) re-resolves on its own when [data-mode="dark"] flips. Adding a
+   dark override here would freeze one side of that swap.
+
+   The exceptions are --on-dark and --brand-plate, and they are exceptions for
+   a reason rather than an oversight: their ground is a photograph or a foreign
+   brand asset, not the theme surface. Each is documented where it is defined.
+   ========================================================================== */
+
+:root {
+  /* ─── Surfaces ─────────────────────────────────────────────────────────── */
+  --background: var(--paper);
+  --background-elevated: var(--paper-2);
+  --code-background: var(--bar);
+  --nav-background: var(--paper);
+  /* Kept as an alias rather than removed: the White Reset retired the card
+     surface, so an elevated variant has nothing left to point at. Consumers
+     written against it keep resolving, on paper. */
+  --card-background: var(--paper);
+
+  /* ─── Text ─────────────────────────────────────────────────────────────── */
+  --foreground: var(--ink);
+  --foreground-muted: var(--ink-2);
+  --secondary-text: var(--ink-3-aa);
+
+  /* Text sitting on a PHOTOGRAPH — a hero, a lightbox, a scrim. A photograph
+     is a dark ground in BOTH themes, so this must not follow the paper/ink
+     swap: as var(--paper) it inverted to near-black in dark mode, which is how
+     headings disappeared into their own images. A literal, not var(--ink). */
+  --on-dark: #fbfbfa;
+
+  /* The ground under a THIRD-PARTY brand mark, and for the same reason: a
+     foreign logo is drawn against one fixed backdrop and shipped flat, with no
+     light-ink sibling. A plate that followed the swap erased it in dark mode.
+     Not for our own marks, which are authored against the theme. */
+  --brand-plate: #ffffff;
+
+  /* ─── Lines ────────────────────────────────────────────────────────────── */
+  --border-color: var(--rule-2);
+  --border-subtle: var(--rule);
+
+  /* ─── Accent ─── one pointer, and in a monochrome system it is ink. ────── */
+  --accent: var(--red);
+  --accent-hover: var(--red-ink);
+  --accent-muted: var(--red-soft);
+  --accent-wash: var(--red-soft);
+  --accent-foreground: var(--on-red);
+  --accent-on-dark: var(--red);
+  /* Accent text sitting on an accent-muted panel, which --accent cannot do: it
+     clears AA on paper by 4.58:1, and any tint of itself underneath pushes it
+     below 4.5. This names the situation so the choice is not left to whoever
+     writes the next panel. */
+  --accent-on-muted: var(--red-ink);
+
+  /* ─── Status ─── bound to state, never to brand. ───────────────────────── */
+  --success: var(--ok);
+  --success-wash: var(--ok-soft);
+  --warning: var(--warn);
+  --warning-wash: var(--warn-soft);
+  --danger-wash: var(--danger-soft);
+  --info: var(--ink-2);
+  --info-wash: var(--red-soft);
+
+  /* The photo scrim is always dark by design, so it takes the ink literal
+     rather than the semantic token (which inverts). */
+  --photo-scrim: #101010;
+
+  /* ─── Depth ────────────────────────────────────────────────────────────
+     Law 2 — a box-shadow is never blurred. The system has no elevation ramp;
+     depth is a hard offset in ink, applied per component. These three resolve
+     to nothing on purpose, so a component ported from a shadowed system stays
+     flat instead of drawing a blur the White Reset does not have. Reach for
+     --lift instead, which is the offset idiom expressed once. */
+  --shadow-color: transparent;
+  --shadow-sm: none;
+  --shadow: none;
+  --shadow-lg: none;
+  /* The one depth cue the system does have: a hard 3px ink offset, no blur.
+     Used by a plate that must read as sitting above the page. */
+  --lift: 3px 3px 0 0 var(--shadow-offset);
+  --lift-sm: 2px 2px 0 0 var(--shadow-offset);
+
+  /* ─── Focus + motion ─── the site's long-lived names onto the primitives. */
+  --ring: var(--focus);
+  --ring-offset: var(--focus-off);
+  --ease-out-expo: var(--ease);
+  --duration-fast: var(--fast);
+  --duration-base: var(--mid);
+  --duration-slow: var(--slow);
+  --overlay: var(--scrim);
+  --disabled-opacity: 0.5;
+
+  /* ─── Stacking ─── five component-facing names onto the seven ranks. ───── */
+  --z-dropdown: var(--z-drawer);
+  --z-overlay: var(--z-scrim);
+
+  /* ─── Layout ───────────────────────────────────────────────────────────── */
+  --page-pad: var(--pad);
+  --w-page: var(--maxw);
+  /* Caps the prose track only, which is what a 73ch measure is for. */
+  --w-reading: 46rem;
+  /* The cap on a listed record's description — a row, a card, a CV entry. In
+     `ch` rather than px so it tracks the type it is set in, and one token
+     rather than the six hand-picked widths surfaces had drifted into. A
+     ceiling, not a width: a narrower column still wins. */
+  --measure-record: 66ch;
+  /* How far below the viewport top an anchored heading comes to rest — a fixed
+     masthead plus a line of air. */
+  --scroll-offset: 88px;
+}

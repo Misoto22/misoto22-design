@@ -1,0 +1,110 @@
+/*
+ * ui.misoto22.com — the documentation site's stylesheet.
+ *
+ * It compiles Tailwind ONCE, over both this app and the design package's
+ * source. That is deliberate: importing the package's pre-built `styles.css`
+ * would ship Tailwind twice and, worse, would freeze the docs against whatever
+ * `dist/` last held — so a component edited in `packages/design/src` would not
+ * show up here until someone remembered to rebuild. Reading the source removes
+ * the "remember to" entirely.
+ *
+ * The token layers are imported from source for the same reason.
+ */
+@import 'tailwindcss';
+@import '../../../../packages/design/src/styles/tokens.css';
+@import '../../../../packages/design/src/styles/semantic.css';
+@import '../../../../packages/design/src/styles/keyframes.css';
+/* Generated: the package's vendored faces, rewritten to the paths a static
+   export actually serves them from. See scripts/generate.mjs. */
+@import '../generated/fonts.css';
+
+/* Tailwind scans from the stylesheet's own directory by default, which would
+   miss the package entirely. Naming it means a utility used only inside a
+   library component still gets generated for this site. */
+@source '../../../../packages/design/src';
+
+@custom-variant dark (&:is([data-mode='dark'] *));
+
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  --font-sans: var(--sans);
+  --font-heading: var(--serif);
+  --font-serif: var(--serif);
+  --font-mono: var(--mono);
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--rule);
+  }
+
+  :focus-visible {
+    outline: var(--focus-w) solid var(--focus);
+    outline-offset: var(--focus-off);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-weight: 300;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+@utility mono-meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+@utility scroll-slim {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-2) transparent;
+  scrollbar-gutter: stable;
+}
+@utility scroll-fade {
+  mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+  scroll-padding-block: 14px;
+}
+
+/* ─── Shiki ───
+   The highlighter emits both themes as custom properties on one markup pass, so
+   switching mode is a variable swap rather than a re-highlight. `--shiki-dark`
+   is only read under the dark attribute; nothing here re-tokenises. */
+.shiki,
+.shiki span {
+  color: var(--shiki-light);
+  background-color: transparent;
+}
+[data-mode='dark'] .shiki,
+[data-mode='dark'] .shiki span {
+  color: var(--shiki-dark);
+}
+.shiki code {
+  display: block;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.75;
+}

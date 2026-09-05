@@ -1,0 +1,75 @@
+/**
+ * @misoto22/design — public entry.
+ *
+ * Components export from here; the look ships separately as CSS:
+ *
+ *   import '@misoto22/design/styles.css'    // compiled Tailwind + tokens + fonts
+ *
+ * or, for an app that already compiles Tailwind itself, the portable layers on
+ * their own:
+ *
+ *   import '@misoto22/design/tokens.css'    // primitives
+ *   import '@misoto22/design/semantic.css'  // roles
+ *   import '@misoto22/design/keyframes.css' // motion
+ *
+ * Everything below is a consumer contract. Adding an export is cheap; changing
+ * or removing one is a breaking change (DESIGN-API-001).
+ */
+
+// ─── Tokens ───
+export { BRAND } from './tokens/brand'
+export type { BrandColor } from './tokens/brand'
+
+// ─── Utilities ───
+export { cn } from './lib/cn'
+export { CONTROL_BASE, CONTROL_BORDER, isInvalid } from './lib/control'
+
+// ─── Actions ───
+export * from './components/Button/Button'
+export * from './components/FloatingIconButton/FloatingIconButton'
+
+// ─── Display ───
+export * from './components/Badge/Badge'
+export * from './components/Tag/Tag'
+export * from './components/Kbd/Kbd'
+export * from './components/Avatar/Avatar'
+export * from './components/StatusDot/StatusDot'
+export * from './components/StatusPill/StatusPill'
+export * from './components/LinkArrow/LinkArrow'
+export * from './components/Separator/Separator'
+export * from './components/FigureBand/FigureBand'
+
+// ─── Feedback ───
+export * from './components/Spinner/Spinner'
+export * from './components/Skeleton/Skeleton'
+export * from './components/Progress/Progress'
+export * from './components/Alert/Alert'
+export * from './components/EmptyState/EmptyState'
+export * from './components/ErrorState/ErrorState'
+export * from './components/Toast/Toast'
+
+// ─── Forms ───
+export * from './components/Field/Field'
+export * from './components/Input/Input'
+export * from './components/Textarea/Textarea'
+export * from './components/Select/Select'
+export * from './components/Checkbox/Checkbox'
+export * from './components/RadioGroup/RadioGroup'
+export * from './components/Switch/Switch'
+
+// ─── Overlays ───
+export * from './components/Dialog/Dialog'
+export * from './components/DropdownMenu/DropdownMenu'
+export * from './components/Tooltip/Tooltip'
+
+// ─── Navigation ───
+export * from './components/Tabs/Tabs'
+export * from './components/Accordion/Accordion'
+export * from './components/Breadcrumb/Breadcrumb'
+export * from './components/Pagination/Pagination'
+export * from './components/NavItem/NavItem'
+
+// ─── Surfaces / layout ───
+export * from './components/Card/Card'
+export * from './components/Table/Table'
+export * from './components/AppShell/AppShell'

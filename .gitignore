@@ -13,3 +13,13 @@ ds-bundle/
 .design-sync/.cache/
 .design-sync/learnings/
 .design-sync/node_modules
+
+# Next.js (apps/docs)
+.next/
+out/
+next-env.d.ts
+
+# Generated documentation data + assets (rebuilt by apps/docs/scripts/generate.mjs)
+apps/docs/src/generated/
+apps/docs/public/fonts/
+*.tsbuildinfo

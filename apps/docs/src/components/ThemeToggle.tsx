@@ -1,0 +1,54 @@
+'use client'
+
+import { Button } from '@misoto22/design'
+import { Moon, Sun } from 'lucide-react'
+import { useEffect, useState } from 'react'
+
+type Mode = 'light' | 'dark'
+
+/**
+ * Flips `data-mode` on `<html>` and remembers the choice.
+ *
+ * Starts as `null` rather than guessing a mode: the real value lives in
+ * `localStorage`, which the server cannot see, and rendering a sun icon that
+ * becomes a moon on hydration is a visible flicker on every page load. The
+ * button reserves its space and fills in the icon after mount.
+ */
+export function ThemeToggle() {
+  const [mode, setMode] = useState<Mode | null>(null)
+
+  useEffect(() => {
+    const current = document.documentElement.dataset.mode
+    setMode(current === 'dark' ? 'dark' : 'light')
+  }, [])
+
+  const toggle = () => {
+    const next: Mode = mode === 'dark' ? 'light' : 'dark'
+    document.documentElement.dataset.mode = next
+    try {
+      localStorage.setItem('m22-mode', next)
+    } catch {
+      // A private window with storage blocked still gets the toggle; it just
+      // does not remember. Swallowing here is the whole handling.
+    }
+    setMode(next)
+  }
+
+  return (
+    <Button
+      iconOnly
+      size="sm"
+      variant="ghost"
+      onClick={toggle}
+      aria-label={mode === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme'}
+    >
+      {mode === null ? (
+        <span className="size-4" aria-hidden />
+      ) : mode === 'dark' ? (
+        <Sun size={16} strokeWidth={1.5} aria-hidden />
+      ) : (
+        <Moon size={16} strokeWidth={1.5} aria-hidden />
+      )}
+    </Button>
+  )
+}
