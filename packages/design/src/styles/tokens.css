@@ -186,6 +186,39 @@
   --radius-lg: 14px; /* feature panels, dark plates */
   --radius-pill: 999px; /* tabs, chips, counters, circular controls */
 
+  /* ─── Density ────────────────────────────────────────────────────────────
+     The second theming axis, and the only other one. Light/dark swaps colour;
+     density swaps the size of anything a finger or a pointer has to hit.
+
+     `comfortable` is the default, and 44px is not an arbitrary number: it is
+     the pointer-target size WCAG 2.5.5 (AAA) asks for.
+
+     `compact` is for a dense desktop tool driven by a mouse — a data grid, an
+     admin console — and it is a real trade, stated rather than hidden. At 36px
+     it still clears WCAG 2.5.8 (AA, 24px) with room to spare, and no longer
+     meets 2.5.5. Do not put it on a page a phone will open.
+
+     Set it on any container: `<div data-density="compact">`. Controls read
+     these tokens, so the whole subtree changes together and nothing has to be
+     told twice. */
+  --control-h-sm: 2.25rem; /* 36px */
+  --control-h-md: 2.75rem; /* 44px — WCAG 2.5.5 */
+  --control-h-lg: 3rem; /* 48px */
+  --control-px-sm: 1rem;
+  --control-px-md: 1.5rem;
+  --control-px-lg: 1.75rem;
+  /* The vertical padding is part of the axis too, and has to be: a control
+     whose padding alone exceeds the compact height never shrinks, because
+     `min-height` is a floor and not a ceiling. */
+  --control-py-sm: 0.5rem;
+  --control-py-md: 0.75rem;
+  --control-py-lg: 0.75rem;
+  --control-gap: 0.625rem;
+  /* Text inputs are measured separately: they are read as much as they are
+     hit, so their padding tracks the type rather than the target. */
+  --field-px: 0.875rem;
+  --field-py: 0.625rem;
+
   /* ─── Motion ─── */
   --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
   --fast: 0.13s;
@@ -230,4 +263,19 @@
   --danger: #ee8b68;
   --danger-soft: rgba(238, 139, 104, 0.16);
   --scrim: color-mix(in srgb, #000 72%, transparent);
+}
+
+[data-density='compact'] {
+  --control-h-sm: 1.875rem; /* 30px */
+  --control-h-md: 2.25rem; /* 36px — clears WCAG 2.5.8, not 2.5.5 */
+  --control-h-lg: 2.5rem; /* 40px */
+  --control-px-sm: 0.75rem;
+  --control-px-md: 1rem;
+  --control-px-lg: 1.25rem;
+  --control-py-sm: 0.25rem;
+  --control-py-md: 0.375rem;
+  --control-py-lg: 0.5rem;
+  --control-gap: 0.5rem;
+  --field-px: 0.625rem;
+  --field-py: 0.375rem;
 }

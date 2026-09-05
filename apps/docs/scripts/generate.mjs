@@ -22,7 +22,6 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHighlighter } from 'shiki'
 import { extractProps } from './extract-props.mjs'
-import { extractTokens } from './extract-tokens.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const DOCS = join(HERE, '..')
@@ -81,10 +80,12 @@ async function main() {
   writeFileSync(join(OUT, 'props.json'), JSON.stringify(props, null, 2))
 
   // ─── Tokens ───
-  const tokens = extractTokens({
-    tokens: join(DESIGN, 'src', 'styles', 'tokens.css'),
-    semantic: join(DESIGN, 'src', 'styles', 'semantic.css'),
-  })
+  // Read from the package's own emitted artifact, not parsed here. The parser
+  // used to live in this app, which meant the site and the package could
+  // disagree about what a token was — and the site would have been the one
+  // people believed. `pnpm build:design` produces this file; the docs build
+  // depends on it having run.
+  const tokens = JSON.parse(readFileSync(join(DESIGN, 'dist', 'tokens.json'), 'utf8'))
   writeFileSync(join(OUT, 'tokens.json'), JSON.stringify(tokens, null, 2))
 
   // ─── Examples ───
@@ -189,7 +190,7 @@ async function main() {
   const exampleCount = Object.values(examples).reduce((n, list) => n + list.length, 0)
   console.log(
     `generate: ${componentCount} components, ${exampleCount} examples, ` +
-      `${tokens.tokens.light.length + tokens.semantic.light.length} tokens → src/generated/`,
+      `${Object.keys(tokens).length} tokens → src/generated/`,
   )
 }
 

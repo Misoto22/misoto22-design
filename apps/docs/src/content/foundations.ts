@@ -53,10 +53,16 @@ export const FOUNDATIONS: FoundationPage[] = [
     intro: [
       'Measures are capped in ch rather than px, so they track the type they are set in. --measure-record is a ceiling on a listed record’s description, not a width: a narrower column still wins.',
       'There are four radius steps and there is no fifth. A 50% circle is geometry rather than a corner and is not a step here.',
+      'Every component is written in logical properties — ps- and pe- rather than pl- and pr-, start- and end- rather than left- and right- — so a right-to-left document mirrors without a stylesheet of its own. A test fails the build on a physical one, because retrofitting direction into forty components after the fact is a sweep nobody schedules and a failure nobody sees. Flip any example above to RTL.',
     ],
     categories: [
       { key: 'space', title: 'Layout' },
       { key: 'radius', title: 'Radius' },
+      {
+        key: 'density',
+        title: 'Density',
+        note: 'The second theming axis, and the only other one. Set data-density="compact" on any container and every control below it tightens — nothing has to be told twice. At the default, a medium control is 44px, the pointer target WCAG 2.5.5 asks for; compact drops it to 36px, which still clears 2.5.8 with room and no longer meets 2.5.5. It is for a dense desktop tool driven by a mouse, and it is a real trade rather than a free one. Flip it on any example above to watch.',
+      },
       { key: 'icon', title: 'Icons' },
       { key: 'layer', title: 'Stacking order' },
     ],

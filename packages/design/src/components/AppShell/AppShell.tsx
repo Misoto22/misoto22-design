@@ -77,8 +77,10 @@ export function AppShell({
         id={sidebarId}
         aria-label="Sidebar"
         className={cn(
-          'fixed inset-y-0 left-0 z-(--z-modal) flex w-60 flex-col border-r border-(--rule) bg-(--paper) transition-transform duration-(--duration-slow) ease-(--ease-out-expo)',
-          open ? 'translate-x-0' : '-translate-x-full',
+          'fixed inset-y-0 start-0 z-(--z-modal) flex w-60 flex-col border-e border-(--rule) bg-(--paper) transition-transform duration-(--duration-slow) ease-(--ease-out-expo)',
+          // The drawer slides in from the edge reading STARTS at, so in an
+          // right-to-left document it comes from the right.
+          open ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full',
           'md:static md:z-auto md:translate-x-0',
         )}
       >
@@ -101,7 +103,7 @@ export function AppShell({
             aria-expanded={open}
             aria-controls={sidebarId}
             onClick={() => setOpen((previous) => !previous)}
-            className="-ml-2.5 grid size-11 place-items-center rounded-(--radius) text-(--ink-2) transition-colors duration-(--duration-fast) hover:text-(--ink) md:hidden"
+            className="-ms-2.5 grid size-11 place-items-center rounded-(--radius) text-(--ink-2) transition-colors duration-(--duration-fast) hover:text-(--ink) md:hidden"
           >
             {open ? <X size={20} strokeWidth={1.5} aria-hidden /> : <Menu size={20} strokeWidth={1.5} aria-hidden />}
           </button>

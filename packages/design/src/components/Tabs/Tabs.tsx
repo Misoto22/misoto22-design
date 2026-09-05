@@ -46,7 +46,7 @@ export function TabsTrigger({ className, ...rest }: ComponentProps<typeof TabsPr
   return (
     <TabsPrimitive.Trigger
       className={cn(
-        '-mb-px min-h-11 shrink-0 whitespace-nowrap border-b-2 border-transparent px-3.5 py-2 text-sm text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:text-(--ink) data-[state=active]:border-(--ink) data-[state=active]:text-(--ink)',
+        '-mb-px min-h-(--control-h-md) shrink-0 whitespace-nowrap border-b-2 border-transparent px-3.5 py-2 text-sm text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:text-(--ink) data-[state=active]:border-(--ink) data-[state=active]:text-(--ink)',
         className,
       )}
       {...rest}

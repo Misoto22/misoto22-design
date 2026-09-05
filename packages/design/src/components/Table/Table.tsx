@@ -45,12 +45,12 @@ export function Table({ caption, showCaption = false, className, children, ...re
       className="w-full overflow-x-auto scroll-slim"
     >
       <table
-        className={cn('w-full border-collapse text-left text-sm', className)}
+        className={cn('w-full border-collapse text-start text-sm', className)}
         {...rest}
       >
         <caption
           className={cn(
-            showCaption ? 'pb-3 text-left eyebrow text-(--ink-3-aa)' : 'sr-only',
+            showCaption ? 'pb-3 text-start eyebrow text-(--ink-3-aa)' : 'sr-only',
           )}
         >
           {caption}
@@ -79,14 +79,14 @@ export function TH({ className, ...rest }: ThHTMLAttributes<HTMLTableCellElement
   return (
     <th
       scope="col"
-      className={cn('py-3 pr-6 last:pr-0 align-bottom eyebrow text-(--ink-3-aa)', className)}
+      className={cn('py-3 pe-6 last:pe-0 align-bottom eyebrow text-(--ink-3-aa)', className)}
       {...rest}
     />
   )
 }
 
 export function TD({ className, ...rest }: TdHTMLAttributes<HTMLTableCellElement>) {
-  return <td className={cn('py-3.5 pr-6 last:pr-0 align-top text-(--ink-2)', className)} {...rest} />
+  return <td className={cn('py-3.5 pe-6 last:pe-0 align-top text-(--ink-2)', className)} {...rest} />
 }
 
 export default Table

@@ -5,8 +5,12 @@ import { cn } from '../../lib/cn'
 
 export interface FloatingIconButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
-  /** Which bottom corner the control is pinned to. */
-  position: 'left' | 'right'
+  /**
+   * Which bottom corner the control is pinned to, in READING order —
+   * `end` is the right in English and the left in Arabic. Naming the sides
+   * `left`/`right` would have hard-coded one script's layout into the API.
+   */
+  position: 'start' | 'end'
   /** Accessible name — the button has no visible text, so this is its only name. */
   label: string
   children: ReactNode
@@ -16,11 +20,11 @@ export interface FloatingIconButtonProps
  * Full literal class strings per corner. Tailwind only generates classes it can
  * see verbatim in the source, so the side is never interpolated into a string.
  *
- * The left corner sits higher: browser and OS chrome (a download shelf, a
- * status toast) commonly occupies the lower left, and the global scroll action
- * keeps the lower right.
+ * The start corner sits higher: browser and OS chrome (a download shelf, a
+ * status toast) commonly occupies the corner where reading begins, and the
+ * global scroll action keeps the far one.
  */
-const POSITION_CLASS = { left: 'bottom-20 left-6', right: 'bottom-6 right-6' } as const
+const POSITION_CLASS = { start: 'bottom-20 start-6', end: 'bottom-6 end-6' } as const
 
 /**
  * A round action pinned to a screen corner.
@@ -46,7 +50,7 @@ export function FloatingIconButton({
       type="button"
       aria-label={label}
       className={cn(
-        'fixed z-(--z-drawer) flex size-11 items-center justify-center rounded-(--radius-pill) border border-(--rule-2) bg-(--paper)/90 text-(--ink-2) backdrop-blur-sm transition-colors duration-(--duration-fast) hover:border-(--ink) hover:text-(--ink)',
+        'fixed z-(--z-drawer) flex size-(--control-h-md) items-center justify-center rounded-(--radius-pill) border border-(--rule-2) bg-(--paper)/90 text-(--ink-2) backdrop-blur-sm transition-colors duration-(--duration-fast) hover:border-(--ink) hover:text-(--ink)',
         POSITION_CLASS[position],
         className,
       )}

@@ -20,7 +20,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg'
  * instead of sliding.
  */
 const BASE =
-  'inline-flex items-center justify-center gap-2.5 rounded-(--radius-pill) font-sans transition-[opacity,color,border-color,background-color] duration-(--duration-fast) ease-(--ease-out-expo) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none aria-disabled:opacity-(--disabled-opacity) aria-disabled:pointer-events-none'
+  'inline-flex items-center justify-center gap-(--control-gap) rounded-(--radius-pill) font-sans transition-[opacity,color,border-color,background-color] duration-(--duration-fast) ease-(--ease-out-expo) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none aria-disabled:opacity-(--disabled-opacity) aria-disabled:pointer-events-none'
 
 const VARIANT: Record<ButtonVariant, string> = {
   primary: 'bg-(--ink) text-(--paper) border border-(--ink) hover:opacity-85',
@@ -33,20 +33,24 @@ const VARIANT: Record<ButtonVariant, string> = {
 
 /**
  * `min-h` rather than `h`, so a button that wraps to two lines grows instead of
- * clipping. 44px at `md` is the pointer target floor (WCAG 2.5.8); `sm` is for
- * dense toolbars where a larger neighbour already carries the target.
+ * clipping.
+ *
+ * The heights come from the density tokens rather than from a literal, so a
+ * subtree marked `data-density="compact"` shrinks its controls without a single
+ * call site being told. At the default density `md` is 44px — the pointer
+ * target WCAG 2.5.5 asks for.
  */
 const SIZE: Record<ButtonSize, string> = {
-  sm: 'min-h-9 px-4 py-2 text-[13px]',
-  md: 'min-h-11 px-6 py-3 text-sm',
-  lg: 'min-h-12 px-7 py-3 text-[15px]',
+  sm: 'min-h-(--control-h-sm) px-(--control-px-sm) py-(--control-py-sm) text-[13px]',
+  md: 'min-h-(--control-h-md) px-(--control-px-md) py-(--control-py-md) text-sm',
+  lg: 'min-h-(--control-h-lg) px-(--control-px-lg) py-(--control-py-lg) text-[15px]',
 }
 
 /** Square, because an icon has no label to give the box its width. */
 const ICON_SIZE: Record<ButtonSize, string> = {
-  sm: 'min-h-9 size-9 p-0',
-  md: 'min-h-11 size-11 p-0',
-  lg: 'min-h-12 size-12 p-0',
+  sm: 'size-(--control-h-sm) p-0',
+  md: 'size-(--control-h-md) p-0',
+  lg: 'size-(--control-h-lg) p-0',
 }
 
 const SPINNER_SIZE: Record<ButtonSize, 'sm' | 'md'> = { sm: 'sm', md: 'sm', lg: 'md' }

@@ -67,7 +67,7 @@ export function FigureBand({
       aria-label={label}
       className={cn(
         'm-0 grid grid-cols-2 border-y border-(--rule) lg:grid-cols-4',
-        '[&>div]:border-(--rule) max-lg:[&>div:nth-child(even)]:border-l max-lg:[&>div:nth-child(n+3)]:border-t lg:[&>div:not(:first-child)]:border-l',
+        '[&>div]:border-(--rule) max-lg:[&>div:nth-child(even)]:border-s max-lg:[&>div:nth-child(n+3)]:border-t lg:[&>div:not(:first-child)]:border-s',
         className,
       )}
       {...rest}

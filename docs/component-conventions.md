@@ -32,6 +32,13 @@ why. These are the rules a review checks against; the visual rules live on
   interpolated into a template string.
 - **Durations and easing come from tokens.** `duration-(--duration-fast)`, not
   `duration-150`.
+- **Logical properties, always.** `ps-`/`pe-`, `start-`/`end-`, `border-s`/
+  `border-e`, `text-start`. `direction.test.ts` fails the build on a physical
+  one. Anything that slides along the inline axis (`translate-x-`) needs an
+  explicit `rtl:` counterpart, because Tailwind has no logical translate.
+- **Control sizes come from the density tokens.** `min-h-(--control-h-md)`, not
+  `min-h-11`, and the vertical padding too — a control whose padding alone
+  exceeds the compact height never shrinks, because `min-height` is a floor.
 
 ## Behaviour
 

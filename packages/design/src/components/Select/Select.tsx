@@ -36,7 +36,7 @@ export function Select({
         aria-invalid={ariaInvalid ?? (invalid ? true : undefined)}
         className={cn(
           CONTROL_BASE,
-          'cursor-pointer appearance-none pr-9',
+          'cursor-pointer appearance-none pe-9',
           bad ? CONTROL_BORDER.invalid : CONTROL_BORDER.resting,
           className,
         )}
@@ -47,7 +47,7 @@ export function Select({
       <ChevronDown
         size={16}
         strokeWidth={1.5}
-        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-(--ink-3-aa)"
+        className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-(--ink-3-aa)"
         aria-hidden
       />
     </div>
