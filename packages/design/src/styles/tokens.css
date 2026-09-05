@@ -122,15 +122,34 @@
 
 :root {
   /* ─── Type ───────────────────────────────────────────────────────────────
-     Three faces and their CJK fallbacks. The `--font-*` names are supplied by
-     `fonts.css` (or by a host framework's font loader, e.g. next/font), so a
-     consumer can swap the delivery mechanism without touching the stacks. */
-  --sans: var(--font-hanken), 'Hanken Grotesk', var(--cjk-sans), 'Helvetica Neue', Arial, sans-serif;
-  --serif: var(--font-newsreader), 'Newsreader', var(--cjk-serif), Georgia, serif;
-  --mono: var(--font-plex-mono), 'IBM Plex Mono', var(--cjk-sans), ui-monospace, SFMono-Regular, Menlo, monospace;
+     Three faces and their CJK companions.
 
-  --cjk-serif: var(--font-noto-serif-sc), 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', STSong, SimSun, serif;
-  --cjk-sans: var(--font-noto-sans-sc), 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+     EVERY `var()` here carries a fallback, and that is load-bearing rather than
+     tidy. A `var(--font-hanken)` with no fallback, in a host that does not
+     define `--font-hanken`, is invalid at computed-value time — and IACVT does
+     not skip the one term, it discards the WHOLE declaration. So the entire
+     stack collapsed to nothing and every surface rendered in the platform's
+     system font. It worked inside the site, where next/font defines those
+     names, and failed everywhere else: for a package whose whole purpose is to
+     render the same on both sides, that is the worst possible bug.
+
+     With the fallback, a host that loads the faces itself (next/font, a CDN)
+     sets `--font-*` and wins; a host that does not falls through to the literal
+     family name, which is exactly the name `fonts.css` declares its vendored
+     @font-face rules under.
+
+     The CJK stacks deliberately end WITHOUT a generic family. They are spliced
+     into the middle of the three stacks above, and a generic in the middle
+     terminates a font stack — everything listed after it is unreachable. */
+  --sans: var(--font-hanken, 'Hanken Grotesk'), var(--cjk-sans), 'Helvetica Neue', Arial, sans-serif;
+  --serif: var(--font-newsreader, 'Newsreader'), var(--cjk-serif), Georgia, serif;
+  --mono: var(--font-plex-mono, 'IBM Plex Mono'), var(--cjk-sans), ui-monospace, SFMono-Regular, Menlo,
+    monospace;
+
+  --cjk-serif: var(--font-noto-serif-sc, 'Noto Serif SC'), 'Source Han Serif SC', 'Songti SC', STSong,
+    SimSun;
+  --cjk-sans: var(--font-noto-sans-sc, 'Noto Sans SC'), 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei';
 
   --lh-cjk: 1.8;
   --ls-cjk: 0;
