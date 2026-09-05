@@ -37,6 +37,11 @@ jobs:
       - name: Size and tree-shaking budget
         run: pnpm --filter @misoto22/design check:size
 
+      # The tarball and its nine export paths — the surface a consumer meets,
+      # and the one thing every other gate here tests around rather than.
+      - name: Publish surface
+        run: pnpm --filter @misoto22/design check:publish
+
       - name: Build the documentation site
         run: pnpm build:docs
 
