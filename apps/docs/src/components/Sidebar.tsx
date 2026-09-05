@@ -118,6 +118,9 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           <Row href="/components/" pathname={pathname} onNavigate={onNavigate}>
             All components
           </Row>
+          <Row href="/templates/" pathname={pathname} onNavigate={onNavigate}>
+            Templates
+          </Row>
           <Row href="/changelog/" pathname={pathname} onNavigate={onNavigate}>
             Changelog
           </Row>

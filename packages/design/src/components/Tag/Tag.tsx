@@ -29,7 +29,7 @@ export function Tag({ children, active = false, className, ...rest }: TagProps) 
     <span
       className={cn(
         'inline-flex items-center rounded-(--radius-sm) px-2.5 py-1 font-mono text-xs tracking-wide transition-colors duration-(--duration-fast)',
-        active ? 'bg-(--ink) text-(--paper)' : 'bg-(--stone) text-(--ink-3-aa)',
+        active ? 'bg-(--accent) text-(--accent-foreground)' : 'bg-(--stone) text-(--ink-3-aa)',
         className,
       )}
       {...rest}

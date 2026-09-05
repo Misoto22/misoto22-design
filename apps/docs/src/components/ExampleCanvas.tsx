@@ -183,7 +183,7 @@ function Toggle<T extends string>({
           className={cn(
             'rounded-(--radius-pill) px-2.5 py-1 mono-meta transition-colors duration-(--duration-fast)',
             value === option.value
-              ? 'bg-(--ink) text-(--paper)'
+              ? 'bg-(--accent) text-(--accent-foreground)'
               : 'text-(--ink-3-aa) hover:text-(--ink)',
           )}
         >

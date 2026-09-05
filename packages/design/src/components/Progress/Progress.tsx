@@ -56,7 +56,7 @@ export function Progress({ value = null, label, showValue = false, className, ..
             // mirrors the whole motion rather than needing a second keyframe:
             // in a right-to-left document the sweep has to run the other way, or
             // it reads as progress running backwards.
-            className="absolute inset-y-0 start-0 w-1/4 rounded-(--radius-pill) bg-(--ink) rtl:-scale-x-100 motion-safe:animate-[m22-sweep_1.4s_var(--ease)_infinite] motion-reduce:w-full motion-reduce:opacity-40"
+            className="absolute inset-y-0 start-0 w-1/4 rounded-(--radius-pill) bg-(--accent) rtl:-scale-x-100 motion-safe:animate-[m22-sweep_1.4s_var(--ease)_infinite] motion-reduce:w-full motion-reduce:opacity-40"
           />
         ) : (
           <ProgressPrimitive.Indicator
@@ -64,7 +64,7 @@ export function Progress({ value = null, label, showValue = false, className, ..
             // in a right-to-left document, and an inline style cannot carry a
             // direction variant — so the bar grew from the wrong edge. Width
             // grows from the inline start on its own, in either direction.
-            className="h-full rounded-(--radius-pill) bg-(--ink) transition-[width] duration-(--duration-slow) ease-(--ease-out-expo)"
+            className="h-full rounded-(--radius-pill) bg-(--accent) transition-[width] duration-(--duration-slow) ease-(--ease-out-expo)"
             style={{ width: `${clamped}%` }}
           />
         )}

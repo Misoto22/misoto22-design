@@ -89,6 +89,66 @@
   scroll-padding-block: 14px;
 }
 
+/* ─── Accent variations ─────────────────────────────────────────────────────
+   The White Reset is monochrome and law 7 says the accent IS ink. These do not
+   walk that back — they demonstrate the thing underneath it. Every component
+   reads `--accent`, which points at `--red`, which points at `--clay`. One
+   token. A consumer whose brand is not monochrome re-points it and the whole
+   system follows without a component being touched.
+
+   Two values per accent, not one: `--clay` is the mark (a fill, a rule, a
+   pill) and `--clay-ink` is the same colour as TEXT, which has to clear AA on
+   paper and therefore cannot always be the same hex. That distinction already
+   existed in the token layer for exactly this reason; these are the first
+   accents to actually need it.
+
+   Each is checked against paper and against the dark ground below. */
+[data-accent='clay'] {
+  --clay: #8a3f24;
+  --clay-ink: #7a3720;
+  --red-soft: rgba(138, 63, 36, 0.1);
+}
+[data-accent='forest'] {
+  --clay: #2f5d42;
+  --clay-ink: #2a5439;
+  --red-soft: rgba(47, 93, 66, 0.1);
+}
+[data-accent='cobalt'] {
+  --clay: #2b4c9b;
+  --clay-ink: #27448a;
+  --red-soft: rgba(43, 76, 155, 0.1);
+}
+[data-accent='plum'] {
+  --clay: #6b3a72;
+  --clay-ink: #613468;
+  --red-soft: rgba(107, 58, 114, 0.1);
+}
+
+/* On the dark ground the same hues have to come UP to clear AA, not down. An
+   accent that only had a light-mode value would fail contrast the moment
+   someone switched theme — which is the failure the two-block theme used to
+   have, and the reason the token layer swaps by value rather than by block. */
+[data-mode='dark'][data-accent='clay'] {
+  --clay: #e08a68;
+  --clay-ink: #e8a184;
+  --red-soft: rgba(224, 138, 104, 0.14);
+}
+[data-mode='dark'][data-accent='forest'] {
+  --clay: #7fbd97;
+  --clay-ink: #98caab;
+  --red-soft: rgba(127, 189, 151, 0.14);
+}
+[data-mode='dark'][data-accent='cobalt'] {
+  --clay: #8aaaf0;
+  --clay-ink: #a3bcf4;
+  --red-soft: rgba(138, 170, 240, 0.14);
+}
+[data-mode='dark'][data-accent='plum'] {
+  --clay: #cf9dd6;
+  --clay-ink: #dab0e0;
+  --red-soft: rgba(207, 157, 214, 0.14);
+}
+
 /* ─── Shiki ───
    The highlighter emits both themes as custom properties on one markup pass, so
    switching mode is a variable swap rather than a re-highlight. `--shiki-dark`

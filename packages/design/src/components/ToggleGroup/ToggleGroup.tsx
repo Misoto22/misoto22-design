@@ -62,7 +62,7 @@ export function ToggleGroup({ className, children, ...props }: ToggleGroupProps)
         <span
           aria-hidden
           data-m22-animated
-          className="absolute rounded-(--radius-pill) bg-(--ink) transition-[transform,width] duration-(--duration-base) ease-(--ease-out-expo) motion-reduce:transition-none"
+          className="absolute rounded-(--radius-pill) bg-(--accent) transition-[transform,width] duration-(--duration-base) ease-(--ease-out-expo) motion-reduce:transition-none"
           style={{
             transform: `translate(${indicator.offset}px, ${indicator.top}px)`,
             width: indicator.width,
@@ -105,9 +105,9 @@ export function ToggleGroupItem({ className, value, ...props }: ToggleGroupItemP
         'relative z-1 inline-flex min-h-(--control-h-sm) items-center justify-center gap-2 rounded-(--radius-pill) px-3.5 text-sm transition-colors duration-(--duration-fast) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none',
         isSingle
           ? active
-            ? 'text-(--paper)'
+            ? 'text-(--accent-foreground)'
             : 'text-(--ink-3-aa) hover:text-(--ink)'
-          : 'text-(--ink-3-aa) hover:text-(--ink) data-[state=on]:bg-(--ink) data-[state=on]:text-(--paper)',
+          : 'text-(--ink-3-aa) hover:text-(--ink) data-[state=on]:bg-(--accent) data-[state=on]:text-(--accent-foreground)',
         className,
       )}
       {...props}

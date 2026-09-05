@@ -47,7 +47,16 @@
   --border-color: var(--rule-2);
   --border-subtle: var(--rule);
 
-  /* ─── Accent ─── one pointer, and in a monochrome system it is ink. ────── */
+  /* ─── Accent ─────────────────────────────────────────────────────────────
+     One pointer, and in a monochrome system it points at ink — law 7.
+
+     Every surface that marks a CHOICE reads from here rather than from --ink
+     directly: a primary button, a checked box, the active tab, the current
+     page, a slider's filled range, the selected day. That distinction is the
+     whole point of having a pointer at all. While the accent IS ink the two
+     render identically, which is why it went unnoticed that half the system
+     was reading the primitive — and why re-pointing this one token now
+     re-skins the system without a component being touched. */
   --accent: var(--red);
   --accent-hover: var(--red-ink);
   --accent-muted: var(--red-soft);
