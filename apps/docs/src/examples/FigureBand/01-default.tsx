@@ -3,12 +3,12 @@ import { FigureBand } from '@misoto22/design'
 export function Example() {
   return (
     <FigureBand
-      label="At a glance"
+      label="Deploys, last 30 days"
       figures={[
-        { id: 'components', label: 'Components', value: '34' },
-        { id: 'tokens', label: 'Tokens', value: '96', note: 'two themes' },
-        { id: 'deps', label: 'Runtime deps', value: '3', note: 'Radix, lucide, clsx' },
-        { id: 'shadow', label: 'Blurred shadows', value: '0' },
+        { id: 'releases', label: 'Releases', value: '12' },
+        { id: 'duration', label: 'Median build', value: '2m 14s', note: 'down from 3m 40s' },
+        { id: 'rollbacks', label: 'Rollbacks', value: '0' },
+        { id: 'uptime', label: 'Uptime', value: '99.98%', note: 'measured at the edge' },
       ]}
     />
   )

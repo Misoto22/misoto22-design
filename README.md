@@ -59,8 +59,9 @@ by an inline script before the first paint and never flashes the wrong theme.
   custom property (OpenGraph cards, a web manifest, a build script). A test
   parses the CSS and fails if the two drift.
 - **Components** — 36 primitives styled with Tailwind's arbitrary-property
-  syntax against the tokens. Radix underneath wherever behaviour is involved;
-  no router, no state library, no CSS-in-JS.
+  syntax against the tokens. Radix underneath wherever behaviour is involved,
+  lucide for icons, sonner for toasts, and clsx + tailwind-merge so a caller's
+  `className` actually wins. No router, no state library, no CSS-in-JS.
 
 ## Develop
 
