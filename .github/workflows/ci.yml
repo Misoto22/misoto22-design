@@ -55,8 +55,49 @@ jobs:
           path: apps/docs/out
           retention-days: 3
 
-  deploy:
+  # The browser half. Separate from `verify` because it needs a browser
+  # download and takes longer, and because a failure here says something
+  # different: not "the code is wrong" but "the rendered page is wrong".
+  browser:
     needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium
+        run: pnpm --filter @misoto22/design-docs exec playwright install --with-deps chromium
+
+      # The suite serves the built export, so it tests the artifact that ships
+      # rather than a dev server that renders through a different pipeline.
+      - name: Download the static export
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-out
+          path: apps/docs/out
+
+      - name: Accessibility and keyboard suite
+        run: pnpm --filter @misoto22/design-docs test:e2e
+
+      - name: Upload the report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: apps/docs/playwright-report
+          retention-days: 7
+
+  deploy:
+    needs: [verify, browser]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 10

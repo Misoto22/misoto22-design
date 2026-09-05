@@ -12,7 +12,7 @@ export function Example() {
       <label className="flex cursor-pointer items-center gap-2.5">
         <Checkbox /> Notify the channel
       </label>
-      <label className="flex items-center gap-2.5 opacity-(--disabled-opacity)">
+      <label className="flex items-center gap-2.5 text-(--ink-3-aa)">
         <Checkbox disabled /> Requires admin
       </label>
     </div>

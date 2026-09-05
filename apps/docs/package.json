@@ -14,7 +14,9 @@
     "lint": "eslint src scripts",
     "typecheck": "node scripts/generate.mjs && tsc --noEmit",
     "test": "vitest run",
-    "clean": "rm -rf .next out src/generated"
+    "clean": "rm -rf .next out src/generated",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@misoto22/design": "workspace:*",
@@ -24,6 +26,8 @@
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

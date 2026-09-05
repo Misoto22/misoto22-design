@@ -23,3 +23,9 @@ next-env.d.ts
 apps/docs/src/generated/
 apps/docs/public/fonts/
 *.tsbuildinfo
+
+# Playwright (apps/docs)
+apps/docs/test-results/
+apps/docs/playwright-report/
+apps/docs/.wrangler/
+.wrangler/
