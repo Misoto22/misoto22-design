@@ -1,35 +1,107 @@
 # misoto22 design
 
-The **White Reset** — a pure-white monochrome design system for software, writing
-and photography. The ground is paper-white, the mark is near-black, and the only
-chroma left in the file is status, which is bound to state and never to brand.
+<div align="center">
 
-📐 **[ui.misoto22.com](https://ui.misoto22.com)** — the component gallery, the
-foundations, the principles and the templates. Also in Chinese, at
-[/zh](https://ui.misoto22.com/zh/).
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.png">
+  <img alt="misoto22 design — the White Reset" src="assets/hero-light.png" width="820">
+</picture>
 
-## Layout
+<br />
 
-A pnpm monorepo, two workspaces:
+**The White Reset**
 
-| Path | What it is |
-|---|---|
-| `packages/design` | `@misoto22/design` — the tokens and 47 React primitives |
-| `apps/docs` | the documentation site, statically exported to Cloudflare Pages |
+Monochrome design system — CSS tokens and accessible React primitives
 
-## Install
+<br />
 
-Published to GitHub Packages under the `@misoto22` scope. Point the scope at
-that registry in the consuming project's `.npmrc`:
+[Documentation](https://ui.misoto22.com) · [中文](https://ui.misoto22.com/zh/) · [Report Issue](https://github.com/Misoto22/misoto22-design/issues)
+
+<br />
+
+[![React](https://img.shields.io/badge/React_19-61DAFB?logo=react&logoColor=000)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript_6.0-3178C6?logo=typescript&logoColor=fff)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_4.3-06B6D4?logo=tailwindcss&logoColor=000)](https://tailwindcss.com/)
+[![Radix UI](https://img.shields.io/badge/Radix_UI-161618?logo=radixui&logoColor=fff)](https://www.radix-ui.com/)
+
+</div>
+
+---
+
+### Features
+
+- **49 React primitives** — Radix underneath wherever behaviour is involved, `cmdk` for the command palette, `react-day-picker` for the calendar. No router, no state library, no CSS-in-JS.
+- **Two axes, both attributes** (`data-mode`, `data-density`) — light and dark, comfortable and compact. Set either on any container and everything below it follows.
+- **137 tokens, machine-readable** (`@misoto22/design/tokens`) — every token with its light value, dark value, category and comment, as JSON and as a typed module.
+- **RTL with no second stylesheet** — every component is written in logical properties, so `dir="rtl"` mirrors the system. A test fails the build on a physical one.
+- **Accessibility the build enforces** — `coverage.test.ts` fails when a component has no fixture, so "every component is checked" is a property rather than a claim.
+
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/preview-dark.png">
+  <img alt="A console built from the system: sidebar, figure band, tabs, filterable table and status badges" src="assets/preview-light.png" width="820">
+</picture>
+<br />
+<sub>The <a href="https://ui.misoto22.com/templates/dashboard">dashboard template</a> — twelve primitives in one screen, and the only colour on it is state.</sub>
+</div>
+
+---
+
+### Tech Stack
+
+<table>
+<tr><td><b>Package</b></td><td>React 19 · Radix UI · Tailwind CSS 4.3 · <code>tsup</code></td></tr>
+<tr><td><b>Docs site</b></td><td>Next.js 16.3 · TypeScript 6.0 · <code>react-live</code> · static export</td></tr>
+<tr><td><b>Testing</b></td><td><code>vitest</code> · Playwright + <code>axe-core</code> (E2E) · esbuild size budget</td></tr>
+<tr><td><b>Release</b></td><td>Changesets · npm (<code>@misoto22/design</code>)</td></tr>
+<tr><td><b>Deploy</b></td><td>Cloudflare Pages (<code>misoto22-ui</code>)</td></tr>
+</table>
+
+---
+
+### Project Structure
+
+The canonical tokens are CSS and TypeScript in `src`. Everything else — the
+compiled stylesheet, the JSON, the site's swatches and token tables — is built
+from them, which is why `dist/` is never edited by hand.
+
+```mermaid
+flowchart LR
+  A["styles/tokens.css<br/>tokens/brand.ts"] --> B["packages/design<br/>build"]
+  B --> C["dist/<br/>JS · CSS · tokens.json"]
+  C --> D["apps/docs"] & E["consuming apps"]
+```
+
+<details>
+<summary>The directories behind that</summary>
 
 ```
-@misoto22:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+packages/design/
+├── src/
+│   ├── components/         49 primitives, one directory each
+│   ├── styles/             tokens.css · semantic.css · keyframes.css
+│   ├── tokens/             brand.ts — hex mirrors for non-CSS surfaces
+│   └── lib/                cn, control base, overlay container
+└── scripts/                font vendoring, portable CSS, token emit, size budget
+apps/docs/
+├── src/content/            the hand-written part: grouping and summaries
+├── src/generated/          parsed out of the package at build time
+├── src/templates/          whole screens, not single components
+└── e2e/                    axe · keyboard · RTL · density, in a browser
+docs/                       component conventions · the site · releasing
 ```
+
+</details>
+
+---
+
+### Install
 
 ```bash
 pnpm add @misoto22/design
 ```
+
+**Prerequisites** — Node.js 24+, React 19 and React DOM 19 as peers
 
 ```tsx
 // Once, at your app root — the compiled stylesheet carries the tokens, the
@@ -39,8 +111,10 @@ import '@misoto22/design/styles.css'
 import { Button, Field, Input } from '@misoto22/design'
 ```
 
-An app that already compiles Tailwind takes the portable layers instead and
-skips a second copy of the utilities:
+<details>
+<summary><b>An app that already compiles Tailwind</b></summary>
+
+Take the portable layers instead and skip a second copy of the utilities:
 
 ```css
 @import 'tailwindcss';
@@ -53,117 +127,103 @@ skips a second copy of the utilities:
 @custom-variant dark (&:is([data-mode='dark'] *));
 ```
 
-## Two axes, both attributes
+</details>
 
-```html
-<html data-mode="dark">          <!-- light | dark  -->
-  <div data-density="compact">   <!-- comfortable | compact -->
-```
+> [!NOTE]
+> The mode is an attribute rather than a class so an inline script can write it
+> before the first paint and never flash the wrong theme. Density is the only
+> other axis: 44px targets by default (what WCAG 2.5.5 asks for), 36px compact
+> (which clears 2.5.8 but not 2.5.5, so it is for a dense desktop tool).
 
-The mode is an attribute rather than a class so it can be written by an inline
-script before the first paint and never flashes the wrong theme. Density is the
-only other axis: set it on any container and every control below tightens —
-44px at the default (the pointer target WCAG 2.5.5 asks for), 36px compact
-(which still clears 2.5.8 and no longer meets 2.5.5, so it is for a dense
-desktop tool driven by a mouse).
+---
 
-Every component is written in logical properties, so `dir="rtl"` mirrors the
-whole system with no stylesheet of its own. A test fails the build on a physical
-one.
-
-## What is inside
-
-- **Tokens** (`styles/tokens.css`) — the White Reset as portable CSS custom
-  properties: two themes, one heading ladder, four radii, three rule weights,
-  and a status scale that is the system's only chroma.
-- **Semantics** (`styles/semantic.css`) — what each primitive is *for*. A
-  component reads only from here, which is why dark mode is a value swap rather
-  than a second palette.
-- **Brand** (`tokens/brand.ts`) — hex mirrors for surfaces that cannot read a
-  custom property (OpenGraph cards, a web manifest, a build script). A test
-  parses the CSS and fails if the two drift.
-- **Machine-readable tokens** (`@misoto22/design/tokens`) — every token with its
-  light value, dark value, category and the comment that explains it, as JSON
-  and as a typed module. For a Figma sync, a native app, a script: anything that
-  needs the values and cannot read a stylesheet.
-- **Components** — 47 primitives styled with Tailwind's arbitrary-property
-  syntax against the tokens. Radix underneath wherever behaviour is involved,
-  cmdk for the combobox pattern, react-day-picker for the calendar, lucide for
-  icons, sonner for toasts, and clsx + tailwind-merge so a caller's `className`
-  actually wins. No router, no state library, no CSS-in-JS.
-
-## Develop
+### Development
 
 ```bash
+git clone https://github.com/Misoto22/misoto22-design.git
+cd misoto22-design
 pnpm install
-pnpm dev            # the docs site on http://localhost:4023
-pnpm build          # the package, then the site
-pnpm lint && pnpm typecheck && pnpm test
-pnpm --filter @misoto22/design-docs test:e2e   # axe + keyboard, in a browser
-pnpm --filter @misoto22/design check:size      # size and tree-shaking budget
+pnpm build:design           # the docs site reads the package from dist
+pnpm dev                    # → http://localhost:4023
 ```
 
-### How it is tested
+**Prerequisites** — Node.js 24+, pnpm 11+
 
-| Suite | Runs in | Answers |
-|---|---|---|
-| unit | jsdom | roles, names, `aria-*`, labelling — every component, from one fixture |
-| server-render | node, no DOM | does anything touch `window` at import time |
-| keyboard | jsdom | the interactions axe cannot see |
-| browser | Chromium | colour contrast, page-level rules, RTL, density, the live editor |
-| size | esbuild | did it grow; does tree shaking still work |
+```
+pnpm lint                                        ESLint, both workspaces
+pnpm typecheck                                   tsc --noEmit, both workspaces
+pnpm test                                        vitest, both workspaces
+pnpm build                                       the package, then the site
+pnpm --filter @misoto22/design-docs test:e2e     axe + keyboard, in a browser
+pnpm --filter @misoto22/design check:size        size and tree-shaking budget
+```
 
-`coverage.test.ts` fails when a component has no fixture, so "every component is
-checked" is a property the build enforces rather than a claim to audit.
+The site's Tailwind compiles from the package's *source*, so styling changes are
+live; a changed component needs `pnpm build:design` before `pnpm dev` sees it.
 
-The docs site reads the package from `packages/design/dist`, so run
-`pnpm build:design` after changing a component before `pnpm dev` picks it up.
-Its Tailwind compiles from the package's *source*, so styling changes are live.
+---
 
-### Two languages
+### Documentation
 
-English has no prefix and Chinese sits under `/zh`, the same shape
-misoto22.com uses — and the same reason: the English URLs were linked before
-Chinese existed, and a scheme that moves them all to `/en/…` breaks them for
-nothing.
+[ui.misoto22.com](https://ui.misoto22.com) is the gallery, the foundations, the
+principles and the templates, in English and — under [/zh](https://ui.misoto22.com/zh/) —
+in Chinese. The engineering notes live in [`docs/`](docs/): [component
+conventions](docs/component-conventions.md), [the documentation
+site](docs/documentation-site.md), [releasing](docs/releasing.md).
 
-The **editorial** layer is translated: group names, component summaries, the
-"when to reach for it" note, the foundations prose, the principles, the
-templates. The **API reference** is not — prop descriptions, notes and type
-signatures are parsed from the package's own source, and translating them would
-be a second copy that drifts on the first doc-comment edit. The Chinese pages
-say so in a line rather than leaving a reader to wonder, and anything missing
-falls back to English rather than rendering blank.
+Nothing about the library is written twice. Prop tables are parsed out of the
+package's TypeScript at build time, token tables out of the CSS, and every
+example is a real `.tsx` module that the page renders *and* that the code block
+beneath it was read from — so a preview cannot drift from the code printed under
+it. The API reference is translated too, and each Chinese entry records a
+fingerprint of the English it was made from: editing a doc comment in the
+package fails the build until the translation beside it is updated, rather than
+quietly telling a Chinese reader something that stopped being true.
 
-### Nothing about the library is written twice
+The site also serves itself to a reader that does not render CSS —
+[`/llms.txt`](https://ui.misoto22.com/llms.txt) as an index,
+[`/llms-full.txt`](https://ui.misoto22.com/llms-full.txt) inline, and one file
+per component. Not a scrape of the HTML: the same generated data the pages read,
+arranged for one sequential pass.
 
-The site's prop tables are parsed out of the package's TypeScript at build time;
-its token tables are parsed out of the CSS; its swatches are painted with the
-tokens themselves. Every example is a real `.tsx` module that the page renders
-*and* that the code block beneath it was read from — so a preview cannot drift
-from the code printed under it.
+---
 
-The hand-written part is `apps/docs/src/content/registry.ts`: grouping, the
-one-line summaries, and the accessibility promises. A test fails the build if it
-falls out of step with what the package actually ships.
+### Release
 
-## Release
-
-Every consumer-visible change ships with a changeset; `main` then opens a
-version pull request, and merging it publishes. See [docs/releasing.md](docs/releasing.md).
+Every consumer-visible change ships with a changeset. Pushing to `main` opens a
+version pull request that collects the pending ones, and merging it publishes.
 
 ```bash
 pnpm changeset
 ```
 
-## Deploy
+Below `1.0.0` this package is still treated as if SemVer's guarantees held: a
+removed export, a changed default, or a token that no longer resolves is a
+`major`. See [docs/releasing.md](docs/releasing.md).
 
-Pushing to `main` runs lint, typecheck, tests and both builds, then publishes the
-static export to the `misoto22-ui` Cloudflare Pages project and smoke-tests the
-live routes. `ui.misoto22.com` is a proxied CNAME onto that project.
+---
 
-## Sync to claude.ai/design
+### Deployment
 
-This package is the source for the **misoto22** Claude Design project — run the
-`/design-sync` skill from the repository root to push verified components up so
-the design agent builds on-brand. See `.design-sync/NOTES.md`.
+Pushing to `main` runs lint, typecheck, tests, both builds and the browser
+suite, then publishes the static export to the `misoto22-ui` Cloudflare Pages
+project and smoke-tests the deployed routes. `ui.misoto22.com` is a proxied
+CNAME onto that project.
+
+---
+
+### What this repository does not own
+
+The primitives serve both misoto22.com and its admin console, and neither host's
+routes, data access or business logic lives here. A component that needs to know
+about a route, a session or a database has been built in the wrong repository.
+
+This package is also the source for the **misoto22** Claude Design project — run
+the `/design-sync` skill from the repository root to push verified components up,
+after the local gates pass. See [`.design-sync/NOTES.md`](.design-sync/NOTES.md).
+
+---
+
+<div align="center">
+<sub>Built by Henry Chen · MIT</sub>
+</div>
