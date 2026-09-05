@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, ChevronsUpDown } from 'lucide-react'
+import { Check, ChevronsUpDown, X } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '../../lib/cn'
 import {
@@ -21,11 +21,8 @@ export interface ComboboxOption {
   disabled?: boolean
 }
 
-export interface ComboboxProps {
+interface CommonProps {
   options: ComboboxOption[]
-  value?: string
-  defaultValue?: string
-  onValueChange?: (value: string) => void
   /** Names the control. Required — the trigger's text is a value, not a label. */
   label: string
   /** Shown on the trigger when nothing is chosen. */
@@ -38,14 +35,37 @@ export interface ComboboxProps {
   className?: string
 }
 
+interface SingleProps extends CommonProps {
+  multiple?: false
+  value?: string
+  defaultValue?: string
+  onValueChange?: (value: string) => void
+}
+
+interface MultipleProps extends CommonProps {
+  /**
+   * Several at once. The trigger then summarises the choice rather than naming
+   * it — "3 selected" past a threshold, because a trigger that grows with its
+   * value reflows the form every time someone picks another one.
+   */
+  multiple: true
+  value?: string[]
+  defaultValue?: string[]
+  onValueChange?: (value: string[]) => void
+}
+
+export type ComboboxProps = SingleProps | MultipleProps
+
+/** How many labels the trigger prints before it starts counting instead. */
+const SUMMARISE_AFTER = 2
+
 /**
- * A select you can type into.
+ * A select you can type into, choosing one or several.
  *
  * The line against `Select` is length, and it is not a matter of taste: a
- * native select is better up to roughly a dozen options — it gets the platform
- * picker on a phone, typeahead for free, and no JavaScript. Past that, scanning
- * a list nobody can filter is the worse experience, and this becomes the right
- * answer.
+ * styled select is better up to roughly a dozen options, because a list nobody
+ * can filter is faster to scan than one they have to think about. Past that,
+ * this is the right answer.
  *
  * Filtering, the highlighted row and the arrow keys come from cmdk, which
  * implements the ARIA combobox pattern properly: the highlight moves through
@@ -56,32 +76,63 @@ export interface ComboboxProps {
  *
  * @example
  * <Combobox label="Framework" options={FRAMEWORKS} placeholder="Pick one" />
+ * @example
+ * <Combobox multiple label="Tags" options={TAGS} />
  */
-export function Combobox({
-  options,
-  value,
-  defaultValue,
-  onValueChange,
-  label,
-  placeholder = 'Select…',
-  searchPlaceholder = 'Search…',
-  emptyMessage = 'Nothing matches.',
-  disabled = false,
-  className,
-}: ComboboxProps) {
-  const [open, setOpen] = useState(false)
-  const [uncontrolled, setUncontrolled] = useState(defaultValue ?? '')
-  const current = value ?? uncontrolled
-  const selected = options.find((option) => option.value === current)
+export function Combobox(props: ComboboxProps) {
+  const {
+    options,
+    label,
+    placeholder = 'Select…',
+    searchPlaceholder = 'Search…',
+    emptyMessage = 'Nothing matches.',
+    disabled = false,
+    className,
+  } = props
+  const multiple = props.multiple === true
 
-  const choose = (next: string) => {
+  const [open, setOpen] = useState(false)
+  const [uncontrolled, setUncontrolled] = useState<string[]>(() => {
+    if (props.multiple === true) return props.defaultValue ?? []
+    return props.defaultValue ? [props.defaultValue] : []
+  })
+
+  const controlled =
+    props.multiple === true
+      ? props.value
+      : props.value === undefined
+        ? undefined
+        : props.value === ''
+          ? []
+          : [props.value]
+  const current = controlled ?? uncontrolled
+
+  const commit = (next: string[]) => {
+    if (controlled === undefined) setUncontrolled(next)
+    if (props.multiple === true) props.onValueChange?.(next)
+    else props.onValueChange?.(next[0] ?? '')
+  }
+
+  const choose = (option: string) => {
+    if (multiple) {
+      // Toggling, and the panel stays open — picking three things should not
+      // cost three round trips through the trigger.
+      commit(current.includes(option) ? current.filter((v) => v !== option) : [...current, option])
+      return
+    }
     // Choosing the selected option again clears it, which is what a reader
     // expects from a control whose value is optional.
-    const resolved = next === current ? '' : next
-    if (value === undefined) setUncontrolled(resolved)
-    onValueChange?.(resolved)
+    commit(current.includes(option) ? [] : [option])
     setOpen(false)
   }
+
+  const chosen = options.filter((option) => current.includes(option.value))
+  const summary =
+    chosen.length === 0
+      ? placeholder
+      : chosen.length <= SUMMARISE_AFTER
+        ? chosen.map((option) => option.label).join(', ')
+        : `${chosen.length} selected`
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -93,17 +144,46 @@ export function Combobox({
         aria-label={label}
         disabled={disabled}
         className={cn(
-          'flex w-full items-center justify-between gap-2 rounded-(--radius) border border-(--rule-2) bg-(--paper) px-(--field-px) py-(--field-py) text-sm transition-colors duration-(--duration-fast) hover:border-(--rule-hard) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none',
-          selected ? 'text-(--ink)' : 'text-(--ink-3-aa)',
+          'group flex w-full items-center justify-between gap-2 rounded-(--radius) border border-(--rule-2) bg-(--paper) px-(--field-px) py-(--field-py) text-start text-sm transition-colors duration-(--duration-fast) hover:border-(--rule-hard) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none',
+          chosen.length > 0 ? 'text-(--ink)' : 'text-(--ink-3-aa)',
           className,
         )}
       >
-        {selected?.label ?? placeholder}
-        <ChevronsUpDown size={14} strokeWidth={1.5} aria-hidden className="shrink-0 text-(--ink-3-aa)" />
+        <span className="truncate">{summary}</span>
+        <span className="flex shrink-0 items-center gap-1">
+          {multiple && chosen.length > 0 && (
+            // A `<span role="button">` rather than a nested `<button>`, which
+            // is invalid inside the trigger and which browsers reparent — the
+            // clear control then falls outside the field entirely.
+            <span
+              role="button"
+              tabIndex={0}
+              aria-label={`Clear ${label}`}
+              onClick={(event) => {
+                event.preventDefault()
+                event.stopPropagation()
+                commit([])
+              }}
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return
+                event.preventDefault()
+                event.stopPropagation()
+                commit([])
+              }}
+              className="grid size-5 cursor-pointer place-items-center rounded-full text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)"
+            >
+              <X size={12} strokeWidth={2} aria-hidden />
+            </span>
+          )}
+          <ChevronsUpDown size={14} strokeWidth={1.5} aria-hidden className="text-(--ink-3-aa)" />
+        </span>
       </PopoverTrigger>
       <PopoverContent
         label={label}
-        className="w-(--radix-popover-trigger-width) p-0"
+        // `overflow-hidden` so the panel's own corners clip the square-cornered
+        // command list inside it; without it the list's edges poked through the
+        // radius and the two bottom corners looked chipped.
+        className="w-(--radix-popover-trigger-width) overflow-hidden p-0"
         align="start"
       >
         <Command label={label} className="rounded-none border-0">
@@ -111,26 +191,36 @@ export function Combobox({
           <CommandList>
             <CommandEmpty>{emptyMessage}</CommandEmpty>
             <CommandGroup>
-              {options.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  value={option.value}
-                  keywords={[option.label, ...(option.keywords ?? [])]}
-                  disabled={option.disabled}
-                  onSelect={choose}
-                >
-                  <Check
-                    size={14}
-                    strokeWidth={2}
-                    aria-hidden
-                    className={cn(
-                      'shrink-0 transition-opacity',
-                      option.value === current ? 'opacity-100' : 'opacity-0',
-                    )}
-                  />
-                  {option.label}
-                </CommandItem>
-              ))}
+              {options.map((option) => {
+                const selected = current.includes(option.value)
+                return (
+                  <CommandItem
+                    key={option.value}
+                    value={option.value}
+                    keywords={[option.label, ...(option.keywords ?? [])]}
+                    disabled={option.disabled}
+                    onSelect={choose}
+                    aria-selected={selected}
+                  >
+                    <span
+                      className={cn(
+                        'grid size-4 shrink-0 place-items-center transition-opacity duration-(--duration-fast)',
+                        multiple &&
+                          'rounded-(--radius-sm) border border-(--rule-2) text-(--paper) data-[on=true]:border-(--ink) data-[on=true]:bg-(--ink)',
+                      )}
+                      data-on={selected}
+                    >
+                      <Check
+                        size={12}
+                        strokeWidth={2.5}
+                        aria-hidden
+                        className={selected ? 'opacity-100' : 'opacity-0'}
+                      />
+                    </span>
+                    {option.label}
+                  </CommandItem>
+                )
+              })}
             </CommandGroup>
           </CommandList>
         </Command>

@@ -23,6 +23,8 @@ export type { BrandColor } from './tokens/brand'
 // ─── Utilities ───
 export { cn } from './lib/cn'
 export { CONTROL_BASE, CONTROL_BORDER, isInvalid } from './lib/control'
+export { useSelectionIndicator } from './lib/useSelectionIndicator'
+export type { IndicatorStyle } from './lib/useSelectionIndicator'
 
 // ─── Actions ───
 export * from './components/Button/Button'
@@ -57,6 +59,7 @@ export * from './components/ToggleGroup/ToggleGroup'
 export * from './components/Input/Input'
 export * from './components/Textarea/Textarea'
 export * from './components/Select/Select'
+export * from './components/NativeSelect/NativeSelect'
 export * from './components/Checkbox/Checkbox'
 export * from './components/RadioGroup/RadioGroup'
 export * from './components/Switch/Switch'

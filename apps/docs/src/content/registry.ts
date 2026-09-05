@@ -48,6 +48,19 @@ export interface ComponentEntry {
    * swallows a key looks identical until someone tries it.
    */
   keyboard?: { keys: string[]; does: string }[]
+  /**
+   * Extra room the preview needs.
+   *
+   * A component that opens a panel — a date picker, a combobox — draws it
+   * against the trigger, which on a page means "just below the field" and in a
+   * short preview card means "over whatever is underneath". This is the card
+   * reserving the space the open state will use, so the example reads as it
+   * would in an app rather than as something spilling out of its box.
+   *
+   * A Tailwind class, because it is a layout decision and belongs in the same
+   * vocabulary as the rest of them.
+   */
+  previewHeight?: string
   /** Slugs of components a reader is likely to want next. */
   related?: string[]
 }
@@ -308,13 +321,39 @@ export const COMPONENTS: ComponentEntry[] = [
     dir: 'Select',
     name: 'Select',
     group: 'Forms',
-    summary: 'A native <select>, restyled.',
-    when: 'Native on purpose: a listbox rebuilt in divs re-implements typeahead, the mobile picker and every platform keyboard convention, for nothing visible in return.',
-    related: ['field', 'radio-group'],
+    summary: 'A choice from a list, styled the whole way down.',
+    when: 'Up to roughly a dozen options. Past that a Combobox wins, because a list nobody can filter is slower to scan than one you can type into.',
+    accessibility: [
+      'The option list is ours, so it does not change typeface, spacing and selection colour the moment it opens — which is what a native select does.',
+      'The keyboard contract is the platform\'s: typeahead, arrows, Home and End, Escape to close without choosing.',
+      'label is required. The trigger shows a value, and a value is not a name.',
+    ],
+    related: ['combobox', 'native-select', 'field'],
+    keyboard: [
+      { keys: ['Enter', 'Space', '↓'], does: 'Opens the list.' },
+      { keys: ['↑', '↓'], does: 'Moves between options.' },
+      { keys: ['a–z'], does: 'Typeahead — jumps to the next option starting with that letter.' },
+      { keys: ['Home', 'End'], does: 'Jumps to the first or last option.' },
+      { keys: ['Escape'], does: 'Closes without choosing.' },
+    ],
+    previewHeight: 'min-h-[18rem]',
+  },
+  {
+    slug: 'native-select',
+    dir: 'NativeSelect',
+    name: 'NativeSelect',
+    group: 'Forms',
+    summary: 'The platform’s own picker, restyled where it can be.',
+    when: 'The escape hatch, not the default. Reach for it where the platform genuinely wins: a very long list on a phone, a form that must work without JavaScript, a page counting its last kilobyte.',
+    accessibility: [
+      'Typeahead and the mobile wheel come free, from the browser.',
+      'What it cannot do is look like the rest of the system once open — the option list is drawn by the operating system and carries none of these tokens.',
+    ],
     keyboard: [
       { keys: ['Space', '↓'], does: 'Opens the platform picker.' },
-      { keys: ['a–z'], does: 'Typeahead, from the browser\'s own implementation.' },
+      { keys: ['a–z'], does: 'Typeahead, from the browser’s own implementation.' },
     ],
+    related: ['select', 'field'],
   },
   {
     slug: 'checkbox',
@@ -394,6 +433,7 @@ export const COMPONENTS: ComponentEntry[] = [
       { keys: ['a–z'], does: 'Jumps to the next item starting with that letter.' },
       { keys: ['Escape'], does: 'Closes the menu and returns focus to the trigger.' },
     ],
+    previewHeight: 'min-h-[18rem]',
   },
   {
     slug: 'tooltip',
@@ -541,22 +581,25 @@ export const COMPONENTS: ComponentEntry[] = [
       { keys: ['Enter'], does: 'Chooses the highlighted option; choosing the current one clears it.' },
       { keys: ['Escape'], does: 'Closes without choosing.' },
     ],
+    previewHeight: 'min-h-[22rem]',
   },
   {
     slug: 'date-picker',
     dir: 'DatePicker',
     name: 'DatePicker',
     group: 'Forms',
-    summary: 'A date, chosen from a calendar.',
-    when: 'Deliberately not a text input with a calendar attached: parsing a typed date needs a format, and 03/04 is March the fourth in one country and the third of April in the next.',
+    summary: 'A date — or a span of them — chosen from a calendar.',
+    when: 'Deliberately not a text input with a calendar attached: parsing a typed date needs a format, and 03/04 is March the fourth in one country and the third of April in the next. When the date is a long way back, the calendar’s month and year are dropdowns.',
     accessibility: [
       'The trigger prints the date in the visitor’s own locale, not a fixed dd/mm/yyyy.',
+      'DateRangePicker keeps the panel open until both ends are chosen — a range is not a value until it has a second date.',
     ],
     related: ['calendar', 'field'],
     keyboard: [
       { keys: ['Enter', 'Space'], does: 'Opens the calendar.' },
       { keys: ['Escape'], does: 'Closes it without choosing.' },
     ],
+    previewHeight: 'min-h-[26rem]',
   },
   {
     slug: 'slider',
@@ -612,6 +655,7 @@ export const COMPONENTS: ComponentEntry[] = [
       { keys: ['Tab'], does: 'Moves through its contents like the rest of the page.' },
       { keys: ['Escape'], does: 'Closes it and returns focus to the trigger.' },
     ],
+    previewHeight: 'min-h-[20rem]',
   },
   {
     slug: 'sheet',
@@ -643,6 +687,7 @@ export const COMPONENTS: ComponentEntry[] = [
       { keys: ['↑', '↓'], does: 'Moves between items.' },
       { keys: ['Escape'], does: 'Closes it.' },
     ],
+    previewHeight: 'min-h-[20rem]',
   },
   {
     slug: 'command',
@@ -659,6 +704,7 @@ export const COMPONENTS: ComponentEntry[] = [
       { keys: ['Enter'], does: 'Runs the highlighted item.' },
       { keys: ['Escape'], does: 'Closes the palette.' },
     ],
+    previewHeight: 'min-h-[24rem]',
   },
 
   // ─── Navigation (continued) ───
@@ -695,6 +741,7 @@ export const COMPONENTS: ComponentEntry[] = [
       { keys: ['Home', 'End'], does: 'Jumps to the week\'s first or last day.' },
       { keys: ['Enter', 'Space'], does: 'Chooses the focused day.' },
     ],
+    previewHeight: 'min-h-[24rem]',
   },
   {
     slug: 'scroll-area',

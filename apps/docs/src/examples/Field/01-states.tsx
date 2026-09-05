@@ -1,4 +1,6 @@
-import { Field, Input, Select, Textarea } from '@misoto22/design'
+'use client'
+
+import { Field, Input, Select, SelectItem, Textarea } from '@misoto22/design'
 
 export function Example() {
   return (
@@ -10,9 +12,10 @@ export function Example() {
         <Input />
       </Field>
       <Field label="Region">
-        <Select defaultValue="au">
-          <option value="au">Australia</option>
-          <option value="nz">New Zealand</option>
+        <Select label="Region" defaultValue="au">
+          <SelectItem value="au">Australia</SelectItem>
+          <SelectItem value="nz">New Zealand</SelectItem>
+          <SelectItem value="jp">Japan</SelectItem>
         </Select>
       </Field>
       <Field label="Notes" hint="Markdown is fine.">

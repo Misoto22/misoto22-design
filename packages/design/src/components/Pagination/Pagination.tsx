@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { HTMLAttributes } from 'react'
 import { cn } from '../../lib/cn'
+import { useSelectionIndicator } from '../../lib/useSelectionIndicator'
 
 export interface PaginationProps extends Omit<HTMLAttributes<HTMLElement>, 'onChange'> {
   /** 1-based. */
@@ -64,6 +65,11 @@ const STEP =
 /**
  * Numbered pagination.
  *
+ * The current page is marked by one filled pill that TRAVELS between the
+ * numbers rather than by a background switching off on one and on on another.
+ * Two backgrounds cross-fading reads as two things changing; a shape moving
+ * reads as the one thing that actually did.
+ *
  * A `<nav>` wrapping a list, and the current page is a `<button aria-current>`
  * rather than a styled `<span>` — a reader jumping by landmark needs to find
  * the control, and a reader on the current page needs to be told they are
@@ -83,6 +89,11 @@ export function Pagination({
   className,
   ...rest
 }: PaginationProps) {
+  // Called before the early return, because a hook cannot be conditional — and
+  // keyed on the page so the pill re-measures when the elided window shifts and
+  // the numbers under it change.
+  const [listRef, indicator] = useSelectionIndicator<HTMLOListElement>(String(page))
+
   if (pageCount <= 1) return null
   const pages = paginationRange(page, pageCount, siblings)
 
@@ -98,24 +109,39 @@ export function Pagination({
         <ChevronLeft size={16} strokeWidth={1.5} aria-hidden />
       </button>
 
-      <ol className="m-0 flex list-none items-center gap-1 p-0">
+      <ol ref={listRef} className="relative m-0 flex list-none items-center gap-1 p-0">
+        {indicator.ready && (
+          <span
+            aria-hidden
+            data-m22-animated
+            className="absolute rounded-(--radius-pill) bg-(--ink) transition-[transform,width] duration-(--duration-base) ease-(--ease-out-expo) motion-reduce:transition-none"
+            style={{
+              transform: `translate(${indicator.offset}px, ${indicator.top}px)`,
+              width: indicator.width,
+              height: indicator.height,
+              insetInlineStart: 0,
+              top: 0,
+            }}
+          />
+        )}
         {pages.map((entry, index) =>
           entry === GAP ? (
             <li key={`gap-${index}`} aria-hidden="true" className="px-1 mono-meta text-(--ink-3-aa)">
               {GAP}
             </li>
           ) : (
-            <li key={entry}>
+            <li key={entry} className="relative z-1">
               <button
                 type="button"
                 aria-current={entry === page ? 'page' : undefined}
                 aria-label={`Page ${entry}`}
+                data-indicator-active={entry === page ? 'true' : undefined}
                 onClick={() => onPageChange(entry)}
                 className={cn(
                   STEP,
                   'mono-meta tabular-nums',
                   entry === page
-                    ? 'border-(--ink) bg-(--ink) text-(--paper)'
+                    ? 'border-transparent text-(--paper)'
                     : 'border-transparent text-(--ink-2) hover:border-(--rule-2) hover:text-(--ink)',
                 )}
               >

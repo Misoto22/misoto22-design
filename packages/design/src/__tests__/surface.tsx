@@ -55,8 +55,10 @@ import {
   Progress,
   RadioGroup,
   RadioGroupItem,
+  NativeSelect,
   ScrollArea,
   Select,
+  SelectItem,
   Separator,
   Sheet,
   SheetContent,
@@ -213,7 +215,18 @@ export const SURFACE: SurfaceEntry[] = [
   ) },
   { dir: 'Select', render: () => (
     <Field label="Region">
-      <Select defaultValue="au"><option value="au">Australia</option></Select>
+      <Select label="Region" defaultValue="au">
+        <SelectItem value="au">Australia</SelectItem>
+        <SelectItem value="nz">New Zealand</SelectItem>
+      </Select>
+    </Field>
+  ) },
+  { dir: 'NativeSelect', render: () => (
+    <Field label="Region">
+      <NativeSelect defaultValue="au">
+        <option value="au">Australia</option>
+        <option value="nz">New Zealand</option>
+      </NativeSelect>
     </Field>
   ) },
   { dir: 'Separator', render: () => <Separator /> },
