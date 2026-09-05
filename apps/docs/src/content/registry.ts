@@ -324,6 +324,7 @@ export const COMPONENTS: ComponentEntry[] = [
     summary: 'A choice from a list, styled the whole way down.',
     when: 'Up to roughly a dozen options. Past that a Combobox wins, because a list nobody can filter is slower to scan than one you can type into.',
     accessibility: [
+      'Inside a bounded frame — a device preview, an embedded console — wrap the subtree in `<OverlayContainer container={el}>`. The panel then renders into that element and collides with its edges instead of the viewport’s, and inherits the `dir` and `data-density` set there.',
       'The option list is ours, so it does not change typeface, spacing and selection colour the moment it opens — which is what a native select does.',
       'The keyboard contract is the platform\'s: typeahead, arrows, Home and End, Escape to close without choosing.',
       'label is required. The trigger shows a value, and a value is not a name.',
@@ -336,7 +337,7 @@ export const COMPONENTS: ComponentEntry[] = [
       { keys: ['Home', 'End'], does: 'Jumps to the first or last option.' },
       { keys: ['Escape'], does: 'Closes without choosing.' },
     ],
-    previewHeight: 'min-h-[18rem]',
+    previewHeight: 'min-h-[24rem]',
   },
   {
     slug: 'native-select',
@@ -424,6 +425,7 @@ export const COMPONENTS: ComponentEntry[] = [
     summary: 'A menu of actions.',
     when: 'Actions. Items that navigate belong in a nav; items that set a value are a Select or a RadioGroup.',
     accessibility: [
+      'Inside a bounded frame — a device preview, an embedded console — wrap the subtree in `<OverlayContainer container={el}>`. The panel then renders into that element and collides with its edges instead of the viewport’s, and inherits the `dir` and `data-density` set there.',
       'Highlight is driven by data-highlighted, which covers hover AND keyboard focus — styling :hover alone leaves the keyboard user unable to see where they are.',
     ],
     related: ['dialog', 'select'],
@@ -443,6 +445,7 @@ export const COMPONENTS: ComponentEntry[] = [
     summary: 'A short label on hover and on focus.',
     when: 'Never for anything the reader NEEDS: a tooltip is unreachable on touch and invisible while scanning.',
     accessibility: [
+      'Inside a bounded frame — a device preview, an embedded console — wrap the subtree in `<OverlayContainer container={el}>`. The panel then renders into that element and collides with its edges instead of the viewport’s, and inherits the `dir` and `data-density` set there.',
       'The trigger is asChild, so the child must be focusable — a div trigger simply has no keyboard tooltip, which this API shape makes obvious rather than silent.',
       'Not an accessible name. An icon-only button still needs its own aria-label.',
     ],
@@ -585,7 +588,7 @@ export const COMPONENTS: ComponentEntry[] = [
       { keys: ['Enter'], does: 'Chooses the highlighted option; choosing the current one clears it.' },
       { keys: ['Escape'], does: 'Closes without choosing.' },
     ],
-    previewHeight: 'min-h-[22rem]',
+    previewHeight: 'min-h-[28rem]',
   },
   {
     slug: 'date-picker',
@@ -652,6 +655,7 @@ export const COMPONENTS: ComponentEntry[] = [
     summary: 'A panel anchored to a control, holding content you can interact with.',
     when: 'Anything with a link, a field or a button in it. A tooltip describes and cannot be entered — put a control inside one and it becomes unreachable.',
     accessibility: [
+      'Inside a bounded frame — a device preview, an embedded console — wrap the subtree in `<OverlayContainer container={el}>`. The panel then renders into that element and collides with its edges instead of the viewport’s, and inherits the `dir` and `data-density` set there.',
       'label is required: a popover is a dialog, and an unnamed one announces nothing.',
       'Its contents Tab like the rest of the page, unlike a menu’s arrow-key list.',
     ],
@@ -703,6 +707,7 @@ export const COMPONENTS: ComponentEntry[] = [
     summary: 'A menu of actions you can type into.',
     when: 'A DropdownMenu past about a dozen rows stops being scannable, and nesting submenus makes it worse. This is the same list with a filter over it. Not a Command palette: that is page-level and modal; this is anchored to a control.',
     accessibility: [
+      'Inside a bounded frame — a device preview, an embedded console — wrap the subtree in `<OverlayContainer container={el}>`. The panel then renders into that element and collides with its edges instead of the viewport’s, and inherits the `dir` and `data-density` set there.',
       'The rows are options inside a listbox rather than menuitems, because filtering requires it — the highlight moves through aria-activedescendant while focus stays in the input, and a menu cannot do that.',
       'The trade is deliberate: a menu that cannot be filtered is worse for the reader than a listbox that runs actions.',
     ],

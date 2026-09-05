@@ -63,7 +63,7 @@ export function Landing() {
         </nav>
       </header>
 
-      <section className="flex flex-col items-start gap-6 px-6 py-16 sm:px-10 lg:px-16">
+      <section className="flex flex-col items-start gap-6 px-6 py-16 @2xl:px-10 @5xl:px-16">
         <StatusPill>Now in public beta</StatusPill>
         <h1 className="m-0 max-w-[18ch] font-heading text-[length:var(--fs-title)] font-normal leading-[1.05] text-(--ink)">
           Every number, with the sentence that explains it.
@@ -97,7 +97,7 @@ export function Landing() {
         ]}
       />
 
-      <section className="grid gap-4 px-6 py-16 sm:px-10 md:grid-cols-3 lg:px-16">
+      <section className="grid gap-4 px-6 py-16 @2xl:px-10 @3xl:grid-cols-3 @5xl:px-16">
         {PILLARS.map((pillar) => (
           <Card key={pillar.title}>
             <CardBody className="flex flex-col gap-3">
@@ -115,7 +115,7 @@ export function Landing() {
 
       <section
         id="pricing"
-        className="grid gap-8 px-6 py-16 sm:px-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:px-16"
+        className="grid gap-8 px-6 py-16 @2xl:px-10 @5xl:grid-cols-[minmax(0,1fr)_22rem] @5xl:px-16"
       >
         <div className="flex flex-col gap-4">
           <h2 className="m-0 font-heading text-[length:var(--fs-lead)] font-normal text-(--ink)">
@@ -145,7 +145,7 @@ export function Landing() {
         </Card>
       </section>
 
-      <section id="faq" className="flex flex-col gap-5 px-6 pb-20 sm:px-10 lg:px-16">
+      <section id="faq" className="flex flex-col gap-5 px-6 pb-20 @2xl:px-10 @5xl:px-16">
         <div className="flex items-center gap-3">
           <h2 className="m-0 font-heading text-[length:var(--fs-sub)] font-normal text-(--ink)">
             Questions

@@ -106,6 +106,39 @@ test.describe('templates', () => {
     await expect.poll(async () => (await frame.boundingBox())?.width ?? 0).toBeLessThan(wide)
   })
 
+  test('the width switcher reflows the template, not just the frame', async ({ page }) => {
+    await page.goto('/templates/dashboard/')
+    await ready(page)
+
+    const frame = page.getByRole('region', { name: 'Dashboard preview' })
+    const sidebar = frame.locator('aside')
+    const heading = page.locator('[data-fluid-frame] h1, [data-fluid-frame] .font-heading').first()
+
+    await expect(sidebar).toBeVisible()
+
+    await page.getByRole('radio', { name: 'Mobile' }).click()
+    // The templates and the fluid ramp read the FRAME's width, not the window's.
+    // With viewport breakpoints this sidebar stayed open and the type stayed at
+    // its desktop size while the frame shrank to 390px around them.
+    await expect(sidebar).toBeHidden()
+    await expect.poll(async () => (await frame.boundingBox())?.width ?? 0).toBeLessThan(400)
+
+    const band = frame.locator('dl').first()
+    await expect
+      .poll(async () => (await band.evaluate((el) => getComputedStyle(el).gridTemplateColumns)).split(' ').length)
+      .toBe(2)
+
+    // Nothing may hang outside the frame at phone width.
+    const escaped = await frame.evaluate((el) => {
+      const box = el.getBoundingClientRect()
+      return [...el.querySelectorAll('*')].filter((child) => {
+        const b = child.getBoundingClientRect()
+        return b.width > 0 && (b.right > box.right + 1 || b.left < box.left - 1)
+      }).length
+    })
+    expect(escaped).toBe(0)
+  })
+
   test('the template page prints its own source', async ({ page }) => {
     await page.goto('/templates/dashboard/')
     await ready(page)

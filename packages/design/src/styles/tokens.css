@@ -162,20 +162,46 @@
      same kind, not a heading from its own sub-heading. Two headings that nest
      must skip a step: --fs-lead over --fs-sub reads as a hierarchy (1.33),
      --fs-lead over --fs-heading does not (1.14). */
-  --fs-title: clamp(2.5rem, 4.6vw, 3.375rem); /* page h1        40 → 54px */
-  --fs-lead: clamp(1.875rem, 3vw, 2.625rem); /* band heading   30 → 42px */
-  --fs-heading: clamp(1.5rem, 2.1vw, 1.8125rem); /* record title   24 → 29px */
-  --fs-sub: clamp(1.3125rem, 1.7vw, 1.5625rem); /* card sub-head  21 → 25px */
-  --fs-item: clamp(1.125rem, 1.35vw, 1.25rem); /* in-card title  18 → 20px */
+  /* ─── The fluid base ──────────────────────────────────────────────────────
+     Every fluid step below is one percent of THIS, not of the viewport.
 
-  /* ─── Space & measure ─── */
-  --pad: clamp(18px, 4.4vw, 64px);
-  --sec: clamp(54px, 7vw, 96px);
-  --sec-tight: clamp(40px, 5vw, 68px);
+     The default is `1vw`, which is what a page wants. A bounded frame — a
+     device preview, a documentation canvas, an embedded console — overrides it
+     to `1cqi` and declares itself a `container`, and the whole ramp re-bases
+     onto the frame's width. Without the seam a 390px preview inside a 1440px
+     window renders 54px headings and 64px gutters, which is not what a 390px
+     screen looks like and is exactly the bug this replaces.
+
+     The ramp itself is declared once, below, for BOTH `:root` and a frame —
+     rather than composed here and inherited. A custom property substitutes
+     `var()` where it is DECLARED, so a ramp written only on `:root` bakes in
+     `1vw` and a deeper `--fluid` never reaches it. */
+  --fluid: 1vw;
+
   --maxw: 1288px;
   --col: 8.3333%;
   --row: 52px;
 
+}
+
+/* The fluid ramp, computed wherever `--fluid` is set.
+   `[data-fluid-frame]` must sit INSIDE the element carrying `container-type`:
+   a container query unit resolves against an ANCESTOR container, never against
+   the element that declares the container itself. */
+:root,
+[data-fluid-frame] {
+  --fs-title: clamp(2.5rem, calc(4.6 * var(--fluid)), 3.375rem); /* page h1        40 → 54px */
+  --fs-lead: clamp(1.875rem, calc(3 * var(--fluid)), 2.625rem); /* band heading   30 → 42px */
+  --fs-heading: clamp(1.5rem, calc(2.1 * var(--fluid)), 1.8125rem); /* record title   24 → 29px */
+  --fs-sub: clamp(1.3125rem, calc(1.7 * var(--fluid)), 1.5625rem); /* card sub-head  21 → 25px */
+  --fs-item: clamp(1.125rem, calc(1.35 * var(--fluid)), 1.25rem); /* in-card title  18 → 20px */
+
+  --pad: clamp(18px, calc(4.4 * var(--fluid)), 64px);
+  --sec: clamp(54px, calc(7 * var(--fluid)), 96px);
+  --sec-tight: clamp(40px, calc(5 * var(--fluid)), 68px);
+}
+
+:root {
   /* ─── Radius ─────────────────────────────────────────────────────────────
      Four steps, and there is no fifth. The old law was "0 everywhere"; the
      White Reset replaces that with a scale small enough to stay quiet on a

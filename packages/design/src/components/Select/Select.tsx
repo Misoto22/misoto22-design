@@ -4,6 +4,7 @@ import * as SelectPrimitive from '@radix-ui/react-select'
 import { Check, ChevronDown, ChevronUp } from 'lucide-react'
 import type { ComponentProps, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+import { useOverlayContainer } from '../../lib/overlay-container'
 import { CONTROL_BASE, CONTROL_BORDER, isInvalid } from '../../lib/control'
 
 /** Radix Select root, group and label, as typed passthroughs. */
@@ -60,6 +61,7 @@ export function Select({
   ...props
 }: SelectProps) {
   const bad = isInvalid(invalid)
+  const container = useOverlayContainer()
 
   return (
     <SelectPrimitive.Root disabled={disabled} {...props}>
@@ -84,8 +86,10 @@ export function Select({
         </SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
 
-      <SelectPrimitive.Portal>
+      <SelectPrimitive.Portal container={container ?? undefined}>
         <SelectPrimitive.Content
+        collisionBoundary={container ?? undefined}
+        collisionPadding={8}
           position="popper"
           sideOffset={6}
           data-m22-animated

@@ -16,6 +16,9 @@
  * or removing one is a breaking change (DESIGN-API-001).
  */
 
+// ─── Utilities ───
+export * from './lib/overlay-container'
+
 // ─── Tokens ───
 export { BRAND } from './tokens/brand'
 export type { BrandColor } from './tokens/brand'
