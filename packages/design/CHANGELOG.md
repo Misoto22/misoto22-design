@@ -1,5 +1,20 @@
 # @misoto22/design
 
+## 0.3.1
+
+### Patch Changes
+
+- [#28](https://github.com/Misoto22/misoto22-design/pull/28) [`4f4a433`](https://github.com/Misoto22/misoto22-design/commit/4f4a433504cf254e87ff69afd56771cf46cf364e) Thanks [@Misoto22](https://github.com/Misoto22)! - Restore the table's column gutter, which a unitless zero had been silently
+  eating.
+  
+  `--table-pad-x` was `0` rather than `0px`. The cell rule adds to it inside a
+  calc, so it resolved to `calc(0 + 1.5rem)` — invalid at computed-value time,
+  which drops the whole declaration instead of falling back. Every non-last cell
+  of every `borders="rows"` or `borders="none"` table therefore had no
+  `padding-inline-end` at all, and an `align="end"` column butted straight against
+  its neighbour. The ruled variants were unaffected, because they set the variable
+  to `0.75rem` and a unit came with it.
+
 ## 0.3.0
 
 ### Minor Changes
