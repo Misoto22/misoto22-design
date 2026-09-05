@@ -1,5 +1,36 @@
 # @misoto22/design
 
+## 0.3.1
+
+### Patch Changes
+
+- [#28](https://github.com/Misoto22/misoto22-design/pull/28) [`4f4a433`](https://github.com/Misoto22/misoto22-design/commit/4f4a433504cf254e87ff69afd56771cf46cf364e) Thanks [@Misoto22](https://github.com/Misoto22)! - Restore the table's column gutter, which a unitless zero had been silently
+  eating.
+  
+  `--table-pad-x` was `0` rather than `0px`. The cell rule adds to it inside a
+  calc, so it resolved to `calc(0 + 1.5rem)` — invalid at computed-value time,
+  which drops the whole declaration instead of falling back. Every non-last cell
+  of every `borders="rows"` or `borders="none"` table therefore had no
+  `padding-inline-end` at all, and an `align="end"` column butted straight against
+  its neighbour. The ruled variants were unaffected, because they set the variable
+  to `0.75rem` and a unit came with it.
+
+- [#29](https://github.com/Misoto22/misoto22-design/pull/29) [`d97ad30`](https://github.com/Misoto22/misoto22-design/commit/d97ad30f35ba3be5f19dc4e50e529e0c5098e28c) Thanks [@Misoto22](https://github.com/Misoto22)! - Ten fixes from a walk over the published site.
+  
+  - `FigureBand` collapsed to two zero-width columns of overlapping text. It
+    declares `@container`, which computes its width without looking at its
+    contents — as a shrink-to-fit flex item that resolved to nothing.
+  - `CardTitle` on the reversed `plate` was ink on near-black, at 1.25:1.
+  - `ToggleGroup` stretched to whatever its flex parent was, leaving dead space
+    after the last segment. `inline-flex` does not opt out of that; `w-fit` does.
+  - Anchored panels grow from their trigger and now animate on the way out too.
+  - `Select` takes `contentClassName`, and the calendar's year list uses it: the
+    default 18rem covered the calendar the reader opened it to change.
+  - `Combobox` and `SearchableMenu` name their filter field for what it does. It
+    inherited the control's own name, so a screen reader met two comboboxes
+    called the same thing, one inside the other.
+  - New `scroll-hairline` for a bounded panel, used by the command palette.
+
 ## 0.3.0
 
 ### Minor Changes
