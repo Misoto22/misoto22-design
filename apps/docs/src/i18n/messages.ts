@@ -45,6 +45,7 @@ const en = {
     install: 'Install',
     components: 'Components',
     tailwind: 'Already using Tailwind?',
+    agents: 'Reading this as an agent?',
   },
   table: {
     prop: 'Prop',
@@ -96,6 +97,12 @@ const en = {
     navigate: 'navigate',
     open: 'open',
     close: 'close',
+  },
+  agents: {
+    note: 'This site is written twice. The pages are for people; the files below are the same content for a reader that does not render CSS — every prop with its type, the keyboard contract and the whole example source, arranged for one sequential read.',
+    index: 'The index — what the system is, and a link per component.',
+    full: 'Everything inline, in one file.',
+    perComponent: 'One component, on its own.',
   },
   themes: {
     title: 'Themes',
@@ -173,6 +180,7 @@ const zh: Messages = {
     install: '安装',
     components: '组件',
     tailwind: '已经在用 Tailwind？',
+    agents: '你是 agent 在读这一页？',
   },
   table: {
     prop: '属性',
@@ -224,6 +232,12 @@ const zh: Messages = {
     navigate: '移动',
     open: '打开',
     close: '关闭',
+  },
+  agents: {
+    note: '这个站点写了两遍。页面给人看；下面这些文件是同样的内容，写给不渲染 CSS 的读者——每个属性连同类型、键盘约定、完整示例源码，按一次顺序读排好。',
+    index: '索引——这套系统是什么，以及每个组件一条链接。',
+    full: '全部内容合成一个文件。',
+    perComponent: '单个组件，单独一份。',
   },
   themes: {
     title: '主题',
