@@ -13,6 +13,7 @@
 @import 'tailwindcss';
 @import './tokens.css';
 @import './semantic.css';
+@import './themes.css';
 @import './keyframes.css';
 
 /* Matches the site: the mode is an attribute on <html>, not a class, so the

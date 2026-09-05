@@ -1,7 +1,5 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
-
 export interface AccentOption {
   id: string
   name: string
@@ -32,42 +30,5 @@ export const ACCENTS: AccentOption[] = [
   { id: 'plum', name: 'Plum', swatch: 'var(--swatch-plum)', note: 'A darker chroma for a brand that wants presence without heat.' },
 ]
 
-const STORAGE_KEY = 'm22-accent'
-
-interface AccentContextValue {
-  accent: string
-  setAccent: (id: string) => void
-}
-
-const AccentContext = createContext<AccentContextValue>({ accent: 'ink', setAccent: () => {} })
-
-export const useAccent = () => useContext(AccentContext)
-
-/**
- * Holds the chosen accent and mirrors it onto `<html data-accent>`.
- *
- * The attribute rather than inline style, for the same reason the theme is an
- * attribute: it can be written by a script before first paint, and every rule
- * that depends on it lives in one stylesheet rather than being reconstructed
- * per element.
- */
-export function AccentProvider({ children }: { children: ReactNode }) {
-  const [accent, setState] = useState('ink')
-
-  useEffect(() => {
-    const current = document.documentElement.dataset.accent
-    if (current) setState(current)
-  }, [])
-
-  const setAccent = useCallback((id: string) => {
-    document.documentElement.dataset.accent = id
-    try {
-      localStorage.setItem(STORAGE_KEY, id)
-    } catch {
-      // A storage-blocked context still switches; it just does not remember.
-    }
-    setState(id)
-  }, [])
-
-  return <AccentContext.Provider value={{ accent, setAccent }}>{children}</AccentContext.Provider>
-}
+/** The accent is one axis of the theme; the state lives with the rest. */
+export { useAccent } from './ThemeProvider'

@@ -5,7 +5,7 @@ import { Menu, Search, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState, type ReactNode } from 'react'
-import { AccentMenu } from './AccentMenu'
+import { ThemeMenu } from './ThemeMenu'
 import { CommandPalette } from './CommandPalette'
 import { LocaleMenu } from './LocaleMenu'
 import { Sidebar } from './Sidebar'
@@ -130,7 +130,7 @@ export function DocsShell({ children }: { children: ReactNode }) {
               GitHub
             </Button>
             <LocaleMenu />
-            <AccentMenu />
+            <ThemeMenu />
             <ThemeToggle />
           </div>
         </header>

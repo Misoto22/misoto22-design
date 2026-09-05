@@ -94,7 +94,7 @@ test.describe('command palette', () => {
   })
 })
 
-test.describe('accent', () => {
+test.describe('theme', () => {
   test('re-points one token and the whole system follows', async ({ page }) => {
     await page.goto('/components/button/')
     await ready(page)
@@ -102,8 +102,8 @@ test.describe('accent', () => {
     const primary = page.getByRole('button', { name: 'Primary', exact: true }).first()
     const inkFill = await primary.evaluate((element) => getComputedStyle(element).backgroundColor)
 
-    await page.getByRole('button', { name: 'Change the accent' }).click()
-    await page.getByRole('menuitem', { name: /Cobalt/ }).click()
+    await page.getByRole('button', { name: 'Theme', exact: true }).click()
+    await page.getByRole('button', { name: 'Cobalt', exact: true }).click()
 
     await expect(page.locator('html')).toHaveAttribute('data-accent', 'cobalt')
     // The button was never told about the accent; it reads --ink, which reads
@@ -113,17 +113,68 @@ test.describe('accent', () => {
       .not.toBe(inkFill)
   })
 
+  test('changes more than the colour', async ({ page }) => {
+    await page.goto('/components/card/')
+    await ready(page)
+
+    const card = page.locator('[data-density] [class*="rounded"]').first()
+    const radius = () => card.evaluate((el) => getComputedStyle(el).borderRadius)
+    const soft = await radius()
+
+    await page.getByRole('button', { name: 'Theme', exact: true }).click()
+    // Six axes, not one. A "theme" that only moved the accent was the
+    // complaint this answers.
+    await page.getByRole('radiogroup', { name: 'Corners' }).getByRole('radio', { name: 'Sharp' }).click()
+
+    await expect(page.locator('html')).toHaveAttribute('data-radius', 'sharp')
+    await expect.poll(radius).not.toBe(soft)
+  })
+
+  test('a preset sets every axis at once, and reset clears them', async ({ page }) => {
+    await page.goto('/themes/')
+    await ready(page)
+
+    await page.getByRole('button', { name: 'Theme', exact: true }).first().click()
+    await page.getByRole('button', { name: /Console/ }).click()
+
+    const html = page.locator('html')
+    await expect(html).toHaveAttribute('data-surface', 'cool')
+    await expect(html).toHaveAttribute('data-radius', 'sharp')
+    await expect(html).toHaveAttribute('data-type', 'grotesk')
+    await expect(html).toHaveAttribute('data-density', 'compact')
+
+    await page.getByRole('button', { name: 'Reset', exact: true }).click()
+    // The default is the ABSENCE of an attribute, so a reset that merely wrote
+    // "paper" back would leave the document claiming a theme it does not have.
+    await expect(html).not.toHaveAttribute('data-surface', /.*/)
+    await expect(html).not.toHaveAttribute('data-radius', /.*/)
+  })
+
   test('survives a reload', async ({ page }) => {
     await page.goto('/')
     await ready(page)
-    await page.getByRole('button', { name: 'Change the accent' }).click()
-    await page.getByRole('menuitem', { name: /Forest/ }).click()
+    await page.getByRole('button', { name: 'Theme', exact: true }).click()
+    await page.getByRole('button', { name: 'Forest', exact: true }).click()
+    await page.getByRole('radiogroup', { name: 'Surface' }).getByRole('radio', { name: 'Warm' }).click()
     await expect(page.locator('html')).toHaveAttribute('data-accent', 'forest')
 
     await page.reload()
     // Written before first paint by the inline script, so there is no flash of
-    // the wrong accent on the way in.
+    // the wrong theme on the way in.
     await expect(page.locator('html')).toHaveAttribute('data-accent', 'forest')
+    await expect(page.locator('html')).toHaveAttribute('data-surface', 'warm')
+  })
+
+  test('the themes page draws five looks at once', async ({ page }) => {
+    await page.goto('/themes/')
+    await ready(page)
+
+    // Nothing in themes.css is anchored to :root, which is what lets five
+    // themes share one document — and is the argument the page is making.
+    const radii = await page
+      .locator('main [data-radius], main section > div.overflow-hidden')
+      .evaluateAll((els) => els.map((el) => getComputedStyle(el).borderTopLeftRadius))
+    expect(new Set(radii).size).toBeGreaterThan(1)
   })
 })
 

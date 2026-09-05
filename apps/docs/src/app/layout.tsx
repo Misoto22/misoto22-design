@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
-import { AccentProvider } from '@/components/AccentProvider'
+import { ThemeProvider } from '@/components/ThemeProvider'
 import { DocsShell } from '@/components/DocsShell'
 import { BRAND } from '@misoto22/design'
 import './globals.css'
@@ -48,6 +48,13 @@ try {
   document.documentElement.dataset.mode = stored === 'light' || stored === 'dark' ? stored : system
   var accent = localStorage.getItem('m22-accent')
   if (accent) document.documentElement.dataset.accent = accent
+  // Every other axis, restored the same way and for the same reason: a theme
+  // applied on hydration is a theme the reader watches being applied.
+  var theme = JSON.parse(localStorage.getItem('m22-theme') || '{}')
+  var defaults = { surface: 'paper', radius: 'soft', rules: 'hairline', type: 'editorial', motion: 'calm', density: 'comfortable' }
+  for (var axis in defaults) {
+    if (theme[axis] && theme[axis] !== defaults[axis]) document.documentElement.dataset[axis] = theme[axis]
+  }
 } catch (_) {
   document.documentElement.dataset.mode = 'light'
 }
@@ -66,9 +73,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body>
-        <AccentProvider>
+        <ThemeProvider>
           <DocsShell>{children}</DocsShell>
-        </AccentProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
