@@ -297,3 +297,32 @@ test('calendar: the year picker is our listbox, and the day it selects is round'
   expect(Number.parseFloat(radius)).toBeGreaterThan(8)
   await expect(day).toHaveCSS('background-color', /rgba?\((?!0, 0, 0, 0)/)
 })
+
+test('toggle group: the sliding pill lands on its segment, scaled or not', async ({ page }) => {
+  const measure = (scope: string) =>
+    page.evaluate((selector) => {
+      const group = [...document.querySelectorAll(selector)].find((element) =>
+        /Grid/.test(element.textContent ?? ''),
+      )
+      if (!group) return null
+      const pill = group.querySelector('span[aria-hidden]')!.getBoundingClientRect()
+      const segment = group.querySelector('[role="radio"]')!.getBoundingClientRect()
+      return {
+        dx: Math.round(pill.left - segment.left),
+        dy: Math.round(pill.top - segment.top),
+        dw: Math.round(pill.width - segment.width),
+      }
+    }, scope)
+
+  await page.goto('/components/toggle-group/')
+  await ready(page)
+  expect(await measure('[data-density] [role="radiogroup"]')).toEqual({ dx: 0, dy: 0, dw: 0 })
+
+  // And inside the zoomed thumbnails on the index. The indicator used to
+  // measure with getBoundingClientRect, which reports VISUAL pixels — so in any
+  // scaled or zoomed container the pill landed short by the scale factor while
+  // looking perfectly fine everywhere else.
+  await page.goto('/components/')
+  await expect(page.locator('[inert] [role="radiogroup"]').first()).toBeVisible()
+  expect(await measure('[inert] [role="radiogroup"]')).toEqual({ dx: 0, dy: 0, dw: 0 })
+})
