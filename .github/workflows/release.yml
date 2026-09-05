@@ -62,10 +62,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Say what happened
+      # The action decides whether anything shipped by PARSING the publish CLI's
+      # human-readable output, and does not recognise this CLI version's
+      # wording — so after a successful publish it reported nothing and pushed
+      # no tags. Read the fact instead of a parse of it: `changeset tag` creates
+      # a tag per package at whatever version package.json now holds, and skips
+      # any that already exist, so this is idempotent on every other push.
+      - name: Tag what was published
         run: |
-          if [ "${{ steps.changesets.outputs.published }}" = "true" ]; then
-            echo "published: ${{ steps.changesets.outputs.publishedPackages }}"
-          else
-            echo "nothing to publish; a version PR is open if changesets were pending"
-          fi
+          set -euo pipefail
+          pnpm exec changeset tag
+          git push origin --tags
+          echo "version: $(node -p "require('./packages/design/package.json').version")"

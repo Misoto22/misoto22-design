@@ -51,6 +51,17 @@ repository, drop the `registry` line from the package's `publishConfig`, and
 add a second `setup-node` step with `registry-url: https://registry.npmjs.org`.
 Do that when someone outside these repositories needs to install it.
 
+## Tags
+
+`changesets/action` decides whether anything shipped by parsing the publish
+CLI's human-readable output, and does not recognise the current CLI's wording —
+so after a successful publish it reports nothing and pushes no tags. The
+workflow therefore runs `changeset tag` itself, which reads the version out of
+`package.json` rather than out of a log line, and skips tags that already exist.
+
+If a release ever appears on the registry with no matching tag, that step is
+where to look.
+
 ## Pre-1.0
 
 Below `1.0.0`, SemVer's guarantees are weaker by convention: a `minor` may
