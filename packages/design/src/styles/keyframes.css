@@ -152,6 +152,26 @@
   }
 }
 
+/* The same idea for a lone disclosure. Radix publishes the measured height as
+   --radix-collapsible-content-height. */
+@keyframes m22-collapsible-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+  }
+}
+
+@keyframes m22-collapsible-up {
+  from {
+    height: var(--radix-collapsible-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
 /* One place, not per-component. A user who has asked for less motion gets the
    end state immediately rather than a faster version of the same move. */
 @media (prefers-reduced-motion: reduce) {

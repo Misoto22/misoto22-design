@@ -1,4 +1,4 @@
-import { Inbox, Settings, Trash2 } from 'lucide-react'
+import { Copy, Inbox, Settings, Trash2 } from 'lucide-react'
 import type { ReactElement } from 'react'
 import {
   Accordion,
@@ -9,12 +9,26 @@ import {
   Badge,
   Breadcrumb,
   Button,
+  Calendar,
   Card,
   CardBody,
   CardFooter,
   CardHeader,
   CardTitle,
   Checkbox,
+  CollapsibleSection,
+  Combobox,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  DatePicker,
   Dialog,
   DialogContent,
   DialogTrigger,
@@ -35,11 +49,19 @@ import {
   LinkArrow,
   NavItem,
   Pagination,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Progress,
   RadioGroup,
   RadioGroupItem,
+  ScrollArea,
   Select,
   Separator,
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  Slider,
   SkeletonBlock,
   SkeletonLine,
   SkeletonPage,
@@ -59,6 +81,8 @@ import {
   TabsTrigger,
   Tag,
   Textarea,
+  ToggleGroup,
+  ToggleGroupItem,
   Toaster,
   Tooltip,
   TooltipProvider,
@@ -224,6 +248,75 @@ export const SURFACE: SurfaceEntry[] = [
   { dir: 'Tag', render: () => <Tag>TypeScript</Tag> },
   { dir: 'Textarea', render: () => <Field label="Notes"><Textarea rows={3} /></Field> },
   { dir: 'Toast', render: () => <Toaster /> },
+  { dir: 'Calendar', render: () => <Calendar mode="single" defaultMonth={new Date(2026, 0, 1)} /> },
+  { dir: 'Collapsible', render: () => (
+    <CollapsibleSection title="Advanced settings">
+      <p>Nothing here needs changing.</p>
+    </CollapsibleSection>
+  ) },
+  { dir: 'Combobox', render: () => (
+    <Combobox
+      label="Framework"
+      options={[
+        { value: 'next', label: 'Next.js' },
+        { value: 'remix', label: 'Remix' },
+      ]}
+    />
+  ) },
+  { dir: 'Command', render: () => (
+    <Command label="Command palette">
+      <CommandInput placeholder="Type a command…" />
+      <CommandList>
+        <CommandEmpty>Nothing matches.</CommandEmpty>
+        <CommandGroup heading="Navigate">
+          <CommandItem value="components" shortcut="C">Components</CommandItem>
+          <CommandItem value="principles">Principles</CommandItem>
+        </CommandGroup>
+      </CommandList>
+    </Command>
+  ) },
+  { dir: 'ContextMenu', render: () => (
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        <div>Right-click me</div>
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuItem icon={Copy}>Copy</ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
+  ) },
+  { dir: 'DatePicker', render: () => <DatePicker label="Publish on" /> },
+  { dir: 'Popover', opensWith: 'Filters', render: () => (
+    <Popover>
+      <PopoverTrigger asChild><Button variant="secondary">Filters</Button></PopoverTrigger>
+      <PopoverContent label="Filters">
+        <Field label="Status"><Input /></Field>
+      </PopoverContent>
+    </Popover>
+  ) },
+  { dir: 'ScrollArea', render: () => (
+    <ScrollArea label="Deploy log" className="h-24 w-64">
+      <p>a1b2c3d deployed</p>
+      <p>9f8e7d6 deployed</p>
+    </ScrollArea>
+  ) },
+  { dir: 'Sheet', opensWith: 'Open filters', render: () => (
+    <Sheet>
+      <SheetTrigger asChild><Button variant="secondary">Open filters</Button></SheetTrigger>
+      <SheetContent title="Filters" description="Narrow the list.">
+        <Field label="Status"><Input /></Field>
+      </SheetContent>
+    </Sheet>
+  ) },
+  { dir: 'Slider', render: () => (
+    <Slider label="Quality" defaultValue={[80]} max={100} step={5} showValue />
+  ) },
+  { dir: 'ToggleGroup', render: () => (
+    <ToggleGroup type="single" defaultValue="grid" aria-label="Layout">
+      <ToggleGroupItem value="grid">Grid</ToggleGroupItem>
+      <ToggleGroupItem value="list">List</ToggleGroupItem>
+    </ToggleGroup>
+  ) },
   { dir: 'Tooltip', opensWith: 'Copy', render: () => (
     <TooltipProvider>
       <Tooltip content="Copy to clipboard">

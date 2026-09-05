@@ -13,7 +13,7 @@ A pnpm monorepo, two workspaces:
 
 | Path | What it is |
 |---|---|
-| `packages/design` | `@misoto22/design` — the tokens and 36 React primitives |
+| `packages/design` | `@misoto22/design` — the tokens and 47 React primitives |
 | `apps/docs` | the documentation site, statically exported to Cloudflare Pages |
 
 ## Install
@@ -85,10 +85,11 @@ one.
   light value, dark value, category and the comment that explains it, as JSON
   and as a typed module. For a Figma sync, a native app, a script: anything that
   needs the values and cannot read a stylesheet.
-- **Components** — 36 primitives styled with Tailwind's arbitrary-property
+- **Components** — 47 primitives styled with Tailwind's arbitrary-property
   syntax against the tokens. Radix underneath wherever behaviour is involved,
-  lucide for icons, sonner for toasts, and clsx + tailwind-merge so a caller's
-  `className` actually wins. No router, no state library, no CSS-in-JS.
+  cmdk for the combobox pattern, react-day-picker for the calendar, lucide for
+  icons, sonner for toasts, and clsx + tailwind-merge so a caller's `className`
+  actually wins. No router, no state library, no CSS-in-JS.
 
 ## Develop
 

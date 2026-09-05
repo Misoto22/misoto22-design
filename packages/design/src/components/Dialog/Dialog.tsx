@@ -11,10 +11,18 @@ export const DialogTrigger = DialogPrimitive.Trigger
 export const DialogClose = DialogPrimitive.Close
 
 /** Title + description stack; renders nothing when both are omitted. */
-function DialogHeader({ title, description }: { title?: ReactNode; description?: ReactNode }) {
+function DialogHeader({
+  title,
+  description,
+  hidden,
+}: {
+  title?: ReactNode
+  description?: ReactNode
+  hidden: boolean
+}) {
   if (title === undefined && description === undefined) return null
   return (
-    <div className="mb-4 flex flex-col gap-1 pe-8">
+    <div className={cn('mb-4 flex flex-col gap-1 pe-8', hidden && 'sr-only')}>
       {title !== undefined && (
         <DialogPrimitive.Title className="m-0 font-heading text-[length:var(--fs-item)] font-normal text-(--ink)">
           {title}
@@ -38,6 +46,15 @@ export interface DialogContentProps
   className?: string
   /** Show the top-right close control (default true). */
   showClose?: boolean
+  /**
+   * Keeps the title for assistive tech and hides it visually.
+   *
+   * For a surface whose purpose is obvious to anyone who can see it — a command
+   * palette, a media lightbox — where a printed heading would be furniture. The
+   * title itself is never optional: Radix requires one, and a modal with no
+   * accessible name drops a screen reader into an unnamed region.
+   */
+  hideTitle?: boolean
 }
 
 /**
@@ -65,6 +82,7 @@ export function DialogContent({
   children,
   className,
   showClose = true,
+  hideTitle = false,
   ...rest
 }: DialogContentProps) {
   return (
@@ -82,7 +100,7 @@ export function DialogContent({
         )}
         {...rest}
       >
-        <DialogHeader title={title} description={description} />
+        <DialogHeader title={title} description={description} hidden={hideTitle} />
 
         {title === undefined && (
           <DialogPrimitive.Title className="sr-only">Dialog</DialogPrimitive.Title>

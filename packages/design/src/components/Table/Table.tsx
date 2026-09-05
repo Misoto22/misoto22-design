@@ -1,3 +1,4 @@
+import { ArrowDown, ArrowUp, ChevronsUpDown } from 'lucide-react'
 import type { HTMLAttributes, TableHTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from 'react'
 import { cn } from '../../lib/cn'
 
@@ -10,6 +11,11 @@ export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
   caption: string
   /** Prints the caption instead of hiding it. */
   showCaption?: boolean
+  /**
+   * Pins the header row while the body scrolls. Needs a bounded height on the
+   * container — otherwise the page scrolls, not the table, and nothing sticks.
+   */
+  stickyHeader?: boolean
 }
 
 /**
@@ -36,7 +42,14 @@ export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
  *   <TBody><TR><TD>a1b2c3d</TD><TD align="right">2m 14s</TD></TR></TBody>
  * </Table>
  */
-export function Table({ caption, showCaption = false, className, children, ...rest }: TableProps) {
+export function Table({
+  caption,
+  showCaption = false,
+  stickyHeader = false,
+  className,
+  children,
+  ...rest
+}: TableProps) {
   return (
     <div
       tabIndex={0}
@@ -45,7 +58,11 @@ export function Table({ caption, showCaption = false, className, children, ...re
       className="w-full overflow-x-auto scroll-slim"
     >
       <table
-        className={cn('w-full border-collapse text-start text-sm', className)}
+        className={cn(
+          'w-full border-collapse text-start text-sm',
+          stickyHeader && '[&_thead]:sticky [&_thead]:top-0 [&_thead]:z-(--z-rule) [&_thead]:bg-(--paper)',
+          className,
+        )}
         {...rest}
       >
         <caption
@@ -74,14 +91,63 @@ export function TR({ className, ...rest }: HTMLAttributes<HTMLTableRowElement>) 
   return <tr className={cn('border-b border-(--rule) last:border-b-0', className)} {...rest} />
 }
 
-/** A column label. Mono and uppercase, so it never reads as data. */
-export function TH({ className, ...rest }: ThHTMLAttributes<HTMLTableCellElement>) {
+export type SortDirection = 'ascending' | 'descending' | 'none'
+
+export interface THProps extends ThHTMLAttributes<HTMLTableCellElement> {
+  /** Makes the label a button and shows the sort marker. */
+  sortable?: boolean
+  /**
+   * Which way this column is sorted. Also set as `aria-sort`, which is the
+   * only way a screen reader learns a table is ordered at all — a caret drawn
+   * in the header tells it nothing.
+   */
+  sortDirection?: SortDirection
+  onSort?: () => void
+}
+
+const SORT_ICON = {
+  ascending: ArrowUp,
+  descending: ArrowDown,
+  none: ChevronsUpDown,
+} as const
+
+/**
+ * A column label. Mono and uppercase, so it never reads as data.
+ *
+ * When sortable, the label becomes a `<button>` INSIDE the `<th>` rather than
+ * the `<th>` becoming clickable: a cell with a click handler is not focusable
+ * and not announced as a control, so the sort exists only for a mouse.
+ */
+export function TH({ sortable = false, sortDirection = 'none', onSort, className, children, ...rest }: THProps) {
+  const Icon = SORT_ICON[sortDirection]
   return (
     <th
       scope="col"
+      aria-sort={sortable ? sortDirection : undefined}
       className={cn('py-3 pe-6 last:pe-0 align-bottom eyebrow text-(--ink-3-aa)', className)}
       {...rest}
-    />
+    >
+      {sortable ? (
+        <button
+          type="button"
+          onClick={onSort}
+          className="group inline-flex items-center gap-1.5 eyebrow text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:text-(--ink) aria-[sort]:text-(--ink)"
+        >
+          {children}
+          <Icon
+            size={12}
+            strokeWidth={2}
+            aria-hidden
+            className={cn(
+              'shrink-0 transition-opacity',
+              sortDirection === 'none' && 'opacity-40 group-hover:opacity-100',
+            )}
+          />
+        </button>
+      ) : (
+        children
+      )}
+    </th>
   )
 }
 
