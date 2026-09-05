@@ -2,10 +2,10 @@ import type { Metadata } from 'next'
 import { Principles } from '@/views/Principles'
 
 export const metadata: Metadata = {
-  title: 'Principles',
-  description: 'The eight rules the White Reset is built on, and what each one rules out.',
+  title: '设计原则',
+  description: '白色重置建立在哪八条规则上，以及每一条排除了什么。',
 }
 
 export default function Page() {
-  return <Principles locale="en" />
+  return <Principles locale="zh" />
 }

@@ -4,6 +4,7 @@ import { Button, cn } from '@misoto22/design'
 import { Code2, Eye, Pencil } from 'lucide-react'
 import { lazy, Suspense, useState } from 'react'
 import { EXAMPLES } from '@/generated/example-registry'
+import { useMessages } from '@/i18n/useLocale'
 import { CodeBlock } from './CodeBlock'
 
 /**
@@ -53,6 +54,7 @@ export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: Exam
   const [view, setView] = useState<View>('preview')
   const [direction, setDirection] = useState<Direction>('ltr')
   const [density, setDensity] = useState<Density>('comfortable')
+  const t = useMessages()
   const Example = EXAMPLES[exampleKey]
 
   if (!Example) {
@@ -70,7 +72,7 @@ export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: Exam
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-(--rule) bg-(--paper-2) px-2 py-1.5">
         <div className="flex items-center gap-1">
           <Toggle
-            label="Text direction"
+            label={t.canvas.direction}
             options={[
               { value: 'ltr', label: 'LTR' },
               { value: 'rtl', label: 'RTL' },
@@ -79,10 +81,10 @@ export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: Exam
             onChange={setDirection}
           />
           <Toggle
-            label="Density"
+            label={t.canvas.density}
             options={[
-              { value: 'comfortable', label: 'Comfortable' },
-              { value: 'compact', label: 'Compact' },
+              { value: 'comfortable', label: t.canvas.comfortable },
+              { value: 'compact', label: t.canvas.compact },
             ]}
             value={density}
             onChange={setDensity}
@@ -101,7 +103,7 @@ export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: Exam
             ) : (
               <Code2 size={14} strokeWidth={1.5} aria-hidden />
             )}
-            {view === 'code' ? 'Preview' : 'Code'}
+            {view === 'code' ? t.canvas.preview : t.canvas.code}
           </Button>
           <Button
             size="sm"
@@ -111,7 +113,7 @@ export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: Exam
             className="gap-2"
           >
             <Pencil size={14} strokeWidth={1.5} aria-hidden />
-            {view === 'edit' ? 'Done' : 'Edit'}
+            {view === 'edit' ? t.canvas.done : t.canvas.edit}
           </Button>
         </div>
       </div>

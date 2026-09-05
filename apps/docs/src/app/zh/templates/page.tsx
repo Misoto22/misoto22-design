@@ -2,10 +2,10 @@ import type { Metadata } from 'next'
 import { TemplatesIndex } from '@/views/TemplatesIndex'
 
 export const metadata: Metadata = {
-  title: 'Templates',
-  description: 'Whole screens assembled from the set, at two opposite densities.',
+  title: '模板',
+  description: '用这套组件搭出来的完整界面，两种相反的密度。',
 }
 
 export default function Page() {
-  return <TemplatesIndex locale="en" />
+  return <TemplatesIndex locale="zh" />
 }

@@ -15,10 +15,10 @@ export async function generateMetadata({
   const { slug } = await params
   const entry = FOUNDATION_BY_SLUG.get(slug)
   if (!entry) return {}
-  return { title: foundationCopy('en', slug).title ?? entry.title, description: foundationCopy('en', slug).summary ?? entry.summary }
+  return { title: foundationCopy('zh', slug).title ?? entry.title, description: foundationCopy('zh', slug).summary ?? entry.summary }
 }
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  return <FoundationPage locale="en" slug={slug} />
+  return <FoundationPage locale="zh" slug={slug} />
 }

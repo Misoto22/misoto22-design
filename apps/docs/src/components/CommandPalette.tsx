@@ -14,6 +14,9 @@ import { useEffect, useState } from 'react'
 import { ACCENTS, useAccent } from './AccentProvider'
 import { FOUNDATIONS } from '@/content/foundations'
 import { COMPONENTS, groupedComponents } from '@/content/registry'
+import { componentCopy, foundationCopy, groupName } from '@/i18n/content'
+import { localePath } from '@/i18n/locales'
+import { useLocale, useMessages } from '@/i18n/useLocale'
 
 /**
  * ⌘K, on every page.
@@ -30,6 +33,8 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false)
   const router = useRouter()
   const { accent, setAccent } = useAccent()
+  const locale = useLocale()
+  const t = useMessages()
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -46,30 +51,30 @@ export function CommandPalette() {
 
   const go = (href: string) => {
     setOpen(false)
-    router.push(href)
+    router.push(localePath(locale, href))
   }
 
   return (
-    <CommandDialog open={open} onOpenChange={setOpen} label="Command palette">
-      <CommandInput placeholder="Jump to a component, a page, or change the theme…" />
+    <CommandDialog open={open} onOpenChange={setOpen} label={t.palette.label}>
+      <CommandInput placeholder={t.palette.placeholder} />
       <CommandList>
-        <CommandEmpty>Nothing matches that.</CommandEmpty>
+        <CommandEmpty>{t.palette.empty}</CommandEmpty>
 
-        <CommandGroup heading="Go to">
+        <CommandGroup heading={t.palette.goTo}>
           <CommandItem value="overview" onSelect={() => go('/')}>
-            Overview
+            {t.nav.overview}
           </CommandItem>
           <CommandItem value="principles" onSelect={() => go('/principles/')}>
-            Principles
+            {t.nav.principles}
           </CommandItem>
           <CommandItem value="components index" onSelect={() => go('/components/')}>
-            All components
+            {t.nav.allComponents}
           </CommandItem>
           <CommandItem value="templates" onSelect={() => go('/templates/')}>
-            Templates
+            {t.nav.templates}
           </CommandItem>
           <CommandItem value="changelog" onSelect={() => go('/changelog/')}>
-            Changelog
+            {t.nav.changelog}
           </CommandItem>
           {FOUNDATIONS.map((page) => (
             <CommandItem
@@ -77,7 +82,7 @@ export function CommandPalette() {
               value={`foundations ${page.title}`}
               onSelect={() => go(`/foundations/${page.slug}/`)}
             >
-              {page.title}
+              {foundationCopy(locale, page.slug).title ?? page.title}
             </CommandItem>
           ))}
         </CommandGroup>
@@ -85,7 +90,7 @@ export function CommandPalette() {
         <CommandSeparator />
 
         {groupedComponents().map((section) => (
-          <CommandGroup key={section.group} heading={section.group}>
+          <CommandGroup key={section.group} heading={groupName(locale, section.group)}>
             {section.entries.map((entry) => (
               <CommandItem
                 key={entry.slug}
@@ -93,7 +98,13 @@ export function CommandPalette() {
                 // palette that prints a sentence per option stops being
                 // scannable at about six of them.
                 value={entry.name}
-                keywords={[entry.summary, entry.group, entry.dir]}
+                keywords={[
+                  entry.summary,
+                  componentCopy(locale, entry.slug).summary ?? '',
+                  entry.group,
+                  groupName(locale, entry.group),
+                  entry.dir,
+                ]}
                 onSelect={() => go(`/components/${entry.slug}/`)}
               >
                 {entry.name}
@@ -104,7 +115,7 @@ export function CommandPalette() {
 
         <CommandSeparator />
 
-        <CommandGroup heading="Appearance">
+        <CommandGroup heading={t.palette.appearance}>
           <CommandItem
             value="toggle theme light dark"
             onSelect={() => {
@@ -118,7 +129,7 @@ export function CommandPalette() {
               setOpen(false)
             }}
           >
-            Toggle light / dark
+            {t.palette.toggleTheme}
           </CommandItem>
           {ACCENTS.map((option) => (
             <CommandItem
@@ -129,9 +140,9 @@ export function CommandPalette() {
                 setOpen(false)
               }}
             >
-              Accent: {option.name}
+              {t.appearance.accentTitle}: {option.name}
               {accent === option.id && (
-                <span className="ms-auto mono-meta text-(--ink-3-aa)">current</span>
+                <span className="ms-auto mono-meta text-(--ink-3-aa)">{t.appearance.current}</span>
               )}
             </CommandItem>
           ))}
