@@ -5,7 +5,8 @@ and photography. The ground is paper-white, the mark is near-black, and the only
 chroma left in the file is status, which is bound to state and never to brand.
 
 📐 **[ui.misoto22.com](https://ui.misoto22.com)** — the component gallery, the
-foundations, and the principles.
+foundations, the principles and the templates. Also in Chinese, at
+[/zh](https://ui.misoto22.com/zh/).
 
 ## Layout
 
@@ -118,6 +119,21 @@ checked" is a property the build enforces rather than a claim to audit.
 The docs site reads the package from `packages/design/dist`, so run
 `pnpm build:design` after changing a component before `pnpm dev` picks it up.
 Its Tailwind compiles from the package's *source*, so styling changes are live.
+
+### Two languages
+
+English has no prefix and Chinese sits under `/zh`, the same shape
+misoto22.com uses — and the same reason: the English URLs were linked before
+Chinese existed, and a scheme that moves them all to `/en/…` breaks them for
+nothing.
+
+The **editorial** layer is translated: group names, component summaries, the
+"when to reach for it" note, the foundations prose, the principles, the
+templates. The **API reference** is not — prop descriptions, notes and type
+signatures are parsed from the package's own source, and translating them would
+be a second copy that drifts on the first doc-comment edit. The Chinese pages
+say so in a line rather than leaving a reader to wonder, and anything missing
+falls back to English rather than rendering blank.
 
 ### Nothing about the library is written twice
 
