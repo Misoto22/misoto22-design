@@ -28,6 +28,10 @@ function CalendarDropdown({ options, value, onChange, 'aria-label': label }: Dro
       onValueChange={(next) =>
         onChange?.({ target: { value: next } } as React.ChangeEvent<HTMLSelectElement>)
       }
+      // A third of the calendar's height. The default list is as tall as the
+      // month grid, so opening the year picker blotted out the thing the reader
+      // opened it in order to change.
+      contentClassName="max-h-[10rem]"
       className="h-8 w-auto min-w-24 gap-1.5 border-transparent px-2 py-1 font-heading text-[length:var(--fs-item)] hover:border-(--rule-2)"
     >
       {(options ?? []).map((option) => (

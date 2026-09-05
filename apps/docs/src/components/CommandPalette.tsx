@@ -20,6 +20,7 @@ import {
   LayoutTemplate,
   Move,
   Palette,
+  SwatchBook,
   Ruler,
   Scale,
   SunMoon,
@@ -30,7 +31,8 @@ import { useEffect, useState } from 'react'
 import { ACCENTS, useAccent } from './AccentProvider'
 import { FOUNDATIONS } from '@/content/foundations'
 import { COMPONENTS } from '@/content/registry'
-import { componentCopy, foundationCopy, groupName } from '@/i18n/content'
+import { SEARCH_TERMS } from '@/content/haystack'
+import { foundationCopy, groupName } from '@/i18n/content'
 import { localePath } from '@/i18n/locales'
 import { useLocale, useMessages } from '@/i18n/useLocale'
 
@@ -106,7 +108,7 @@ export function CommandPalette() {
           <CommandItem value="templates" icon={<LayoutTemplate />} onSelect={() => go('/templates/')}>
             {t.nav.templates}
           </CommandItem>
-          <CommandItem value="themes" icon={<Palette />} onSelect={() => go('/themes/')}>
+          <CommandItem value="themes" icon={<SwatchBook />} onSelect={() => go('/themes/')}>
             {t.themes.title}
           </CommandItem>
           <CommandItem value="changelog" icon={<History />} onSelect={() => go('/changelog/')}>
@@ -126,8 +128,6 @@ export function CommandPalette() {
             )
           })}
         </CommandGroup>
-
-        <CommandSeparator />
 
         <CommandSeparator />
 
@@ -184,12 +184,12 @@ export function CommandPalette() {
               // The summary is searchable but not printed: a palette that shows
               // a sentence per option stops being scannable at about six.
               value={entry.name}
+              // Prop names, types, descriptions and keyboard keys, not just the
+              // title — the reach the sidebar's own filter used to have, moved
+              // here when that second search box was removed.
               keywords={[
-                entry.summary,
-                componentCopy(locale, entry.slug).summary ?? '',
-                entry.group,
+                ...(SEARCH_TERMS.get(entry.slug) ?? []),
                 groupName(locale, entry.group),
-                entry.dir,
               ]}
               icon={<Box />}
               // The group again on the row, because a filtered list has no

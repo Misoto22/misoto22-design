@@ -23,6 +23,36 @@
   }
 }
 
+/* An ANCHORED panel arriving, growing from wherever its trigger is.
+   Radix puts that point on the wrapper as --radix-popper-transform-origin; the
+   call site passes it down. Origin is what makes this read as an animation
+   rather than as a flicker: four pixels of travel over 130ms is technically
+   motion and perceptually nothing, which is what "the menu has no animation"
+   turned out to mean. */
+@keyframes m22-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* And leaving. A panel that vanishes on the frame the pointer lands elsewhere
+   reads as a bug in the page rather than as a thing that closed. */
+@keyframes m22-pop-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.97) translateY(-2px);
+  }
+}
+
 /* A page arriving. Longer travel than a panel, because more of the view is
    being replaced. */
 @keyframes m22-route-in {

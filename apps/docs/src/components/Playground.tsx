@@ -16,7 +16,18 @@ import { LiveEditor, LiveError, LivePreview, LiveProvider } from 'react-live'
  * reason: a snippet that has to be import-complete to run is a snippet nobody
  * edits.
  */
-const SCOPE = { ...Design, ...Icons }
+const SCOPE = { ...Icons, ...Design }
+
+/**
+ * The package spreads LAST, and it matters.
+ *
+ * lucide ships icons called `Badge`, `Table`, `Command`, `Dialog` and more, so
+ * with icons last a reader who edited the Badge example and typed `<Badge>`
+ * got the icon — a small grey outline where a badge should be, with no error
+ * to explain it. The playground belongs to the package, so the package wins
+ * every collision.
+ */
+export const SHADOWED_ICONS = Object.keys(Icons).filter((name) => name in Design)
 
 export interface PlaygroundProps {
   /** The snippet, exactly as the code block shows it. */
@@ -75,7 +86,12 @@ export function Playground({ code, className }: PlaygroundProps) {
   return (
     <LiveProvider code={source} scope={SCOPE} noInline={false}>
       <div className={cn('flex flex-col', className)}>
-        <div className="flex min-h-32 items-center justify-center border-b border-(--rule) p-8">
+        {/* Named, because the editor below shows the same words: without a
+            handle there is no way to ask whether the RENDERED half followed. */}
+        <div
+          data-playground-preview
+          className="flex min-h-32 items-center justify-center border-b border-(--rule) p-8"
+        >
           <LivePreview />
         </div>
         <div ref={editorRef}>

@@ -1,7 +1,7 @@
 'use client'
 
-import { Button, Kbd, Separator, TooltipProvider } from '@misoto22/design'
-import { Menu, Search, X } from 'lucide-react'
+import { Button, Kbd, TooltipProvider } from '@misoto22/design'
+import { Menu, PanelLeftClose, PanelLeftOpen, Search, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState, type ReactNode } from 'react'
@@ -26,6 +26,25 @@ import { useLocale, useMessages } from '@/i18n/useLocale'
  */
 export function DocsShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
+  // Desktop only. `true` until told otherwise, and remembered afterwards: a
+  // reader who put the sidebar away did not mean "until the next page".
+  const [docked, setDocked] = useState(true)
+
+  useEffect(() => {
+    try {
+      setDocked(localStorage.getItem('m22-sidebar') !== 'closed')
+    } catch {
+      // A storage-blocked context just starts docked every time.
+    }
+  }, [])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('m22-sidebar', docked ? 'open' : 'closed')
+    } catch {
+      // Same.
+    }
+  }, [docked])
   const pathname = usePathname()
   const locale = useLocale()
   const t = useMessages()
@@ -64,13 +83,19 @@ export function DocsShell({ children }: { children: ReactNode }) {
       <aside
         id="docs-sidebar"
         aria-label={t.nav.sidebar}
-        className={`fixed inset-y-0 left-0 z-(--z-modal) flex w-[17rem] flex-col gap-5 border-r border-(--rule) bg-(--paper) px-4 py-5 transition-transform duration-(--duration-slow) ease-(--ease-out-expo) ${
+        className={`fixed inset-y-0 left-0 z-(--z-modal) flex w-[17rem] flex-col border-r border-(--rule) bg-(--paper) transition-transform duration-(--duration-slow) ease-(--ease-out-expo) ${
           open ? 'translate-x-0' : '-translate-x-full'
-        } lg:sticky lg:top-0 lg:z-auto lg:h-svh lg:translate-x-0`}
+        } lg:sticky lg:top-0 lg:z-auto lg:h-svh lg:translate-x-0 ${docked ? '' : 'lg:hidden'}`}
       >
-        <div className="flex items-center justify-between gap-2 px-1">
-          <Link href={localePath(locale, '/')} className="flex flex-col leading-tight">
-            <span className="font-heading text-[19px] text-(--ink)">misoto22 design</span>
+        {/* The same 3.5rem as the header beside it, and its own bottom rule, so
+            the two run as one line across the page. They used to be a
+            content-height block against a fixed-height bar, and the rules did
+            not meet. */}
+        <div className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-(--rule) px-4">
+          <Link href={localePath(locale, '/')} className="flex flex-col leading-none">
+            <span className="font-heading text-[17px] leading-tight text-(--ink)">
+              misoto22 design
+            </span>
             <span className="mono-meta text-(--ink-3-aa)">{t.tagline}</span>
           </Link>
           <Button
@@ -83,15 +108,24 @@ export function DocsShell({ children }: { children: ReactNode }) {
           >
             <X size={16} strokeWidth={1.5} aria-hidden />
           </Button>
+          <Button
+            iconOnly
+            size="sm"
+            variant="ghost"
+            className="max-lg:hidden"
+            aria-label={t.nav.collapseNav}
+            onClick={() => setDocked(false)}
+          >
+            <PanelLeftClose size={16} strokeWidth={1.5} aria-hidden />
+          </Button>
         </div>
-        <Separator />
-        <div className="min-h-0 flex-1">
+        <div className="min-h-0 flex-1 px-4 pt-4">
           <Sidebar onNavigate={() => setOpen(false)} />
         </div>
       </aside>
 
       <div className="flex min-w-0 flex-col">
-        <header className="sticky top-0 z-(--z-sticky) flex h-14 items-center justify-between gap-3 border-b border-(--rule) bg-(--paper)/85 px-5 backdrop-blur lg:justify-end">
+        <header className="sticky top-0 z-(--z-sticky) flex h-14 items-center justify-between gap-3 border-b border-(--rule) bg-(--paper)/85 px-5 backdrop-blur">
           <Button
             iconOnly
             size="sm"
@@ -104,6 +138,17 @@ export function DocsShell({ children }: { children: ReactNode }) {
           >
             <Menu size={18} strokeWidth={1.5} aria-hidden />
           </Button>
+          <Button
+            iconOnly
+            size="sm"
+            variant="ghost"
+            className={docked ? 'hidden' : 'max-lg:hidden'}
+            aria-label={t.nav.expandNav}
+            onClick={() => setDocked(true)}
+          >
+            <PanelLeftOpen size={16} strokeWidth={1.5} aria-hidden />
+          </Button>
+          <div className="flex-1" />
           <div className="flex items-center gap-1">
             {/* A visible way in, because a shortcut nobody is told about is a
                 shortcut for the person who built it. */}

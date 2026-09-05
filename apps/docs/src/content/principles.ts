@@ -4,6 +4,23 @@
  * They live here rather than inside the page that prints them because they are
  * also published as text for agents, and a second copy of a law is a second law.
  */
+/**
+ * The primitives the laws were written against — the first scaffold, before
+ * the library grew.
+ *
+ * The demonstrations on the principles page are built only from these. A law
+ * illustrated with a component that was added later to satisfy it proves
+ * nothing: the argument is that these rules were derivable from the original
+ * set, and the page should be able to show that with the original set.
+ *
+ * `principles.test.ts` fails if a name here is no longer in the registry.
+ */
+export const ORIGINAL_SET = [
+  'AppShell', 'Badge', 'Button', 'Card', 'Checkbox', 'Dialog', 'DropdownMenu',
+  'EmptyState', 'ErrorState', 'Field', 'Input', 'NavItem', 'Select', 'Spinner',
+  'StatusDot', 'StatusPill', 'Switch', 'Tabs', 'Tag', 'Textarea', 'Toast',
+] as const
+
 export interface Law {
   /** Two digits, because the page numbers them and a law is cited by number. */
   n: string

@@ -144,11 +144,20 @@ export const SURFACE: SurfaceEntry[] = [
   ) },
   { dir: 'Button', render: () => <Button keycap="P">View projects</Button> },
   { dir: 'Card', render: () => (
-    <Card>
-      <CardHeader><CardTitle>Recent deploys</CardTitle><Badge>12</Badge></CardHeader>
-      <CardBody>Twelve releases, none rolled back.</CardBody>
-      <CardFooter>Updated just now</CardFooter>
-    </Card>
+    <>
+      <Card>
+        <CardHeader><CardTitle>Recent deploys</CardTitle><Badge>12</Badge></CardHeader>
+        <CardBody>Twelve releases, none rolled back.</CardBody>
+        <CardFooter>Updated just now</CardFooter>
+      </Card>
+      {/* The reversed plate WITH a title. Without one here the variant whose
+          whole job is to invert the ground was only ever checked without the
+          element that had hardcoded the un-inverted colour. */}
+      <Card variant="plate">
+        <CardHeader><CardTitle>The reversed plate</CardTitle></CardHeader>
+        <CardBody>One per screen.</CardBody>
+      </Card>
+    </>
   ) },
   { dir: 'Checkbox', render: () => (
     <label><Checkbox defaultChecked /> Ship on merge</label>

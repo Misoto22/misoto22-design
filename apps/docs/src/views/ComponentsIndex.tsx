@@ -5,6 +5,14 @@ import { Badge, Card, CardBody, CardTitle } from '@misoto22/design'
 import Link from 'next/link'
 import { PageIntro, SectionHeading } from '@/components/PageIntro'
 import { COMPONENTS, groupedComponents } from '@/content/registry'
+import { ComponentThumb } from '@/components/ComponentThumb'
+import { componentExamples } from '@/lib/docs'
+
+/** The key of a component's first example, or nothing if it has none. */
+function first(dir: string): string | undefined {
+  const example = componentExamples(dir)[0]
+  return example ? `${dir}/${example.id}` : undefined
+}
 
 export function ComponentsIndex({ locale }: { locale: Locale }) {
   const sections = groupedComponents()
@@ -38,8 +46,9 @@ export function ComponentsIndex({ locale }: { locale: Locale }) {
                 href={localePath(locale, `/components/${entry.slug}/`)}
                 className="group block h-full"
               >
-                <Card className="h-full transition-colors duration-(--duration-fast) group-hover:border-(--rule-hard)">
+                <Card className="h-full overflow-hidden transition-colors duration-(--duration-fast) group-hover:border-(--rule-hard)">
                   <CardBody className="flex h-full flex-col gap-2">
+                    {first(entry.dir) && <ComponentThumb exampleKey={first(entry.dir)!} />}
                     <CardTitle>{entry.name}</CardTitle>
                     <p className="m-0 text-[13px] leading-relaxed text-(--ink-3-aa)">
                       {componentCopy(locale, entry.slug).summary ?? entry.summary}

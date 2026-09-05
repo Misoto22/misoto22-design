@@ -49,7 +49,11 @@ export function ToggleGroup({ className, children, ...props }: ToggleGroupProps)
     <ToggleGroupPrimitive.Root
       ref={ref}
       className={cn(
-        'relative inline-flex items-center gap-1 rounded-(--radius-pill) border border-(--rule-2) p-1',
+        // `w-fit` as well as `inline-flex`: a flex or grid parent stretches its
+        // children to the track by default, and `inline-flex` does not opt out
+        // of that. Without it the strip grew to whatever the widest sibling was
+        // — a label above it — and left dead space after the last segment.
+        'relative inline-flex w-fit items-center gap-1 rounded-(--radius-pill) border border-(--rule-2) p-1',
         className,
       )}
       {...props}

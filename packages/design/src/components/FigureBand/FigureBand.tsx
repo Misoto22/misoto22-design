@@ -69,7 +69,11 @@ export function FigureBand({
         // A container, not a viewport reader: four figures across is a decision
         // about how wide THIS band is, and it is wrong in a 390px frame inside a
         // 1440px window.
-        '@container m-0 grid grid-cols-2 border-y border-(--rule) @5xl:grid-cols-4',
+        // `w-full` is load-bearing: `@container` applies `contain: inline-size`,
+        // which computes the element's width WITHOUT looking at its contents.
+        // As a shrink-to-fit flex item that resolved to zero, and the band
+        // rendered as two 0px columns of overlapping text.
+        '@container m-0 w-full grid grid-cols-2 border-y border-(--rule) @5xl:grid-cols-4',
         '[&>div]:border-(--rule) @max-5xl:[&>div:nth-child(even)]:border-s @max-5xl:[&>div:nth-child(n+3)]:border-t @5xl:[&>div:not(:first-child)]:border-s',
         className,
       )}
