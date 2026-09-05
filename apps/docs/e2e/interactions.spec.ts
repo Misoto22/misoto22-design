@@ -1,0 +1,201 @@
+import { expect, test, type Page } from '@playwright/test'
+
+/**
+ * The behaviours a screenshot cannot confirm.
+ *
+ * Every test here was a bug someone found by using the site, and each one was
+ * invisible to the suites that already existed: axe reads a static tree and had
+ * nothing to say about a value that never updates, a pill that never moves, or
+ * a checkbox frozen by its own props.
+ */
+
+/** The examples hydrate before their controls do anything; wait for that. */
+async function ready(page: Page) {
+  await expect(page.getByRole('button', { name: /Switch to the (light|dark) theme/ })).toBeVisible()
+}
+
+test('checkbox: the select-all row is operable, and reports "some"', async ({ page }) => {
+  await page.goto('/components/checkbox/')
+  await ready(page)
+
+  const all = page.getByRole('checkbox', { name: 'Select all' })
+  // It starts indeterminate because exactly one of three below it is ticked —
+  // and it was previously frozen there, because the example passed `checked`
+  // with no handler.
+  await expect(all).toHaveAttribute('aria-checked', 'mixed')
+
+  await all.click()
+  await expect(all).toBeChecked()
+  await expect(page.getByRole('checkbox', { name: 'Notify the channel' })).toBeChecked()
+
+  await all.click()
+  await expect(all).not.toBeChecked()
+  await expect(page.getByRole('checkbox', { name: 'Ship on merge' })).not.toBeChecked()
+})
+
+test('slider: the printed value tracks the thumb', async ({ page }) => {
+  await page.goto('/components/slider/')
+  await ready(page)
+
+  const thumb = page.getByRole('slider', { name: 'Quality' })
+  await expect(page.getByText('80%')).toBeVisible()
+
+  await thumb.focus()
+  await page.keyboard.press('ArrowRight')
+  await page.keyboard.press('ArrowRight')
+
+  // The figure exists to say where the thumb is. Reading it off `defaultValue`
+  // meant it said 80 forever.
+  await expect(page.getByText('90%')).toBeVisible()
+})
+
+test('toggle group: single picks one, multiple picks several', async ({ page }) => {
+  await page.goto('/components/toggle-group/')
+  await ready(page)
+
+  const single = page.getByRole('radiogroup', { name: 'Layout' })
+  const multiple = page.getByRole('toolbar', { name: 'Formats' })
+
+  await single.getByRole('radio', { name: 'Map' }).click()
+  await expect(single.getByRole('radio', { name: 'Map' })).toHaveAttribute('data-state', 'on')
+  await expect(single.getByRole('radio', { name: 'Grid' })).toHaveAttribute('data-state', 'off')
+
+  // And the multiple group genuinely holds several at once — the thing that
+  // looked like a bug until the two kinds stopped looking identical.
+  await multiple.getByRole('button', { name: 'Digital' }).click()
+  await expect(multiple.getByRole('button', { name: 'Film' })).toHaveAttribute('data-state', 'on')
+  await expect(multiple.getByRole('button', { name: 'Digital' })).toHaveAttribute('data-state', 'on')
+})
+
+test('toggle group: one pill travels between the options', async ({ page }) => {
+  await page.goto('/components/toggle-group/')
+  await ready(page)
+
+  const single = page.getByRole('radiogroup', { name: 'Layout' })
+  const pill = single.locator('span[aria-hidden]').first()
+  const start = await pill.evaluate((element) => element.style.transform)
+
+  await single.getByRole('radio', { name: 'Map' }).click()
+  await expect
+    .poll(() => pill.evaluate((element) => element.style.transform))
+    .not.toBe(start)
+  await expect(pill).toHaveCSS('transition-property', /transform/)
+})
+
+test('pagination: the current pill moves rather than blinking', async ({ page }) => {
+  await page.goto('/components/pagination/')
+  await ready(page)
+
+  const nav = page.getByRole('navigation', { name: 'Pagination' })
+  await expect(page.getByText('page 1 of 20')).toBeVisible()
+
+  const pill = nav.locator('span[aria-hidden]').first()
+  const start = await pill.evaluate((element) => element.style.transform)
+
+  await nav.getByRole('button', { name: 'Page 20' }).click()
+  await expect(page.getByText('page 20 of 20')).toBeVisible()
+  await expect.poll(() => pill.evaluate((element) => element.style.transform)).not.toBe(start)
+})
+
+test('select: the option list is ours, and grouped', async ({ page }) => {
+  await page.goto('/components/select/')
+  await ready(page)
+
+  await page.getByRole('combobox', { name: 'Region' }).first().click()
+  const listbox = page.getByRole('listbox')
+  await expect(listbox).toBeVisible()
+  // A native <select> renders its options in the OS, where none of this exists.
+  await expect(listbox.getByRole('group')).toHaveCount(2)
+  await expect(listbox.getByRole('option', { name: 'Japan' })).toBeVisible()
+
+  await listbox.getByRole('option', { name: 'Japan' }).click()
+  await expect(page.getByRole('combobox', { name: 'Region' }).first()).toContainText('Japan')
+})
+
+test('combobox: several at once, and the panel stays open', async ({ page }) => {
+  await page.goto('/components/combobox/')
+  await ready(page)
+
+  const trigger = page.getByRole('combobox', { name: 'Tags' })
+  await trigger.click()
+
+  const list = page.getByRole('listbox')
+  await list.getByRole('option', { name: 'Portrait' }).click()
+  // Still open: picking three things should not cost three round trips.
+  await expect(list).toBeVisible()
+  await list.getByRole('option', { name: 'Street' }).click()
+
+  await page.keyboard.press('Escape')
+  await expect(trigger).toContainText('3 selected')
+})
+
+test('combobox: the panel is clipped to its own corners', async ({ page }) => {
+  await page.goto('/components/combobox/')
+  await ready(page)
+  await page.getByRole('combobox', { name: 'Camera' }).click()
+
+  const panel = page.getByRole('listbox').locator('xpath=ancestor::*[@role="dialog"][1]')
+  await expect(panel).toHaveCSS('overflow-x', 'hidden')
+  await expect(panel).not.toHaveCSS('border-bottom-left-radius', '0px')
+})
+
+test('date picker: month and year are dropdowns, and it fits its card', async ({ page }) => {
+  await page.goto('/components/date-picker/')
+  await ready(page)
+
+  await page.getByRole('button', { name: 'Publish on' }).first().click()
+
+  // Stepping a month at a time is fine for "next Tuesday" and useless for a
+  // date two years back.
+  await expect(page.getByLabel(/Choose the Month/)).toBeVisible()
+  await expect(page.getByLabel(/Choose the Year/)).toBeVisible()
+
+  const calendar = page.locator('.rdp-root')
+  const nav = calendar.locator('nav')
+  await expect(nav).toHaveCSS('position', 'absolute')
+
+  // The card reserves the room the open state needs, so the panel does not
+  // spill over whatever is printed beneath it.
+  const panel = await calendar.boundingBox()
+  const card = await page.locator('[data-density]').first().boundingBox()
+  expect(panel && card && panel.y + panel.height).toBeLessThanOrEqual((card?.y ?? 0) + (card?.height ?? 0) + 1)
+})
+
+test('date picker: a range keeps the panel open until both ends are set', async ({ page }) => {
+  await page.goto('/components/date-picker/')
+  await ready(page)
+
+  await page.getByRole('button', { name: 'Reporting period' }).first().click()
+  const calendar = page.locator('.rdp-root')
+  await expect(calendar).toBeVisible()
+  // Two months at once, because a range crossing a boundary is the common case.
+  await expect(calendar.getByRole('grid')).toHaveCount(2)
+
+  // Day buttons are named with the full date ("Thursday, September 10th…"),
+  // so pick one by that rather than by the numeral, which also matches a year.
+  await calendar.getByRole('button', { name: /10th/ }).first().click()
+  // Still open: a range is not a value until it has a second date, and closing
+  // on the first one would mean re-opening to finish.
+  await expect(calendar).toBeVisible()
+})
+
+test('tooltip: a copy control says it copied', async ({ page }) => {
+  await page.goto('/components/tooltip/')
+  await ready(page)
+
+  const copy = page.getByRole('button', { name: 'Copy' })
+  await copy.click()
+  // The name, the icon and the tip all change together — a control that looks
+  // identical afterwards gets clicked twice.
+  await expect(page.getByRole('button', { name: 'Copied' })).toBeVisible()
+})
+
+test('switch: the label follows the state', async ({ page }) => {
+  await page.goto('/components/switch/')
+  await ready(page)
+
+  const row = page.locator('label').filter({ hasText: 'Email notifications' })
+  await expect(row).toContainText('On')
+  await row.getByRole('switch').click()
+  await expect(row).toContainText('Off')
+})

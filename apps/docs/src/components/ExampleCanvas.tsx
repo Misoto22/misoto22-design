@@ -26,6 +26,8 @@ export interface ExampleCanvasProps {
   exampleKey: string
   html: string
   snippet: string
+  /** Extra room the open state needs — see `previewHeight` in the registry. */
+  previewHeight?: string
 }
 
 type Direction = 'ltr' | 'rtl'
@@ -47,7 +49,7 @@ type View = 'preview' | 'code' | 'edit'
  * screenshot of a compact button proves nothing about whether the input beside
  * it also shrank.
  */
-export function ExampleCanvas({ exampleKey, html, snippet }: ExampleCanvasProps) {
+export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: ExampleCanvasProps) {
   const [view, setView] = useState<View>('preview')
   const [direction, setDirection] = useState<Direction>('ltr')
   const [density, setDensity] = useState<Density>('comfortable')
@@ -118,7 +120,7 @@ export function ExampleCanvas({ exampleKey, html, snippet }: ExampleCanvasProps)
         <div
           dir={direction}
           data-density={density}
-          className="flex min-h-32 items-center justify-center p-8"
+          className={cn('flex min-h-32 items-start justify-center p-8', previewHeight)}
         >
           <div className="flex w-full max-w-full justify-center">
             <Example />

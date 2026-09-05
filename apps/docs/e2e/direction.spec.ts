@@ -13,7 +13,7 @@ import { expect, test } from '@playwright/test'
 
 test.describe('right-to-left', () => {
   test('the whole document mirrors without overflowing', async ({ page }) => {
-    await page.goto('/components/select/')
+    await page.goto('/components/native-select/')
     await page.locator('html').evaluate((element) => element.setAttribute('dir', 'rtl'))
 
     // A page that scrolls sideways is the classic RTL failure: one physical
@@ -25,7 +25,11 @@ test.describe('right-to-left', () => {
   })
 
   test("the select's chevron moves to the reading end", async ({ page }) => {
-    await page.goto('/components/select/')
+    // The NATIVE select, whose chevron is a sibling element positioned with a
+    // logical inset — the exact thing this asserts. The styled Select draws its
+    // icon inside a flex row, where direction is the browser's problem and not
+    // ours to verify.
+    await page.goto('/components/native-select/')
     const canvas = page.locator('[dir]').filter({ has: page.getByRole('combobox') }).first()
 
     const ltr = await chevronOffset(page)

@@ -1,7 +1,7 @@
 'use client'
 
 import * as SliderPrimitive from '@radix-ui/react-slider'
-import type { ComponentProps } from 'react'
+import { useState, type ComponentProps } from 'react'
 import { cn } from '../../lib/cn'
 
 export interface SliderProps extends ComponentProps<typeof SliderPrimitive.Root> {
@@ -38,10 +38,21 @@ export function Slider({
   showValue = false,
   format = String,
   className,
+  onValueChange,
   ...props
 }: SliderProps) {
   const names = Array.isArray(label) ? label : [label]
-  const current = props.value ?? props.defaultValue ?? []
+
+  // Tracked here, not read off the props. An uncontrolled slider's
+  // `defaultValue` never changes, so the printed figure sat at its starting
+  // number while the thumb moved — the one thing `showValue` exists to avoid.
+  const [uncontrolled, setUncontrolled] = useState<number[]>(props.defaultValue ?? [])
+  const current = props.value ?? uncontrolled
+
+  const handleChange = (next: number[]) => {
+    if (props.value === undefined) setUncontrolled(next)
+    onValueChange?.(next)
+  }
 
   return (
     <div className={cn('flex w-full flex-col gap-3', className)}>
@@ -54,10 +65,11 @@ export function Slider({
         </div>
       )}
       <SliderPrimitive.Root
-        className="relative flex w-full touch-none select-none items-center py-3"
+        className="group relative flex w-full touch-none select-none items-center py-3"
+        onValueChange={handleChange}
         {...props}
       >
-        <SliderPrimitive.Track className="relative h-1 w-full grow overflow-hidden rounded-(--radius-pill) bg-(--stone)">
+        <SliderPrimitive.Track className="relative h-1 w-full grow overflow-hidden rounded-(--radius-pill) bg-(--stone) transition-[height] duration-(--duration-fast) group-hover:h-1.5">
           <SliderPrimitive.Range className="absolute h-full bg-(--ink)" />
         </SliderPrimitive.Track>
         {current.map((_, index) => (
@@ -66,7 +78,10 @@ export function Slider({
             aria-label={names[index] ?? names[0]}
             // The visible thumb is 16px; the `before` pseudo-element widens the
             // hit area to 44px without changing what is drawn.
-            className="relative block size-4 rounded-full border border-(--ink) bg-(--paper) transition-colors duration-(--duration-fast) before:absolute before:left-1/2 before:top-1/2 before:size-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] hover:bg-(--stone) disabled:opacity-(--disabled-opacity)"
+            // `transition-transform` and not `all`: the thumb's own position is
+            // set by Radix as a `left` percentage, and transitioning that would
+            // make it lag the pointer. Only the grow-on-grab is animated.
+            className="relative block size-4 rounded-full border border-(--ink) bg-(--paper) transition-[transform,background-color] duration-(--duration-fast) ease-(--ease-out-expo) before:absolute before:left-1/2 before:top-1/2 before:size-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-[''] hover:scale-110 hover:bg-(--stone) active:scale-125 data-[state=active]:scale-125 disabled:opacity-(--disabled-opacity) motion-reduce:transition-none"
           />
         ))}
       </SliderPrimitive.Root>

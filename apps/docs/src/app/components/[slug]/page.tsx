@@ -72,6 +72,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ slug
                 exampleKey={`${entry.dir}/${example.id}`}
                 html={example.html}
                 snippet={example.snippet}
+                previewHeight={entry.previewHeight}
               />
             </div>
           ))}
