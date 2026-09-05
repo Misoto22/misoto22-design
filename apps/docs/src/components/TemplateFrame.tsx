@@ -1,6 +1,6 @@
 'use client'
 
-import { Button, cn } from '@misoto22/design'
+import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
 import { Monitor, Smartphone, Tablet } from 'lucide-react'
 import { useState } from 'react'
 import { TEMPLATE_COMPONENTS } from '@/generated/template-registry'
@@ -48,30 +48,28 @@ export function TemplateFrame({ templateId, name }: TemplateFrameProps) {
 
   return (
     <div className="overflow-hidden rounded-(--radius-lg) border border-(--rule)">
-      <div
-        role="radiogroup"
-        aria-label={`${name} width`}
-        className="flex items-center justify-end gap-1 border-b border-(--rule) bg-(--paper-2) px-2 py-1.5"
-      >
-        {(Object.keys(WIDTHS) as Size[]).map((key) => {
-          const option = WIDTHS[key]
-          const Icon = option.icon
-          return (
-            <Button
-              key={key}
-              size="sm"
-              variant="ghost"
-              role="radio"
-              aria-checked={size === key}
-              aria-label={option.label}
-              onClick={() => setSize(key)}
-              className={cn('gap-2', size === key && 'text-(--ink)')}
-            >
-              <Icon size={14} strokeWidth={1.5} aria-hidden />
-              <span className="max-sm:sr-only">{option.label}</span>
-            </Button>
-          )
-        })}
+      {/* The system's own segmented control rather than three ghost buttons.
+          They collapse to icons on a phone, where "which one is on" was a
+          change of ink colour between three near-identical glyphs; the strip
+          moves a filled pill instead. */}
+      <div className="flex justify-end border-b border-(--rule) bg-(--paper-2) px-2 py-1.5">
+        <ToggleGroup
+          type="single"
+          value={size}
+          aria-label={`${name} width`}
+          onValueChange={(next) => setSize((next as Size) || 'desktop')}
+        >
+          {(Object.keys(WIDTHS) as Size[]).map((key) => {
+            const option = WIDTHS[key]
+            const Icon = option.icon
+            return (
+              <ToggleGroupItem key={key} value={key} aria-label={option.label} className="gap-2">
+                <Icon size={14} strokeWidth={1.5} aria-hidden />
+                <span className="max-sm:sr-only">{option.label}</span>
+              </ToggleGroupItem>
+            )
+          })}
+        </ToggleGroup>
       </div>
 
       <div className="bg-(--paper-2) p-4">

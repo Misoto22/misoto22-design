@@ -30,6 +30,19 @@ export function DocsShell({ children }: { children: ReactNode }) {
   // reader who put the sidebar away did not mean "until the next page".
   const [docked, setDocked] = useState(true)
 
+  // Whether the sidebar is a column or a drawer. A closed drawer is only
+  // translated off-screen, so without knowing which it is there is no way to
+  // say when its sixty links should leave the tab order.
+  const [isDrawer, setIsDrawer] = useState(false)
+
+  useEffect(() => {
+    const query = matchMedia('(max-width: 1023px)')
+    const sync = () => setIsDrawer(query.matches)
+    sync()
+    query.addEventListener('change', sync)
+    return () => query.removeEventListener('change', sync)
+  }, [])
+
   useEffect(() => {
     try {
       setDocked(localStorage.getItem('m22-sidebar') !== 'closed')
@@ -83,6 +96,10 @@ export function DocsShell({ children }: { children: ReactNode }) {
       <aside
         id="docs-sidebar"
         aria-label={t.nav.sidebar}
+        // A drawer that is merely translated off-screen still holds focus and
+        // is still read aloud: closed, it put sixty links between the reader
+        // and the page they were on.
+        inert={isDrawer && !open}
         className={`fixed inset-y-0 start-0 z-(--z-modal) flex w-[17rem] flex-col border-e border-(--rule) bg-(--paper) transition-transform duration-(--duration-slow) ease-(--ease-out-expo) ${
           open ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full'
         } lg:sticky lg:top-0 lg:z-auto lg:h-svh lg:translate-x-0 ${docked ? '' : 'lg:hidden'}`}
@@ -125,7 +142,11 @@ export function DocsShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-col">
-        <header className="sticky top-0 z-(--z-sticky) flex h-14 items-center justify-between gap-3 border-b border-(--rule) bg-(--paper)/85 px-5 backdrop-blur">
+        {/* `size="sm"` is 36px, which the Button docs are explicit about being
+            below the pointer-target floor — a deliberate density for a mouse.
+            A finger is not a mouse, so every control in this bar gets 44px on a
+            coarse pointer. */}
+        <header className="sticky top-0 z-(--z-sticky) flex h-14 items-center justify-between gap-3 border-b border-(--rule) bg-(--paper)/85 px-5 backdrop-blur pointer-coarse:[&_a]:min-h-11 pointer-coarse:[&_button]:min-h-11">
           <Button
             iconOnly
             size="sm"
