@@ -14,6 +14,7 @@ import { PageTabs } from '@/components/PageTabs'
 import { Prose } from '@/components/Prose'
 import { PropsPlayground } from '@/components/PropsPlayground'
 import { PropsTable } from '@/components/PropsTable'
+import { TocRail } from '@/components/TocRail'
 import { BY_SLUG, COMPONENTS } from '@/content/registry'
 import { componentExamples, componentSource, componentTypes } from '@/lib/docs'
 
@@ -196,7 +197,15 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
                   description reads as a caption for the preview below it
                   rather than as the answer to the heading above it. */}
               <div className="flex flex-col gap-2">
-                <p className="m-0 eyebrow text-(--ink-3-aa)">{example.title}</p>
+                {/* An <h3>, not a styled <p>. It was the one part of the page a
+                    reader three screens down could not navigate to, and half of
+                    what is worth reading on a component page is under it. */}
+                <h3
+                  id={`example-${example.id}`}
+                  className="m-0 scroll-mt-(--scroll-offset) eyebrow text-(--ink-3-aa)"
+                >
+                  {example.title}
+                </h3>
                 {example.description && (
                   <p className="m-0 max-w-(--w-reading) text-sm leading-relaxed text-(--ink-2)">
                     {exampleCopy(locale, `${entry.dir}/${example.id}`, example.description)}
@@ -353,35 +362,43 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
   )
 
   return (
-    <article className="mx-auto flex w-full max-w-4xl flex-col gap-8">
-      <PageIntro
-        eyebrow={groupName(locale, entry.group)}
-        title={componentName(locale, entry.slug, entry.name)}
-        summary={zh.summary ?? entry.summary}
-        crumbs={[
-          { label: t.section.components, href: localePath(locale, '/components/') },
-          { label: componentName(locale, entry.slug, entry.name) },
-        ]}
-      />
+    // A two-column grid rather than a centred column: the rail is a real
+    // column beside the article, so it can never sit over the prose. It
+    // appears from `xl` up, where there is room for it without taking width
+    // off the reading column.
+    <div className="mx-auto flex w-full max-w-4xl items-start gap-10 xl:max-w-[70rem]">
+      <article className="flex min-w-0 flex-1 flex-col gap-8">
+        <PageIntro
+          eyebrow={groupName(locale, entry.group)}
+          title={componentName(locale, entry.slug, entry.name)}
+          summary={zh.summary ?? entry.summary}
+          crumbs={[
+            { label: t.section.components, href: localePath(locale, '/components/') },
+            { label: componentName(locale, entry.slug, entry.name) },
+          ]}
+        />
 
-      <PageTabs
-        label={componentName(locale, entry.slug, entry.name)}
-        tabs={[
-          {
-            value: 'overview',
-            label: t.section.overview,
-            anchors: OVERVIEW_ANCHORS,
-            panel: overview,
-          },
-          {
-            value: 'properties',
-            label: t.section.properties,
-            anchors: ['props'],
-            panel: properties,
-          },
-        ]}
-      />
-    </article>
+        <PageTabs
+          label={componentName(locale, entry.slug, entry.name)}
+          tabs={[
+            {
+              value: 'overview',
+              label: t.section.overview,
+              anchors: OVERVIEW_ANCHORS,
+              panel: overview,
+            },
+            {
+              value: 'properties',
+              label: t.section.properties,
+              anchors: ['props'],
+              panel: properties,
+            },
+          ]}
+        />
+      </article>
+
+      <TocRail label={t.section.onThisPage} className="hidden w-56 shrink-0 xl:block" />
+    </div>
   )
 }
 

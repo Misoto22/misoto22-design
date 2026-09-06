@@ -42,14 +42,6 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   if (section === 'components') {
     return (
       <Nav label={t.nav.documentation}>
-        {/* No heading over a single row. "START" sat above "All components" and
-            named nothing — the masthead already says which section this is, and
-            a label that repeats the tab above it is furniture. */}
-        <div className="flex flex-col gap-1">
-          <Row href={localePath(locale, '/components/')} pathname={pathname} onNavigate={onNavigate}>
-            {t.nav.allComponents}
-          </Row>
-        </div>
         {/* The group holding the page you are on opens itself. Everything else
             stays rolled up until asked for: forty-nine rows under seven headings
             is a column taller than most screens, and a reader looking at Button
@@ -166,9 +158,15 @@ function Nav({ label, children }: { label: string; children: React.ReactNode }) 
  * 17rem column, where it reads as small print. It is worse in Chinese, which
  * has no case to change and where letter-spacing only pulls the characters
  * apart: 「展 示」 is not a heading, it is a heading with a gap in it.
+ *
+ * The SIZE is the same 15px as the rows beneath it, and that is a correction
+ * rather than a taste: at 12px the heading was smaller than everything it
+ * contained, so a group read as a footnote over a list rather than as a title
+ * over its own contents. Rank is carried by weight and by a step up the ink
+ * ladder instead — the two signals that can outrank a row without shouting.
  */
 const HEADING =
-  'm-0 px-3 pb-1 font-mono text-[12px] tracking-[0.06em] text-(--ink-3-aa)'
+  'm-0 px-3 pb-1 font-mono text-[15px] font-medium tracking-[0.02em] text-(--ink-2)'
 
 interface SectionProps {
   title: string
@@ -210,7 +208,7 @@ function Section({ title, count, collapsible = false, defaultOpen = true, childr
     // measured height, so the panel opens to what it actually is instead of to
     // a guessed maximum.
     <Collapsible open={open} onOpenChange={setOpen} className="flex flex-col gap-1">
-      <CollapsibleTrigger className="group flex items-center gap-1.5 rounded-(--radius-row) px-3 py-1 text-start transition-colors duration-(--duration-fast) hover:bg-(--stone)">
+      <CollapsibleTrigger className="group flex min-h-9 items-center gap-1.5 rounded-(--radius-row) px-3 py-1.5 text-start transition-colors duration-(--duration-fast) hover:bg-(--stone)">
         <ChevronRight
           size={12}
           strokeWidth={2}
@@ -219,7 +217,7 @@ function Section({ title, count, collapsible = false, defaultOpen = true, childr
         />
         <span className={cn(HEADING, 'm-0 p-0')}>{title}</span>
         {count !== undefined && (
-          <span className="ms-auto font-mono text-[12px] text-(--ink-3-aa)">{count}</span>
+          <span className="ms-auto font-mono text-[13px] text-(--ink-3-aa)">{count}</span>
         )}
       </CollapsibleTrigger>
       <CollapsibleContent>

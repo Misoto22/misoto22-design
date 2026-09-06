@@ -77,6 +77,11 @@ export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: Exam
     // says WHICH example, and it is the same string the import map is keyed by.
     <div
       data-example={exampleKey}
+      // A preview renders REAL components, and some of them are headings: the
+      // Heading and Article examples put an <h2> on the page. Without this the
+      // contents rail lists the page's own outline interleaved with the
+      // outlines of the things it is demonstrating.
+      data-toc-skip=""
       className="overflow-hidden rounded-(--radius-lg) border border-(--rule)"
     >
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-(--rule) bg-(--paper-2) px-2 py-1.5">
