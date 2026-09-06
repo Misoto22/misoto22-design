@@ -30,12 +30,18 @@ test.describe('right-to-left', () => {
     // icon inside a flex row, where direction is the browser's problem and not
     // ours to verify.
     await page.goto('/components/native-select/')
-    const canvas = page.locator('[dir]').filter({ has: page.getByRole('combobox') }).first()
+    // The page carries three native-select examples and a Radix Tabs root that
+    // sets `dir` of its own, so `[dir]` alone names four things. Name the
+    // example instead: `data-example` is the key the import map is built from.
+    const example = page.locator('[data-example="NativeSelect/01-default"]')
+    // The preview frame inside it — the one element carrying BOTH axes the
+    // canvas switches, which is what tells it apart from Radix's own `dir`.
+    const frame = example.locator('[dir][data-density]')
 
-    const ltr = await chevronOffset(page)
-    await page.getByRole('radio', { name: 'RTL' }).first().click()
-    await expect(canvas).toHaveAttribute('dir', 'rtl')
-    const rtl = await chevronOffset(page)
+    const ltr = await chevronOffset(frame)
+    await example.getByRole('radio', { name: 'RTL' }).click()
+    await expect(frame).toHaveAttribute('dir', 'rtl')
+    const rtl = await chevronOffset(frame)
 
     // In LTR the chevron sits near the right edge of the control; in RTL near
     // the left. Comparing the fraction rather than a pixel keeps this robust
@@ -54,9 +60,9 @@ test.describe('right-to-left', () => {
   })
 })
 
-/** Where the chevron sits across the select, as a fraction of its width. */
-async function chevronOffset(page: import('@playwright/test').Page): Promise<number> {
-  const select = page.getByRole('combobox').first()
+/** Where the chevron sits across the select in `scope`, as a fraction of its width. */
+async function chevronOffset(scope: import('@playwright/test').Locator): Promise<number> {
+  const select = scope.getByRole('combobox')
   const box = await select.boundingBox()
   const icon = await select.locator('~ svg').boundingBox()
   if (!box || !icon) throw new Error('could not measure the select')

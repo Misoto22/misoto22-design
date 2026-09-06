@@ -6,6 +6,7 @@ import {
   Alert,
   AppShell,
   Article,
+  AspectRatio,
   Avatar,
   Badge,
   Breadcrumb,
@@ -18,6 +19,8 @@ import {
   CardTitle,
   Checkbox,
   CollapsibleSection,
+  Code,
+  CodeBlock,
   Combobox,
   Command,
   CommandEmpty,
@@ -30,6 +33,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
   DatePicker,
+  DescriptionList,
   Diagram,
   Dialog,
   DialogContent,
@@ -45,10 +49,12 @@ import {
   ErrorState,
   Field,
   FigureBand,
+  Heading,
   FloatingIconButton,
   Input,
   Kbd,
   LinkArrow,
+  Markdown,
   NavItem,
   Pagination,
   Popover,
@@ -86,7 +92,10 @@ import {
   TabsList,
   TabsTrigger,
   Tag,
+  Text,
   Textarea,
+  Timestamp,
+  Toolbar,
   ToggleGroup,
   ToggleGroupItem,
   Toaster,
@@ -195,6 +204,39 @@ export const SURFACE: SurfaceEntry[] = [
       action={<a href="#/" className={ERROR_ACTION_CLASS}>Back home</a>}
     />
   ) },
+  { dir: 'Text', render: () => (
+    <>
+      <Text size="lead" tone="strong">A monochrome system for software and writing.</Text>
+      <Text>Twelve releases this quarter, none rolled back.</Text>
+      <Text as="span" size="sm" tone="muted">Updated just now</Text>
+    </>
+  ) },
+  { dir: 'Heading', render: () => (
+    <>
+      <Heading level={1}>The White Reset</Heading>
+      {/* The outline says second level; the design says page title. Both, which
+          is the pair of props this component exists to keep apart. */}
+      <Heading level={2} size="title">Colour</Heading>
+    </>
+  ) },
+  { dir: 'Code', render: () => (
+    <p>Pass <Code>--force</Code> to overwrite <Code>dist/</Code>.</p>
+  ) },
+  { dir: 'CodeBlock', render: () => (
+    <CodeBlock
+      title="cn.ts"
+      lang="ts"
+      lineNumbers
+      highlightLines={[2]}
+      maxHeight="20rem"
+      code={'export function cn(...inputs) {\n  return twMerge(clsx(inputs))\n}'}
+    />
+  ) },
+  { dir: 'Markdown', render: () => (
+    <Markdown headingLevelStart={1}>
+      {'# Release notes\n\nA paragraph with `code`, **strong** and [a link](/changelog).\n\n- One\n- Two\n\n```bash\npnpm add @misoto22/design\n```\n'}
+    </Markdown>
+  ) },
   { dir: 'Article', render: () => (
     <Article>
       <h1>The White Reset</h1>
@@ -215,7 +257,15 @@ export const SURFACE: SurfaceEntry[] = [
     />
   ) },
   { dir: 'Field', render: () => (
-    <Field label="Email" required hint="We never share it."><Input type="email" /></Field>
+    <>
+      <Field label="Email" required hint="We never share it."><Input type="email" /></Field>
+      {/* The settings row. Its whole point is that the label sits on the other
+          side of the row from the control, so the association is the thing
+          most likely to be lost — and the axe pass is what catches it. */}
+      <Field layout="row" label="Email notifications" description="A digest every Monday.">
+        <Switch defaultChecked />
+      </Field>
+    </>
   ) },
   { dir: 'FigureBand', render: () => (
     <FigureBand
@@ -261,7 +311,12 @@ export const SURFACE: SurfaceEntry[] = [
       </NativeSelect>
     </Field>
   ) },
-  { dir: 'Separator', render: () => <Separator /> },
+  { dir: 'Separator', render: () => (
+    <>
+      <Separator />
+      <Separator label="or continue with" />
+    </>
+  ) },
   { dir: 'Skeleton', render: () => (
     <SkeletonPage label="Loading projects">
       <SkeletonLine className="w-40" />
@@ -312,7 +367,12 @@ export const SURFACE: SurfaceEntry[] = [
       <TabsContent value="code">The source.</TabsContent>
     </Tabs>
   ) },
-  { dir: 'Tag', render: () => <Tag>TypeScript</Tag> },
+  { dir: 'Tag', render: () => (
+    <>
+      <Tag>TypeScript</Tag>
+      <Tag onRemove={() => {}} removeLabel="Remove Rust filter">Rust</Tag>
+    </>
+  ) },
   { dir: 'Textarea', render: () => <Field label="Notes"><Textarea rows={3} /></Field> },
   { dir: 'Toast', render: () => <Toaster /> },
   { dir: 'Calendar', render: () => <Calendar mode="single" defaultMonth={new Date(2026, 0, 1)} /> },
@@ -401,6 +461,29 @@ export const SURFACE: SurfaceEntry[] = [
         <Button iconOnly aria-label="Copy"><span aria-hidden>⧉</span></Button>
       </Tooltip>
     </TooltipProvider>
+  ) },
+  { dir: 'DescriptionList', render: () => (
+    <DescriptionList
+      items={[
+        { term: 'Owner', description: 'Henry Chen' },
+        { term: 'Region', description: 'ap-southeast-2' },
+        { term: 'Status', description: <Badge tone="success">Deployed</Badge> },
+      ]}
+    />
+  ) },
+  { dir: 'Toolbar', render: () => (
+    <Toolbar label="Form actions">
+      <Button variant="secondary">Cancel</Button>
+      <Button type="submit">Save changes</Button>
+    </Toolbar>
+  ) },
+  { dir: 'Timestamp', render: () => (
+    <p>Deployed <Timestamp value="2026-01-14T09:30:00.000Z" /></p>
+  ) },
+  { dir: 'AspectRatio', render: () => (
+    <AspectRatio ratio="16 / 9" className="w-64 bg-(--stone)">
+      <div />
+    </AspectRatio>
   ) },
 ]
 

@@ -31,6 +31,9 @@ test.describe('locales', () => {
   test('the API reference is translated too, and the code is not', async ({ page }) => {
     await page.goto('/zh/components/button/')
     await ready(page)
+    // The prop table lives behind the Properties tab now, so the reference is
+    // one click in rather than down the page.
+    await page.getByRole('tab', { name: '属性面板' }).click()
     // Prop descriptions are parsed from the package source, so translating
     // them risks drift — `api.ts` records a fingerprint of the English beside
     // each one, and the build fails when a doc comment moves out from under it.
@@ -81,6 +84,9 @@ test('the Chinese pages translate the API reference too', async ({ page }) => {
   const notes = page.locator('#notes').locator('..')
   await expect(notes).toContainText('徽章不可交互')
 
+  // Notes sits on Overview; the prop table sits on Properties. Crossing the
+  // tab boundary here is the point — both halves are translated.
+  await page.getByRole('tab', { name: '属性面板' }).click()
   const table = page.getByRole('table', { name: /Badge/ })
   await expect(table).toContainText('是这套系统里唯一的彩色')
 

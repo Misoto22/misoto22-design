@@ -1,5 +1,16 @@
 import { Alert, Button } from '@misoto22/design'
 
+/**
+ * The four tones, in the order they escalate. The tone is the message's
+ * severity and not its decoration: danger carries role alert and interrupts
+ * whatever the screen reader was saying, because what the reader is doing is
+ * already failing, and the other three carry role status and wait for a pause.
+ * Colour is doubled by the icon and by the words, so the meaning survives
+ * monochrome printing and colour-blindness — which is what hideIcon takes away,
+ * leaving the severity on a wash at 13 to 16 per cent alpha. Do not stack them
+ * as a running log: five on a page are five live regions competing for one
+ * speech queue, and the danger among them cuts off the four that explain it.
+ */
 export function Example() {
   return (
     <div className="flex w-full flex-col gap-3">

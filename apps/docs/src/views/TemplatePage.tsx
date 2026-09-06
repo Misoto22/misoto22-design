@@ -20,7 +20,7 @@ export async function TemplatePage({ locale, slug }: { locale: Locale; slug: str
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
       <PageIntro
-        eyebrow={t.nav.templates}
+        eyebrow={`${t.nav.templates} · ${template.category}`}
         title={zh.name ?? template.name}
         summary={zh.summary ?? template.summary}
         crumbs={[

@@ -13,6 +13,17 @@ import {
 } from '@misoto22/design'
 import { Blocks, Compass, Moon, Ruler, Scale, Sun } from 'lucide-react'
 
+/**
+ * The palette's parts, laid out inline so all of them are visible at once: the
+ * combobox input, the filtered list with its groups and separator, and the
+ * footer that prints the keys. Reach for CommandDialog rather than this bare
+ * root in an application — the root is an inline bordered box with no scrim, no
+ * focus trap and no Escape handling of its own, so a palette built from it
+ * stays open until something else closes it. Always render CommandEmpty: cmdk
+ * shows an empty state only when one exists in the tree, so a palette without
+ * one answers an unmatched filter with a blank strip. And note the icon prop
+ * takes an ELEMENT here, the reverse of DropdownMenuItem one import away.
+ */
 export function Example() {
   return (
     <Command label="Command palette" className="w-full max-w-md">

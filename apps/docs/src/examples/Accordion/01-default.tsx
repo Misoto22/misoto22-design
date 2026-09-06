@@ -2,6 +2,16 @@
 
 import { Accordion, AccordionItem } from '@misoto22/design'
 
+/**
+ * An FAQ: type single with collapsible, so the row the reader opened can be
+ * closed again. Without collapsible there is no empty value to return to, and
+ * the first row they open is a row they can never close. The marker is a plus
+ * rather than a chevron, deliberately — a plus says this opens, a chevron says
+ * there is more below, and in a stack of rows that decides whether the reader
+ * expects expansion or navigation. Key each row by something stable rather than
+ * by its position: Radix tracks the open one by value, so filtering or
+ * re-ordering the list leaves whatever now sits in that slot standing open.
+ */
 export function Example() {
   return (
     <Accordion type="single" collapsible className="w-full">

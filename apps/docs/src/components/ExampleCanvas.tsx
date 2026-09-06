@@ -69,7 +69,16 @@ export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: Exam
   }
 
   return (
-    <div className="overflow-hidden rounded-(--radius-lg) border border-(--rule)">
+    // The key, on the element. A component page now carries several examples of
+    // the same component plus the Properties panel's own preview, so "the tab
+    // strip" or "the Layout group" on `/components/tabs/` names three or four
+    // different controls — and a test that reaches for one of them positionally
+    // is a test that no longer knows what it is driving. This is the handle that
+    // says WHICH example, and it is the same string the import map is keyed by.
+    <div
+      data-example={exampleKey}
+      className="overflow-hidden rounded-(--radius-lg) border border-(--rule)"
+    >
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-(--rule) bg-(--paper-2) px-2 py-1.5">
         <div className="flex items-center gap-1">
           <Toggle

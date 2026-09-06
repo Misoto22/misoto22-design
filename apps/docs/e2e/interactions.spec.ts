@@ -53,8 +53,12 @@ test('toggle group: single picks one, multiple picks several', async ({ page }) 
   await page.goto('/components/toggle-group/')
   await ready(page)
 
-  const single = page.getByRole('radiogroup', { name: 'Layout' })
-  const multiple = page.getByRole('toolbar', { name: 'Formats' })
+  // The page now carries a second "Layout" group — the controlled example that
+  // refuses to switch itself off — so the groups have to be reached through the
+  // example that owns them rather than by their label alone.
+  const example = page.locator('[data-example="ToggleGroup/01-default"]')
+  const single = example.getByRole('radiogroup', { name: 'Layout' })
+  const multiple = example.getByRole('toolbar', { name: 'Formats' })
 
   await single.getByRole('radio', { name: 'Map' }).click()
   await expect(single.getByRole('radio', { name: 'Map' })).toHaveAttribute('data-state', 'on')
@@ -71,7 +75,10 @@ test('toggle group: one pill travels between the options', async ({ page }) => {
   await page.goto('/components/toggle-group/')
   await ready(page)
 
-  const single = page.getByRole('radiogroup', { name: 'Layout' })
+  // Same two "Layout" groups as above; the travelling pill belongs to the first
+  // example, which is the one that puts both modes side by side.
+  const example = page.locator('[data-example="ToggleGroup/01-default"]')
+  const single = example.getByRole('radiogroup', { name: 'Layout' })
   const pill = single.locator('span[aria-hidden]').first()
   const start = await pill.evaluate((element) => element.style.transform)
 
@@ -201,11 +208,14 @@ test('tooltip: a copy control says it copied', async ({ page }) => {
   await page.goto('/components/tooltip/')
   await ready(page)
 
-  const copy = page.getByRole('button', { name: 'Copy' })
+  // The page's own snippets have a copy button too ("Copy the snippet"), so the
+  // control under test is reached through the example that owns it.
+  const example = page.locator('[data-example="Tooltip/01-an-icon-button"]')
+  const copy = example.getByRole('button', { name: 'Copy' })
   await copy.click()
   // The name, the icon and the tip all change together — a control that looks
   // identical afterwards gets clicked twice.
-  await expect(page.getByRole('button', { name: 'Copied' })).toBeVisible()
+  await expect(example.getByRole('button', { name: 'Copied' })).toBeVisible()
 })
 
 test('switch: the label follows the state', async ({ page }) => {

@@ -2,6 +2,15 @@
 
 import { Field, Input, Select, SelectItem, Textarea } from '@misoto22/design'
 
+/**
+ * The four shapes a row takes: required, wrong, a control that has to name
+ * itself, and a longer answer. hint and error are one slot rather than two
+ * stacked messages — when a field is wrong, the thing to read is what is wrong
+ * with it, so the hint steps aside instead of queueing under the error. The
+ * Region row says Region twice on purpose: Radix's select root renders no DOM
+ * node, so the label binds to nothing and the control's own label prop is the
+ * only name it has.
+ */
 export function Example() {
   return (
     <div className="flex w-full max-w-md flex-col gap-5">

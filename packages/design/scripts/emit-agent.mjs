@@ -70,6 +70,32 @@ function componentText(entry, source) {
 
   if (entry.when) out.push('## When to reach for it', '', entry.when, '')
 
+  if (entry.anatomy?.length) {
+    out.push(
+      '## Anatomy',
+      '',
+      ...entry.anatomy.map(
+        (part) => `- **${part.element}**${part.required ? ' (required)' : ''} — ${part.description}`,
+      ),
+      '',
+    )
+  }
+
+  if (entry.practices?.length) {
+    // Split rather than interleaved: the two halves are read against each
+    // other, and a reader scanning for what NOT to do should not have to filter
+    // a mixed list to find it.
+    out.push('## Best practices', '')
+    for (const [kind, heading] of [
+      ['do', 'Do'],
+      ['dont', 'Don’t'],
+    ]) {
+      const half = entry.practices.filter((practice) => practice.kind === kind)
+      if (half.length === 0) continue
+      out.push(`### ${heading}`, '', ...half.map((practice) => `- ${practice.text}`), '')
+    }
+  }
+
   if (entry.accessibility?.length) {
     out.push('## Accessibility', '', ...entry.accessibility.map((line) => `- ${line}`), '')
   }

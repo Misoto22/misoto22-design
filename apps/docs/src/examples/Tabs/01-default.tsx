@@ -2,6 +2,16 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@misoto22/design'
 
+/**
+ * One strip, three panels, paired by string equality — a typo in a value is not
+ * an error but a tab that opens onto nothing. Give the root a defaultValue or a
+ * value: with neither, nothing matches, every panel stays unmounted, and the
+ * page renders a strip above an empty space with nothing to say what is
+ * missing. The whole strip is one tab stop; left and right move between tabs,
+ * Home and End jump to the ends. The selected tab lives in React state and not
+ * in the URL, so anything worth linking to needs value lifted into a query
+ * parameter.
+ */
 export function Example() {
   return (
     <Tabs defaultValue="preview" className="w-full">

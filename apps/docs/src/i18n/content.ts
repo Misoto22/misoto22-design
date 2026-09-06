@@ -71,9 +71,13 @@ export const COMPONENTS_ZH: Record<string, ComponentCopy> = {
   },
   tag: {
     name: '标签',
-    summary: '主题标签——一个话题、一项技术、一个筛选面。',
-    when: '若干个并排出现、供人扫读。关于一条记录的一个事实是 Badge。',
-    accessibility: ['纯展示。要用它做筛选，就把它包进 button 并传 active——焦点圈和按下状态该留在真正拥有它们的元素上。'],
+    summary: '主题标签——一个话题、一项技术、一个筛选面——当它表示一次选择时，还能被移除。',
+    when: '若干个并排出现、供人扫读。关于一条记录的一个事实是 Badge。读者能关掉的那种 chip，就是这个组件加上 onRemove，不是第四个组件。',
+    accessibility: [
+      '传 onRemove 之前都是纯展示。要用它做筛选，就把它包进 button 并传 active——焦点圈和按下状态该留在真正拥有它们的元素上。',
+      '移除控件是一个真正的 <button type="button">，所以 Tab 走得到它，Enter 和 Space 都能触发它，而且它不会去提交碰巧套着它的那个表单。',
+      '传了 onRemove 就必须传 removeLabel，它是这个按钮全部的可访问名称——那个 X 本身是 aria-hidden 的。',
+    ],
   },
   kbd: { name: '按键', summary: '键盘上的一个键，就按键来排版。', accessibility: ['渲染 <kbd>，它带有语义，而加了样式的 <span> 没有。'] },
   avatar: {
@@ -104,9 +108,13 @@ export const COMPONENTS_ZH: Record<string, ComponentCopy> = {
   },
   separator: {
     name: '分隔线',
-    summary: '一条线，三种粗细——单色页面需要它们。',
-    when: '细线分行，边线分块，实线压在报头下面。',
-    accessibility: ['默认 role="none"。只是把东西在视觉上分组的线，不应该被念出来。'],
+    summary: '一条线，三种粗细——单色页面需要它们；断口本身有话要说时，还能往里放字。',
+    when: '细线分行，边线分块，实线压在报头下面。label 把字放进断口里：“或使用以下方式继续”、“更早”。',
+    accessibility: [
+      '默认 role="none"。只是把东西在视觉上分组的线，不应该被念出来。',
+      '带了 label，字就是内容，两截线是 aria-hidden 的装饰——所以 decorative 不再适用，也不会有谁在这段文字头上再播报一条分隔线。',
+      '竖线上的 label 会被忽略，而不是被悄悄改画成一条横线：一列一像素宽的东西里，没有任何一个位置适合放字。',
+    ],
   },
   diagram: {
     name: '示意图',
@@ -122,6 +130,62 @@ export const COMPONENTS_ZH: Record<string, ComponentCopy> = {
     name: '数字带',
     summary: '一排被数出来的事实，只用细线分隔，此外什么都没有。',
     accessibility: ['用 <dl>：每个格子是一个词条和它的值，这是一堆 div 表达不了的。'],
+  },
+  text: {
+    name: '文本',
+    summary: '这套系统的段落，落在墨色阶的第二级。',
+    when: '一个段落，或者一段跑在阅读栏之外的文字。一整列正文是 Article。',
+    accessibility: [
+      'as 只换元素，别的什么都不换，所以标记可以照实说这段内容是什么，而外观不会在底下跟着变。',
+      '每一种 tone 都是过得了 AA 的一级；muted 那一档是 --ink-3-aa，不是半透明的 --ink-3。',
+    ],
+  },
+  heading: {
+    name: '标题',
+    summary: '一个标题，元素和字号是两个各自独立的决定。',
+    when: '任何标题。level 跟着文档大纲走，size 跟着设计走，并且默认从 level 推出来。',
+    accessibility: [
+      'level 渲染的是真正的标题元素，所以这份大纲是能被导航的，而不只是看得见。',
+      '两个决定是两个 prop，正是这一点让一个语义上正确的 h3 可以长得像页面标题，而不必把大纲掰弯。',
+      '带 scroll-margin-top，所以锚点跳过去的标题不会被固定的顶栏盖住（实践中的 WCAG 2.4.7）。',
+    ],
+  },
+  code: {
+    name: '行内代码',
+    summary: '句子里的一个函数名，或者一个 flag。',
+    when: '正文当中的行内代码。多行片段是 CodeBlock。',
+    accessibility: ['渲染 <code>，辅助技术靠它才知道这一段是字面量而不是正文。'],
+  },
+  'code-block': {
+    name: '代码块',
+    summary: '一段多行片段，摆在 plate 上，并配一条把它带走的路。',
+    when: '任何超过一个词的片段。构建期的高亮器已经跑过就传 html，没跑过就只传 code。',
+    accessibility: [
+      '会滚动的主体可以被 Tab 到，并且带一个有名字的 role="group"，所以溢出的部分用键盘够得着，Tab 到的时候也会念出它是什么。刻意不用 role="region"：那是地标，一个页面上放两段代码，就会往地标表里塞进两个同名的条目。',
+      '复制按钮是一个 iconOnly 的 Button，aria-label 必填，成功后变成“Copied”——状态变化是被播报出来的，不只是被画出来的。',
+      '在粗指针设备上，复制控件够到了 44px 的指针目标下限，而只靠那条紧凑的带子是够不到的（WCAG 2.5.5）。',
+    ],
+  },
+  markdown: {
+    summary: '一段 Markdown 字符串，用这套系统的组件渲染出来。',
+    when: '不是这边写的内容——一条评论、一份 README、一个模型的回答。来自你自己管线的可信 HTML 是 Article。',
+    accessibility: [
+      'headingLevelStart 一次挪动整份文档，所以嵌进去的内容保持一份合法的大纲，而不是从 h1 重新来过。',
+      '每个标题都拿到一个稳定的、保留原文字符的 id，并按文档顺序去重，所以目录能链进去。',
+      'href 的协议不是 http、https、mailto 或 tel 的链接会渲染成纯文本——javascript: 永远不会变成一个控件。',
+      '通往别的站点的链接带着 rel="noreferrer nofollow"，所以一个不可信的作者既花不掉这个页面的权重，也没法从 Referer 里读出它的 URL。这一条不可配置；markExternalLinks 加的是那个看得见的站外箭头，默认关闭。',
+      '格式不对或者空的字符串渲染成什么都没有，而不是抛错——读者写出来的内容，本来就常常是这样。',
+    ],
+  },
+  timestamp: {
+    name: '时间戳',
+    summary: '一个日期或一个时间，按这套系统渲染它们的唯一方式渲染。',
+    when: '屏幕上任何一个时刻。另一条路是在调用处写 toLocaleString()，一个产品的一屏上凑齐四种日期格式就是这么来的。',
+    accessibility: [
+      'datetime 属性从第一次渲染起就带着精确的 ISO 时刻，所以读机器值的辅助技术从不依赖某个 effect 跑没跑过。',
+      '看得见的文字在挂载后变一次，机器值从头到尾不变，播报出来的值和解析出来的值因此始终一致。',
+      '解析不了的值渲染成一个破折号，而不是浏览器那句原样的“Invalid Date”——那是工程的残渣，不是该摆到读者面前的东西。',
+    ],
   },
   spinner: {
     name: '加载环',
@@ -155,11 +219,14 @@ export const COMPONENTS_ZH: Record<string, ComponentCopy> = {
   toast: { name: '轻提示', summary: '一次性的确认，在应用根部挂一次。', when: '某件事成功了、且不需要回应。Toast 是被时间关掉的，而时间不算确认。' },
   field: {
     name: '表单项',
-    summary: '一行带标签的表单：标签、控件，和下面那一条消息。',
+    summary: '一行带标签的表单：标签、控件，和下面那一条消息——在 row 布局下，它就是那一行设置项。',
+    when: '任何带标签的控件。layout="row" 就是设置行——标签和 description 在行首，控件在行尾——它在这里是一种布局而不是第二个组件，因为不管哪种排法，标签接线、必填标记和消息插槽都还是同样这三件事。',
     accessibility: [
       '没传 id 时会自己生成一个，所以标签永远指向某个东西。',
       '把 aria-describedby、aria-required、aria-invalid 接到控件上，所以校验是被念出来的，不只是被画出来的。',
       'hint 和 error 是同一个位置，不是两条叠着：字段错了的时候，该读的是它哪里错了。',
+      'description 排在消息前面一起进 aria-describedby，所以一行设置项先说这个设置是干什么的，再说它哪里错了。',
+      'row 布局把标签挪到行的另一头，关联关系一点没变——仍然是 htmlFor 指向那个克隆进去的 id，这也是为什么这一行对 Switch、Checkbox、Input、Textarea 和 NativeSelect 成立，对上面那六个复合控件不成立。',
     ],
   },
   input: { name: '输入框', summary: '一行文本输入。', accessibility: ['placeholder 不是标签——只要有人开始打字它就消失了。请配合 Field 使用。'] },
@@ -301,7 +368,7 @@ export const COMPONENTS_ZH: Record<string, ComponentCopy> = {
     accessibility: [
       '默认渲染成 <article>，所以整篇内容是读者可以直接跳到的地标。',
       '每个标题都带 scroll-margin，锚点跳过去时不会被固定的顶栏盖住。',
-      '样式全是低优先级的元素选择器，所以放进去的组件仍然用自己的类。',
+      '样式是不分层引入的，所以在文章里它们赢过组件的分层工具类——正是这一点让一个 Markdown 段落把外边距让给文章的节奏。',
     ],
   },
   card: { name: '卡片', summary: '一块有边界的表面，下面没有阴影。', when: '需要读作“浮起来”的卡片是 plate，它靠反色分离，而不是靠模糊。' },
@@ -333,6 +400,36 @@ export const COMPONENTS_ZH: Record<string, ComponentCopy> = {
     name: '应用外壳',
     summary: '桌面上两栏，手机上一栏加抽屉。',
     accessibility: ['抽屉除了点遮罩，也能用 Escape 关闭，所以键盘用户不会被困在里面。', '遮罩是 <button>，因为带 onClick 的 div 既够不到也不会被播报。'],
+  },
+  'description-list': {
+    name: '描述列表',
+    summary: '一条记录的各个字段，用真正的 <dl>，不是一堆 div 拼的网格。',
+    when: '正面看一条记录——详情页、摘要面板。从上往下看好几条记录，那是 Table。',
+    accessibility: [
+      '真正的 <dl>、<dt> 和 <dd>，读屏软件靠它才知道一个标签命名的是它旁边那个值。',
+      '每一对包在一个 <div> 里，规范允许 <dl> 里出现它，辅助技术也会直接读穿过去。',
+      '空列表渲染成 null，而不是一个空的 <dl>，所以不会有谁去播报一个一项都没有的列表。',
+    ],
+  },
+  toolbar: {
+    name: '工具栏',
+    summary: '贴在工作区边缘的那条动作栏。',
+    when: '表单滚动时仍然要够得着的那几个动作，或者一个列表上方的筛选条。不是页面头部——那是 AppShell。',
+    accessibility: [
+      'label 必填，它就是这个 group 的可访问名称，所以一个同时有筛选条和动作条的页面播报出来的是两个不同的东西。',
+      '每个控件都保留自己在 Tab 顺序里的位置，因为这条栏刻意不去声明 role="toolbar"，也就不去认它那份“只占一个 Tab 停靠点”的约定。',
+      '底是不透明的，所以栏上的控件对比度永远是对着 --paper 算的，而不是对着此刻正从背后滚过去的随便什么东西。',
+    ],
+    keyboard: ['依次走到每一个控件——这条栏本身不是一个停靠点。'],
+  },
+  'aspect-ratio': {
+    name: '宽高比',
+    summary: '一个盒子，不管里面装什么都保持形状。',
+    when: '高度必须在内容加载之前就知道——否则每来一张图就要重排一次的媒体网格。',
+    accessibility: [
+      '一个没有 role 的普通盒子：它只约束几何，什么都不说，所以里面的 <img> 留着自己的 alt，无障碍树上不会多出任何东西。',
+      '在内容到达之前先把高度占住，下面的东西才不会在指针或读者点下去的那一刻从底下挪走。',
+    ],
   },
 }
 

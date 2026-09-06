@@ -85,7 +85,13 @@ export function Home({ locale }: { locale: Locale }) {
 
       <section className="flex flex-col gap-5">
         <SectionHeading id="foundations">{t.nav.foundations}</SectionHeading>
-        <div className="grid gap-px overflow-hidden rounded-(--radius-lg) border border-(--rule) bg-(--rule) sm:grid-cols-2">
+        {/* The hairlines are the container's ground showing through a 1px gap,
+            which means an unfilled cell is not empty — it is a rule-coloured
+            rectangle. The last card spans both columns when the count is odd,
+            so the grid stays whole however many foundations there are. It was
+            four for a long time and is nine now; the next one should not need
+            a layout change. */}
+        <div className="grid gap-px overflow-hidden rounded-(--radius-lg) border border-(--rule) bg-(--rule) sm:grid-cols-2 sm:[&>:last-child:nth-child(odd)]:col-span-2">
           {FOUNDATIONS.map((page) => {
             const zh = foundationCopy(locale, page.slug)
             return (

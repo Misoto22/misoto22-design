@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import { COMPONENTS, GROUPS, groupedComponents } from '../registry'
-import { FOUNDATIONS } from '../foundations'
 import propsJson from '@/generated/props.json'
 import examplesJson from '@/generated/examples.json'
 import { EXAMPLES } from '@/generated/example-registry'
@@ -68,19 +67,7 @@ describe('component registry', () => {
   })
 })
 
-describe('foundations', () => {
-  it('uses unique slugs', () => {
-    const slugs = FOUNDATIONS.map((page) => page.slug)
-    expect(new Set(slugs).size).toBe(slugs.length)
-  })
-
-  it('shows at least one non-empty token category per page', () => {
-    // A foundations page whose categories all resolve to nothing renders a
-    // title and a void — which is how a renamed token category disappears.
-    const tokens = FOUNDATIONS.map((page) => ({
-      slug: page.slug,
-      categories: page.categories.map((category) => category.key),
-    }))
-    expect(tokens.every((page) => page.categories.length > 0)).toBe(true)
-  })
-})
+// The foundations pages moved to their own file — `__tests__/foundations.test.ts`.
+// They are no longer all token pages (`getting-started` and `agents` carry prose
+// and name no category), so "every page has a category" stopped being true and
+// the replacement checks routes, categories, cross-links and snippets instead.

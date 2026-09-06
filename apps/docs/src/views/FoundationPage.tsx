@@ -1,11 +1,17 @@
+import Link from 'next/link'
 import { foundationCopy } from '@/i18n/content'
-import type { Locale } from '@/i18n/locales'
+import { type Locale, localePath } from '@/i18n/locales'
 import { getMessages } from '@/i18n/messages'
 import { notFound } from 'next/navigation'
-import { PageIntro } from '@/components/PageIntro'
+import { CodeBlock } from '@/components/CodeBlock'
+import { CommandBlock } from '@/components/CommandBlock'
+import { IconSpecimen } from '@/components/IconSpecimen'
+import { PageIntro, SectionHeading } from '@/components/PageIntro'
+import { Prose } from '@/components/Prose'
 import { TokenTable } from '@/components/TokenTable'
+import type { FoundationSection } from '@/content/foundations'
 import { FOUNDATION_BY_SLUG } from '@/content/foundations'
-import { tokensByCategory } from '@/lib/docs'
+import { snippet, tokensByCategory } from '@/lib/docs'
 
 export async function FoundationPage({ locale, slug }: { locale: Locale; slug: string }) {
   const page = FOUNDATION_BY_SLUG.get(slug)
@@ -27,9 +33,19 @@ export async function FoundationPage({ locale, slug }: { locale: Locale; slug: s
             {paragraph}
           </p>
         ))}
+        {page.related && <RelatedPages locale={locale} slugs={page.related} />}
       </div>
 
       {slug === 'typography' && <TypeSpecimen />}
+      {slug === 'icons' && <IconSpecimen />}
+
+      {/* Prose sections come BEFORE the token tables, on the two pages that have
+          both. A page whose subject is a set of tokens leads with them; a page
+          that documents a command or a stylesheet leads with the writing, and
+          neither of those two has a table to be pushed down. */}
+      {page.sections?.map((section) => (
+        <ProseSection key={section.id} section={section} />
+      ))}
 
       {page.categories.map((category) => {
         const { rows, dark } = tokensByCategory(category.key)
@@ -45,6 +61,72 @@ export async function FoundationPage({ locale, slug }: { locale: Locale; slug: s
         )
       })}
     </div>
+  )
+}
+
+/**
+ * One prose section: a heading, the writing, an optional definition list, and
+ * the blocks a reader came to copy.
+ *
+ * Titles and body are English-only for now. `foundationCopy` returns `{}` for a
+ * slug it has no Chinese for, and the page falls back to English field by field
+ * rather than rendering a blank — so an untranslated section reads in English
+ * instead of disappearing, which is the same rule the rest of the site follows.
+ */
+function ProseSection({ section }: { section: FoundationSection }) {
+  return (
+    <section className="flex flex-col gap-5">
+      <SectionHeading id={section.id}>{section.title}</SectionHeading>
+      <Prose text={section.body.join('\n\n')} />
+
+      {section.rows && (
+        <dl className="m-0 flex flex-col divide-y divide-(--rule) border-y border-(--rule)">
+          {section.rows.map((row) => (
+            // A description list rather than a Table: these are a term and its
+            // gloss, not a grid, and a table would promise columns that are not
+            // there. `md:` only — at a phone's width the two stack.
+            <div key={row.term} className="grid gap-1 py-3.5 md:grid-cols-[15rem_minmax(0,1fr)] md:gap-5">
+              <dt className="m-0 font-mono text-xs text-(--ink)">{row.term}</dt>
+              <dd className="m-0 max-w-(--measure-record) text-[13px] leading-relaxed text-(--ink-2)">
+                {row.detail}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {section.snippets?.map((id) => <CodeBlock key={id} {...snippet(id)} label={id} />)}
+      {section.commands?.map((command) => (
+        <CommandBlock key={command.source} source={command.source} label={command.label} />
+      ))}
+    </section>
+  )
+}
+
+/**
+ * Where this page deliberately stops.
+ *
+ * Slugs rather than hrefs, so the locale prefix is applied here and a renamed
+ * page fails `foundations.test.ts` instead of shipping a 404 nobody clicks.
+ */
+function RelatedPages({ locale, slugs }: { locale: Locale; slugs: string[] }) {
+  return (
+    <p className="m-0 flex flex-wrap items-baseline gap-x-4 gap-y-1 pt-2">
+      <span className="eyebrow text-(--ink-3-aa)">Read next</span>
+      {slugs.map((slug) => {
+        const target = FOUNDATION_BY_SLUG.get(slug)
+        if (!target) return null
+        return (
+          <Link
+            key={slug}
+            href={localePath(locale, `/foundations/${slug}/`)}
+            className="text-sm text-(--ink-2) underline decoration-(--rule-2) underline-offset-4 transition-colors duration-(--duration-fast) hover:text-(--ink)"
+          >
+            {foundationCopy(locale, slug).title ?? target.title}
+          </Link>
+        )
+      })}
+    </p>
   )
 }
 

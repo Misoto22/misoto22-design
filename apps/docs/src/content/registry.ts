@@ -47,6 +47,26 @@ export interface ComponentEntry {
   summary: string
   /** When to reach for this rather than the component beside it. */
   when?: string
+  /**
+   * The parts of the rendered thing, named so a reader can point at one.
+   *
+   * The props say what may be passed; they do not say what the reader is
+   * looking at, and half the questions a component attracts are about a part
+   * with no prop of its own — a spinner that exists only while `loading` is
+   * true, a slot the label shares with an icon.
+   *
+   * Optional because it is being filled in component by component in the
+   * package, and a page has to read right while the field is still absent.
+   */
+  anatomy?: { element: string; required?: boolean; description: string }[]
+  /**
+   * Do and don't, as judgements with a consequence attached.
+   *
+   * `accessibility` records what the component does on the caller's behalf;
+   * this records what it cannot — the call sites that compile, render, and are
+   * still wrong.
+   */
+  practices?: { kind: 'do' | 'dont'; text: string }[]
   /** Promises the component keeps so a call site does not have to. */
   accessibility?: string[]
   /**
@@ -83,7 +103,10 @@ const PREVIEW_HEIGHTS: Record<string, string> = {
   command: 'min-h-[24rem]',
   'context-menu': 'min-h-[20rem]',
   'date-picker': 'min-h-[26rem]',
-  'dropdown-menu': 'min-h-[18rem]',
+  // 20rem, not 18: the overflow-button example opens a five-row panel from a
+  // trigger part-way down the frame, and 18rem cleared it by a few pixels —
+  // which a compact density or a font fallback would take back.
+  'dropdown-menu': 'min-h-[20rem]',
   popover: 'min-h-[20rem]',
   'searchable-menu': 'min-h-[27rem]',
   select: 'min-h-[24rem]',

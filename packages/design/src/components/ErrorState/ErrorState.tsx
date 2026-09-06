@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from 'react'
+import { Heading, type HeadingLevel } from '../Heading/Heading'
 import { cn } from '../../lib/cn'
 
 export interface ErrorStateProps extends HTMLAttributes<HTMLElement> {
@@ -8,6 +9,23 @@ export interface ErrorStateProps extends HTMLAttributes<HTMLElement> {
   message: ReactNode
   /** The way back. Render it with {@link ERROR_ACTION_CLASS}. */
   action: ReactNode
+  /**
+   * The heading level `heading` opens, in the document the error state lands in.
+   *
+   * Defaults to `1`, and that is not a compromise: this component replaces the
+   * page rather than sitting inside one — its own ground, its own viewport, its
+   * own top clearance — so the page's single `h1` is the one it renders. Kept
+   * as the default, existing call sites render exactly the markup they did.
+   *
+   * The prop exists because the level was previously fixed, and the one piece
+   * of advice this component's documentation gives about headings — do not put
+   * it inside a shell that already has an `h1` — was advice a caller had no way
+   * to take. Now they do: inside a shell that owns the page heading, pass `2`.
+   *
+   * The size does not follow the level. `heading` renders at `--fs-heading` at
+   * every level; a failure demoted in the outline is the same failure.
+   */
+  level?: HeadingLevel
 }
 
 /**
@@ -31,8 +49,19 @@ export const ERROR_ACTION_CLASS =
  *   message="The page you're looking for has moved, or never existed."
  *   action={<a href="/" className={ERROR_ACTION_CLASS}>Back home</a>}
  * />
+ * @example
+ * // Inside a shell that already owns the page's h1.
+ * <ErrorState level={2} code="503" heading="Invoices could not be loaded" … />
  */
-export function ErrorState({ code, heading, message, action, className, ...rest }: ErrorStateProps) {
+export function ErrorState({
+  code,
+  heading,
+  message,
+  action,
+  level = 1,
+  className,
+  ...rest
+}: ErrorStateProps) {
   return (
     <section
       className={cn('flex min-h-svh flex-col justify-center bg-(--paper) pt-24', className)}
@@ -45,9 +74,9 @@ export function ErrorState({ code, heading, message, action, className, ...rest 
         >
           {code}
         </p>
-        <h1 className="mb-4 mt-6 font-heading text-[length:var(--fs-heading)] font-normal text-(--ink)">
+        <Heading level={level} size="heading" className="mb-4 mt-6">
           {heading}
-        </h1>
+        </Heading>
         <p className="mb-10 max-w-(--measure-record) text-base leading-relaxed text-(--ink-3-aa)">
           {message}
         </p>

@@ -1,5 +1,12 @@
 import { LinkArrow } from '@misoto22/design'
 
+/**
+ * The mark, inside the anchor and as its last child. Outside it, it is an arrow
+ * pointing at a link the pointer misses by 0.22em. The glyph is set in em so it
+ * tracks the type beside it rather than competing with it, and it is
+ * aria-hidden — nothing is announced by putting it here, so the link's own
+ * words still have to say where they go.
+ */
 export function Example() {
   return (
     <p className="m-0 text-sm text-(--ink-2)">

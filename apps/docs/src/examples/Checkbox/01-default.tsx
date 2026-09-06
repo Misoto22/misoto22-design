@@ -5,6 +5,16 @@ import { useState } from 'react'
 
 const JOBS = ['Ship on merge', 'Notify the channel', 'Run the smoke tests']
 
+/**
+ * A select-all header over the rows it summarises. Some-but-not-all is the
+ * indeterminate state, and it has to be driven through the controlled checked
+ * prop: the glyph is chosen from props.checked, so an uncontrolled box never
+ * draws the dash and reports the opposite of the truth. The state means “some
+ * of the things under this one”, so it only belongs on a header — a leaf that
+ * draws a dash is claiming a state its own value cannot hold. Note the labels:
+ * the control renders none of its own, so the words, and the click target they
+ * give it, are the call site's job.
+ */
 export function Example() {
   const [checked, setChecked] = useState<string[]>([JOBS[0]!])
 
