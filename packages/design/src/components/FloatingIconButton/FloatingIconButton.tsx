@@ -2,6 +2,7 @@
 
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+import { warnBlankName } from '../../lib/warn'
 
 export interface FloatingIconButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
@@ -45,6 +46,7 @@ export function FloatingIconButton({
   className,
   ...rest
 }: FloatingIconButtonProps) {
+  warnBlankName('FloatingIconButton', 'label', label, 'the button is announced as "button" and nothing else')
   return (
     <button
       type="button"

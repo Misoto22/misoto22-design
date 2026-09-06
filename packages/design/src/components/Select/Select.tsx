@@ -4,6 +4,7 @@ import * as SelectPrimitive from '@radix-ui/react-select'
 import { Check, ChevronDown, ChevronUp } from 'lucide-react'
 import type { ComponentProps, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+import { warnBlankName } from '../../lib/warn'
 import { useOverlayContainer } from '../../lib/overlay-container'
 import { CONTROL_BASE, CONTROL_BORDER, isInvalid } from '../../lib/control'
 
@@ -70,7 +71,9 @@ export function Select({
   children,
   ...props
 }: SelectProps) {
+  warnBlankName('Select', 'label', label, 'the trigger is announced with no name')
   const bad = isInvalid(invalid)
+
   const container = useOverlayContainer()
 
   return (

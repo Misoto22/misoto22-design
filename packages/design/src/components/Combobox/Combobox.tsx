@@ -3,6 +3,7 @@
 import { Check, ChevronsUpDown, X } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '../../lib/cn'
+import { warnBlankName } from '../../lib/warn'
 import {
   Command,
   CommandEmpty,
@@ -90,6 +91,7 @@ export function Combobox(props: ComboboxProps) {
     className,
   } = props
   const multiple = props.multiple === true
+  warnBlankName('Combobox', 'label', label, 'the trigger is announced with no name')
 
   const [open, setOpen] = useState(false)
   const [uncontrolled, setUncontrolled] = useState<string[]>(() => {
