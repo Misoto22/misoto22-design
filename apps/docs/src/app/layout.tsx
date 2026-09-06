@@ -77,6 +77,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             Declared here so an agent finds it without being told. */}
         <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
         <link rel="alternate" type="text/plain" href="/llms-full.txt" title="llms-full.txt" />
+        {/* The index again, under the extension an agent appends to a URL
+            rather than one it has to be told. Same bytes as /llms.txt. */}
+        <link rel="alternate" type="text/markdown" href="/index.md" title="index.md" />
       </head>
       <body>
         <ThemeProvider>

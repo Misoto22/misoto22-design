@@ -96,6 +96,41 @@ test('llms-full.txt carries every component inline', async ({ request }) => {
   }
 })
 
+test('the same text is served under the extension an agent guesses', async ({ request }) => {
+  // An agent holding a page URL appends `.md` and fetches, because enough
+  // documentation sites now serve that for the guess to be worth making. It has
+  // to be the SAME bytes as the llms.txt beside it: two URLs that drift are
+  // worse than one, and copying rather than re-rendering is what prevents it.
+  const markdown = await request.get('/components/combobox.md')
+  expect(markdown.status()).toBe(200)
+
+  const canonical = await request.get('/components/combobox/llms.txt')
+  expect(await markdown.text()).toBe(await canonical.text())
+
+  const index = await request.get('/index.md')
+  expect(index.status()).toBe(200)
+  expect(await index.text()).toBe(await (await request.get('/llms.txt')).text())
+})
+
+test('every component published as text is published as markdown too', async ({ request }) => {
+  // A partial mapping is the failure this catches: the head of every component
+  // page promises a .md, so one missing is a 404 an agent was told to expect.
+  for (const slug of SLUGS) {
+    const response = await request.get(`/components/${slug}.md`)
+    expect(response.status(), `/components/${slug}.md is not served`).toBe(200)
+  }
+})
+
+test('a component page declares its markdown, in both languages', async ({ request }) => {
+  for (const path of ['/components/combobox/', '/zh/components/combobox/']) {
+    const html = await (await request.get(path)).text()
+    expect(html, `${path} does not declare its markdown`).toContain(
+      'type="text/markdown"',
+    )
+    expect(html).toContain('/components/combobox.md')
+  }
+})
+
 test('a crawler is pointed at both the sitemap and the text', async ({ request, page }) => {
   const robots = await (await request.get('/robots.txt')).text()
   expect(robots).toContain('Sitemap: https://ui.misoto22.com/sitemap.xml')
