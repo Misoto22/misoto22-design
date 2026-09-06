@@ -59,7 +59,7 @@ export function Command({
   return (
     <CommandPrimitive
       className={cn(
-        'flex w-full flex-col overflow-hidden rounded-(--radius-lg) border border-(--panel-border) bg-(--panel-bg) panel-blur',
+        'flex w-full flex-col overflow-hidden rounded-(--radius-lg) border border-(--panel-border) bg-(--panel-bg) shadow-(--panel-lift) panel-blur',
         className,
       )}
       {...props}

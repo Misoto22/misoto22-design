@@ -88,7 +88,7 @@ export function SheetContent({
         // depends on anyone remembering it.
         data-m22-animated
         className={cn(
-          'fixed z-(--z-modal) flex flex-col overflow-y-auto border-(--panel-border) bg-(--panel-bg) p-6 panel-blur transition-transform duration-(--duration-slow) ease-(--ease-out-expo) scroll-slim',
+          'fixed z-(--z-modal) flex flex-col overflow-y-auto border-(--panel-border) bg-(--panel-bg) p-6 shadow-(--panel-lift) panel-blur transition-transform duration-(--duration-slow) ease-(--ease-out-expo) scroll-slim',
           SIDE[side],
           // Docked to the container's edge, and capped by its box — the widths
           // above are read against the viewport and would overflow a frame.

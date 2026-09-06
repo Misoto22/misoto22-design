@@ -129,7 +129,13 @@ export function ComponentThumb({ exampleKey }: { exampleKey: string }) {
         // result makes a thumbnail the same picture at every card size, and the
         // card never has to be wide enough for the example — only proportional
         // to it.
-        <div ref={box} className="pointer-events-none w-[440px] origin-center">
+        <div
+          ref={box}
+          // `items-center`: the BOX is 440 and centred, but a narrower example
+          // inside it is a block, so it sat against the box's start edge and
+          // every card with a `max-w-xs` form in it read as left-of-centre.
+          className="pointer-events-none flex w-[440px] origin-center flex-col items-center"
+        >
           <OverlayContainer container={frame}>
             <Example />
           </OverlayContainer>

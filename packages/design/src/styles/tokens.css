@@ -423,6 +423,16 @@
   --panel-border: var(--rule-2);
   --panel-filter: none;
 
+  /* The offset under a floating panel, and it does not break Law 2: the law
+     says a box-shadow is never BLURRED, not that there is never one. This is
+     the same hard-offset idiom as `--lift`, in the rule colour rather than the
+     accent — every menu in the system wearing a clay drop shadow would be a
+     louder claim than "this sits above the page".
+     Two steps, because one reads as a second border: a firm edge just below the
+     panel and a softer one below that is a stack seen from the front, which is
+     the flattest way to say depth without drawing light. */
+  --panel-lift: 0 2px 0 0 var(--rule-2), 0 5px 0 -1px var(--rule);
+
   /* ─── Motion ─── */
   --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
   --fast: 0.13s;
