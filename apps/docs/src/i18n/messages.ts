@@ -64,6 +64,9 @@ const en = {
     components: 'Components',
     tailwind: 'Already using Tailwind?',
     agents: 'Reading this as an agent?',
+    readNext: 'Read next',
+    partsNote:
+      'Composed at the call site rather than configured through props, so a layout this component did not anticipate is still expressible.',
   },
   table: {
     prop: 'Prop',
@@ -106,6 +109,7 @@ const en = {
     density: 'Density',
     comfortable: 'Comfortable',
     compact: 'Compact',
+    loadingEditor: 'Loading the editor…',
   },
   appearance: {
     toDark: 'Switch to the dark theme',
@@ -243,6 +247,9 @@ const zh: Messages = {
     components: '组件',
     tailwind: '已经在用 Tailwind？',
     agents: '你是 agent 在读这一页？',
+    readNext: '接着读',
+    partsNote:
+      '在调用处组合，而不是通过 props 配置——所以这个组件没有预料到的布局，依然表达得出来。',
   },
   table: {
     prop: '属性',
@@ -285,6 +292,7 @@ const zh: Messages = {
     density: '密度',
     comfortable: '宽松',
     compact: '紧凑',
+    loadingEditor: '编辑器加载中…',
   },
   appearance: {
     toDark: '切换到暗色主题',
