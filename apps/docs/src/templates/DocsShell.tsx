@@ -114,7 +114,7 @@ const OPTIONS = [
  *                is already the constraint.
  *
  * The contents rail is `sticky`, one step of indent for an h3, and marked
- * `aria-label="On this page"` so it is a second navigation landmark a reader
+ * `aria-label="Contents"` so it is a second navigation landmark a reader
  * can skip rather than an unnamed list of links.
  *
  * No state, so no `'use client'`. Every element is from the package.
@@ -123,7 +123,11 @@ export function DocsShell() {
   return (
     <SidebarProvider collapsible="icon" shortcut={null}>
     <div className="flex min-h-[38rem]">
-      <Sidebar label="Reference" className="hidden @3xl:flex">
+      {/* Named for the product, not for the section. The trail on this page is
+          already a navigation landmark called "Reference", and two of those is a
+          reader hearing the same answer twice — which only became true when this
+          rail stopped being an <aside> and became a <nav>. */}
+      <Sidebar label="Ferry" className="hidden @3xl:flex">
         <SidebarHeader>
           <span className="font-heading text-[15px] text-(--ink)">Ferry</span>
           <span className="mono-meta text-(--ink-3-aa)">v2.4</span>
@@ -302,12 +306,16 @@ export function DocsShell() {
           same shape the site's own contents rail settled on. An outline whose
           entries are smaller than everything they point at reads as small
           print beside the document rather than as a map of it. */}
+      {/* "Contents", not "On this page". The documentation site's own rail
+          beside this template carries that name, and two navigation landmarks
+          with one accessible name is a reader hearing the same answer twice
+          with nothing to tell them apart. */}
       <nav
-        aria-label="On this page"
+        aria-label="Contents"
         className="w-48 shrink-0 border-s border-(--rule) p-6 max-@5xl:hidden"
       >
         <div className="sticky top-6 flex flex-col">
-          <p className="m-0 mb-3 eyebrow text-(--ink-3-aa)">On this page</p>
+          <p className="m-0 mb-3 eyebrow text-(--ink-3-aa)">Contents</p>
           <ul className="m-0 flex list-none flex-col border-s border-(--rule) p-0">
             {CONTENTS.map((item, index) => (
               <li key={item.id}>

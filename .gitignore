@@ -29,3 +29,6 @@ apps/docs/test-results/
 apps/docs/playwright-report/
 apps/docs/.wrangler/
 .wrangler/
+
+# Playwright MCP page dumps, written by an agent driving the built site.
+.playwright-mcp/

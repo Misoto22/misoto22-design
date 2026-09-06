@@ -31,7 +31,7 @@ for (const slug of ANCHORED) {
     await page.goto(`/components/${slug}/`)
     await expect(page.getByRole('button', { name: /Switch to the (light|dark) theme/ })).toBeVisible()
 
-    const frames = page.locator('[data-density]')
+    const frames = page.locator('[data-canvas]')
     let opened = 0
 
     for (let f = 0; f < (await frames.count()); f++) {
@@ -75,7 +75,7 @@ test('context-menu: the open panel stays inside the example card', async ({ page
   await page.goto('/components/context-menu/')
   await expect(page.getByRole('button', { name: /Switch to the (light|dark) theme/ })).toBeVisible()
 
-  const frame = page.locator('[data-density]').first()
+  const frame = page.locator('[data-canvas]').first()
   await frame.evaluate((el) => el.scrollIntoView({ block: 'center' }))
   // A context menu has no trigger to click — it answers a right-click on its
   // target, which is why the sweep above cannot reach it.

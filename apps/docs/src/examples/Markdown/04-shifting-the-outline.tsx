@@ -25,7 +25,7 @@ export function Example() {
   return (
     <div className="flex flex-col gap-4">
       <Heading level={2}>Getting started</Heading>
-      <nav aria-label="On this page" className="flex flex-col gap-1">
+      <nav aria-label="Section links" className="flex flex-col gap-1">
         {SECTIONS.map((section) => (
           <a
             key={section}

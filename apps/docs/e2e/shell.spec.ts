@@ -120,7 +120,7 @@ test.describe('theme', () => {
     await page.goto('/components/card/')
     await ready(page)
 
-    const card = page.locator('[data-density] [class*="rounded"]').first()
+    const card = page.locator('[data-canvas] [class*="rounded"]').first()
     const radius = () => card.evaluate((el) => getComputedStyle(el).borderRadius)
     const soft = await radius()
 
@@ -229,7 +229,10 @@ test.describe('templates', () => {
     await ready(page)
 
     const frame = page.getByRole('region', { name: 'Dashboard preview' })
-    const sidebar = frame.locator('aside')
+    // By its accessible name, not by tag: the template's rail is the package's
+    // Sidebar now, and that renders a <nav>. A tag selector for a landmark is a
+    // guess about markup; the name is the contract.
+    const sidebar = frame.getByRole('navigation', { name: 'Console' })
     const heading = page.locator('[data-fluid-frame] h1, [data-fluid-frame] .font-heading').first()
 
     await expect(sidebar).toBeVisible()

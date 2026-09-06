@@ -24,7 +24,7 @@ export function Example() {
   return (
     <SidebarProvider collapsible="offcanvas" shortcut={null}>
       <div className="flex h-72 w-full overflow-hidden rounded-(--radius-lg) border border-(--rule)">
-        <Sidebar label="Documentation">
+        <Sidebar label="Handbook">
           <SidebarHeader>
             <span className="truncate font-heading text-[15px] text-(--ink)">Handbook</span>
             <SidebarTrigger className="ms-auto" />

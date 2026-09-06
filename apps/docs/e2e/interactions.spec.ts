@@ -190,7 +190,7 @@ test('date picker: the caption opens a month picker in place of the grid', async
   // The card reserves the room the open state needs, so the panel does not
   // spill over whatever is printed beneath it.
   const panel = await calendar.boundingBox()
-  const card = await page.locator('[data-density]').first().boundingBox()
+  const card = await page.locator('[data-canvas]').first().boundingBox()
   expect(panel && card && panel.y + panel.height).toBeLessThanOrEqual((card?.y ?? 0) + (card?.height ?? 0) + 1)
 })
 
@@ -282,7 +282,7 @@ test('searchable menu: the filter narrows nine actions to one', async ({ page })
   await ready(page)
 
   // Scoped to the example: the sidebar has a collapsible group of the same name.
-  await page.locator('[data-density]').getByRole('button', { name: 'Actions' }).first().click()
+  await page.locator('[data-canvas]').getByRole('button', { name: 'Actions' }).first().click()
   const list = page.getByRole('listbox')
   await expect(list.getByRole('option')).toHaveCount(9)
 
@@ -367,7 +367,7 @@ test('toggle group: the sliding pill lands on its segment, scaled or not', async
 
   await page.goto('/components/toggle-group/')
   await ready(page)
-  await landsOnTarget('[data-density] [role="radiogroup"]')
+  await landsOnTarget('[data-canvas] [role="radiogroup"]')
 
   // And inside the zoomed thumbnails on the index. The indicator used to
   // measure with getBoundingClientRect, which reports VISUAL pixels — so in any
