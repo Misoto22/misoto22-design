@@ -35,6 +35,12 @@ const en = {
     expandNav: 'Show the sidebar',
     skip: 'Skip to content',
   },
+  footer: {
+    blurb:
+      'A pure-white monochrome design system for software, writing and photography: portable tokens and accessible React primitives.',
+    forAgents: 'For agents:',
+    theSystem: 'The system',
+  },
   section: {
     examples: 'Examples',
     notes: 'Notes',
@@ -177,6 +183,11 @@ const zh: Messages = {
     collapseNav: '收起侧栏',
     expandNav: '展开侧栏',
     skip: '跳到正文',
+  },
+  footer: {
+    blurb: '一套面向软件、写作与摄影的纯白单色设计系统：可移植的 token，加上一批无障碍的 React 原语。',
+    forAgents: '给 agent：',
+    theSystem: '这套系统',
   },
   section: {
     examples: '示例',

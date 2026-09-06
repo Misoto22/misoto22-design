@@ -6,7 +6,10 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState, type ReactNode } from 'react'
 import { ThemeMenu } from './ThemeMenu'
+import { BrandMark } from './BrandMark'
 import { CommandPalette } from './CommandPalette'
+import { DocsFooter } from './DocsFooter'
+import { GithubMark } from './GithubMark'
 import { LocaleMenu } from './LocaleMenu'
 import { Sidebar } from './Sidebar'
 import { ThemeToggle } from './ThemeToggle'
@@ -123,22 +126,33 @@ export function DocsShell({ children }: { children: ReactNode }) {
           sidebar && docked ? '' : 'lg:hidden'
         }`}
       >
-        {/* The same 3.5rem as the header beside it, and its own bottom rule, so
+        {/* The same 4rem as the header beside it, and its own bottom rule, so
             the two run as one line across the page. They used to be a
             content-height block against a fixed-height bar, and the rules did
-            not meet. */}
+            not meet.
+
+            4rem rather than 3.5: the lockup is two lines of type beside a
+            26px mark, and at 56px that stack had no air above or below it —
+            the band read as thin because it was being asked to hold more than
+            it had room for. The rule under it is the EDGE weight, not the
+            hairline, which is this system's own way of saying "this is a band,
+            not a row". */}
         {/* The wordmark, and on a phone the drawer's close button. The DESKTOP
             collapse control is not here: it used to sit beside the wordmark and
             move to the masthead once the sidebar was away, so the same action
             was in two places depending on the state it was in — which is why
             neither was findable. It is one button in the masthead now, and it
             stays put. */}
-        <div className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-(--rule) px-4">
-          <Link href={localePath(locale, '/')} className="flex flex-col leading-none">
-            <span className="font-heading text-[17px] leading-tight text-(--ink)">
-              misoto22 design
+        <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-(--rule-2) px-4">
+          <Link
+            href={localePath(locale, '/')}
+            className="flex items-center gap-2.5 text-(--ink) transition-opacity duration-(--duration-fast) hover:opacity-70"
+          >
+            <BrandMark size={26} className="shrink-0" />
+            <span className="flex flex-col leading-none">
+              <span className="font-heading text-[17px] leading-tight">misoto22 design</span>
+              <span className="mono-meta text-(--ink-3-aa)">{t.tagline}</span>
             </span>
-            <span className="mono-meta text-(--ink-3-aa)">{t.tagline}</span>
           </Link>
           <Button
             iconOnly
@@ -177,12 +191,12 @@ export function DocsShell({ children }: { children: ReactNode }) {
             below the pointer-target floor — a deliberate density for a mouse.
             A finger is not a mouse, so every control in this bar gets 44px on a
             coarse pointer. */}
-        <header className="sticky top-0 z-(--z-sticky) flex h-14 items-center justify-between gap-3 border-b border-(--rule) bg-(--paper)/85 px-5 backdrop-blur pointer-coarse:[&_a]:min-h-11 pointer-coarse:[&_button]:min-h-11">
+        <header className="sticky top-0 z-(--z-sticky) flex h-16 items-center justify-between gap-3 border-b border-(--rule-2) bg-(--paper)/85 px-5 backdrop-blur pointer-coarse:[&_a]:min-h-11 pointer-coarse:[&_button]:min-h-11">
           <Button
             iconOnly
             size="sm"
             variant="ghost"
-            className="lg:hidden"
+            className="-ms-2 lg:hidden"
             aria-label={t.nav.openNav}
             aria-expanded={open}
             aria-controls="docs-sidebar"
@@ -190,6 +204,26 @@ export function DocsShell({ children }: { children: ReactNode }) {
           >
             <Menu size={18} strokeWidth={1.5} aria-hidden />
           </Button>
+
+          {/* The brand, wherever the sidebar's own head is not on screen.
+              That is not only the phone: collapsing the sidebar on a desktop
+              took the aside away with `lg:hidden`, and the site's name went
+              with it — the one state where a reader could not tell what they
+              were reading. The tagline is dropped here; below `sm` even the
+              wordmark goes, because at 390px the bar has a hamburger and four
+              controls to seat first and the mark alone still says whose site
+              this is. */}
+          <Link
+            href={localePath(locale, '/')}
+            className={`flex items-center gap-2 text-(--ink) transition-opacity duration-(--duration-fast) hover:opacity-70 ${
+              sidebar && docked ? 'lg:hidden' : ''
+            }`}
+          >
+            <BrandMark size={24} className="shrink-0" />
+            <span className="font-heading text-[16px] leading-none max-sm:sr-only">
+              misoto22 design
+            </span>
+          </Link>
           {sidebar && (
             <Button
               iconOnly
@@ -211,7 +245,14 @@ export function DocsShell({ children }: { children: ReactNode }) {
           {/* The four sections, in the masthead rather than as four rows among
               sixteen in the sidebar. A reader arriving on a component page had
               no way to see that templates and themes existed at all. */}
-          <nav aria-label={t.nav.sections} className="flex items-center gap-1 max-nav:hidden">
+          {/* Full-height items, so the current section's underline lands ON
+              the masthead's bottom rule rather than floating above it. Colour
+              alone was carrying the state before, and one step of grey is not
+              a state anyone can see. */}
+          <nav
+            aria-label={t.nav.sections}
+            className="-mb-px flex h-16 items-stretch gap-1 self-stretch max-nav:hidden"
+          >
             {SECTIONS.map((id) => {
               const href = localePath(locale, SECTION_ROOT[id])
               return (
@@ -219,7 +260,7 @@ export function DocsShell({ children }: { children: ReactNode }) {
                   key={id}
                   href={href}
                   aria-current={section === id ? 'page' : undefined}
-                  className="rounded-(--radius-row) px-3 py-1.5 text-sm text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:text-(--ink) aria-[current=page]:text-(--ink)"
+                  className="flex items-center border-b-2 border-transparent px-3 text-sm text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:text-(--ink) aria-[current=page]:border-(--ink) aria-[current=page]:text-(--ink)"
                 >
                   {SECTION_LABEL[id]}
                 </Link>
@@ -231,25 +272,32 @@ export function DocsShell({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-1">
             {/* A visible way in, because a shortcut nobody is told about is a
                 shortcut for the person who built it. */}
+            {/* `secondary`, so it reads as the FIELD it opens rather than as a
+                third ghost link in a row of ghost links. Same bordered box the
+                system gives an input, at the toolbar's own height. */}
             <Button
               size="sm"
-              variant="ghost"
+              variant="secondary"
               onClick={() => document.dispatchEvent(new CustomEvent('m22:palette'))}
-              className="gap-2 text-(--ink-3-aa)"
+              className="gap-2 text-(--ink-3-aa) max-sm:border-transparent max-sm:px-2"
             >
               <Search size={14} strokeWidth={1.5} aria-hidden />
               <span className="max-sm:sr-only">{t.search}</span>
               <Kbd className="max-sm:hidden">⌘K</Kbd>
             </Button>
+            {/* The mark, not the word. Four of the five controls beside it are
+                icons, and spelling this one out made the row read as a link
+                that had wandered in from the page. */}
             <Button
+              iconOnly
               size="sm"
               variant="ghost"
               href="https://github.com/Misoto22/misoto22-design"
               target="_blank"
               rel="noreferrer noopener"
-              className="font-mono text-[11px] tracking-wide"
+              aria-label="GitHub"
             >
-              GitHub
+              <GithubMark size={17} />
             </Button>
             <LocaleMenu />
             <ThemeMenu />
@@ -257,9 +305,16 @@ export function DocsShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main id="content" className="min-w-0 flex-1 px-5 pb-24 pt-8 sm:px-8 lg:px-12">
+        {/* `flex-1` on the MAIN and `mt-auto` on the footer, so a short page
+            pushes the footer to the bottom of the viewport instead of leaving
+            it stranded halfway up. The bottom padding drops from 24 to 16:
+            the footer's own top rule is the ending now, and 96px of nothing
+            in front of it just reads as the same void with a line under it. */}
+        <main id="content" className="min-w-0 flex-1 px-5 pb-16 pt-8 sm:px-8 lg:px-12">
           {children}
         </main>
+
+        <DocsFooter />
       </div>
     </div>
     </TooltipProvider>
