@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  browser:
+  shard:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     # Sharded, because the suite grows with the library and a single runner
@@ -59,3 +59,23 @@ jobs:
           name: playwright-report-${{ matrix.shard }}
           path: apps/docs/playwright-report
           retention-days: 7
+
+  # The name the branch ruleset requires, and the reason this job exists at
+  # all. A matrix job reports one check per shard — `browser / browser (1)` and
+  # so on — so the required context `browser / browser` simply stopped being
+  # produced, and every pull request sat mergeable and blocked with six green
+  # checks and nothing to click. This is one check that is green only when
+  # every shard is, so the required name survives the shard count changing.
+  browser:
+    runs-on: ubuntu-latest
+    needs: shard
+    if: always()
+    steps:
+      - name: Every shard passed
+        # `needs.shard.result` is the matrix's aggregate: `success` only when
+        # all of them succeeded. Without `if: always()` above, a failed shard
+        # would skip this job rather than fail it, and a skipped required check
+        # blocks instead of reporting — the same dead end in a different shape.
+        run: |
+          echo "shards: ${{ needs.shard.result }}"
+          [ "${{ needs.shard.result }}" = "success" ]
