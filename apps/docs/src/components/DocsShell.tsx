@@ -264,14 +264,21 @@ export function DocsShell({ children }: { children: ReactNode }) {
             {/* `secondary`, so it reads as the FIELD it opens rather than as a
                 third ghost link in a row of ghost links. Same bordered box the
                 system gives an input, at the toolbar's own height. */}
+            {/* Wide enough to read as the FIELD it opens. Sized to its own
+                contents it was a button with three things crammed against each
+                other — narrower than the word "Search" needs, with the shortcut
+                pressed onto its end — and nothing about it said a search box
+                was one click away. The label takes the slack so the icon stays
+                at the start and the key stays at the end, which is the shape of
+                every search field this replaces. */}
             <Button
               size="sm"
               variant="secondary"
               onClick={() => document.dispatchEvent(new CustomEvent('m22:palette'))}
-              className="gap-2 text-(--ink-3-aa) max-sm:border-transparent max-sm:px-2"
+              className="gap-2 text-(--ink-3-aa) sm:w-56 sm:justify-start max-sm:border-transparent max-sm:px-2"
             >
               <Search size={14} strokeWidth={1.5} aria-hidden />
-              <span className="max-sm:sr-only">{t.search}</span>
+              <span className="max-sm:sr-only sm:flex-1 sm:text-start">{t.search}</span>
               <Kbd className="max-sm:hidden">⌘K</Kbd>
             </Button>
             {/* The mark, not the word. Four of the five controls beside it are

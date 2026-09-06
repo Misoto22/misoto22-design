@@ -19,6 +19,14 @@ function swatchFor(value: string): string | undefined {
 }
 
 export interface TokenTableProps {
+  /**
+   * The heading's `id`, so the contents rail has something to link to.
+   *
+   * Derived from the category key by the caller rather than slugged from the
+   * title here: the title is translated, and an anchor that changes with the
+   * page's language is an anchor that breaks every link written against it.
+   */
+  id?: string
   title: string
   note?: string
   rows: TokenRow[]
@@ -35,7 +43,7 @@ export interface TokenTableProps {
  * longer has. It also means the whole table re-paints when the theme flips,
  * which is the fastest way to see what a token actually does.
  */
-export function TokenTable({ title, note, rows, dark, locale = 'en' }: TokenTableProps) {
+export function TokenTable({ id, title, note, rows, dark, locale = 'en' }: TokenTableProps) {
   const t = getMessages(locale)
   if (rows.length === 0) return null
 
@@ -45,7 +53,10 @@ export function TokenTable({ title, note, rows, dark, locale = 'en' }: TokenTabl
         {/* h2: this sits directly under the page title, and a heading order
             that jumps a level is a jump a screen reader has to explain to
             itself. */}
-        <h2 className="m-0 font-heading text-[length:var(--fs-item)] font-normal text-(--ink)">
+        <h2
+          id={id}
+          className="m-0 scroll-mt-(--scroll-offset) font-heading text-[length:var(--fs-item)] font-normal text-(--ink)"
+        >
           {title}
         </h2>
         {note && (

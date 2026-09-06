@@ -8,6 +8,7 @@ import { CommandBlock } from '@/components/CommandBlock'
 import { IconSpecimen } from '@/components/IconSpecimen'
 import { PageIntro, SectionHeading } from '@/components/PageIntro'
 import { Prose } from '@/components/Prose'
+import { TocRail } from '@/components/TocRail'
 import { TokenTable } from '@/components/TokenTable'
 import type { FoundationSection } from '@/content/foundations'
 import { FOUNDATION_BY_SLUG } from '@/content/foundations'
@@ -19,47 +20,52 @@ export async function FoundationPage({ locale, slug }: { locale: Locale; slug: s
   const zh = foundationCopy(locale, slug)
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-12">
-      <PageIntro
-        eyebrow={getMessages(locale).nav.foundations}
-        title={zh.title ?? page.title}
-        summary={zh.summary ?? page.summary}
-        crumbs={[{ label: getMessages(locale).nav.foundations }, { label: zh.title ?? page.title }]}
-      />
+    <div className="mx-auto flex w-full max-w-4xl items-start gap-10 xl:max-w-[70rem]">
+      <div className="flex min-w-0 flex-1 flex-col gap-12">
+        <PageIntro
+          eyebrow={getMessages(locale).nav.foundations}
+          title={zh.title ?? page.title}
+          summary={zh.summary ?? page.summary}
+          crumbs={[{ label: getMessages(locale).nav.foundations }, { label: zh.title ?? page.title }]}
+        />
 
-      <div className="flex max-w-(--w-reading) flex-col gap-4">
-        {(zh.intro ?? page.intro).map((paragraph) => (
-          <p key={paragraph} className="m-0 text-[15px] leading-relaxed text-(--ink-2)">
-            {paragraph}
-          </p>
+        <div className="flex max-w-(--w-reading) flex-col gap-4">
+          {(zh.intro ?? page.intro).map((paragraph) => (
+            <p key={paragraph} className="m-0 text-[15px] leading-relaxed text-(--ink-2)">
+              {paragraph}
+            </p>
+          ))}
+          {page.related && <RelatedPages locale={locale} slugs={page.related} />}
+        </div>
+
+        {slug === 'typography' && <TypeSpecimen />}
+        {slug === 'icons' && <IconSpecimen />}
+
+        {/* Prose sections come BEFORE the token tables, on the two pages that have
+            both. A page whose subject is a set of tokens leads with them; a page
+            that documents a command or a stylesheet leads with the writing, and
+            neither of those two has a table to be pushed down. */}
+        {page.sections?.map((section) => (
+          <ProseSection key={section.id} section={section} copy={zh.sections?.[section.id]} />
         ))}
-        {page.related && <RelatedPages locale={locale} slugs={page.related} />}
+
+        {page.categories.map((category) => {
+          const { rows, dark } = tokensByCategory(category.key)
+          return (
+            <TokenTable
+              key={category.key}
+              id={`tokens-${category.key}`}
+              title={zh.categories?.[category.key]?.title ?? category.title}
+              note={zh.categories?.[category.key]?.note ?? category.note}
+              rows={rows}
+              dark={dark.size > 0 ? dark : undefined}
+              locale={locale}
+            />
+          )
+        })}
       </div>
 
-      {slug === 'typography' && <TypeSpecimen />}
-      {slug === 'icons' && <IconSpecimen />}
-
-      {/* Prose sections come BEFORE the token tables, on the two pages that have
-          both. A page whose subject is a set of tokens leads with them; a page
-          that documents a command or a stylesheet leads with the writing, and
-          neither of those two has a table to be pushed down. */}
-      {page.sections?.map((section) => (
-        <ProseSection key={section.id} section={section} copy={zh.sections?.[section.id]} />
-      ))}
-
-      {page.categories.map((category) => {
-        const { rows, dark } = tokensByCategory(category.key)
-        return (
-          <TokenTable
-            key={category.key}
-            title={zh.categories?.[category.key]?.title ?? category.title}
-            note={zh.categories?.[category.key]?.note ?? category.note}
-            rows={rows}
-            dark={dark.size > 0 ? dark : undefined}
-            locale={locale}
-          />
-        )
-      })}
+      <TocRail label={getMessages(locale).section.onThisPage} className="hidden w-56 shrink-0 xl:block" />
     </div>
   )
 }

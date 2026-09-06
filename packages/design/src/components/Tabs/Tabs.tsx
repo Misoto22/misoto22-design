@@ -27,7 +27,13 @@ export function TabsList({ className, ...rest }: ComponentProps<typeof TabsPrimi
   return (
     <TabsPrimitive.List
       className={cn(
-        'flex items-center gap-1 overflow-x-auto border-b border-(--rule-2) scroll-slim',
+        // `overflow-y-hidden` is not decoration. A strip only ever scrolls
+        // sideways, but `overflow-x: auto` on its own computes `overflow-y` to
+        // `auto` as well — and the active trigger's `-mb-px` rule leaves the
+        // content exactly one pixel taller than the box, which is enough for a
+        // vertical scrollbar to appear beside a row of tabs that has nothing
+        // to scroll.
+        'flex items-center overflow-x-auto overflow-y-hidden gap-1 border-b border-(--rule-2) scroll-slim',
         className,
       )}
       {...rest}

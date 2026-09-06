@@ -47,7 +47,9 @@ export function TemplateFrame({ templateId, name }: TemplateFrameProps) {
   }
 
   return (
-    <div className="overflow-hidden rounded-(--radius-frame) border border-(--rule)">
+    // A whole page rendered inside a frame: its headings belong to the template
+    // being shown, not to the documentation page showing it.
+    <div data-toc-skip="" className="overflow-hidden rounded-(--radius-frame) border border-(--rule)">
       {/* The system's own segmented control rather than three ghost buttons.
           They collapse to icons on a phone, where "which one is on" was a
           change of ink colour between three near-identical glyphs; the strip

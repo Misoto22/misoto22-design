@@ -67,6 +67,7 @@ const en = {
     readNext: 'Read next',
     partsNote:
       'Composed at the call site rather than configured through props, so a layout this component did not anticipate is still expressible.',
+    onThisPage: 'On this page',
   },
   table: {
     prop: 'Prop',
@@ -250,6 +251,7 @@ const zh: Messages = {
     readNext: '接着读',
     partsNote:
       '在调用处组合，而不是通过 props 配置——所以这个组件没有预料到的布局，依然表达得出来。',
+    onThisPage: '本页目录',
   },
   table: {
     prop: '属性',
