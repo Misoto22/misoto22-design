@@ -67,8 +67,10 @@ export * from './components/Toast/Toast'
 
 // ─── Forms ───
 export * from './components/Field/Field'
+export * from './components/ColorPicker/ColorPicker'
 export * from './components/Combobox/Combobox'
 export * from './components/DatePicker/DatePicker'
+export * from './components/NumberField/NumberField'
 export * from './components/Slider/Slider'
 export * from './components/ToggleGroup/ToggleGroup'
 export * from './components/Input/Input'

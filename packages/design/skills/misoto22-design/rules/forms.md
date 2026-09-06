@@ -89,7 +89,9 @@ and nothing is wired — the label points at an id that is on nothing.
 | Boolean, applied immediately | `Switch` | |
 | One of 2–7 visible options | `RadioGroup` + `RadioGroupItem` | |
 | One of 2–7, as a toolbar | `ToggleGroup` + `ToggleGroupItem` | |
-| A number in a range | `Slider` | |
+| A number in a range | `Slider` | `editable` adds a box to type the exact figure into |
+| A number that is tuned | `NumberField` | Drag the grip to sweep; `min`/`max`/`step` are honoured on the way out |
+| A colour | `ColorPicker` | OKLCH panel; `label` is **required** |
 | A date | `DatePicker` / `DateRangePicker` | |
 
 `Select` and `Combobox` take `label` even inside a `Field` — it is the

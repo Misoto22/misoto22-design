@@ -114,6 +114,7 @@ const PREVIEW_HEIGHTS: Record<string, string> = {
   combobox: 'min-h-[29rem]',
   command: 'min-h-[24rem]',
   'context-menu': 'min-h-[20rem]',
+  'color-picker': 'min-h-[32rem]',
   'date-picker': 'min-h-[26rem]',
   // 20rem, not 18: the overflow-button example opens a five-row panel from a
   // trigger part-way down the frame, and 18rem cleared it by a few pixels —

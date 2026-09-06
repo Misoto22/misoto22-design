@@ -153,6 +153,68 @@ export const FORMS = [
     related: ['field', 'textarea'],
   },
   {
+    name: 'NumberField',
+    group: 'Forms',
+    summary: 'A number, typed or swept to.',
+    when: 'The number has a range and a sensible increment. A bare quantity is an Input with type="number"; a value judged by WHERE it sits on a track is a Slider.',
+    anatomy: [
+      {
+        element: 'Field',
+        required: true,
+        description:
+          'A native number input wearing CONTROL_BASE, so it is the same box as Input, Textarea and Select — same padding, same focus, same disabled opacity. The native spinner buttons are hidden: they are three different controls in three browsers and none of them is this system’s.',
+      },
+      {
+        element: 'Scrub grip',
+        description:
+          'A horizontal-arrows glyph at the inline start, on unless scrub is false. Dragging it changes the value by one step every 4px, ten steps with Shift held, and it follows the reading direction — in an RTL page, more is to the left. Pointer only and aria-hidden, because the keyboard already has the arrow keys.',
+      },
+      {
+        element: 'Unit',
+        description:
+          'unit, drawn inside the end of the box and announced through aria-describedby. The slot is a fixed 3rem, so a unit longer than about four characters runs under a long number.',
+      },
+    ],
+    practices: [
+      {
+        kind: 'do',
+        text: 'Reach for it when a value is TUNED rather than entered — a duration, a line height, an offset. The grip is the whole argument for this over an Input: a reader finds those by sweeping past the neighbouring values, not by typing candidates one at a time.',
+      },
+      {
+        kind: 'do',
+        text: 'Wrap it in a Field. The root is a div and the id lands on the input inside it, so the label binds and clicks through exactly as it does for an Input — but only if there is a Field to do it.',
+      },
+      {
+        kind: 'do',
+        text: 'Pass min, max and step. They are what the arrows step by, what one notch of a scrub is worth, and what the value is reconciled with when the field is left; without them the control is an Input with a grip on it.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not expect the range to hold mid-keystroke. Clamping happens on blur, not on every character, because a minimum of 10 otherwise makes 50 unreachable — the 5 is clamped up before the 0 arrives. onValueChange can report a number outside the range; the value that SETTLES is always inside it.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not turn the grip off and expect a pointer to have another way through. There are no spinner buttons behind it — hiding those is the point — so scrub={false} leaves a mouse with typing and nothing else. Turn it off for a quantity that is chosen rather than swept to, and accept that trade knowingly.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not put the unit in the box and nowhere else past about four characters. The slot is fixed, so “requests” runs under the number; a long unit belongs in the Field’s label, where it is read rather than clipped.',
+      },
+    ],
+    accessibility: [
+      'It is a real <input type="number">, so the platform supplies the spinbutton role, the value, and the range it is announced against.',
+      'unit reaches assistive tech through aria-describedby, so “300” is not announced as a number with no dimension.',
+      'The grip is aria-hidden and not focusable: it commits nothing a keyboard cannot already reach, and announcing it would offer a reader a control that does nothing when they press it.',
+      'invalid and aria-invalid are read together, so a form library setting either one paints the same border.',
+    ],
+    keyboard: [
+      { keys: ['↑', '↓'], does: 'Steps by one step, honouring min and max.' },
+      { keys: ['Enter'], does: 'Reconciles what has been typed with the range and the step.' },
+      { keys: ['Escape'], does: 'Abandons the edit and restores the last settled value.' },
+    ],
+    related: ['input', 'slider', 'field'],
+  },
+  {
     name: 'Textarea',
     group: 'Forms',
     summary: 'Multi-line text entry, resizable vertically only.',
@@ -660,6 +722,89 @@ export const FORMS = [
     related: ['calendar', 'field'],
   },
   {
+    name: 'ColorPicker',
+    group: 'Forms',
+    summary: 'A colour, chosen or typed.',
+    when: 'A person is choosing the colour. A colour that is merely being SHOWN is a swatch, and a set of fixed brand colours is a RadioGroup — a picker offers sixteen million answers to a question with six.',
+    anatomy: [
+      {
+        element: 'Trigger',
+        required: true,
+        description:
+          'The closed control: a swatch, then the value as text, in the same box as Input and Select. Named by its label AND by its own value, so a reader hears “Brand colour, #a78bfa” rather than either half.',
+      },
+      {
+        element: 'Swatch',
+        description:
+          'The colour over a checkerboard, so a half-transparent value reads as transparent rather than as a paler colour.',
+      },
+      {
+        element: 'Notation strip',
+        description:
+          'Hex, OKLCH and Display P3, as a single-value ToggleGroup. It changes what onValueChange emits, not what the colour is — and hex and P3 are bounded, so switching to one of them fits the colour to that gamut on the way out.',
+      },
+      {
+        element: 'Field',
+        required: true,
+        description:
+          'The plane: chroma across, lightness up. Each ROW is normalised to the most chroma that exists at that lightness and hue, so the whole surface is reachable instead of a lens of colour inside bands of clipped duplicates. Underneath it are two real sliders rather than key handlers on a canvas, which is what gives it arrows, Home, End and an announced position.',
+      },
+      {
+        element: 'Hue track',
+        description:
+          'A ramp taken at the lightness and chroma already chosen, not a generic rainbow — so the strip shows the hues of THIS colour rather than of some other one.',
+      },
+      {
+        element: 'Opacity track',
+        description: 'Transparent to the current colour, over the same checkerboard as the swatch.',
+      },
+      {
+        element: 'CSS box',
+        description:
+          'The value as text. Accepts hex, rgb(), hsl(), oklch() and color(display-p3 …) in both syntaxes, and paints itself invalid on anything else.',
+      },
+    ],
+    practices: [
+      {
+        kind: 'do',
+        text: 'Wrap it in a Field. The trigger is a button, which a label binds to and clicks through — one of the few composites where that works without help.',
+      },
+      {
+        kind: 'do',
+        text: 'Pass the notation you want back. The panel emits in whatever notation the value arrived in until somebody changes it in the strip, so a defaultValue of "#a78bfa" keeps a consumer in hex.',
+      },
+      {
+        kind: 'do',
+        text: 'Reach for this over <input type="color"> when the colours are being TUNED. The native picker works in HSV, where a row of constant lightness visibly darkens as it saturates — so a reader building a palette is fighting the instrument. OKLCH is the space where two colours at the same height genuinely match.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not pass a named colour. Hex, rgb(), hsl(), oklch() and color(display-p3 …) parse; "rebeccapurple" does not, and the box will show it as invalid. Resolving names needs a table of every CSS keyword or a live DOM, and a picker that takes some names and not others is worse than one that takes none.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not read the emitted string as a fixed notation. It is whatever the strip is set to, so a consumer that slices a "#" off the front breaks the first time a reader picks OKLCH.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not use it to pick text or background colour and call the result accessible. Nothing here measures contrast; a picker that lets a reader choose #eeeeee for body copy is doing exactly what it was asked.',
+      },
+    ],
+    accessibility: [
+      'label is required. The trigger shows a value, and a value is not a name.',
+      'The plane is a group of two real sliders — Chroma and Lightness — each announced with a percentage, so the 2D surface is operable and reported rather than merely clickable.',
+      'The focus ring is drawn on the plane, because the sliders that take the focus are visually hidden and the browser’s own ring is clipped away with them.',
+      'Alpha is doubled by a checkerboard everywhere it is shown, so transparency is not carried by lightness alone.',
+    ],
+    keyboard: [
+      { keys: ['Enter', 'Space'], does: 'Opens the panel.' },
+      { keys: ['←', '→'], does: 'Moves the focused axis or track by one step.' },
+      { keys: ['Home', 'End'], does: 'Jumps that axis or track to its ends.' },
+      { keys: ['Escape'], does: 'Closes the panel; focus returns to the trigger.' },
+    ],
+    related: ['field', 'input', 'popover'],
+  },
+  {
     name: 'Slider',
     group: 'Forms',
     summary: 'A value chosen along a range.',
@@ -683,6 +828,11 @@ export const FORMS = [
         description:
           'Only with showValue: a mono row above the track, the names on the start edge and the formatted values on the end, each joined by an en dash and in the thumbs’ own order — so a two-ended range reads “Minimum – Maximum” over “10 – 90”.',
       },
+      {
+        element: 'Editable readout',
+        description:
+          'What editable turns those figures into: one box per thumb, showing format’s output at rest and the bare number while it has focus, so a reader still sees “$1,200” and a typist is never asked to type a currency symbol back. Each is named separately from its thumb — two controls announcing “Quality” is one control announced twice.',
+      },
     ],
     practices: [
       {
@@ -695,11 +845,15 @@ export const FORMS = [
       },
       {
         kind: 'do',
-        text: 'Put an Input beside it when the exact number matters. A slider cannot be typed into, and someone who needs 37 rather than roughly 40 is dragging a 16px thumb across a hundred steps to get it.',
+        text: 'Turn on editable when the exact number matters. A slider on its own cannot be typed into, and someone who needs 37 rather than roughly 40 is dragging a 16px thumb across a hundred steps to get it — the box in the readout is the way out, and it replaces the second Input this used to ask for.',
       },
       {
         kind: 'dont',
         text: 'format becomes each thumb’s aria-valuetext, which REPLACES the number rather than decorating it — so a formatter that rounds hard or drops the unit is what a screen reader gets instead of the value.',
+      },
+      {
+        kind: 'dont',
+        text: 'editable typing is bounded by the NEIGHBOURING thumb as well as by min and max, and it has to be: 90 typed into the lower end of a range sitting at 70 would otherwise cross the two thumbs over. So a number can be accepted and then land somewhere else, and the box shows where it landed.',
       },
       {
         kind: 'dont',
