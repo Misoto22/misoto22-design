@@ -362,11 +362,18 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
   )
 
   return (
-    // A two-column grid rather than a centred column: the rail is a real
-    // column beside the article, so it can never sit over the prose. It
-    // appears from `xl` up, where there is room for it without taking width
-    // off the reading column.
-    <div className="mx-auto flex w-full max-w-4xl items-start gap-10 xl:max-w-[70rem]">
+    // Two real columns, not a centred one with something floated beside it:
+    // the rail is a column, so it can never sit over the prose. It appears
+    // from `xl` up, where there is room for it without taking width off the
+    // reading column.
+    //
+    // NO `items-start`. The rail is a `sticky` block INSIDE its column, and a
+    // sticky element travels only as far as its containing block reaches — so
+    // a column sized to its own content gives it a few hundred pixels and
+    // then lets it scroll away with the page, which is the exact bug the rail
+    // was built to fix. Stretched, the column is as tall as the article and
+    // the rail holds its place the whole way down.
+    <div className="mx-auto flex w-full max-w-4xl gap-10 xl:max-w-[70rem]">
       <article className="flex min-w-0 flex-1 flex-col gap-8">
         <PageIntro
           eyebrow={groupName(locale, entry.group)}
