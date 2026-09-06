@@ -52,19 +52,33 @@ export function ComponentsIndex({ locale }: { locale: Locale }) {
                 key={entry.slug}
                 className="group relative h-full overflow-hidden transition-colors duration-(--duration-fast) hover:border-(--rule-hard)"
               >
-                <CardBody className="flex h-full flex-col gap-2">
+                <CardBody className="flex h-full flex-col">
                   {first(entry.dir) && <ComponentThumb exampleKey={first(entry.dir)!} />}
-                  <CardTitle>
-                    <Link
-                      href={localePath(locale, `/components/${entry.slug}/`)}
-                      className="after:absolute after:inset-0 after:content-['']"
-                    >
-                      {componentName(locale, entry.slug, entry.name)}
-                    </Link>
-                  </CardTitle>
-                  <p className="m-0 text-[13px] leading-relaxed text-(--ink-3-aa)">
-                    {componentCopy(locale, entry.slug).summary ?? entry.summary}
-                  </p>
+                  {/* A fixed block, so every card in the row is the same height
+                      and the band above it is the same size on all of them.
+                      Summaries run from four words to thirty, and left to
+                      themselves they made a card whose preview was smaller than
+                      its own caption. Two lines is what the longest of them
+                      needs; anything past that is a summary that should be
+                      shorter, and the page now says so. */}
+                  {/* Block layout, not flex. `line-clamp` needs
+                      `display: -webkit-box`, and a flex ITEM has its display
+                      blockified to `flow-root` — so inside a flex column the
+                      clamp silently does nothing and the third line is simply
+                      cut off by the card instead. */}
+                  <div className="h-20">
+                    <CardTitle>
+                      <Link
+                        href={localePath(locale, `/components/${entry.slug}/`)}
+                        className="after:absolute after:inset-0 after:content-['']"
+                      >
+                        {componentName(locale, entry.slug, entry.name)}
+                      </Link>
+                    </CardTitle>
+                    <p className="m-0 mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-(--ink-3-aa)">
+                      {componentCopy(locale, entry.slug).summary ?? entry.summary}
+                    </p>
+                  </div>
                 </CardBody>
               </Card>
             ))}
