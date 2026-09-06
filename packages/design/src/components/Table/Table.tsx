@@ -1,6 +1,7 @@
 import { ArrowDown, ArrowUp, ChevronsUpDown } from 'lucide-react'
 import type { HTMLAttributes, TableHTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from 'react'
 import { cn } from '../../lib/cn'
+import { warnBlankName } from '../../lib/warn'
 
 export type TableAlign = 'start' | 'center' | 'end'
 
@@ -105,6 +106,7 @@ export function Table({
   children,
   ...rest
 }: TableProps) {
+  warnBlankName('Table', 'caption', caption, 'the table is announced with no name and a reader arrives in it with no idea what it lists')
   return (
     <div
       tabIndex={0}

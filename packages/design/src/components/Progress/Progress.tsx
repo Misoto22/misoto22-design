@@ -3,6 +3,7 @@
 import * as ProgressPrimitive from '@radix-ui/react-progress'
 import type { ComponentProps } from 'react'
 import { cn } from '../../lib/cn'
+import { warnBlankName } from '../../lib/warn'
 
 export interface ProgressProps
   extends Omit<ComponentProps<typeof ProgressPrimitive.Root>, 'value'> {
@@ -31,6 +32,7 @@ export interface ProgressProps
  * <Progress label="Indexing" />
  */
 export function Progress({ value = null, label, showValue = false, className, ...rest }: ProgressProps) {
+  warnBlankName('Progress', 'label', label, 'the progressbar is announced with no name and its percentage describes nothing')
   const indeterminate = value === null || value === undefined
   const clamped = indeterminate ? 0 : Math.min(100, Math.max(0, value))
 

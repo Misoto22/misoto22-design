@@ -1,0 +1,35 @@
+# @misoto22/design
+
+> A monochrome design system for software, writing and photography: portable CSS
+> tokens and accessible React 19 primitives, charts and diagrams. Components ship
+> compiled — import them, do not copy them.
+
+This file is a stub on purpose. It carries no prop tables and no version, so it
+cannot go stale between releases; everything it points at is generated from the
+source in this same tarball at build time.
+
+## In this package, offline
+
+- [dist/agent/index.md](./dist/agent/index.md): every component, one line each, plus the theme axes read out of the stylesheets.
+- [dist/agent/<Component>.md](./dist/agent/): one component in full — every prop with its type and default, the exported unions, the keyboard contract, the accessibility promises, the examples.
+- [skills/misoto22-design/SKILL.md](./skills/misoto22-design/SKILL.md): the conventions an agent gets wrong from habit — the names that diverge from shadcn/ui, and colour that is never a raw class.
+- [AGENTS.md](./AGENTS.md): the short version of this, plus what to know when working on the package itself.
+
+Prefer the CLI over reading these by path — it resolves parts and types, not
+just components:
+
+```bash
+npx misoto22-design docs Button
+npx misoto22-design docs --installed
+```
+
+## On the web
+
+- [https://ui.misoto22.com/llms.txt](https://ui.misoto22.com/llms.txt): the site's index.
+- [https://ui.misoto22.com/llms-full.txt](https://ui.misoto22.com/llms-full.txt): every component inline, in one file.
+- [https://ui.misoto22.com](https://ui.misoto22.com): the rendered documentation.
+
+## Optional
+
+- [README.md](./README.md): install, theming, and the same three commands for a human reader.
+- [CHANGELOG.md](./CHANGELOG.md)

@@ -68,6 +68,17 @@ for (const match of readFileSync(join(ROOT, 'src', 'components', 'Toast', 'Toast
   for (const name of match[1].split(',')) EXPORTED.add(name.trim())
 }
 
+const evals = JSON.parse(readFileSync(join(SKILL, 'evals', 'evals.json'), 'utf8')) as {
+  evals: {
+    id: number
+    prompt: string
+    expected_output: string
+    must_use: string[]
+    must_not_contain: string[]
+    expectations: string[]
+  }[]
+}
+
 const RULES = readdirSync(join(SKILL, 'rules'))
   .map((file) => readFileSync(join(SKILL, 'rules', file), 'utf8'))
   .concat(readFileSync(join(SKILL, 'SKILL.md'), 'utf8'))
@@ -182,5 +193,43 @@ describe('skill structure', () => {
     const skill = readFileSync(join(SKILL, 'SKILL.md'), 'utf8')
     const rules = readdirSync(join(SKILL, 'rules'))
     expect(rules.filter((file) => !skill.includes(file) && !RULES.includes(file))).toEqual([])
+  })
+
+  it('expects only identifiers the package exports', () => {
+    // An eval is a promise about what correct output looks like. One that
+    // expects an identifier the package stopped exporting would fail a correct
+    // agent and pass a wrong one, which is worse than having no eval at all.
+    const unknown = evals.evals.flatMap((item) =>
+      item.must_use.filter((name) => !EXPORTED.has(name)).map((name) => `#${item.id}: ${name}`),
+    )
+    expect(unknown).toEqual([])
+  })
+
+  it('forbids nothing the package actually exports', () => {
+    // `must_not_contain` is mostly habit-names and raw Tailwind. If one of them
+    // ever becomes a real export, the eval would be marking correct code wrong.
+    const real = evals.evals.flatMap((item) =>
+      item.must_not_contain
+        .filter((text) => /^[A-Z][A-Za-z]+$/.test(text) && EXPORTED.has(text))
+        .map((text) => `#${item.id}: ${text}`),
+    )
+    expect(real).toEqual([])
+  })
+
+  it('gives every eval a prompt, an expectation list and both guards', () => {
+    const malformed = evals.evals.filter(
+      (item) =>
+        !item.prompt ||
+        !item.expected_output ||
+        item.expectations.length === 0 ||
+        !Array.isArray(item.must_use) ||
+        !Array.isArray(item.must_not_contain),
+    )
+    expect(malformed.map((item) => item.id)).toEqual([])
+  })
+
+  it('numbers evals uniquely', () => {
+    const ids = evals.evals.map((item) => item.id)
+    expect(new Set(ids).size).toBe(ids.length)
   })
 })

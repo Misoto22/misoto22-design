@@ -1,0 +1,84 @@
+{
+  "$comment": "Prompts a real agent runs against this skill, and what its output has to show. This is the half `claims.json` cannot reach: that file proves the rules match the package, which is necessary and does not prove an agent given the rules writes correct code. Each `must_use` identifier is checked for existence by `skill.test.ts`, so an eval cannot quietly start expecting something the package no longer exports.",
+  "skill_name": "misoto22-design",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Using @misoto22/design, build a settings form with fields for full name and email address, and show a validation error under email when it is invalid.",
+      "expected_output": "A React component using one Field per control, the error prop rather than a red border, and gap-* on the form.",
+      "must_use": ["Field", "Input", "Button"],
+      "must_not_contain": ["space-y-", "border-red", "text-red-", "<label", "aria-describedby="],
+      "expectations": [
+        "Wraps each control in its own Field with a label, not a hand-rolled <label> plus input plus error div",
+        "Puts the validation message in Field's error prop, which sets aria-invalid on the control for it",
+        "Does not also pass invalid on the Input inside a Field with an error — that is redundant",
+        "Never a wrapper div between Field and its control, which would wire the div instead",
+        "Lays the form out with flex and gap-*, not space-y-*"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Using @misoto22/design, add a confirmation dialog for deleting a project. It needs a heading, an explanation, and Cancel and Delete buttons.",
+      "expected_output": "A Dialog whose title and description are props on DialogContent, with a danger-variant Delete button.",
+      "must_use": ["Dialog", "DialogTrigger", "DialogContent", "Button"],
+      "must_not_contain": ["DialogTitle", "DialogHeader", "DialogDescription", "DialogFooter"],
+      "expectations": [
+        "Passes title and description as props on DialogContent — there is no DialogTitle or DialogHeader export here",
+        "Uses variant=\"danger\" for the destructive action",
+        "Wraps the trigger with asChild rather than nesting a button inside a button",
+        "Sets no z-index: the overlay handles its own stacking"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Using @misoto22/design, render a table of open invoices with client, due date and amount, with the amount column right-aligned.",
+      "expected_output": "A Table with a real caption and the short part names, amount aligned with the align prop.",
+      "must_use": ["Table", "THead", "TBody", "TR", "TH", "TD"],
+      "must_not_contain": ["TableHeader", "TableBody", "TableRow", "TableHead", "TableCell", "text-right"],
+      "expectations": [
+        "Uses THead / TBody / TR / TH / TD — the shadcn/ui names are not exported here",
+        "Gives caption a real sentence saying what the table lists, not an empty string and not the word \"Table\"",
+        "Right-aligns with align=\"end\" on TH and TD, not a text-right class, so the table stays RTL-correct"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Using @misoto22/design, build a dashboard row of four stat cards. Each shows a title, a big number, a change badge, and a loading state.",
+      "expected_output": "Full Card composition, Skeleton for loading, Badge for the change, semantic tokens throughout.",
+      "must_use": ["Card", "CardHeader", "CardTitle", "CardBody", "Badge", "Skeleton"],
+      "must_not_contain": ["CardContent", "animate-pulse", "bg-green-", "text-red-", "dark:"],
+      "expectations": [
+        "Uses CardBody, not CardContent",
+        "Composes CardHeader and CardTitle rather than putting everything in one block",
+        "Uses Skeleton for the loading placeholder, not a custom animate-pulse div",
+        "Uses Badge for the change rather than a styled span",
+        "Writes no raw colour and no dark: variant — semantic tokens resolve in both modes"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Using @misoto22/design, add a small area chart of monthly revenue above the stat cards.",
+      "expected_output": "A chart imported from the charts entry point, with the peers named.",
+      "must_use": ["AreaChart"],
+      "must_not_contain": ["from '@misoto22/design'\nimport { AreaChart"],
+      "expectations": [
+        "Imports the chart from '@misoto22/design/charts', not from the root specifier — the root does not export it and the import throws",
+        "Mentions that recharts and motion are peer dependencies the project needs installed",
+        "Does not reach for recharts directly to build the chart by hand"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Using @misoto22/design, add an icon-only button that copies the current URL, and a toast confirming it.",
+      "expected_output": "An iconOnly Button with an accessible name, and toast imported from this package.",
+      "must_use": ["Button", "toast", "Toaster"],
+      "must_not_contain": ["from 'sonner'"],
+      "expectations": [
+        "Gives the iconOnly Button an aria-label naming the action — without one it is announced as \"button\" and nothing else",
+        "Imports toast from '@misoto22/design', not from sonner",
+        "Renders Toaster once at the app root rather than beside the button",
+        "Puts no sizing class on the icon"
+      ]
+    }
+  ]
+}

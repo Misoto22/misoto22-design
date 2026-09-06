@@ -55,6 +55,11 @@ field is wrong, the thing to read is what is wrong with it.
 
 ## One control per `Field`
 
+`Field` warns in development when it cannot wire a control, so you do not have
+to spot this by reading. `FIELD_CONTROL_NOT_LABELLABLE` means the child is a
+wrapper and the label went onto the box; `FIELD_CONTROL_NOT_WIRED` means there
+was no single element to wire at all. Both print the fix.
+
 The wiring clones a **single** element child. Two children, or a wrapper div,
 and nothing is wired — the label points at an id that is on nothing.
 

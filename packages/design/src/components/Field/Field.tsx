@@ -4,6 +4,7 @@ import { Label } from '@radix-ui/react-label'
 import { cloneElement, isValidElement, useId } from 'react'
 import type { HTMLAttributes, ReactElement, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+import { DEV, warn } from '../../lib/warn'
 
 export interface FieldProps extends HTMLAttributes<HTMLDivElement> {
   /** Visible label text; renders a `--danger` asterisk when `required`. */
@@ -77,6 +78,38 @@ export function Field({
       'aria-invalid':
         error != null ? (child.props['aria-invalid'] ?? true) : child.props['aria-invalid'],
     })
+  } else if (DEV) {
+    warn({
+      code: 'FIELD_CONTROL_NOT_WIRED',
+      problem:
+        "Field's child is not a single React element, so the label, aria-describedby, aria-required and aria-invalid were not applied to any control.",
+      field: 'children',
+      fix: 'Put exactly one control element directly inside Field. For a row of controls, give each its own Field and lay them out around it.',
+      component: 'Field',
+    })
+  }
+
+  if (DEV && isValidElement(children) && typeof children.type === 'string') {
+    // A wrapper is the failure this exists for, and it is the one that looks
+    // most correct: `<Field><div><Input /></div></Field>` renders, and the
+    // label points at the DIV. The id, the describedby and the invalid state
+    // all land on a box, the control inside gets none of them, and a browser
+    // shows nothing wrong.
+    //
+    // Narrowed to HOST elements because that is the half that can be decided:
+    // a lowercase tag either takes a label or it does not. A function component
+    // might forward its props to a real control, and warning on those would
+    // fire on every correct use of Input, Select and the rest.
+    const LABELLABLE = ['input', 'select', 'textarea', 'button', 'meter', 'output', 'progress']
+    if (!LABELLABLE.includes(children.type)) {
+      warn({
+        code: 'FIELD_CONTROL_NOT_LABELLABLE',
+        problem: `Field's child is a <${children.type}>, which cannot take a label — so the id, aria-describedby, aria-required and aria-invalid were applied to it rather than to a control.`,
+        field: 'children',
+        fix: 'Put the control itself directly inside Field, with no wrapper. For a row of controls, give each its own Field and lay them out around it.',
+        component: 'Field',
+      })
+    }
   }
 
   return (
