@@ -11,7 +11,7 @@ import { Heading, Text } from '@misoto22/design'
 export function Example() {
   return (
     <div className="flex flex-col gap-4">
-      <nav aria-label="On this page" className="flex flex-col gap-1">
+      <nav aria-label="Section links" className="flex flex-col gap-1">
         <a href="#installation" className="text-sm text-(--ink-2) underline decoration-(--rule-2) underline-offset-4">
           Installation
         </a>

@@ -72,7 +72,7 @@ async function chevronOffset(scope: import('@playwright/test').Locator): Promise
 test.describe('density', () => {
   test('compact shrinks every control in the subtree, not just the button', async ({ page }) => {
     await page.goto('/components/button/')
-    const canvas = page.locator('[data-density]').first()
+    const canvas = page.locator('[data-canvas]').first()
     const button = canvas.getByRole('button', { name: 'Primary' })
 
     const comfortable = (await button.boundingBox())?.height ?? 0
@@ -90,7 +90,7 @@ test.describe('density', () => {
 
   test('the field padding follows the same axis', async ({ page }) => {
     await page.goto('/components/input/')
-    const canvas = page.locator('[data-density]').first()
+    const canvas = page.locator('[data-canvas]').first()
     const input = canvas.getByRole('textbox', { name: 'Resting' })
 
     const before = await input.evaluate((element) => getComputedStyle(element).paddingInlineStart)

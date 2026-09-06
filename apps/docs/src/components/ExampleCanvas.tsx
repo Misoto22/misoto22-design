@@ -138,6 +138,13 @@ export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: Exam
           ref={setFrame}
           dir={direction}
           data-density={density}
+          // The hook the browser suite scopes to. `[data-density]` used to serve
+          // as one, until the docs rail became a component that sets its own
+          // density — at which point `[data-density]` first matched a <nav> in
+          // the shell, and every test that meant "the example" measured the
+          // sidebar instead. An axis attribute describes a subtree; it does not
+          // name one.
+          data-canvas="preview"
           className={cn('relative flex min-h-32 items-start justify-center p-8', previewHeight)}
         >
           {/* An overlay portalled to the body is positioned against the viewport,
@@ -158,7 +165,7 @@ export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: Exam
       )}
 
       {view === 'edit' && (
-        <div dir={direction} data-density={density}>
+        <div dir={direction} data-density={density} data-canvas="edit">
           <Suspense
             fallback={
               <div className="grid min-h-32 place-items-center text-sm text-(--ink-3-aa)">

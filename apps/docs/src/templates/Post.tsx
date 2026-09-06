@@ -93,9 +93,9 @@ export function Post() {
 
         {/* The contents rail, built from the headings the pipeline collected —
             not from a second list somebody keeps in step by hand. */}
-        <nav aria-label="On this page" className="max-@3xl:hidden">
+        <nav aria-label="Contents" className="max-@3xl:hidden">
           <div className="sticky top-6 flex flex-col gap-2 border-s border-(--rule) ps-4">
-            <span className="eyebrow text-(--ink-3-aa)">On this page</span>
+            <span className="eyebrow text-(--ink-3-aa)">Contents</span>
             {POST.toc.map((item) => (
               <a
                 key={item.id}

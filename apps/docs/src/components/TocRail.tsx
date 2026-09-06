@@ -22,7 +22,16 @@ export interface TocRailProps {
    * renders real components, and some of them are headings.
    */
   scope?: string
-  /** Names the landmark, and is printed above the list. */
+  /**
+   * Names the landmark, and is printed above the list.
+   *
+   * It must be UNIQUE among the page's landmarks. This is a `<nav>`, and a
+   * second navigation with the same accessible name is a reader hearing the
+   * same answer twice with nothing to tell them apart — axe calls it
+   * `landmark-unique` and the site's own end-to-end suite fails on it. The
+   * examples and templates that demonstrate a contents rail of their own are
+   * named "Section links" and "Contents" for exactly this reason.
+   */
   label: string
   /**
    * Number the outline — 1, 2, 3 for sections and 1.1, 1.2 beneath.

@@ -150,7 +150,15 @@
    would match the light rule above and light up one specimen in the middle of
    a dark gallery. */
 [data-mode='dark'],
+/* BOTH forms, the way every dark rule in `themes.css` is written. The compound
+   is not the same selector as the descendant, and the compound is the one that
+   matters most: an app puts `data-mode` and its theme axes on the SAME element
+   — `<html data-mode="dark" data-surface="paper">` — where a descendant
+   selector matches nothing. Written descendant-only, every dark page took the
+   light rule above and painted light ink on a dark ground. */
+[data-mode='dark'][data-surface='paper'],
 [data-mode='dark'] [data-surface='paper'],
+[data-mode='dark'][data-rules='hairline'],
 [data-mode='dark'] [data-rules='hairline'] {
   --paper: #0d0d0d;
   --paper-2: #161616;
@@ -341,9 +349,13 @@
   --radius-frame: calc(var(--radius-lg) + 1rem * var(--radius-gate)); /* a frame 16px outside a panel */
 }
 
-/* `comfortable` is the density axis's default, and it is named here for the
-   same reason `paper` is above: a subtree inside a compact page has no other
-   way to say "the normal size". */
+/* The density axis's own default, named — and on a rule that holds NOTHING
+   but density. It was on the block above, which also carries the status
+   colours, the floating surfaces and the motion steps: every element that
+   said `data-density="comfortable"` therefore re-declared the whole LIGHT
+   palette on itself, and in dark mode every example canvas on the site
+   painted a light --danger on a dark ground. A neutral value may only
+   restate the axis it belongs to. */
 :root,
 [data-density='comfortable'] {
   /* ─── Density ────────────────────────────────────────────────────────────
@@ -387,6 +399,9 @@
      zero makes `calc(0 + 1.5rem)` invalid at computed-value time — the whole
      declaration is dropped and every column loses its gutter in silence. */
   --table-pad-x: 0px;
+}
+
+:root {
 
   /* ─── Sidebar ────────────────────────────────────────────────────────────
      The two widths a navigation rail has, and the reason they are tokens

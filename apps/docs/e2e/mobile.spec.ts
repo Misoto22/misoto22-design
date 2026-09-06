@@ -98,7 +98,14 @@ test('the drawer opens, closes, and carries the index of the open section', asyn
   // desktop and had nowhere to go on a phone. They have their own strip under
   // the masthead now, so opening the drawer gives the reader the index they
   // asked for rather than four rows of something else in front of it.
-  await expect(nav.getByRole('link', { name: 'All components' })).toBeVisible()
+  //
+  // The row for the page being read, by `aria-current` rather than by the name
+  // of a link. This used to look for an "All components" row the rail put at
+  // the top of every component group whether anyone wanted it or not; that row
+  // is gone, and asserting the current page is here is the claim the test was
+  // making all along — the drawer carries the INDEX OF THE OPEN SECTION, and
+  // the open section is the one holding the reader.
+  await expect(nav.locator('a[aria-current="page"]')).toBeVisible()
   await expect(aside.getByRole('link', { name: 'Templates' })).toHaveCount(0)
 
   // Polled: the drawer slides in on --duration-slow, and reading the box once
