@@ -1,60 +1,27 @@
 import type { ChartColumn } from './figure'
+import {
+  downloadBlob,
+  exportFilename as figureFilename,
+  rasterize,
+  readToken,
+  serializeSvg,
+} from '../../lib/svg-export'
 
 /**
  * Taking a chart off the page: a PNG of the plot, or a CSV of its rows.
  *
- * Nothing here touches the DOM at module scope. Every browser API — `document`,
- * `canvas`, `URL.createObjectURL` — is reached for inside a function body, so
- * this module is safe to import from a server component and only fails when a
- * consumer actually asks for a file on a server, which is a call that cannot
- * succeed anywhere.
- */
-
-const SVG_NS = 'http://www.w3.org/2000/svg'
-
-/**
- * The properties copied from the live DOM onto the serialised clone.
+ * The general half — walking a live tree to inline its resolved paint,
+ * serialising a standalone SVG document, rasterising one through a canvas — is
+ * not chart-shaped at all, and lives in `src/lib/svg-export.ts` shared with the
+ * diagrams entry. What is left here is what only a Recharts chart knows: which
+ * `<svg>` in the subtree is the plot, what a row of chart data looks like as a
+ * CSV record, and that the ground behind an exported plot is `--chart-surface`.
  *
- * Paint, geometry-adjacent paint, and type. Layout is deliberately absent: an
- * SVG's geometry is in its attributes, which the clone already carries, and
- * copying computed `width`/`height`/`transform` onto every node would fight
- * them.
+ * Nothing here touches the DOM at module scope. Every browser API is reached
+ * for inside a function body, so this module is safe to import from a server
+ * component and only fails when a consumer actually asks for a file on a
+ * server, which is a call that cannot succeed anywhere.
  */
-const PAINTED_PROPERTIES = [
-  'display',
-  'visibility',
-  'opacity',
-  'color',
-  'fill',
-  'fill-opacity',
-  'fill-rule',
-  'stroke',
-  'stroke-opacity',
-  'stroke-width',
-  'stroke-linecap',
-  'stroke-linejoin',
-  'stroke-dasharray',
-  'stroke-dashoffset',
-  'stop-color',
-  'stop-opacity',
-  'flood-color',
-  'flood-opacity',
-  'mask',
-  'filter',
-  'clip-path',
-  'clip-rule',
-  'paint-order',
-  'mix-blend-mode',
-  'shape-rendering',
-  'text-anchor',
-  'dominant-baseline',
-  'font-family',
-  'font-size',
-  'font-style',
-  'font-weight',
-  'letter-spacing',
-  'text-transform',
-] as const
 
 export interface ChartPngOptions {
   /**
@@ -77,46 +44,27 @@ export interface ChartPngOptions {
 /**
  * The chart's `<svg>`, rasterised to a PNG blob.
  *
- * ## The problem this function exists to solve
+ * Three chart-specific decisions and nothing else. `serializeSvg` does the
+ * work, and its comment carries the reason a naive `XMLSerializer` export of a
+ * themed chart comes out as an empty rectangle with axes on it.
  *
- * Serialising the `<svg>` and handing it to an `<img>` puts it in a document
- * of its own. That document has none of the page's stylesheets, so every
- * `var(--color-desktop-0)`, `var(--chart-fill)` and `var(--ink)` in the markup
- * resolves to nothing — and a paint that resolves to nothing is not a fallback
- * colour, it is an invisible mark. Serialise a chart naively and you get an
- * empty rectangle with axes on it.
- *
- * ## The solution
- *
- * Walk the live tree and the clone in step, and on every node write
- * `getComputedStyle`'s answer for the painted properties into an inline
- * `style`. Computed values have already had `var()` substituted by the engine,
- * so `fill: var(--color-desktop-0)` arrives as `fill: rgb(16, 16, 16)` — and,
- * because the walk reads the LIVE element, it reads it under whichever theme
- * is currently applied. Light and dark come out right for free, with no theme
- * argument anywhere in this file.
- *
- * `<stop>` elements are walked too, which is the half that is easy to miss: a
- * series is painted `fill="url(#…-colors-desktop)"`, the url survives
- * serialisation because the gradient is inside the same `<svg>`, and it is the
- * gradient's STOPS that carry the custom properties.
+ * 1. WHICH `<svg>` — the plot, not the first one in the subtree. See
+ *    `findPlotSvg`.
+ * 2. WHAT GROUND — `--chart-surface`, resolved against the live element, which
+ *    is what makes a dark-mode export come out dark rather than transparent.
+ * 3. WHAT INK AND FACE for the caption — `--ink` and the element's own
+ *    resolved family, so the exported title matches the page it came from.
  *
  * ## What this cannot capture, honestly
  *
  * - **Anything drawn in HTML.** The legend, the tooltip, the brush strip and
  *   the hidden data table are DOM, not SVG. The PNG is the plot.
- * - **Web fonts.** The isolated document cannot fetch the page's `@font-face`
- *   sources, so text is rasterised in whatever the resolved family stack finds
- *   locally. Type metrics will differ from the screen.
- * - **Cross-origin images.** A chart with an external `<image>` in it taints
- *   the canvas and `toBlob` throws; there is no way around it from script.
- * - **The exact rendering.** This is the browser's SVG rasteriser re-drawing
- *   the markup, not a screenshot. Antialiasing, `backdrop-filter` and any
- *   effect a page stylesheet applied from outside the `<svg>` are not in it.
+ * - **Web fonts, cross-origin images, and the exact rendering.** See
+ *   `serializeSvg` and `rasterize`.
  *
  * @example
  * const blob = await chartToPng(plotRef.current, { title: 'Visitors per month' })
- * downloadBlob(blob, 'visitors-per-month.png')
+ * downloadBlob(blob, exportFilename('Visitors per month', 'png'))
  */
 export async function chartToPng(
   element: HTMLElement | SVGSVGElement,
@@ -127,154 +75,30 @@ export async function chartToPng(
   const svg = findPlotSvg(element)
   if (!svg) throw new Error('chartToPng: found no <svg> to export inside the element it was given')
 
-  const box = svg.getBoundingClientRect()
-  const width = Math.ceil(box.width)
-  const height = Math.ceil(box.height)
-  if (width === 0 || height === 0) {
-    // A chart that has not been measured yet has no size to export. Silently
-    // producing a 0×0 PNG would look like a broken download rather than a
-    // too-early call.
-    throw new Error('chartToPng: the chart has no measured size yet — export it after it renders')
-  }
+  const markup = serializeSvg(svg, {
+    padding,
+    background: background ?? readToken(element, '--chart-surface', '#ffffff'),
+    title,
+    titleColor: readToken(element, '--ink', '#101010'),
+    titleFont: getComputedStyle(element).fontFamily || 'sans-serif',
+  })
 
-  const clone = svg.cloneNode(true) as SVGSVGElement
-  inlinePaint(svg, clone)
-  clone.setAttribute('width', String(width))
-  clone.setAttribute('height', String(height))
-
-  const titleBand = title ? 30 : 0
-  const totalWidth = width + padding * 2
-  const totalHeight = height + padding * 2 + titleBand
-
-  const page = document.createElementNS(SVG_NS, 'svg')
-  page.setAttribute('xmlns', SVG_NS)
-  page.setAttribute('width', String(totalWidth))
-  page.setAttribute('height', String(totalHeight))
-  page.setAttribute('viewBox', `0 0 ${totalWidth} ${totalHeight}`)
-
-  const plate = document.createElementNS(SVG_NS, 'rect')
-  plate.setAttribute('width', String(totalWidth))
-  plate.setAttribute('height', String(totalHeight))
-  plate.setAttribute('fill', background ?? readToken(element, '--chart-surface', '#ffffff'))
-  page.append(plate)
-
-  if (title) {
-    const caption = document.createElementNS(SVG_NS, 'text')
-    caption.setAttribute('x', String(padding))
-    caption.setAttribute('y', String(padding + 14))
-    caption.setAttribute('fill', readToken(element, '--ink', '#101010'))
-    caption.setAttribute('font-size', '13')
-    caption.setAttribute('font-weight', '500')
-    caption.setAttribute('font-family', getComputedStyle(element).fontFamily || 'sans-serif')
-    caption.textContent = title
-    page.append(caption)
-  }
-
-  const group = document.createElementNS(SVG_NS, 'g')
-  group.setAttribute('transform', `translate(${padding}, ${padding + titleBand})`)
-  group.append(clone)
-  page.append(group)
-
-  const markup = new XMLSerializer().serializeToString(page)
-  const url = URL.createObjectURL(
-    new Blob([`<?xml version="1.0" encoding="UTF-8"?>\n${markup}`], {
-      type: 'image/svg+xml;charset=utf-8',
-    }),
-  )
-
-  try {
-    const image = await loadImage(url)
-    const canvas = document.createElement('canvas')
-    canvas.width = Math.ceil(totalWidth * scale)
-    canvas.height = Math.ceil(totalHeight * scale)
-
-    const context = canvas.getContext('2d')
-    if (!context) throw new Error('chartToPng: this browser gave back no 2D canvas context')
-    context.drawImage(image, 0, 0, canvas.width, canvas.height)
-
-    return await canvasToBlob(canvas)
-  } finally {
-    URL.revokeObjectURL(url)
-  }
+  return rasterize(markup, 'png', { scale })
 }
 
 /**
  * The plot's `<svg>`, not the first `<svg>` in the subtree.
  *
- * The distinction matters because the toolbar sits inside the same wrapper and
- * every icon in it is an `<svg>`. Narrowing to the measured chart box first is
- * what stops an export of a chart from being a picture of a magnifying glass.
+ * Two narrowings, and both are load-bearing. The toolbar sits outside the plot
+ * wrapper and every control in it is an `<svg>`, so the scope comes first;
+ * INSIDE the wrapper the legend draws its own swatches, so `.recharts-surface`
+ * comes second. Either one missing exports a picture of an icon, which looks
+ * like a working download until somebody opens the file.
  */
 function findPlotSvg(element: HTMLElement | SVGSVGElement): SVGSVGElement | null {
   if (element.tagName.toLowerCase() === 'svg') return element as SVGSVGElement
   const scope = element.querySelector('[data-slot="chart"]') ?? element
   return scope.querySelector<SVGSVGElement>('svg.recharts-surface') ?? scope.querySelector('svg')
-}
-
-/** Copies the resolved paint of every node in `live` onto the matching node in `clone`. */
-function inlinePaint(live: Element, clone: Element): void {
-  const computed = getComputedStyle(live)
-  let css = ''
-  for (const property of PAINTED_PROPERTIES) {
-    const value = computed.getPropertyValue(property)
-    if (value) css += `${property}:${value};`
-  }
-  if (css) clone.setAttribute('style', css)
-
-  // The clone is a faithful deep copy, so child lists line up by index.
-  const children = live.children
-  const clones = clone.children
-  for (let index = 0; index < children.length; index += 1) {
-    const liveChild = children[index]
-    const cloneChild = clones[index]
-    if (liveChild && cloneChild) inlinePaint(liveChild, cloneChild)
-  }
-}
-
-/**
- * A custom property, resolved against the live element.
- *
- * `var()` inside a custom property is substituted at computed-value time, so
- * `--chart-surface: var(--paper)` reads back as a colour. The guard is for the
- * case where it did not — an unregistered name, or a value the engine left as
- * a token stream — because writing `var(--paper)` into a serialised SVG paints
- * nothing at all.
- */
-function readToken(element: Element, name: string, fallback: string): string {
-  const value = getComputedStyle(element).getPropertyValue(name).trim()
-  return value && !value.includes('var(') ? value : fallback
-}
-
-function loadImage(url: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const image = new Image()
-    image.addEventListener('load', () => resolve(image))
-    image.addEventListener('error', () =>
-      reject(new Error('chartToPng: the browser refused to decode the serialised chart')),
-    )
-    image.src = url
-  })
-}
-
-function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    try {
-      canvas.toBlob((blob) => {
-        if (blob) resolve(blob)
-        else reject(new Error('chartToPng: the canvas produced no PNG data'))
-      }, 'image/png')
-    } catch (cause) {
-      // A cross-origin image anywhere in the plot taints the canvas and this
-      // throws SecurityError. Nothing in script can untaint it, so the honest
-      // move is to say which failure it was.
-      reject(
-        new Error(
-          'chartToPng: the canvas is tainted, which means the chart contains a cross-origin image',
-          { cause },
-        ),
-      )
-    }
-  })
 }
 
 /**
@@ -344,44 +168,15 @@ function cellText(value: unknown): string {
   return ''
 }
 
-/**
- * Hands a blob to the browser as a download.
- *
- * Throws rather than no-oping without a `document`: a download is something a
- * person just asked for, and a silent return would look to them like a click
- * that did nothing.
- */
-export function downloadBlob(blob: Blob, filename: string): void {
-  if (typeof document === 'undefined') {
-    throw new Error('downloadBlob: needs a browser document — call it from an event handler')
-  }
-
-  const url = URL.createObjectURL(blob)
-  const anchor = document.createElement('a')
-  anchor.href = url
-  anchor.download = filename
-  anchor.rel = 'noopener'
-  anchor.style.display = 'none'
-  document.body.append(anchor)
-  anchor.click()
-  anchor.remove()
-
-  // Revoking in the same tick cancels the download in Safari; one turn of the
-  // event loop is enough for the navigation to have started.
-  setTimeout(() => URL.revokeObjectURL(url), 0)
-}
+export { downloadBlob }
 
 /**
  * A figure's title as a filename.
  *
- * Lowercase, ASCII-safe and hyphenated, because a downloaded file crosses into
- * shells, zip archives and Windows paths where a title's spaces and slashes
- * are someone else's problem.
+ * The shared slugger, with `chart` rather than `figure` as the fallback for a
+ * title that slugs to nothing — an export from this entry is a chart, and the
+ * name a reader finds in their downloads folder should say so.
  */
 export function exportFilename(title: string, extension: string): string {
-  const slug = title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-  return `${slug || 'chart'}.${extension}`
+  return figureFilename(title, extension, 'chart')
 }
