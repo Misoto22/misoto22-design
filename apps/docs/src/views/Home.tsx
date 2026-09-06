@@ -4,7 +4,8 @@ import { CodeBlock } from '@/components/CodeBlock'
 import { PageIntro, SectionHeading } from '@/components/PageIntro'
 import { FOUNDATIONS } from '@/content/foundations'
 import { COMPONENTS, groupedComponents } from '@/content/registry'
-import { foundationCopy, groupName, PAGE_ZH } from '@/i18n/content'
+import { groupName, PAGE_ZH } from '@/i18n/content'
+import { catalogCopy } from '@/i18n/translate'
 import { localePath, type Locale } from '@/i18n/locales'
 import { fill, getMessages } from '@/i18n/messages'
 import { radiusSteps, snippet, tokenCount, WARNING_CODES } from '@/lib/docs'
@@ -93,7 +94,6 @@ export function Home({ locale }: { locale: Locale }) {
             a layout change. */}
         <div className="grid gap-px overflow-hidden rounded-(--radius-lg) border border-(--rule) bg-(--rule) sm:grid-cols-2 sm:[&>:last-child:nth-child(odd)]:col-span-2">
           {FOUNDATIONS.map((page) => {
-            const zh = foundationCopy(locale, page.slug)
             return (
               <Link
                 key={page.slug}
@@ -101,10 +101,10 @@ export function Home({ locale }: { locale: Locale }) {
                 className="group flex flex-col gap-2 bg-(--paper) p-6 transition-colors duration-(--duration-fast) hover:bg-(--paper-2)"
               >
                 <span className="font-heading text-[length:var(--fs-item)] text-(--ink)">
-                  {zh.title ?? page.title}
+                  {catalogCopy(locale, `foundation.${page.slug}.title`, page.title)}
                 </span>
                 <span className="text-[13px] leading-relaxed text-(--ink-3-aa)">
-                  {zh.summary ?? page.summary}
+                  {catalogCopy(locale, `foundation.${page.slug}.summary`, page.summary)}
                 </span>
               </Link>
             )

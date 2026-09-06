@@ -1,4 +1,5 @@
-import { PAGE_ZH, templateCopy } from '@/i18n/content'
+import { PAGE_ZH } from '@/i18n/content'
+import { catalogCopy } from '@/i18n/translate'
 import { localePath, type Locale } from '@/i18n/locales'
 import { getMessages } from '@/i18n/messages'
 import { Tag } from '@misoto22/design'
@@ -14,26 +15,28 @@ export async function TemplatePage({ locale, slug }: { locale: Locale; slug: str
   if (!template) notFound()
 
   const t = getMessages(locale)
-  const zh = templateCopy(locale, template.slug)
   const source = templateSource(template.id)
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
       <PageIntro
         eyebrow={`${t.nav.templates} · ${template.category}`}
-        title={zh.name ?? template.name}
-        summary={zh.summary ?? template.summary}
+        title={catalogCopy(locale, `template.${slug}.name`, template.name)}
+        summary={catalogCopy(locale, `template.${slug}.summary`, template.summary)}
         crumbs={[
           { label: t.nav.templates, href: localePath(locale, '/templates/') },
-          { label: zh.name ?? template.name },
+          { label: catalogCopy(locale, `template.${slug}.name`, template.name) },
         ]}
       >
         <p className="m-0 max-w-(--w-reading) border-s border-(--rule-2) ps-4 text-sm leading-relaxed text-(--ink-2)">
-          {zh.tests ?? template.tests}
+          {catalogCopy(locale, `template.${slug}.tests`, template.tests)}
         </p>
       </PageIntro>
 
-      <TemplateFrame templateId={template.id} name={zh.name ?? template.name} />
+      <TemplateFrame
+        templateId={template.id}
+        name={catalogCopy(locale, `template.${slug}.name`, template.name)}
+      />
 
       <section className="flex flex-col gap-4">
         <SectionHeading id="uses">{t.section.builtFrom}</SectionHeading>

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { ComponentPage } from '@/views/ComponentPage'
 import { BY_SLUG, COMPONENTS } from '@/content/registry'
-import { componentCopy } from '@/i18n/content'
+import { catalogCopy } from '@/i18n/translate'
 
 export function generateStaticParams() {
   return COMPONENTS.map((entry) => ({ slug: entry.slug }))
@@ -17,7 +17,7 @@ export async function generateMetadata({
   if (!entry) return {}
   return {
     title: entry.name,
-    description: componentCopy('en', slug).summary ?? entry.summary,
+    description: catalogCopy('en', `component.${slug}.summary`, entry.summary),
     // The page it is on, written for a reader that does not render CSS. The
     // root layout already advertises the index and the whole-site file; this is
     // the one that is about THIS component, and it is a few hundred tokens

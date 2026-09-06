@@ -1,4 +1,5 @@
-import { componentCopy, componentName, groupName, PAGE_ZH } from '@/i18n/content'
+import { componentName, groupName, PAGE_ZH } from '@/i18n/content'
+import { catalogCopy } from '@/i18n/translate'
 import { localePath, type Locale } from '@/i18n/locales'
 import { fill } from '@/i18n/messages'
 import { Badge, Card, CardBody, CardTitle } from '@misoto22/design'
@@ -63,7 +64,7 @@ export function ComponentsIndex({ locale }: { locale: Locale }) {
                     </Link>
                   </CardTitle>
                   <p className="m-0 text-[13px] leading-relaxed text-(--ink-3-aa)">
-                    {componentCopy(locale, entry.slug).summary ?? entry.summary}
+                    {catalogCopy(locale, `component.${entry.slug}.summary`, entry.summary)}
                   </p>
                 </CardBody>
               </Card>

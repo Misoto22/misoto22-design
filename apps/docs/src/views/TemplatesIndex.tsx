@@ -1,6 +1,7 @@
 'use client'
 
-import { PAGE_ZH, templateCopy } from '@/i18n/content'
+import { PAGE_ZH } from '@/i18n/content'
+import { catalogCopy } from '@/i18n/translate'
 import { localePath, type Locale } from '@/i18n/locales'
 import { getMessages } from '@/i18n/messages'
 import { Badge, Card, CardBody, CardTitle, Tag, ToggleGroup, ToggleGroupItem } from '@misoto22/design'
@@ -80,17 +81,17 @@ export function TemplatesIndex({ locale }: { locale: Locale }) {
                     {/* h2: these sit directly under the page title, with no section
                         heading between. */}
                     <CardTitle as="h2">
-                      {templateCopy(locale, template.slug).name ?? template.name}
+                      {catalogCopy(locale, `template.${template.slug}.name`, template.name)}
                     </CardTitle>
                     <Badge tone="outline">
                       {template.uses.length} {t.section.components.toLowerCase()}
                     </Badge>
                   </div>
                   <p className="m-0 text-[13px] leading-relaxed text-(--ink-3-aa)">
-                    {templateCopy(locale, template.slug).summary ?? template.summary}
+                    {catalogCopy(locale, `template.${template.slug}.summary`, template.summary)}
                   </p>
                   <p className="m-0 border-s border-(--rule-2) ps-3 text-[13px] leading-relaxed text-(--ink-2)">
-                    {templateCopy(locale, template.slug).tests ?? template.tests}
+                    {catalogCopy(locale, `template.${template.slug}.tests`, template.tests)}
                   </p>
                   <div className="mt-auto flex flex-wrap gap-1.5 pt-2">
                     {template.uses.slice(0, 6).map((name) => (

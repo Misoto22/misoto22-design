@@ -32,7 +32,8 @@ import { ACCENTS, useAccent } from './AccentProvider'
 import { FOUNDATIONS } from '@/content/foundations'
 import { COMPONENTS } from '@/content/registry'
 import { SEARCH_TERMS } from '@/content/haystack'
-import { componentName, foundationCopy, groupName } from '@/i18n/content'
+import { componentName, groupName } from '@/i18n/content'
+import { catalogCopy } from '@/i18n/translate'
 import { localePath } from '@/i18n/locales'
 import { useLocale, useMessages } from '@/i18n/useLocale'
 
@@ -151,7 +152,7 @@ export function CommandPalette() {
                 meta={page.group === 'guide' ? t.nav.guide : t.nav.foundations}
                 onSelect={() => go(`/foundations/${page.slug}/`)}
               >
-                {foundationCopy(locale, page.slug).title ?? page.title}
+                {catalogCopy(locale, `foundation.${page.slug}.title`, page.title)}
               </CommandItem>
             )
           })}

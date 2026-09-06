@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { BrandMark } from './BrandMark'
 import { FOUNDATIONS } from '@/content/foundations'
 import { SECTIONS, SECTION_ROOT, type SectionId } from '@/content/sections'
-import { foundationCopy } from '@/i18n/content'
+import { catalogCopy } from '@/i18n/translate'
 import { localePath } from '@/i18n/locales'
 import { useLocale, useMessages } from '@/i18n/useLocale'
 import changelog from '@/generated/changelog.json'
@@ -88,7 +88,7 @@ export function DocsFooter() {
           <FooterColumn title={t.nav.foundations}>
             {FOUNDATIONS.map((page) => (
               <FooterLink key={page.slug} href={localePath(locale, `/foundations/${page.slug}/`)}>
-                {foundationCopy(locale, page.slug).title ?? page.title}
+                {catalogCopy(locale, `foundation.${page.slug}.title`, page.title)}
               </FooterLink>
             ))}
           </FooterColumn>

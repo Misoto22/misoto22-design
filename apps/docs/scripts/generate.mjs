@@ -26,6 +26,7 @@ import { createHighlighter } from 'shiki'
 import { extractChangelog } from './extract-changelog.mjs'
 import { HIGHLIGHT, WHITE_RESET_DARK, WHITE_RESET_LIGHT } from './shiki-theme.mjs'
 import { createRenderer } from './render-markdown.mjs'
+import { buildManifest, keysModule } from './i18n-manifest.mjs'
 import { extractProps } from '../../../packages/design/scripts/extract-props.mjs'
 import { ENTRY_POINTS } from '../../../packages/design/agent/catalog.mjs'
 
@@ -245,6 +246,29 @@ async function main() {
       })
   }
   writeFileSync(join(OUT, 'examples.json'), JSON.stringify(examples, null, 2))
+
+  // ─── The translation manifest ───
+  // Every English string the two sources above hand this site, with the
+  // fingerprint of the English each translation was made from. Emitted here
+  // rather than derived in a test because half of it is a TypeScript union:
+  // an untranslated string is a compile error naming the key, at the moment the
+  // catalog grows, rather than a page that quietly renders in English.
+  // The site's own prose is read straight out of its TypeScript — Node strips
+  // the types, and these three modules are pure data with no imports. Keeping
+  // one manifest rather than two means the foundations pages get the same drift
+  // guard the catalog does, which they have never had.
+  const { FOUNDATIONS } = await import('../src/content/foundations.ts')
+  const { TEMPLATES } = await import('../src/content/templates.ts')
+  const { LAWS } = await import('../src/content/principles.ts')
+  const manifest = buildManifest({
+    catalog,
+    examples,
+    foundations: FOUNDATIONS,
+    templates: TEMPLATES,
+    laws: LAWS,
+  })
+  writeFileSync(join(OUT, 'i18n-source.json'), JSON.stringify(manifest, null, 2))
+  writeFileSync(join(OUT, 'i18n-keys.ts'), keysModule(manifest))
 
   // A static import map, because a statically exported Next app cannot resolve
   // a component from a string at runtime. Generated rather than hand-kept: a

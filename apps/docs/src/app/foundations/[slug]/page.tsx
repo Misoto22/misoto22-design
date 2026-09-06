@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { FoundationPage } from '@/views/FoundationPage'
 import { FOUNDATIONS, FOUNDATION_BY_SLUG } from '@/content/foundations'
-import { foundationCopy } from '@/i18n/content'
+import { catalogCopy } from '@/i18n/translate'
 
 export function generateStaticParams() {
   return FOUNDATIONS.map((page) => ({ slug: page.slug }))
@@ -15,7 +15,10 @@ export async function generateMetadata({
   const { slug } = await params
   const entry = FOUNDATION_BY_SLUG.get(slug)
   if (!entry) return {}
-  return { title: foundationCopy('en', slug).title ?? entry.title, description: foundationCopy('en', slug).summary ?? entry.summary }
+  return {
+    title: catalogCopy('en', `foundation.${slug}.title`, entry.title),
+    description: catalogCopy('en', `foundation.${slug}.summary`, entry.summary),
+  }
 }
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {

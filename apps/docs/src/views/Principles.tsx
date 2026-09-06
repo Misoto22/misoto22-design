@@ -1,4 +1,5 @@
-import { lawCopy, PAGE_ZH } from '@/i18n/content'
+import { PAGE_ZH } from '@/i18n/content'
+import { catalogCopy } from '@/i18n/translate'
 import type { Locale } from '@/i18n/locales'
 import { PageIntro } from '@/components/PageIntro'
 import { LAWS } from '@/content/principles'
@@ -26,22 +27,21 @@ export function Principles({ locale }: { locale: Locale }) {
       />
 
       <div className="flex flex-col divide-y divide-(--rule) border-y border-(--rule)">
-        {LAWS.map((law, index) => {
-          const translated = lawCopy(locale, index)
+        {LAWS.map((law) => {
           return (
             <article key={law.n} className="grid gap-4 py-8 md:grid-cols-[3rem_minmax(0,1fr)]">
               <p className="m-0 mono-meta text-(--ink-3-aa)">{law.n}</p>
               <div className="flex flex-col gap-3">
                 <h2 className="m-0 font-heading text-[length:var(--fs-item)] font-normal text-(--ink)">
-                  {translated?.title ?? law.title}
+                  {catalogCopy(locale, `law.${law.n}.title`, law.title)}
                 </h2>
                 <p className="m-0 max-w-(--w-reading) text-sm leading-relaxed text-(--ink-2)">
-                  {translated?.body ?? law.body}
+                  {catalogCopy(locale, `law.${law.n}.body`, law.body)}
                 </p>
                 <p className="m-0 max-w-(--w-reading) border-s border-(--rule-2) ps-4 text-[13px] leading-relaxed text-(--ink-3-aa)">
                   <span className="eyebrow">{copy?.rulesOut ?? 'Rules out'}</span>
                   <br />
-                  {translated?.rules_out ?? law.rules_out}
+                  {catalogCopy(locale, `law.${law.n}.rulesOut`, law.rules_out)}
                 </p>
                 {/* Built only from the primitives the laws were written
                     against. A rule illustrated with a component added later to

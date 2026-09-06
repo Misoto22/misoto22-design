@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { TemplatePage } from '@/views/TemplatePage'
 import { TEMPLATES, TEMPLATE_BY_SLUG } from '@/content/templates'
-import { templateCopy } from '@/i18n/content'
+import { catalogCopy } from '@/i18n/translate'
 
 export function generateStaticParams() {
   return TEMPLATES.map((template) => ({ slug: template.slug }))
@@ -15,7 +15,10 @@ export async function generateMetadata({
   const { slug } = await params
   const entry = TEMPLATE_BY_SLUG.get(slug)
   if (!entry) return {}
-  return { title: templateCopy('en', slug).name ?? entry.name, description: templateCopy('en', slug).summary ?? entry.summary }
+  return {
+    title: catalogCopy('en', `template.${slug}.name`, entry.name),
+    description: catalogCopy('en', `template.${slug}.summary`, entry.summary),
+  }
 }
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {

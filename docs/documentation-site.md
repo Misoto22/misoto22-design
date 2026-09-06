@@ -14,10 +14,13 @@ cannot disagree.
 | `templates.json` | `src/templates/*.tsx` | same trick, for whole screens |
 | `changelog.json` | the repository's `CHANGELOG.md` | two lists of what changed disagree within two releases |
 
-The hand-written parts are `src/content/registry.ts` (grouping, summaries,
-accessibility promises, keyboard tables) and `src/i18n/content.ts` (the Chinese
-for all of it). `registry.test.ts` fails the build when either falls out of step
-with what the package ships.
+What each component IS — its group, summary, anatomy, best practices,
+accessibility promises and keyboard contract — is authored in the PACKAGE, at
+`packages/design/agent/catalog/*.mjs`, and read here from the artifact its build
+emits. `src/content/registry.ts` adds only what is genuinely the site's own, and
+`registry.test.ts` fails the build when it falls out of step with what the
+package ships. The site's own prose — the foundations pages, the templates, the
+eight laws — is hand-written under `src/content/`.
 
 ## Locales
 
@@ -29,20 +32,54 @@ with what the package ships.
 locale off the pathname instead, because threading a prop through the chrome to
 reach a search box is worse than one hook.
 
-`src/i18n/messages.ts` types the Chinese catalogue off the English one, so a
-missing key is a compile error rather than a blank on a page. `content.ts` holds
-the translated editorial layer and falls back to English for anything absent.
+### Nothing ships in one language by accident
 
-**The API reference stays in English on purpose.** Prop descriptions, the Notes
-section and type signatures come from the package source; a translation would be
-a second copy that drifts the first time a doc comment is edited. Chinese pages
-carry a line saying so.
+Every translatable string is covered by one of three mechanisms, and each fails
+at a different moment on purpose. The rule they exist to enforce is that adding
+English is not a thing you can finish without deciding, in writing, what happens
+to the Chinese.
+
+| Where the English lives | Mechanism | What fails, and when |
+|---|---|---|
+| The site's own chrome — nav, headings, labels | `src/i18n/messages.ts` types `zh` off `en` | `tsc`, on a missing key |
+| The package catalog, the example files, the foundations/templates/laws prose | `src/i18n/zh.ts` is `Record<RequiredKey, Translation>` | `tsc`, naming the key, the moment the catalog grows |
+| The API reference | `src/i18n/api.ts`, keyed and fingerprinted | `api.test.ts` |
+| A sentence typed straight into JSX | `untranslated-chrome.test.ts` scans the render layer | vitest, naming the file and the sentence |
+
+`scripts/generate.mjs` emits `src/generated/i18n-keys.ts` — a union of every
+English string the catalog, the examples and the site's own content hand the
+pages, 2784 of them — and `i18n-source.json`, which carries each string with a
+fingerprint of itself. `zh.ts` is total over that union minus the deferrals, so
+an untranslated string is a **compile error naming the key**, not a page that
+quietly renders in English.
+
+Each translation stores the fingerprint of the English it was made from, so
+rewording a summary in the package fails `translation-gate.test.ts` until
+somebody looks at the Chinese. That is the failure the whole arrangement is
+built around: not a blank page, but a Chinese sentence still confidently stating
+what the English used to say.
+
+`src/i18n/deferred.ts` is the escape valve, and using it costs a visible edit —
+a pattern, an owner, a date, and a real reason. The list only shrinks: a
+deferral that stops matching anything fails the gate, so translating a page
+forces the excuse to be deleted in the same commit.
+
+```bash
+# what is still English, and why
+sed -n '/^export const DEFERRED/,/^]/p' apps/docs/src/i18n/deferred.ts
+```
+
+Anything without a translation falls back to English rather than rendering
+blank, field by field — so a half-finished page is shippable instead of
+something to hold back.
 
 ## Testing
 
 | Suite | Runs in | Answers |
 |---|---|---|
 | `src/content/__tests__` | vitest | does the registry match what the package ships |
+| `src/i18n/__tests__/translation-gate.test.ts` | vitest | is any translation missing, orphaned, stale, or excused by a dead deferral |
+| `src/__tests__/untranslated-chrome.test.ts` | vitest | is there English typed into JSX where nothing can translate it |
 | `e2e/a11y.spec.ts` | Chromium | axe over **every page, both themes, both languages** |
 | `e2e/keyboard.spec.ts` | Chromium | the site's own shortcuts, the editor, the search |
 | `e2e/interactions.spec.ts` | Chromium | the component behaviours a static tree cannot show |

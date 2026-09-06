@@ -1,5 +1,6 @@
 import { apiCopy } from '@/i18n/api'
-import { componentCopy, componentName, groupName } from '@/i18n/content'
+import { componentName, groupName } from '@/i18n/content'
+import { catalogCopy } from '@/i18n/translate'
 import { localePath, type Locale } from '@/i18n/locales'
 import { getMessages } from '@/i18n/messages'
 import { Alert, Badge, Kbd, Separator, TBody, TD, TH, THead, TR, Table } from '@misoto22/design'
@@ -35,7 +36,6 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
   if (!entry) notFound()
 
   const t = getMessages(locale)
-  const zh = componentCopy(locale, entry.slug)
   const source = componentSource(entry.dir)
   const examples = componentExamples(entry.dir)
   const types = componentTypes(entry.dir)
@@ -74,9 +74,9 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
     <>
       <section className="flex flex-col gap-4">
         <SectionHeading id="usage">{t.section.usage}</SectionHeading>
-        {(zh.when ?? entry.when) && (
+        {entry.when && (
           <Alert title={t.section.whenToReach} hideIcon>
-            {zh.when ?? entry.when}
+            {catalogCopy(locale, `component.${entry.slug}.when`, entry.when)}
           </Alert>
         )}
         {/* Which specifier this ships from, printed only when it is not the
@@ -117,10 +117,16 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
               </TR>
             </THead>
             <TBody>
-              {entry.anatomy.map((part) => (
+              {entry.anatomy.map((part, index) => (
                 <TR key={part.element}>
                   <TD className="align-top">
-                    <span className="text-sm text-(--ink)">{part.element}</span>
+                    <span className="text-sm text-(--ink)">
+                      {catalogCopy(
+                        locale,
+                        `component.${entry.slug}.anatomy.${index}.element`,
+                        part.element,
+                      )}
+                    </span>
                     {part.required && (
                       <Badge tone="outline" className="ms-2 align-middle">
                         {t.table.required}
@@ -128,7 +134,11 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
                     )}
                   </TD>
                   <TD className="max-w-(--measure-record) align-top text-[13px] leading-relaxed">
-                    {part.description}
+                    {catalogCopy(
+                      locale,
+                      `component.${entry.slug}.anatomy.${index}.description`,
+                      part.description,
+                    )}
                   </TD>
                 </TR>
               ))}
@@ -146,7 +156,12 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
               percent of men who cannot tell them apart. */}
           <div className="grid gap-6 sm:grid-cols-2">
             {PRACTICE_HALVES.map(({ kind, icon: Icon, tone }) => {
-              const half = entry.practices!.filter((practice) => practice.kind === kind)
+              // The key is the position in the CATALOG, not in this half, so
+              // the index is carried across the filter rather than taken from
+              // the half — the "don't" list starts at 0 and its keys do not.
+              const half = entry
+                .practices!.map((practice, index) => ({ ...practice, index }))
+                .filter((practice) => practice.kind === kind)
               if (half.length === 0) return null
               return (
                 <div key={kind} className="flex flex-col gap-3">
@@ -160,7 +175,11 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
                         key={practice.text}
                         className="max-w-(--w-reading) border-s border-(--rule-2) ps-4 text-sm leading-relaxed text-(--ink-2)"
                       >
-                        {practice.text}
+                        {catalogCopy(
+                          locale,
+                          `component.${entry.slug}.practices.${practice.index}`,
+                          practice.text,
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -181,10 +200,20 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
                   description reads as a caption for the preview below it
                   rather than as the answer to the heading above it. */}
               <div className="flex flex-col gap-2">
-                <p className="m-0 eyebrow text-(--ink-3-aa)">{example.title}</p>
+                <p className="m-0 eyebrow text-(--ink-3-aa)">
+                  {catalogCopy(
+                    locale,
+                    `example.${entry.dir}.${example.id}.title`,
+                    example.title,
+                  )}
+                </p>
                 {example.description && (
                   <p className="m-0 max-w-(--w-reading) text-sm leading-relaxed text-(--ink-2)">
-                    {example.description}
+                    {catalogCopy(
+                      locale,
+                      `example.${entry.dir}.${example.id}.description`,
+                      example.description,
+                    )}
                   </p>
                 )}
               </div>
@@ -203,8 +232,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
         <section className="flex flex-col gap-6">
           <SectionHeading id="parts">{t.section.parts}</SectionHeading>
           <p className="m-0 max-w-(--w-reading) text-sm leading-relaxed text-(--ink-3-aa)">
-            Composed at the call site rather than configured through props, so a layout this
-            component did not anticipate is still expressible.
+            {t.section.partsNote}
           </p>
           {parts.map((part) => (
             <div key={part.name} className="flex flex-col gap-3">
@@ -272,7 +300,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
                     </span>
                   </TD>
                   <TD className="max-w-(--measure-record) align-top text-[13px] leading-relaxed">
-                    {zh.keyboard?.[index] ?? row.does}
+                    {catalogCopy(locale, `component.${entry.slug}.keyboard.${index}`, row.does)}
                   </TD>
                 </TR>
               ))}
@@ -285,12 +313,12 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
         <section className="flex flex-col gap-4">
           <SectionHeading id="accessibility">{t.section.accessibility}</SectionHeading>
           <ul className="m-0 flex list-none flex-col gap-3 p-0">
-            {(zh.accessibility ?? entry.accessibility).map((note) => (
+            {entry.accessibility.map((note, index) => (
               <li
                 key={note}
                 className="max-w-(--w-reading) border-s border-(--rule-2) ps-4 text-sm leading-relaxed text-(--ink-2)"
               >
-                {note}
+                {catalogCopy(locale, `component.${entry.slug}.accessibility.${index}`, note)}
               </li>
             ))}
           </ul>
@@ -343,7 +371,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
       <PageIntro
         eyebrow={groupName(locale, entry.group)}
         title={componentName(locale, entry.slug, entry.name)}
-        summary={zh.summary ?? entry.summary}
+        summary={catalogCopy(locale, `component.${entry.slug}.summary`, entry.summary)}
         crumbs={[
           { label: t.section.components, href: localePath(locale, '/components/') },
           { label: componentName(locale, entry.slug, entry.name) },

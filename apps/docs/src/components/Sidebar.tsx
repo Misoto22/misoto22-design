@@ -10,7 +10,8 @@ import { foundationsInGroup } from '@/content/foundations'
 import { TEMPLATES } from '@/content/templates'
 import { sectionFor } from '@/content/sections'
 import { ThemeRail } from './ThemeRail'
-import { componentName, foundationCopy, groupName, templateCopy } from '@/i18n/content'
+import { componentName, groupName } from '@/i18n/content'
+import { catalogCopy } from '@/i18n/translate'
 import { localePath } from '@/i18n/locales'
 import { useLocale, useMessages } from '@/i18n/useLocale'
 
@@ -94,7 +95,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
               pathname={pathname}
               onNavigate={onNavigate}
             >
-              {templateCopy(locale, template.slug).name ?? template.name}
+              {catalogCopy(locale, `template.${template.slug}.name`, template.name)}
             </Row>
           ))}
         </div>
@@ -120,7 +121,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             pathname={pathname}
             onNavigate={onNavigate}
           >
-            {foundationCopy(locale, page.slug).title ?? page.title}
+            {catalogCopy(locale, `foundation.${page.slug}.title`, page.title)}
           </Row>
         ))}
         <Row href={localePath(locale, '/principles/')} pathname={pathname} onNavigate={onNavigate}>
@@ -139,7 +140,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             pathname={pathname}
             onNavigate={onNavigate}
           >
-            {foundationCopy(locale, page.slug).title ?? page.title}
+            {catalogCopy(locale, `foundation.${page.slug}.title`, page.title)}
           </Row>
         ))}
       </Section>
