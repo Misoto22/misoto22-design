@@ -64,7 +64,7 @@ export function Tooltip({
           sideOffset={sideOffset}
           data-m22-animated
           className={cn(
-            'z-(--z-toast) max-w-64 rounded-(--radius-sm) bg-(--feature-surface) px-2.5 py-1.5 font-mono text-[11px] leading-snug text-(--on-feature)',
+            'z-(--z-toast) max-w-64 rounded-(--radius) bg-(--feature-surface) px-2.5 py-1.5 font-mono text-[11px] leading-snug text-(--on-feature)',
             'data-[state=delayed-open]:animate-[m22-fade-in_var(--duration-fast)_var(--ease)]',
           )}
         >

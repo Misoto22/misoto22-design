@@ -47,7 +47,7 @@ export function TemplateFrame({ templateId, name }: TemplateFrameProps) {
   }
 
   return (
-    <div className="overflow-hidden rounded-(--radius-lg) border border-(--rule)">
+    <div className="overflow-hidden rounded-(--radius-frame) border border-(--rule)">
       {/* The system's own segmented control rather than three ghost buttons.
           They collapse to icons on a phone, where "which one is on" was a
           change of ink colour between three near-identical glyphs; the strip
@@ -79,7 +79,7 @@ export function TemplateFrame({ templateId, name }: TemplateFrameProps) {
           // documentation page.
           role="region"
           aria-label={`${name} preview`}
-          className="@container mx-auto overflow-hidden rounded-(--radius) border border-(--rule) bg-(--paper) transition-[max-width] duration-(--duration-slow) ease-(--ease-out-expo)"
+          className="@container mx-auto overflow-hidden rounded-(--radius-lg) border border-(--rule) bg-(--paper) transition-[max-width] duration-(--duration-slow) ease-(--ease-out-expo)"
           style={{ maxWidth: WIDTHS[size].width || undefined }}
         >
           {/* Inside the container, not on it: a container query unit resolves

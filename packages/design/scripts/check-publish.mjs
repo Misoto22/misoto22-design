@@ -27,20 +27,26 @@
  * that a CJS caller needs a dynamic import.
  */
 import { spawnSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 
-/** Export paths that are stylesheets: real, shipped, and untyped by design. */
-const STYLESHEET_EXPORTS = [
-  './styles.css',
-  './tokens.css',
-  './semantic.css',
-  './keyframes.css',
-  './fonts.css',
-  './themes.css',
-]
+/**
+ * Export paths that are stylesheets: real, shipped, and untyped by design.
+ *
+ * Read out of the manifest rather than listed here. A hand-kept copy of the
+ * exports map is a copy that goes stale, and it went stale the first time a
+ * layer was added: `./article.css` shipped, resolved, and failed this check for
+ * having no type declarations — which is true of every stylesheet in the list
+ * above it. The rule is "an export whose subpath is a stylesheet", and that is
+ * something the manifest can answer.
+ */
+const MANIFEST = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'))
+const STYLESHEET_EXPORTS = Object.keys(MANIFEST.exports ?? {}).filter((path) =>
+  path.endsWith('.css'),
+)
 
 const CHECKS = [
   // `--strict` promotes publint's suggestions to failures. They are all

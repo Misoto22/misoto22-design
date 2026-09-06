@@ -84,7 +84,11 @@ test('the drawer opens, closes, and carries the whole index', async ({ page }) =
 
   await page.getByRole('button', { name: 'Open the navigation' }).click()
   await expect(aside).not.toHaveAttribute('inert', '')
-  await expect(nav.getByRole('link', { name: 'Overview' })).toBeVisible()
+  // Both halves of the index, because the drawer carries both: the four
+  // sections, which live in the masthead on a desktop and have nowhere to go on
+  // a phone, and the open section's own tree underneath them.
+  await expect(aside.getByRole('link', { name: 'Templates' })).toBeVisible()
+  await expect(nav.getByRole('link', { name: 'All components' })).toBeVisible()
 
   // Polled: the drawer slides in on --duration-slow, and reading the box once
   // catches it mid-travel.

@@ -12,7 +12,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
  * shipped it as a preset.
  */
 export const AXES = {
-  surface: ['paper', 'warm', 'cool'],
+  surface: ['paper', 'warm', 'cool', 'glass'],
   radius: ['sharp', 'soft', 'round'],
   rules: ['quiet', 'hairline', 'firm'],
   type: ['editorial', 'grotesk', 'bookish'],
@@ -82,6 +82,24 @@ export const PRESETS: ThemePreset[] = [
     name: 'Clinic',
     note: 'Paper ground and one grotesk, with nothing warm in it. Softened corners keep it from reading as a form.',
     values: { surface: 'paper', radius: 'round', rules: 'hairline', type: 'grotesk', motion: 'snappy', density: 'comfortable', accent: 'forest' },
+  },
+  {
+    id: 'atelier',
+    name: 'Atelier',
+    note: 'Warm stock and quiet rules, with the serif kept for headings only. A portfolio, where the work is the colour.',
+    values: { surface: 'warm', radius: 'soft', rules: 'quiet', type: 'editorial', motion: 'calm', density: 'comfortable', accent: 'clay' },
+  },
+  {
+    id: 'aqua',
+    name: 'Aqua',
+    note: 'Frosted panels over a cool ground. The one theme that spends a blur, and only behind surfaces that actually float.',
+    values: { surface: 'glass', radius: 'round', rules: 'quiet', type: 'grotesk', motion: 'calm', density: 'comfortable', accent: 'cobalt' },
+  },
+  {
+    id: 'ledger',
+    name: 'Ledger',
+    note: 'Cool paper, square corners, comfortable rows. A reporting screen that has to be read for an hour, not scanned for a second.',
+    values: { surface: 'cool', radius: 'sharp', rules: 'hairline', type: 'grotesk', motion: 'calm', density: 'comfortable', accent: 'cobalt' },
   },
 ]
 

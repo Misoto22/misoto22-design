@@ -29,7 +29,8 @@
       "types": "./dist/tokens.d.ts",
       "import": "./dist/tokens.js"
     },
-    "./themes.css": "./dist/themes.css"
+    "./themes.css": "./dist/themes.css",
+    "./article.css": "./dist/article.css"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

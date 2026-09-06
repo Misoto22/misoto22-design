@@ -52,7 +52,7 @@ export async function TemplatePage({ locale, slug }: { locale: Locale; slug: str
       {source && (
         <section className="flex flex-col gap-4">
           <SectionHeading id="source">{t.section.source}</SectionHeading>
-          <CodeBlock html={source.html} source={source.source} label={`${template.name} source`} />
+          <CodeBlock {...source} label={`${template.name} source`} />
         </section>
       )}
     </div>

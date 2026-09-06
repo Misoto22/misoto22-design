@@ -141,18 +141,34 @@ test('combobox: the panel is clipped to its own corners', async ({ page }) => {
   await expect(panel).not.toHaveCSS('border-bottom-left-radius', '0px')
 })
 
-test('date picker: month and year are dropdowns, and it fits its card', async ({ page }) => {
+test('date picker: the caption opens a month picker in place of the grid', async ({ page }) => {
   await page.goto('/components/date-picker/')
   await ready(page)
 
   await page.getByRole('button', { name: 'Publish on' }).first().click()
 
-  // Stepping a month at a time is fine for "next Tuesday" and useless for a
-  // date two years back.
-  await expect(page.getByLabel(/Choose the Month/)).toBeVisible()
-  await expect(page.getByLabel(/Choose the Year/)).toBeVisible()
-
   const calendar = page.locator('.rdp-root')
+  // One control, not two dropdowns. "September 2026" is how the date is said,
+  // and the two Selects it replaces portalled a three-row scrolling list over
+  // the grid the reader opened it to change.
+  const caption = calendar.getByRole('button', { name: /\w+ \d{4}/ }).first()
+  await expect(caption).toHaveAttribute('aria-expanded', 'false')
+
+  await caption.click()
+  const picker = calendar.getByRole('group', { name: 'Month and year' })
+  await expect(picker).toBeVisible()
+  // Twelve months at the size of the grid they replace: no scrolling, and
+  // nothing floating over the calendar.
+  await expect(picker.getByRole('button')).toHaveCount(15)
+  const pickerBox = (await picker.boundingBox())!
+  const calendarBox = (await calendar.boundingBox())!
+  expect(pickerBox.y + pickerBox.height).toBeLessThanOrEqual(calendarBox.y + calendarBox.height + 1)
+
+  // Escape closes it and hands focus back, rather than leaving the grid covered.
+  await page.keyboard.press('Escape')
+  await expect(picker).toBeHidden()
+  await expect(caption).toBeFocused()
+
   const nav = calendar.locator('nav')
   await expect(nav).toHaveCSS('position', 'absolute')
 
@@ -274,21 +290,26 @@ test('date picker: a shortcut fills both ends of the range at once', async ({ pa
   await expect(trigger).toHaveText(/\w+ \d+, \d{4} – \w+ \d+, \d{4}/)
 })
 
-test('calendar: the year picker is our listbox, and the day it selects is round', async ({ page }) => {
+test('calendar: the year picker replaces the grid, and the day it selects is round', async ({ page }) => {
   await page.goto('/components/calendar/')
   await ready(page)
 
-  // Not the native <select>, whose thousand-row list opened pinned to the top
-  // of the screen. Ours is the same popover every other Select uses.
-  const year = page.getByRole('combobox', { name: /Choose the Year/ }).first()
-  await year.click()
-  const options = page.getByRole('listbox').getByRole('option')
-  await expect(options).toHaveCount(21)
-  const box = await page.getByRole('listbox').boundingBox()
-  expect(box!.height).toBeLessThan(400)
+  const calendar = page.locator('.rdp-root').first()
+  await calendar.getByRole('button', { name: /\w+ \d{4}/ }).first().click()
+  // The year label inside the month panel opens the year grid — twenty years
+  // in one page, which is why the default span is ten either side.
+  await calendar.getByRole('group', { name: 'Month and year' }).getByRole('button', { name: /^\d{4}$/ }).click()
+  const years = calendar.getByRole('group', { name: 'Year' })
+  // Pages tile the range from its first year rather than being centred on the
+  // year showing, so every year in the span is reachable — twenty-one here,
+  // which is the ten either side the default span promises plus this one.
+  await expect(years.getByRole('button', { name: /^\d{4}$/ })).toHaveCount(21)
+  const box = (await years.boundingBox())!
+  const frame = (await calendar.boundingBox())!
+  expect(box.y + box.height).toBeLessThanOrEqual(frame.y + frame.height + 1)
   await page.keyboard.press('Escape')
 
-  const day = page.locator('.rdp-root').getByRole('button', { name: /15th/ }).first()
+  const day = calendar.getByRole('button', { name: /15th/ }).first()
   await day.click()
   // react-day-picker states the selection in the label, not in aria-selected.
   await expect(day).toHaveAttribute('aria-label', /selected/)

@@ -29,3 +29,8 @@ export function localePath(locale: Locale, path: string): string {
 export function localeFromPath(path: string): Locale {
   return path === '/zh' || path.startsWith('/zh/') ? 'zh' : 'en'
 }
+
+/** The same path with its locale prefix removed — `/zh/themes/` → `/themes/`. */
+export function stripLocale(path: string): string {
+  return path.replace(/^\/zh(?=\/|$)/, '') || '/'
+}

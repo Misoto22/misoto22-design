@@ -8,6 +8,35 @@ import { cn } from '../../lib/cn'
 /** Radix Collapsible root, as a typed passthrough. */
 export const Collapsible = CollapsiblePrimitive.Root
 
+/**
+ * The trigger and the panel, unstyled, for a disclosure that needs its own
+ * layout — a sidebar group whose header carries a count and a chevron on
+ * opposite sides, say. `CollapsibleSection` is the composed version and is what
+ * most call sites want; these two exist so the ones that do not have to reach
+ * for Radix directly and re-derive the keyboard and `aria-expanded` wiring.
+ *
+ * The panel animates on `--radix-collapsible-content-height`, which Radix
+ * measures — so it opens to its real height rather than to a guessed
+ * `max-height`, which is what makes a long group and a short one take the same
+ * time instead of the long one appearing to stall.
+ */
+export const CollapsibleTrigger = CollapsiblePrimitive.Trigger
+
+export function CollapsibleContent({
+  className,
+  ...props
+}: ComponentProps<typeof CollapsiblePrimitive.Content>) {
+  return (
+    <CollapsiblePrimitive.Content
+      className={cn(
+        'overflow-hidden data-[state=closed]:animate-[m22-collapsible-up_var(--duration-base)_var(--ease)] data-[state=open]:animate-[m22-collapsible-down_var(--duration-base)_var(--ease)] motion-reduce:animate-none',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
 export interface CollapsibleSectionProps
   extends Omit<ComponentProps<typeof CollapsiblePrimitive.Root>, 'children' | 'title'> {
   /** What the trigger says. */

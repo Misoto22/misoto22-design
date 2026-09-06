@@ -47,7 +47,7 @@ export function DropdownMenuContent({
         sideOffset={sideOffset}
         data-m22-animated
         className={cn(
-          'z-(--z-dropdown) min-w-44 rounded-(--radius) border border-(--rule-2) bg-(--paper) p-1.5',
+          'z-(--z-dropdown) min-w-44 rounded-(--radius-lg) border border-(--panel-border) bg-(--panel-bg) p-1.5 panel-blur',
           'data-[state=open]:animate-[m22-pop-in_var(--duration-fast)_var(--ease-out-expo)] data-[state=closed]:animate-[m22-pop-out_var(--duration-fast)_var(--ease)] origin-(--radix-popper-transform-origin)',
           className,
         )}
@@ -83,7 +83,7 @@ export function DropdownMenuItem({
   return (
     <DropdownMenuPrimitive.Item
       className={cn(
-        'flex cursor-pointer items-center gap-2.5 rounded-(--radius-sm) px-2.5 py-2 text-sm outline-none transition-colors duration-(--duration-fast) data-[highlighted]:bg-(--stone) data-[disabled]:pointer-events-none data-[disabled]:opacity-(--disabled-opacity)',
+        'flex cursor-pointer items-center gap-2.5 rounded-(--radius-row) px-2.5 py-2 text-sm outline-none transition-colors duration-(--duration-fast) data-[highlighted]:bg-(--stone) data-[disabled]:pointer-events-none data-[disabled]:opacity-(--disabled-opacity)',
         destructive ? 'text-(--danger)' : 'text-(--ink-2) data-[highlighted]:text-(--ink)',
         className,
       )}
