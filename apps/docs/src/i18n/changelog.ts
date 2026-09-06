@@ -17,10 +17,19 @@ import type { Locale } from './locales'
  * edited by the same person in the same commit; a changelog line is not, and a
  * build that fails on every changeset would be a build people route around.
  *
- * `changelog.test.ts` reports what is untranslated rather than failing, and
- * fails only on an ORPHAN — a translation whose English no longer exists
- * anywhere, which is the one thing that is certainly a mistake rather than a
- * backlog.
+ * `changelog.test.ts` therefore gates two things and not a third. It fails on
+ * an ORPHAN — a translation whose English no longer exists anywhere, which is
+ * certainly a mistake rather than a backlog — and on the LATEST release being
+ * short a line, because a release the page leads with reading half in English
+ * is worse than one that reads wholly in English. An older release missing a
+ * line is neither; it falls back and stays readable.
+ *
+ * Note when the second one can first fail. `CHANGELOG.md` is written by the
+ * Version Packages pull request, which is opened by `GITHUB_TOKEN` and so
+ * carries no checks — the strings therefore first exist, and this file is
+ * first found wanting, on the `main` run that was about to publish. That run
+ * is the publish. Translate a release when its version bump merges, or the
+ * publish is what stops. See `docs/releasing.md`.
  */
 const ZH: Record<string, string> = {
   // ─── 0.4.0 ───
