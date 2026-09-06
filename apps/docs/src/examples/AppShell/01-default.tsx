@@ -11,6 +11,10 @@ export function Example() {
         // A page may have only one <main>, and this preview sits inside the
         // documentation site's own.
         contentAs="div"
+        // The documentation site has a sidebar of its own, and two
+        // complementary landmarks with one name cannot be told apart.
+        sidebarLabel="Console sidebar"
+        navLabel="Console navigation"
         brand={<span className="font-heading text-base">Console</span>}
         sidebar={
           <>
