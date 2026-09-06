@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronRight, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { ChevronRight, PanelLeftClose, PanelLeftOpen, type LucideIcon } from 'lucide-react'
 import {
   createContext,
   useCallback,
@@ -235,7 +235,7 @@ export function SidebarHeader({ className, children, ...rest }: ComponentProps<'
 export function SidebarContent({ className, children, ...rest }: ComponentProps<'div'>) {
   return (
     <div
-      className={cn('flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-2 scroll-slim', className)}
+      className={cn('flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-2 scroll-slim', className)}
       {...rest}
     >
       {children}
@@ -312,6 +312,14 @@ export interface SidebarGroupProps {
   /** How many rows are inside, printed on the far side of the heading. */
   count?: number
   /**
+   * A mark that belongs to the GROUP — "Beta", "3 new".
+   *
+   * Beside the label, not out at the end with the count: it qualifies the
+   * words, and a qualifier that has drifted to the other side of the row reads
+   * as a second, unrelated fact.
+   */
+  badge?: ReactNode
+  /**
    * A control on the heading row — a menu, an "add" button.
    *
    * Sits between the label and the count, and is NOT rendered inside the
@@ -345,6 +353,7 @@ export interface SidebarGroupProps {
 export function SidebarGroup({
   label,
   count,
+  badge,
   action,
   collapsible = true,
   defaultOpen = true,
@@ -370,9 +379,10 @@ export function SidebarGroup({
 
   const heading = (
     <>
-      <span className="font-mono text-[15px] font-medium tracking-[0.02em] text-(--ink-2)">
+      <span className="truncate font-mono text-[15px] font-medium tracking-[0.02em] text-(--ink-2)">
         {label}
       </span>
+      {badge}
       {count !== undefined && (
         <span className="ms-auto font-mono text-[13px] text-(--ink-3-aa)">{count}</span>
       )}
@@ -411,6 +421,110 @@ export function SidebarGroup({
       </div>
       <CollapsibleContent>
         <div className="ms-[0.9rem] flex flex-col gap-0.5 border-s border-(--rule) ps-2">{rows}</div>
+      </CollapsibleContent>
+    </Collapsible>
+  )
+}
+
+export interface SidebarBranchProps {
+  /** The row's own words, and the name of the group it opens. */
+  label: string
+  /** Drawn at the start of the row, and the whole of the row when collapsed. */
+  icon?: LucideIcon
+  /** A count or a state at the end of the row. */
+  trailing?: ReactNode
+  defaultOpen?: boolean
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  children: ReactNode
+  className?: string
+}
+
+/**
+ * A row that opens onto more rows.
+ *
+ * The thing a rail is for and the thing a flat list of groups cannot do: a
+ * workspace with projects in it, a folder with documents in it, a service with
+ * its environments. `SidebarGroup` is a HEADING over a set — it is not itself a
+ * place, and it has no icon and no state. This is a place that contains places,
+ * so it is a row like any other and it carries the same icon, trailing slot and
+ * hover as its children.
+ *
+ * The children sit behind the same hairline a group draws, one indent further
+ * in, so nesting reads as depth rather than as two unrelated lists. Two levels
+ * is what the indent has room for at this width; a third is a tree, and a tree
+ * in a 16rem column is a horizontal scrollbar with an outline in it.
+ *
+ * Collapsed to icons the row becomes its icon and the children are not drawn —
+ * there is nowhere for an indent to go, and a nested icon under an unnested one
+ * is two glyphs with no visible relationship.
+ *
+ * @example
+ * <SidebarBranch label="Acme HQ" icon={Building} defaultOpen>
+ *   <SidebarItem href="/hq" icon={Home}>Home</SidebarItem>
+ *   <SidebarItem href="/hq/tasks" icon={CheckSquare}>My tasks</SidebarItem>
+ * </SidebarBranch>
+ */
+export function SidebarBranch({
+  label,
+  icon: Icon,
+  trailing,
+  defaultOpen = false,
+  open: controlled,
+  onOpenChange,
+  children,
+  className,
+}: SidebarBranchProps) {
+  const { iconOnly } = useSidebar()
+  const [uncontrolled, setUncontrolled] = useState(defaultOpen)
+  const open = controlled ?? uncontrolled
+
+  const setOpen = (next: boolean) => {
+    if (controlled === undefined) setUncontrolled(next)
+    onOpenChange?.(next)
+  }
+
+  if (iconOnly && Icon) {
+    // The row, and nothing under it. A branch collapsed to an icon is a place
+    // you can still see; its contents are a level of structure the width no
+    // longer has.
+    return (
+      <Tooltip content={label} side="right">
+        <button
+          type="button"
+          aria-label={label}
+          className={cn(
+            'flex min-h-(--control-h-sm) items-center justify-center rounded-(--radius) text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)',
+            className,
+          )}
+        >
+          <Icon size={18} strokeWidth={1.5} aria-hidden />
+        </button>
+      </Tooltip>
+    )
+  }
+
+  return (
+    <Collapsible open={open} onOpenChange={setOpen} className={cn('flex flex-col gap-0.5', className)}>
+      <CollapsibleTrigger className="group/branch flex min-h-(--control-h-sm) items-center gap-3 rounded-(--radius) px-3 py-2 text-start text-sm text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)">
+        {Icon && <Icon size={18} strokeWidth={1.5} aria-hidden className="shrink-0" />}
+        <span className="truncate">{label}</span>
+        {trailing !== undefined && <span className="ms-auto shrink-0">{trailing}</span>}
+        {/* The chevron goes at the END and only when nothing else is there, so
+            a row with a count does not put two marks in the same corner. */}
+        {trailing === undefined && (
+          <ChevronRight
+            size={12}
+            strokeWidth={2}
+            aria-hidden
+            className="ms-auto shrink-0 transition-transform duration-(--duration-base) ease-(--ease-out-expo) group-data-[state=open]/branch:rotate-90 motion-reduce:transition-none"
+          />
+        )}
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="ms-[1.35rem] flex flex-col gap-0.5 border-s border-(--rule) ps-2">
+          {children}
+        </div>
       </CollapsibleContent>
     </Collapsible>
   )

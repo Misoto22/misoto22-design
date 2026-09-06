@@ -326,6 +326,11 @@ export const NAVIGATION = [
           'SidebarItem, which is NavItem plus the two things a rail adds: a trailing slot, and an answer for the state with no room for words. Collapsed, the label leaves the layout and becomes the row’s tooltip.',
       },
       {
+        element: 'Branch',
+        description:
+          'SidebarBranch: a row that opens onto more rows, behind the same hairline a group draws and one indent further in. It is the line between a place and a heading — a workspace that contains projects is a place containing places, and it carries an icon and a state the way its children do, which a Group has neither of. Two levels is what the indent has room for; a third in a 16rem column is a horizontal scrollbar with an outline in it.',
+      },
+      {
         element: 'Footer',
         description: 'SidebarFooter. The utilities a rail ends on, kept out of the index above it.',
       },
@@ -341,6 +346,10 @@ export const NAVIGATION = [
       },
       {
         kind: 'do',
+        text: 'Reach for SidebarBranch when the thing is a PLACE that contains places, and for SidebarGroup when it is a heading over a set. A group has no icon and no state because it is not somewhere you can be; a branch has both because it is.',
+      },
+      {
+        kind: 'do',
         text: 'Put SidebarTrigger in the header. It is where the component expects it and where a reader looks for it, and it is the difference between a control that belongs to the rail and one that has wandered into the masthead.',
       },
       {
@@ -350,6 +359,10 @@ export const NAVIGATION = [
       {
         kind: 'dont',
         text: 'Do not pass shortcut and then bind Cmd+B yourself. Two handlers on one chord toggle twice and land back where they started, which reads as a rail that ignores its own shortcut. Pass shortcut={null} where the app owns it.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not nest a branch inside a branch. The indent is sized for two levels at this width, and a third takes the words with it — what a reader gets is an outline with a horizontal scrollbar under it.',
       },
       {
         kind: 'dont',

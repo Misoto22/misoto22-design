@@ -70,6 +70,7 @@ import {
   SelectItem,
   Separator,
   Sidebar,
+  SidebarBranch,
   SidebarContent,
   SidebarGroup,
   SidebarHeader,
@@ -326,9 +327,12 @@ export const SURFACE: SurfaceEntry[] = [
           <SidebarTrigger className="ms-auto" />
         </SidebarHeader>
         <SidebarContent>
-          <SidebarGroup label="Guide" count={2}>
+          <SidebarGroup label="Guide" count={2} badge={<Badge tone="outline">Beta</Badge>}>
             <SidebarItem href="#start" icon={Inbox} active>Getting started</SidebarItem>
             <SidebarItem href="#settings" icon={Settings} trailing="3">Settings</SidebarItem>
+            <SidebarBranch label="Acme HQ" icon={Copy} defaultOpen>
+              <SidebarItem href="#hq" icon={Inbox}>Overview</SidebarItem>
+            </SidebarBranch>
           </SidebarGroup>
         </SidebarContent>
       </Sidebar>

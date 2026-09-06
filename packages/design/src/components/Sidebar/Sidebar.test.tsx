@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { Home, Settings } from 'lucide-react'
 import {
   Sidebar,
+  SidebarBranch,
   SidebarContent,
   SidebarGroup,
   SidebarItem,
@@ -113,5 +114,51 @@ describe('Sidebar', () => {
     // Controlled and given no handler: the rail cannot change itself.
     await user.click(screen.getByRole('button', { name: 'Close the sidebar' }))
     expect(screen.getByRole('button', { name: 'Close the sidebar' })).toBeInTheDocument()
+  })
+})
+
+describe('SidebarBranch', () => {
+  function tree(props: Partial<React.ComponentProps<typeof SidebarProvider>> = {}) {
+    return (
+      <SidebarProvider {...props}>
+        <Sidebar label="Workspace">
+          <SidebarContent>
+            <SidebarGroup label="Teamspaces" count={1} badge={<span>Beta</span>}>
+              <SidebarBranch label="Acme HQ" icon={Home}>
+                <SidebarItem href="#hq" icon={Home}>
+                  Overview
+                </SidebarItem>
+              </SidebarBranch>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+      </SidebarProvider>
+    )
+  }
+
+  it('opens onto its children, and says whether it is open', async () => {
+    const user = userEvent.setup()
+    render(tree())
+
+    const branch = screen.getByRole('button', { name: 'Acme HQ' })
+    expect(branch).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByRole('link', { name: 'Overview' })).toBeNull()
+
+    await user.click(branch)
+    expect(branch).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('link', { name: 'Overview' })).toBeInTheDocument()
+  })
+
+  it('is a place with an icon, collapsed to that icon and no children', () => {
+    // A nested icon under an unnested one is two glyphs with no visible
+    // relationship, so the contents are a level the width no longer has.
+    render(tree({ defaultOpen: false, collapsible: 'icon' }))
+    expect(screen.getByRole('button', { name: 'Acme HQ' })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'Overview' })).toBeNull()
+  })
+
+  it('carries a group badge beside the words it qualifies', () => {
+    render(tree())
+    expect(screen.getByText('Beta')).toBeInTheDocument()
   })
 })
