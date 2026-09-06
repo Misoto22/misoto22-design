@@ -22,7 +22,7 @@ import { FileText, Home } from 'lucide-react'
  */
 export function Example() {
   return (
-    <SidebarProvider collapsible="offcanvas" shortcut={null}>
+    <SidebarProvider breakpoint={null} collapsible="offcanvas" shortcut={null}>
       <div className="flex h-72 w-full overflow-hidden rounded-(--radius-lg) border border-(--rule)">
         <Sidebar label="Handbook">
           <SidebarHeader>

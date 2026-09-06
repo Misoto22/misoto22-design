@@ -24,8 +24,18 @@ const DIST = join(ROOT, 'dist')
 
 /** Budgets in kilobytes, minified, before network compression. */
 const BUDGET = {
-  /** The compiled stylesheet, without the vendored font files. */
-  styles: 95,
+  /**
+   * The compiled stylesheet, without the vendored font files.
+   *
+   * 95 → 100 for the rail's drawer. The switch between a column and an overlay
+   * is a media query rather than a branch on `matchMedia`, so that the first
+   * paint on a phone is already the right layout — and a media query written as
+   * utilities is four breakpoints' worth of classes in the sheet whether or not
+   * a given app uses more than one. Growth, not a step change: it is the whole
+   * of `Sidebar`'s narrow-screen behaviour, and it is the reason the alternative
+   * — a 256px column beside a 390px screen until an effect ran — is gone.
+   */
+  styles: 100,
   /** Everything, bundled and minified — the worst case a consumer can hit. */
   everything: 435,
   /**

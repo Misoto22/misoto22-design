@@ -7,12 +7,21 @@ import { DEFAULTS, PRESETS, RESET_PRESET, useTheme, type Axis, type ThemePreset 
 
 const ORDER: Axis[] = ['surface', 'radius', 'rules', 'type', 'motion', 'density']
 
-/** Only the axes a preset actually moves — the rest are the White Reset. */
+/**
+ * EVERY axis, including the ones this preset leaves at the default.
+ *
+ * It used to write only the axes a preset moves, on the reasoning that the rest
+ * are the White Reset. They are not: an unset axis is not "the default", it is
+ * whatever the ancestor said — and this rail's ancestor is a document carrying
+ * whichever theme the reader applied to the site. So every thumb showed the
+ * reader's own corners, rules and face for five of its six axes, and eight
+ * previews of eight different themes came out looking like eight previews of
+ * the one already on screen. Named defaults are what make opting OUT possible;
+ * this is the call site that needs them.
+ */
 function attributes(preset: ThemePreset) {
   return Object.fromEntries(
-    ORDER.filter((axis) => (preset.values[axis] ?? DEFAULTS[axis]) !== DEFAULTS[axis]).map(
-      (axis) => [`data-${axis}`, preset.values[axis]],
-    ),
+    ORDER.map((axis) => [`data-${axis}`, preset.values[axis] ?? DEFAULTS[axis]]),
   )
 }
 
@@ -97,10 +106,10 @@ export function ThemeRail() {
   const t = useMessages()
 
   return (
-    <nav
-      aria-label={t.themes.title}
-      className="flex h-full flex-col gap-4 overflow-y-auto pb-6 scroll-slim"
-    >
+    // No `<nav>` of its own. The shell's rail IS the navigation landmark and it
+    // is already named "Themes" here; a second one inside it with the same name
+    // is two landmarks a reader has to tell apart by nothing.
+    <div className="flex h-full flex-col gap-4 pb-6">
       <div className="flex flex-col gap-2">
         <p className="m-0 px-1 pb-1 font-mono text-[12px] tracking-[0.06em] text-(--ink-3-aa)">
           {t.themes.title}
@@ -190,6 +199,6 @@ export function ThemeRail() {
       </div>
 
       <p className="m-0 px-3 text-[12px] leading-relaxed text-(--ink-3-aa)">{t.themes.railNote}</p>
-    </nav>
+    </div>
   )
 }
