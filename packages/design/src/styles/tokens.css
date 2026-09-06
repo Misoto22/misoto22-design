@@ -400,7 +400,7 @@
      still fits inside it at comfortable density — a collapsed rail whose rows
      are too small to hit is a rail nobody can use in the state it spends most
      of its life in. */
-  --sidebar-w: 17rem;
+  --sidebar-w: 16rem;
   --sidebar-w-icon: 3.5rem;
 
   /* ─── Floating surfaces ──────────────────────────────────────────────────
