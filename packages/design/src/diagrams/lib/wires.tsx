@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import type { EdgeBase, Side, Variant } from '../spec'
 import type { Box } from './geometry'
 import { edgeClasses, EdgeLabel, edgeMarker, edgeStroke } from './marks'
-import { routeEdge, spreadPorts, type PortUse } from './route'
+import { resolveSides, routeEdge, spreadPorts, type PortUse } from './route'
 
 /** One line to draw, once its two boxes are known. */
 export interface Wire {
@@ -60,10 +60,20 @@ export function renderWires(
       wire.keepWaypoints === true &&
       Boolean(edge.via?.length || edge.channelX !== undefined || edge.channelY !== undefined)
     if (pinned) return
-    if (edge.fromSide) uses.push({ face: `${edge.from}:${edge.fromSide}`, ref: `${index}:from` })
-    if (edge.toSide) uses.push({ face: `${edge.to}:${edge.toSide}`, ref: `${index}:to` })
-    if (!edge.fromSide) uses.push({ face: `${edge.from}:auto`, ref: `${index}:from` })
-    if (!edge.toSide) uses.push({ face: `${edge.to}:auto`, ref: `${index}:to` })
+    // The face this line will REALLY use, not the word "auto". Keyed on the
+    // word, every auto-routed line leaving one node counted as sharing a face
+    // with every other — so a node with one line going right and one going down
+    // had both nudged off centre to make room for each other on a face neither
+    // of them was on, and every one of those lines then arrived at a few units
+    // out of true and drew a dogleg to cover the difference.
+    const [fromSide, toSide] = resolveSides(
+      wire.from,
+      wire.to,
+      edge.fromSide as Side | undefined,
+      edge.toSide as Side | undefined,
+    )
+    uses.push({ face: `${edge.from}:${fromSide}`, ref: `${index}:from` })
+    uses.push({ face: `${edge.to}:${toSide}`, ref: `${index}:to` })
   })
 
   const offsets = spreadPorts(uses)
