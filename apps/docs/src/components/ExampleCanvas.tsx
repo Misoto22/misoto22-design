@@ -157,7 +157,7 @@ export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: Exam
           <Suspense
             fallback={
               <div className="grid min-h-32 place-items-center text-sm text-(--ink-3-aa)">
-                Loading the editor…
+                {t.canvas.loadingEditor}
               </div>
             }
           >

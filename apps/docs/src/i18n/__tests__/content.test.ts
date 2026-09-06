@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { COMPONENTS, type ComponentEntry } from '@/content/registry'
 import { fingerprint } from '../api-hash'
-import { componentCopy, COMPONENTS_ZH } from '../content'
+import { componentCopy, COMPONENTS_ZH, TEMPLATES_ZH, templateCopy } from '../content'
+import { TEMPLATES } from '@/content/templates'
 import { ACTIONS_ZH } from '../components-zh/actions'
 import { FORMS_ZH } from '../components-zh/forms'
 import { NAVIGATION_ZH } from '../components-zh/navigation'
@@ -255,5 +256,34 @@ describe('the Chinese catalogue', () => {
       }
     }
     expect(empty).toEqual([])
+  })
+})
+
+/**
+ * The template list had five of thirteen translated, and nothing said so.
+ *
+ * The component catalogue is covered field by field above; the templates were
+ * not covered at all, so the eight added after the first five sat in English
+ * in a Chinese index — beside the five that were not — and the only way to see
+ * it was to open the page. Every field here is prose a reader reads, so every
+ * one of them is required.
+ *
+ * Checked through `templateCopy` rather than against the table, for the same
+ * reason the fallback above is: it is the function the pages call.
+ */
+describe('the Chinese templates', () => {
+  it.each(TEMPLATES)('translates every field of $slug', (entry) => {
+    const zh = templateCopy('zh', entry.slug)
+    expect(
+      (['name', 'summary', 'tests'] as const).filter((field) => !zh[field]),
+    ).toEqual([])
+  })
+
+  it('translates nothing that is not a template', () => {
+    // The other direction: a slug renamed in `templates.ts` leaves its Chinese
+    // behind, and the page then falls back to English while the translation
+    // sits in the file looking like work already done.
+    const slugs = new Set(TEMPLATES.map((entry) => entry.slug))
+    expect(Object.keys(TEMPLATES_ZH).filter((slug) => !slugs.has(slug))).toEqual([])
   })
 })

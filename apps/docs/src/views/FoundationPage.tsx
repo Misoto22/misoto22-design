@@ -119,7 +119,7 @@ function ProseSection({ section, copy }: { section: FoundationSection; copy?: Se
 function RelatedPages({ locale, slugs }: { locale: Locale; slugs: string[] }) {
   return (
     <p className="m-0 flex flex-wrap items-baseline gap-x-4 gap-y-1 pt-2">
-      <span className="eyebrow text-(--ink-3-aa)">Read next</span>
+      <span className="eyebrow text-(--ink-3-aa)">{getMessages(locale).section.readNext}</span>
       {slugs.map((slug) => {
         const target = FOUNDATION_BY_SLUG.get(slug)
         if (!target) return null

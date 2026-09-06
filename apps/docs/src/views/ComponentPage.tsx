@@ -218,8 +218,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
         <section className="flex flex-col gap-6">
           <SectionHeading id="parts">{t.section.parts}</SectionHeading>
           <p className="m-0 max-w-(--w-reading) text-sm leading-relaxed text-(--ink-3-aa)">
-            Composed at the call site rather than configured through props, so a layout this
-            component did not anticipate is still expressible.
+            {t.section.partsNote}
           </p>
           {parts.map((part) => (
             <div key={part.name} className="flex flex-col gap-3">
