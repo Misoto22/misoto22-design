@@ -165,22 +165,11 @@ export function DocsShell({ children }: { children: ReactNode }) {
             <X size={16} strokeWidth={1.5} aria-hidden />
           </Button>
         </div>
-        <div className="flex flex-col gap-1 border-b border-(--rule) px-2 py-2 nav:hidden">
-          {SECTIONS.map((id) => {
-            const href = localePath(locale, SECTION_ROOT[id])
-            return (
-              <Link
-                key={id}
-                href={href}
-                aria-current={section === id ? 'page' : undefined}
-                onClick={() => setOpen(false)}
-                className="rounded-(--radius-row) px-3 py-1.5 text-sm text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink) aria-[current=page]:bg-(--stone) aria-[current=page]:text-(--ink)"
-              >
-                {SECTION_LABEL[id]}
-              </Link>
-            )
-          })}
-        </div>
+        {/* The four sections used to be repeated here, on the grounds that they
+            live in the masthead on a desktop and had nowhere to go on a phone.
+            They have somewhere to go now — the strip under the masthead — so
+            the drawer is back to one job: the open section's own index, rather
+            than sixteen rows of tree behind four rows of something else. */}
         <div className="min-h-0 flex-1 px-4 pt-4">
           <Sidebar onNavigate={() => setOpen(false)} />
         </div>
@@ -304,6 +293,41 @@ export function DocsShell({ children }: { children: ReactNode }) {
             <ThemeToggle />
           </div>
         </header>
+
+        {/* The masthead's four sections, for the widths the masthead cannot
+            seat them at. Below `nav` they were reachable only by opening the
+            drawer — which is the exact failure the sections were lifted out of
+            the sidebar to fix: a reader on a component page could not see that
+            templates and themes existed at all.
+
+            Sticky under the masthead rather than scrolling away with the page.
+            It costs 44px of a phone screen, and it buys the same contract the
+            desktop already has: the top-level nav is reachable from anywhere in
+            a document, not only from its first screen. Scrolling it away while
+            the drawer no longer carries the sections would have left the middle
+            of a long page with no way across the site at all.
+
+            It scrolls sideways in its own box when the four labels do not fit —
+            English is the tight case at 390px — which is why the page itself
+            still does not. */}
+        <nav
+          aria-label={t.nav.sections}
+          className="sticky top-16 z-(--z-sticky) flex items-stretch gap-1 overflow-x-auto border-b border-(--rule) bg-(--paper)/85 px-3 backdrop-blur [scrollbar-width:none] nav:hidden [&::-webkit-scrollbar]:hidden"
+        >
+          {SECTIONS.map((id) => {
+            const href = localePath(locale, SECTION_ROOT[id])
+            return (
+              <Link
+                key={id}
+                href={href}
+                aria-current={section === id ? 'page' : undefined}
+                className="flex h-11 shrink-0 items-center border-b-2 border-transparent px-3 text-sm whitespace-nowrap text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:text-(--ink) aria-[current=page]:border-(--ink) aria-[current=page]:text-(--ink)"
+              >
+                {SECTION_LABEL[id]}
+              </Link>
+            )
+          })}
+        </nav>
 
         {/* `flex-1` on the MAIN and `mt-auto` on the footer, so a short page
             pushes the footer to the bottom of the viewport instead of leaving
