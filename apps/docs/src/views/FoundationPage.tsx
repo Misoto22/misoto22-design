@@ -20,7 +20,10 @@ export async function FoundationPage({ locale, slug }: { locale: Locale; slug: s
   const zh = foundationCopy(locale, slug)
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl items-start gap-10 xl:max-w-[70rem]">
+    // No `items-start`: a sticky block travels only as far as its own column
+    // reaches, so a column sized to its content drops the rail part-way down
+    // the page. ComponentPage carries the whole of it.
+    <div className="mx-auto flex w-full max-w-4xl gap-10 xl:max-w-[70rem]">
       <div className="flex min-w-0 flex-1 flex-col gap-12">
         <PageIntro
           eyebrow={getMessages(locale).nav.foundations}
