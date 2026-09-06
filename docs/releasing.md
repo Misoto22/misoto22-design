@@ -12,10 +12,15 @@ pnpm changeset          # pick the packages, the bump, and write one sentence
 git add .changeset
 ```
 
-Commit that file with the change itself. On `main`, the release workflow opens
-a **Version Packages** pull request that collects every pending changeset, bumps
-the version and folds the sentences into `CHANGELOG.md`. Merging that PR
-publishes.
+Commit that file with the change itself, and translate its sentences into
+`apps/docs/src/i18n/changelog.ts` in the same pull request — see below for why
+that is part of shipping rather than a courtesy.
+
+Everything after the merge is automatic. On `main`, the release workflow opens a
+**Version Packages** pull request that collects every pending changeset, bumps
+the version and folds the sentences into `CHANGELOG.md`; it queues that pull
+request for auto-merge, and the merge starts the `main` run that publishes to
+npmjs, deploys the site and pushes the tag. Nobody clicks anything.
 
 A change to the documentation site, to CI, or to a test needs no changeset;
 `@misoto22/design-docs` is in the `ignore` list because it is deployed, not
@@ -48,54 +53,59 @@ finished in a minute and a quarter while the browser suite was still six minutes
 from done. A version that fails the a11y suite cannot be recalled, because npm
 does not let a version number be reused.
 
-### The Version Packages pull request arrives blocked, and the translation unblocks it
+### Who opens the Version Packages pull request, and why it matters
 
-It is opened by the workflow's own `GITHUB_TOKEN`, and GitHub fires no workflows
-for events from that token — the recursion guard that stops a workflow from
-triggering itself. So the pull request arrives with no checks at all, and under
-the `main` ruleset below, which requires three of them, it reads as `BLOCKED`.
+It is opened, and merged, by a **GitHub App installation token** rather than by
+the workflow's own `GITHUB_TOKEN`. That is the whole reason the release needs no
+person in it.
 
-**Any event from a real account starts them.** In practice there is already one
-to make, and it is the step this release needs anyway:
+GitHub fires no workflows for events from a run's own `GITHUB_TOKEN` — the guard
+that stops a workflow triggering itself. A version pull request opened with it
+therefore arrives carrying no checks at all, and under the `main` ruleset below,
+which requires three, it reads `BLOCKED` forever. Every release before `0.9.0`
+was cut by hand around that: pushing the Chinese changelog onto
+`changeset-release/main` (`0.6.1`, `0.7.0`), closing and reopening the pull
+request (`0.6.0`), or approving its queued runs (`0.8.0`) — three different
+workarounds for one missing signature.
 
-```bash
-git fetch origin && git checkout changeset-release/main
-# translate this release's entries in apps/docs/src/i18n/changelog.ts
-git commit -am 'docs(i18n): translate the <version> changelog' && git push
-# the push starts verify, browser and changeset; when they are green:
-gh pr merge <number> --squash
-```
+An App installation token is a different actor, so its events start workflows
+normally. The pull request arrives with its own `verify`, `browser` and
+`changeset` runs, `gh pr merge --auto --squash` queues it, and it merges the
+moment they go green.
 
-That is how 0.6.1 and 0.7.0 were cut — each of their pull requests carries the
-bot's version commit and one `docs(i18n)` commit from a person, and the checks
-ran off the second. When there is genuinely nothing to push, closing and
-reopening the pull request does the same job; 0.6.0 was cut that way.
+| Where | What it holds |
+|---|---|
+| npmjs → the package → Settings → Trusted Publisher | repository and workflow filename — see below |
+| Repository → Settings → Secrets → Actions | `MISOTO_RELEASE_APP_ID`, `MISOTO_RELEASE_APP_PRIVATE_KEY` |
+| 1Password `01 Personal Development` | the App's ID and private key, the human-held originals |
+
+The App is registered under Henry's account with two permissions and no more —
+**Contents: read and write** and **Pull requests: read and write** — and is
+installed on this repository alone. Its token is minted per run and expires in
+an hour, so like the npm side there is nothing standing to leak.
 
 > [!IMPORTANT]
-> Which is why the Chinese changelog goes in **before** the merge rather than
-> after. `apps/docs/src/i18n/changelog.ts` carries each release's entries and a
-> gate checks it, and it used to be fine to catch that later — the ruleset ended
-> that, because later now means the post-merge `main` run, and that run is the
-> publish. The translation is no longer only good manners; it is the event that
-> makes the pull request mergeable at all.
+> `actions/checkout` is handed the same token, and that is load-bearing rather
+> than tidiness. Checkout persists whatever token it is given as an
+> `http.extraheader`, and that header outranks the `.netrc` the changesets
+> action writes from its own env — so a checkout with the default token pushes
+> the version branch as `github-actions[bot]` however the action is configured,
+> and the pull request arrives with no checks again.
 
-> [!WARNING]
-> **Not `--admin`.** An earlier version of this file recommended
-> `gh pr merge --squash --admin <number>` and called it the escape hatch this
-> step depends on. It is not one: `guard-git.py` in the misoto22 dev plugin
-> refuses `gh pr merge --admin` unconditionally, with no exception for this
-> pull request — so anyone following that advice, and every agent that reads
-> this file, hits a hard stop and starts hunting for a way around a guard. The
-> bypass has never actually been used to cut a release.
+> [!IMPORTANT]
+> **The Chinese changelog goes in with the change, not with the release.**
+> `apps/docs/src/i18n/changelog.ts` carries each release's entries and
+> `changelog.test.ts` gates them, and `verify` runs on the version pull request.
+> A missing translation is now a version pull request that never goes green and
+> so never auto-merges — the release simply does not happen, and waits, visibly,
+> for the sentence nobody wrote. The test deliberately accepts a translation of
+> English that only a *changeset* has, precisely so it can be written early.
 
-None of this is a design. The step exists only because of which token opens the
-pull request, and it disappears entirely if the changesets action is given a
-GitHub App installation token or a PAT instead — a version pull request opened
-by either carries its own checks, and the translation goes back to being a
-courtesy rather than a key. **That is Henry's call rather than part of this
-process**: it means creating a credential, and by the machine's own rule a
-credential is created by a person and lives in 1Password, never generated or
-held by an agent.
+> [!NOTE]
+> `--auto` is a queue, not a bypass. It merges only once every check the ruleset
+> requires has passed. `gh pr merge --admin` is a different thing entirely, is
+> refused outright by `guard-git.py` in the misoto22 dev plugin, and has never
+> been used to cut a release here.
 
 ## What protects `main`
 
@@ -108,7 +118,7 @@ branch-protection screen:
 | `verify / verify`, `browser / browser`, `changeset` must pass | The two gates that read the tree, plus the one that reads the pull request's manners. |
 | Branch must be up to date before merging | See below — this is the load-bearing one. |
 | No force-push, no deletion | `main` is what the registry and the site are cut from. |
-| Repository admin may bypass | Present, and deliberately unused — see the Version Packages note above. `--admin` is refused by a hook, and reopening the pull request makes its checks run instead. |
+| Repository admin may bypass | Present and unused. Nothing in the release path needs it — the version pull request carries its own checks and merges through the ordinary gate. `--admin` is refused by a hook anyway. |
 
 **Up-to-date is the one that earns its keep with parallel work.** Two branches
 can each be green against the `main` of an hour ago and still be broken
@@ -117,6 +127,14 @@ request ever saw the other. Requiring the branch to be current forces the
 second one to rebase onto the first and re-run the suite against the tree that
 will actually exist. The cost is a rebase per collision; the alternative is
 discovering the collision on `main`, after publish.
+
+That rule applies to the version pull request too, and it resolves itself:
+`changesets/action` rebuilds `changeset-release/main` from the current `main` on
+every release run and force-pushes it, so a version pull request that fell
+behind is replaced by one that has not, with fresh checks. The visible effect is
+that merging feature pull requests faster than the checks take restarts the
+release rather than cutting several — it ships once the merges stop, which is
+the batching behaviour back by a different door.
 
 > [!NOTE]
 > A **merge queue** is the automated form of that rule — it builds the combined
@@ -144,6 +162,12 @@ short-lived OIDC token, npmjs checks it against a publisher registered on the
 package, and grants publish rights for that run. No npm token is stored in the
 repository, in 1Password, or on anyone's laptop, so there is nothing to leak,
 rotate, or discover expired on a Friday.
+
+The App private key above is not a counter-example. It cannot publish anything —
+its two permissions reach this repository's contents and pull requests and
+nothing else — and the registry would not accept it if it tried. The two
+credentials answer different questions: who may write to this repository, and
+who may publish this package.
 
 The two halves have to agree exactly, and npm does not validate the pairing
 when you save it — a mismatch surfaces as a `404` at publish time, never as a
