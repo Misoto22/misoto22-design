@@ -33,13 +33,41 @@ interface SidebarState {
 const SidebarContext = createContext<SidebarState | null>(null)
 
 /**
+ * What the parts read when nobody wrapped them: open, and not collapsible.
+ *
+ * A rail without a provider used to THROW, which is defensible for a hook a
+ * consumer called by hand and wrong for the component itself — `<Sidebar>` on
+ * its own is the first thing anybody writes, and the documentation site's own
+ * props panel renders exactly that. A component that cannot draw without a
+ * wrapper is not strict, it is unusable; so the parts fall back to the state a
+ * rail with no controls would be in, and the button that would toggle it does
+ * nothing because there is nothing holding the answer.
+ */
+const UNWRAPPED: SidebarState = {
+  open: true,
+  setOpen: () => {},
+  toggle: () => {},
+  collapsible: 'none',
+  iconOnly: false,
+}
+
+/** The state the parts read, wrapped or not. */
+function useSidebarState(): SidebarState {
+  return useContext(SidebarContext) ?? UNWRAPPED
+}
+
+/**
  * The rail's own state, for anything that has to answer to it.
  *
  * A page beside the rail needs it to reserve the right width; a control inside
- * needs to know whether its label is being drawn. Throwing rather than
- * returning null: every one of those call sites is inside the provider by
- * construction, and a silent `undefined` there is a layout that is wrong in one
- * state and correct in the other.
+ * needs to know whether its label is being drawn.
+ *
+ * This one THROWS outside a provider, and the parts above do not, and the
+ * difference is who made the mistake. A part rendered on its own is somebody
+ * writing `<Sidebar>` to see what it looks like; a call to this hook is code
+ * asking for state that nothing is keeping, and returning a plausible default
+ * there is a layout that is wrong in one state and right in the other with
+ * nothing to say which.
  */
 export function useSidebar(): SidebarState {
   const state = useContext(SidebarContext)
@@ -180,7 +208,7 @@ export interface SidebarProps extends Omit<ComponentProps<'nav'>, 'children'> {
  * </SidebarProvider>
  */
 export function Sidebar({ label, className, children, ...rest }: SidebarProps) {
-  const { open, collapsible, iconOnly } = useSidebar()
+  const { open, collapsible, iconOnly } = useSidebarState()
   warnBlankName('Sidebar', 'label', label, 'the rail is announced as an unnamed navigation')
 
   const gone = !open && collapsible === 'offcanvas'
@@ -283,7 +311,7 @@ export function SidebarTrigger({
   onClick,
   ...rest
 }: SidebarTriggerProps) {
-  const { open, toggle } = useSidebar()
+  const { open, toggle } = useSidebarState()
   const Icon = open ? PanelLeftClose : PanelLeftOpen
 
   return (
@@ -365,7 +393,7 @@ export function SidebarGroup({
   children,
   className,
 }: SidebarGroupProps) {
-  const { iconOnly } = useSidebar()
+  const { iconOnly } = useSidebarState()
   const [open, setOpen] = useState(defaultOpen)
   const labelId = useId()
 
@@ -495,7 +523,7 @@ export function SidebarBranch({
   children,
   className,
 }: SidebarBranchProps) {
-  const { iconOnly } = useSidebar()
+  const { iconOnly } = useSidebarState()
   const [uncontrolled, setUncontrolled] = useState(defaultOpen)
   const open = controlled ?? uncontrolled
 
@@ -569,7 +597,7 @@ export interface SidebarItemProps extends NavItemProps {
  * that collapses needs one on every row.
  */
 export function SidebarItem({ trailing, children, className, ...rest }: SidebarItemProps) {
-  const { iconOnly } = useSidebar()
+  const { iconOnly } = useSidebarState()
 
   if (iconOnly && rest.icon && !rest.asChild) {
     return (

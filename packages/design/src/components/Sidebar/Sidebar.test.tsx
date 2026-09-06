@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Home, Settings } from 'lucide-react'
@@ -10,6 +10,7 @@ import {
   SidebarItem,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from './Sidebar'
 
 function rail(props: Partial<React.ComponentProps<typeof SidebarProvider>> = {}) {
@@ -160,5 +161,37 @@ describe('SidebarBranch', () => {
   it('carries a group badge beside the words it qualifies', () => {
     render(tree())
     expect(screen.getByText('Beta')).toBeInTheDocument()
+  })
+})
+
+describe('without a provider', () => {
+  it('renders, because <Sidebar> on its own is the first thing anybody writes', () => {
+    // It used to throw. A component that cannot draw unwrapped is not strict,
+    // it is unusable — the documentation site's own props panel renders exactly
+    // this and got an error boundary instead of a rail.
+    render(
+      <Sidebar label="Workspace">
+        <SidebarContent>
+          <SidebarGroup label="Guide" count={1}>
+            <SidebarItem href="#one" icon={Home}>
+              One
+            </SidebarItem>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>,
+    )
+    expect(screen.getByRole('navigation', { name: 'Workspace' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'One' })).toBeInTheDocument()
+  })
+
+  it('still refuses the hook, because that is code asking for state nothing keeps', () => {
+    const Probe = () => {
+      useSidebar()
+      return null
+    }
+    // React logs the boundary-less throw; the assertion is that it throws.
+    const quiet = vi.spyOn(console, 'error').mockImplementation(() => {})
+    expect(() => render(<Probe />)).toThrow(/SidebarProvider/)
+    quiet.mockRestore()
   })
 })
