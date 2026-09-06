@@ -67,6 +67,15 @@ async function setTheme(page: Page, theme: (typeof THEMES)[number]) {
  */
 async function settle(page: Page) {
   await page.evaluate(async () => {
+    // One frame first, or this asks the wrong question. A CSS animation does
+    // not exist until the style recalculation that follows the commit that
+    // mounted it, so `getAnimations()` called in the same turn as the click
+    // returns an empty list and resolves instantly — leaving axe measuring the
+    // very fade this is here to wait out. It only bites under load, which is
+    // the worst way to find it: three different pages failed once each across
+    // four full-suite runs and passed alone every time.
+    await new Promise(requestAnimationFrame)
+
     const running = document
       .getAnimations()
       .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity)

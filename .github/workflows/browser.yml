@@ -13,6 +13,21 @@ jobs:
   browser:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Sharded, because the suite grows with the library and a single runner
+    # stopped clearing the timeout. The a11y sweep is the reason: it visits
+    # every published page in both themes, and component pages twice over
+    # because half the page lives behind the Properties tab — so its cost is
+    # the component count times four, and the component count is the number
+    # this project exists to grow.
+    #
+    # Sharding rather than a larger timeout. A timeout raised to fit today's
+    # suite is a timeout that gets raised again, and each raise is a slower
+    # answer to "is this branch broken" for everybody. Shards keep the whole
+    # sweep and cut the wall clock instead.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
@@ -28,13 +43,19 @@ jobs:
           name: docs-out
           path: apps/docs/out
 
+      # `exec playwright` rather than the `test:e2e` script: pnpm forwards `--`
+      # to the script verbatim, so Playwright received a literal `--` and ran
+      # the whole suite on every shard — three times the work and none of the
+      # speed.
       - name: Accessibility and keyboard suite
-        run: pnpm --filter @misoto22/design-docs test:e2e
+        run: pnpm --filter @misoto22/design-docs exec playwright test --shard=${{ matrix.shard }}/${{ strategy.job-total }}
 
       - name: Upload the report on failure
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: playwright-report
+          # One name per shard: same-named artifacts collide, and the report
+          # that matters is the one from the shard that actually failed.
+          name: playwright-report-${{ matrix.shard }}
           path: apps/docs/playwright-report
           retention-days: 7
