@@ -69,3 +69,18 @@ test('a crawler is pointed at both the sitemap and the text', async ({ request, 
   await page.goto('/')
   await expect(page.locator('link[rel="alternate"][href="/llms.txt"]')).toHaveCount(1)
 })
+
+test('a component page points at its own text, not just the whole site', async ({ request }) => {
+  // The root layout advertises the index and the everything-inline file. Landing
+  // on one component and being offered only those two is the expensive path:
+  // llms-full.txt is every component, and the reader wants the one it is on.
+  //
+  // Asserted against the served HTML rather than the hydrated DOM, because the
+  // reader this is for does not run the JavaScript that would produce one.
+  for (const path of ['/components/combobox/', '/zh/components/combobox/']) {
+    const html = await (await request.get(path)).text()
+    expect(html, `${path} does not offer its own text`).toContain(
+      'href="https://ui.misoto22.com/components/combobox/llms.txt"',
+    )
+  }
+})
