@@ -137,6 +137,14 @@
    hierarchy, and a theme that re-sized them would be re-deciding the
    hierarchy rather than re-dressing it. */
 
+/* The default, named. It restates the two role tokens rather than any face:
+   `index.css` decides what `--sans` and `--serif` are, and this only says which
+   role each one plays — so there is no list of families to drift. */
+[data-type='editorial'] {
+  --font-sans: var(--sans);
+  --font-heading: var(--serif);
+}
+
 [data-type='grotesk'] {
   --font-heading: var(--sans);
 }

@@ -40,10 +40,15 @@ export function ThemeGallery({ locale }: { locale: Locale }) {
         {PRESETS.map((preset) => {
           const copy = t.themes.presets[preset.id]
           const active = matching?.id === preset.id
+          // EVERY axis, including the ones this preset leaves at the default.
+          // Writing only the differences meant a specimen said nothing about
+          // the rest — so it inherited them from the document, and the moment a
+          // reader applied any theme to the site, all five specimens repainted
+          // in that theme and the page stopped being able to make its own
+          // argument. An unset axis is not "the default" inside a themed
+          // ancestor; it is "whatever the ancestor said".
           const axes = Object.fromEntries(
-            ORDER.filter((axis) => (preset.values[axis] ?? DEFAULTS[axis]) !== DEFAULTS[axis]).map(
-              (axis) => [`data-${axis}`, preset.values[axis]],
-            ),
+            ORDER.map((axis) => [`data-${axis}`, preset.values[axis] ?? DEFAULTS[axis]]),
           )
 
           return (
