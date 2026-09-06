@@ -184,7 +184,19 @@ jobs:
           # WHETHER TO TAG AT ALL. A version run bumps `package.json` without
           # publishing anything, so `package.json` alone cannot answer this —
           # ask the registry. A tag is owed only once it serves this version.
-          published=$(npm view "@misoto22/design@${version}" version 2>/dev/null || true)
+          #
+          # Ask more than once. A publish is not readable the instant it
+          # returns: `0.5.0` went out, this step asked, npm said no, and the
+          # same query answered yes less than a minute later — so a single
+          # check turns registry lag into a silently missing tag, which is the
+          # failure this whole step exists to stop. Six tries at ten seconds is
+          # far longer than propagation takes and still bounded.
+          published=""
+          for _ in 1 2 3 4 5 6; do
+            published=$(npm view "@misoto22/design@${version}" version 2>/dev/null || true)
+            [ "$published" = "$version" ] && break
+            sleep 10
+          done
           if [ "$published" != "$version" ]; then
             echo "@misoto22/design@${version} is not on the registry — nothing to tag."
             exit 0
