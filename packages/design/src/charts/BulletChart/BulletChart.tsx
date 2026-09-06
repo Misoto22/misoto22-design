@@ -319,10 +319,24 @@ function BulletRow({
           // A rule ACROSS the bar rather than a second bar beside it: the two
           // are different kinds of number, and the reader has to be able to
           // tell at a glance which one was achieved and which was asked for.
+          //
+          // The paper halo is what makes that true where the rule lands ON the
+          // bar. Both are drawn in --ink, so a target inside the achieved range
+          // — which is every measure that is doing well — was an ink rule on an
+          // ink bar and simply not there.
           <span
             data-slot="bullet-target"
-            className="absolute inset-y-1 block w-0.5 bg-(--ink)"
-            style={{ insetInlineStart: pct(targetShare), marginInlineStart: '-1px' }}
+            className="absolute inset-y-1 block w-0.5 bg-(--ink) shadow-[0_0_0_1px_var(--paper)]"
+            style={{
+              insetInlineStart: pct(targetShare),
+              // Pulled back by its own width in PROPORTION to where it sits:
+              // flush at the start at 0, centred in the middle, flush at the end
+              // at 1. A fixed half-width pull put a target of zero half outside
+              // the track, where `overflow-hidden` took it — so "Open incidents,
+              // target 0" drew no target at all, on the one measure whose whole
+              // point is the distance from it.
+              marginInlineStart: `${-2 * targetShare}px`,
+            }}
           />
         )}
 

@@ -141,3 +141,50 @@ describe('the empty state', () => {
     expect(screen.getByRole('figure', { name: 'Service levels' })).toBeInTheDocument()
   })
 })
+
+describe('the target rule', () => {
+  it('stays inside the track when the target is the bottom of the scale', () => {
+    // "Open incidents, target 0" is the measure whose whole point is the
+    // distance from its target, and a half-width pull put half the rule outside
+    // the track — where `overflow-hidden` took it, and the row drew no target.
+    const { container } = render(
+      <BulletChart
+        title="Incidents"
+        data={[{ name: 'Open incidents', value: 3, target: 0, ranges: [1, 4], scale: [0, 8] }]}
+      />,
+    )
+    const rule = container.querySelector('[data-slot="bullet-target"]') as HTMLElement
+    expect(rule).toBeInTheDocument()
+    expect(rule.style.insetInlineStart).toBe('0%')
+    expect(rule.style.marginInlineStart).toBe('0px')
+  })
+
+  it('stays inside it at the top of the scale too', () => {
+    const { container } = render(
+      <BulletChart
+        title="Uptime"
+        data={[{ name: 'Uptime', value: 99, target: 100, ranges: [98, 99.5], scale: [98, 100] }]}
+      />,
+    )
+    const rule = container.querySelector('[data-slot="bullet-target"]') as HTMLElement
+    expect(rule.style.insetInlineStart).toBe('100%')
+    expect(rule.style.marginInlineStart).toBe('-2px')
+  })
+
+  it('pulls back by its own width in proportion to where it sits', () => {
+    // The rule that makes both ends work: flush at 0, flush at 1, and centred
+    // on its position everywhere between. Read off the rendered share rather
+    // than a hard-coded domain, since the domain widens to hold the data.
+    const { container } = render(
+      <BulletChart
+        title="Budget"
+        data={[{ name: 'Error budget', value: 38, target: 50, ranges: [25, 60] }]}
+      />,
+    )
+    const rule = container.querySelector('[data-slot="bullet-target"]') as HTMLElement
+    const share = Number.parseFloat(rule.style.insetInlineStart) / 100
+    expect(share).toBeGreaterThan(0)
+    expect(share).toBeLessThan(1)
+    expect(Number.parseFloat(rule.style.marginInlineStart)).toBeCloseTo(-2 * share, 4)
+  })
+})
