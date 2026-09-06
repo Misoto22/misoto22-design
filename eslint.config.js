@@ -45,8 +45,9 @@ export default tseslint.config(
     },
   },
   {
-    // Build scripts run in Node and are plain ESM, not part of any bundle.
-    files: ['**/scripts/**/*.{mjs,ts}'],
+    // Build scripts, the published CLI, and the hand-authored agent catalog it
+    // reads: all Node, all plain ESM, none of them part of any bundle.
+    files: ['**/scripts/**/*.{mjs,ts}', '**/bin/**/*.mjs', '**/agent/**/*.mjs'],
     languageOptions: {
       globals: { ...globals.node },
     },

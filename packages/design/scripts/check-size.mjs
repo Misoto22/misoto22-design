@@ -14,7 +14,7 @@
  * a small fraction of the whole. The budgets are deliberately loose: they exist
  * to catch a step change, not to police a kilobyte.
  */
-import { existsSync, readFileSync, statSync } from 'node:fs'
+import { existsSync, statSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'esbuild'

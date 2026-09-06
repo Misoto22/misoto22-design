@@ -11,9 +11,14 @@
   ],
   "files": [
     "dist",
+    "skills",
+    "bin",
     "LICENSE",
     "README.md"
   ],
+  "bin": {
+    "misoto22-design": "./bin/misoto22-design.mjs"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -42,10 +47,11 @@
     "build:fonts": "node scripts/vendor-fonts.mjs",
     "build:js": "NODE_OPTIONS=--max-old-space-size=6144 tsup",
     "build:css": "tailwindcss -i ./src/styles/index.css -o ./dist/styles.css --minify && node scripts/copy-portable-css.mjs && node scripts/emit-tokens.mjs",
-    "build": "pnpm run build:fonts && pnpm run build:js && pnpm run build:css",
+    "build:agent": "node scripts/emit-agent.mjs",
+    "build": "pnpm run build:fonts && pnpm run build:js && pnpm run build:css && pnpm run build:agent",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src",
+    "lint": "eslint src scripts agent bin",
     "test": "vitest run",
     "test:watch": "vitest",
     "clean": "rm -rf dist",
