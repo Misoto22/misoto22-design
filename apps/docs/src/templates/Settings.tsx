@@ -8,7 +8,6 @@ import {
   Checkbox,
   Field,
   Input,
-  NavItem,
   RadioGroup,
   RadioGroupItem,
   Select,
@@ -16,6 +15,13 @@ import {
   Separator,
   Switch,
   Textarea,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarItem,
+  SidebarProvider,
+  SidebarTrigger,
 } from '@misoto22/design'
 import { Bell, CreditCard, ShieldCheck, SlidersHorizontal } from 'lucide-react'
 import { useState } from 'react'
@@ -74,28 +80,36 @@ export function Settings() {
   const [dirty, setDirty] = useState(false)
 
   return (
-    <div className="grid min-h-[40rem] grid-cols-1 @3xl:grid-cols-[14rem_minmax(0,1fr)]">
-      <aside className="hidden flex-col gap-1 border-e border-(--rule) p-3 @3xl:flex">
-        <div className="flex items-center gap-2.5 px-3 pb-4 pt-2">
+    <SidebarProvider collapsible="icon" shortcut={null}>
+    <div className="flex min-h-[40rem]">
+      <Sidebar label="Settings" className="hidden @3xl:flex">
+        <SidebarHeader>
           <Avatar alt="" fallback="LB" size="sm" />
           <div className="flex min-w-0 flex-col">
-            <span className="truncate text-[13px] text-(--ink)">Longbeach Studio</span>
+            <span className="truncate text-[13px] leading-tight text-(--ink)">
+              Longbeach Studio
+            </span>
             <span className="mono-meta text-(--ink-3-aa)">Team plan</span>
           </div>
-        </div>
-        <NavItem href="#general" icon={SlidersHorizontal} active>
-          General
-        </NavItem>
-        <NavItem href="#notifications" icon={Bell}>
-          Notifications
-        </NavItem>
-        <NavItem href="#access" icon={ShieldCheck}>
-          Access
-        </NavItem>
-        <NavItem href="#billing" icon={CreditCard}>
-          Billing
-        </NavItem>
-      </aside>
+          <SidebarTrigger className="ms-auto" />
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup label="Account" count={4} collapsible={false}>
+            <SidebarItem href="#general" icon={SlidersHorizontal} active>
+              General
+            </SidebarItem>
+            <SidebarItem href="#notifications" icon={Bell}>
+              Notifications
+            </SidebarItem>
+            <SidebarItem href="#access" icon={ShieldCheck}>
+              Access
+            </SidebarItem>
+            <SidebarItem href="#billing" icon={CreditCard}>
+              Billing
+            </SidebarItem>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
 
       <div className="flex min-w-0 flex-col">
         <header className="flex flex-wrap items-baseline justify-between gap-3 border-b border-(--rule) px-6 py-5">
@@ -301,5 +315,6 @@ export function Settings() {
         )}
       </div>
     </div>
+    </SidebarProvider>
   )
 }
