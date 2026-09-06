@@ -1,5 +1,209 @@
 # @misoto22/design
 
+## 0.9.0
+
+### Minor Changes
+
+- [#69](https://github.com/Misoto22/misoto22-design/pull/69) [`2e7ca63`](https://github.com/Misoto22/misoto22-design/commit/2e7ca6313dcf93e856ab616c3f6f9017d6d53f8b) Thanks [@Misoto22](https://github.com/Misoto22)! - `SidebarBranch` — a row that opens onto more rows — plus a `badge` slot on
+  `SidebarGroup`, and a 16rem rail.
+  
+  Nesting is the thing a rail is for and the thing a flat list of groups cannot
+  do: a workspace with projects in it, a folder with documents in it, a service
+  with its environments. The line it draws is between a PLACE and a HEADING —
+  `SidebarGroup` is a heading over a set and has neither an icon nor a state
+  because it is not somewhere you can be; a branch has both because it is.
+  
+  Children sit behind the same hairline a group draws, one indent further in, so
+  depth reads as depth. Two levels is what the indent has room for at this width;
+  a third is a horizontal scrollbar with an outline in it. Collapsed to icons a
+  branch is its icon and its children are not drawn — a nested glyph under an
+  unnested one is two marks with no visible relationship.
+
+- [#69](https://github.com/Misoto22/misoto22-design/pull/69) [`ab4d16a`](https://github.com/Misoto22/misoto22-design/commit/ab4d16a30964bf45cec0a6b53be8a8a6b465ce77) Thanks [@Misoto22](https://github.com/Misoto22)! - `Sidebar` — a navigation rail down the side of an application, with the control
+  that hides it living on the thing it hides.
+  
+  Composed rather than configured: `SidebarProvider`, `Sidebar`, `SidebarHeader`,
+  `SidebarContent`, `SidebarGroup`, `SidebarItem`, `SidebarFooter`,
+  `SidebarSeparator`, `SidebarTrigger` and `useSidebar`. A rail is a header, a
+  scrolling middle and a footer, and every product wants different things in all
+  three; what the component owns is the part that is the same everywhere — the
+  width, the edge, the scrolling, and what happens when it closes.
+  
+  - **Closing has three shapes.** `icon` keeps the rail and drops the labels,
+    which suits a fixed set a reader learns the shape of. `offcanvas` takes the
+    whole rail away, which suits a long index nobody memorises — ninety-two rows
+    collapse to ninety-two identical file icons, which is width answering
+    nothing. `none` is a rail that does not close.
+  - **The trigger belongs inside.** A control that hides a thing lives on the
+    thing: in an application's masthead it is one more anonymous icon in a row of
+    them, with nothing connecting it to the column it operates.
+  - **A collapsed row is still a named row.** The label leaves the layout — a
+    `sr-only` label still occupies the flex row's gap — and becomes the row's
+    tooltip, because an icon alone is a guess for a sighted reader and nothing at
+    all for a screen reader. The provider supplies the tooltip provider that needs,
+    so the icon state works without the app being told to wrap itself in one.
+  - **A `<nav>`, not an `<aside>`.** The element decides the landmark, and a rail
+    of links announced as "complementary" is not the one a reader jumps to when
+    they go looking for the navigation.
+  - `--sidebar-w` and `--sidebar-w-icon` are tokens, because the shell beside the
+    rail has to reserve exactly what the rail believes it is.
+
+- [#69](https://github.com/Misoto22/misoto22-design/pull/69) [`86644c3`](https://github.com/Misoto22/misoto22-design/commit/86644c3819dc88558adbe3d28cacae451024579b) Thanks [@Misoto22](https://github.com/Misoto22)! - Every theme axis default now has a name, so a subtree can opt OUT of an
+  ancestor's theme rather than only into a different one.
+  
+  `[data-surface='paper']`, `[data-rules='hairline']`, `[data-type='editorial']`
+  and `[data-density='comfortable']` join `[data-radius]`, which already worked
+  this way. Each sits on the rule that declares the defaults rather than
+  restating them, so there is nothing new to drift.
+  
+  The gap this closes: "the White Reset" used to be spelled "write no attribute",
+  which works exactly once — at the root. Inside a page whose root carries a
+  theme, an unset axis is not the default, it is whatever the ancestor said. Five
+  theme specimens on one page each inherited whichever theme the reader had
+  applied to the site, and all five showed the same colours.
+  
+  Two corrections found by the browser sweep, in the same layer:
+  
+  `[data-density='comfortable']` first landed on a `:root` block that also carries
+  the status colours, the floating surfaces and the motion steps, so every element
+  declaring the default density re-declared the whole LIGHT palette on itself — in
+  dark mode, a light `--danger` painted on a dark ground. A neutral value may only
+  restate the axis it names, so density now sits on a rule holding nothing else.
+  
+  And the dark block was missing the compound forms — `[data-mode='dark'][data-surface='paper']`
+  and the rest — so a dark subtree that named its own default surface got the light
+  one back.
+
+- [#67](https://github.com/Misoto22/misoto22-design/pull/67) [`74b34c5`](https://github.com/Misoto22/misoto22-design/commit/74b34c5379d8cfc76141a85771753a2fa5a4c163) Thanks [@Misoto22](https://github.com/Misoto22)! - Two controls the forms group was missing, and the way out of the one a slider
+  cannot do: `ColorPicker`, `NumberField`, and `editable` on `Slider`.
+  
+  The gap was written down in the package's own documentation. `Slider`'s
+  catalogue entry said "put an `Input` beside it when the exact number matters",
+  which is a component library telling a caller to build the missing half by hand
+  and keep two controls in step themselves. There was no numeric control with a
+  range and no colour control at all.
+  
+  - **`ColorPicker`** — a swatch trigger and a panel that works in OKLCH. That is
+    the substance rather than the styling: in HSV, which is what
+    `<input type="color">` and most libraries use, a row of constant "lightness"
+    visibly darkens as it saturates, so a reader tuning a palette is fighting the
+    instrument. The plane is normalised to the gamut row by row, so its whole
+    surface is reachable instead of a lens of colour inside bands of clipped
+    duplicates, and the hue strip is taken at the lightness already chosen. It
+    reads and writes hex, `rgb()`, `hsl()`, `oklch()` and `color(display-p3 …)`;
+    the notation a caller passes in is the notation they get back. The plane is a
+    group of two real sliders under the canvas rather than key handlers on it, so
+    the arrows move it and a screen reader announces which axis it is on — the
+    part a 2D picker usually leaves out, and leaving it out makes the control
+    unusable rather than merely awkward.
+  - **`NumberField`** — a real `<input type="number">` in the shared control box,
+    with a grip that sweeps the value as it is dragged, one step every 4px and ten
+    with Shift held. A value that is TUNED — a duration, a line height, an offset
+    — is found by passing through its neighbours, not by typing candidates one at
+    a time. Clamping happens when the field is left rather than on every
+    keystroke, because a minimum of 10 otherwise makes 50 unreachable: the `5` is
+    pushed up before the `0` arrives.
+  - **`Slider`'s `editable`** — turns the readout into a box per thumb, showing
+    `format`'s output at rest and the bare number on focus, so a reader still sees
+    "$1,200" and a typist is never asked to type a currency symbol back. A typed
+    value is held inside the neighbouring thumb as well as inside `min` and `max`,
+    which is the bound a dragged one cannot cross and a typed one can.
+  
+  `Slider` is now controlled from its own state whether or not the caller controls
+  it, because a number typed into the readout never passes through Radix — left as
+  it was, the thumb stayed where it had been while the figure above it moved.
+  
+  The colour maths is adapted from [DialKit](https://github.com/joshpuckett/dialkit)
+  (MIT, Copyright (c) 2026 Josh Puckett); the notice travels with it in
+  `src/lib/color.ts`.
+
+### Patch Changes
+
+- [#69](https://github.com/Misoto22/misoto22-design/pull/69) [`f3b6018`](https://github.com/Misoto22/misoto22-design/commit/f3b601898d5d4acf0a1c7602322412c4b857ae2f) Thanks [@Misoto22](https://github.com/Misoto22)! - The rail stops looking like a terminal listing.
+  
+  A `SidebarGroup` heading was set in the MONO face at 15px medium. Ten of those
+  stacked in a column read as a code listing rather than as a navigation: mono is
+  this system's voice for code, metadata and figures, and a navigation heading is
+  none of those. The heading is now the same face and size as its rows and
+  outranks them by weight and by one step of ink — the two signals that can rank a
+  row without changing what kind of thing it is. Counts come off mono too.
+  
+  `NavItem` tightens with it: `--radius-sm`, and the padding a 14px row wants
+  rather than the padding a 15px one did.
+
+- [#69](https://github.com/Misoto22/misoto22-design/pull/69) [`2a1d613`](https://github.com/Misoto22/misoto22-design/commit/2a1d613e3193acc901eba8222656e684200a73a7) Thanks [@Misoto22](https://github.com/Misoto22)! - `BulletChart` draws its target where the target is.
+  
+  Two ways the rule went missing, and the second one is the common case.
+  
+  A fixed half-width pull put a target at the bottom of the scale half outside
+  the track, where `overflow-hidden` took it — so "Open incidents, target 0" drew
+  no target at all, on the one measure whose whole point is the distance from it.
+  The pull is proportional now: flush at the start at 0, flush at the end at 1,
+  centred on its position everywhere between.
+  
+  And the rule is drawn in `--ink` on a bar drawn in `--ink`, so wherever the
+  target sat INSIDE the achieved range it was an ink rule on an ink bar and
+  simply not there — which is every measure that is meeting its target. It now
+  carries a paper halo, so it reads against the bar and against the bands alike.
+
+- [#69](https://github.com/Misoto22/misoto22-design/pull/69) [`73f7427`](https://github.com/Misoto22/misoto22-design/commit/73f7427363fc4a5f43b5a07adb09842bcb582fd6) Thanks [@Misoto22](https://github.com/Misoto22)! - Diagram edges go straight when straight is available.
+  
+  Two bugs, one symptom. The port spread keyed on the word `auto` rather than on
+  the face a line would actually use, so every auto-routed line leaving one node
+  counted as sharing a face with every other — a node with one line going right
+  and one going down had both nudged off centre to make room for each other on a
+  face neither was on. Each line then arrived a few units out of true, and the
+  router answered that with a dogleg: two corners, an S, and a line that looks
+  like it is avoiding something.
+  
+  The spread now keys on the resolved face, and a line whose two ends are within
+  two corner radii of each other is drawn straight rather than kinked — below
+  that threshold the dogleg cannot even draw its own corners. Real turns keep
+  their elbows.
+
+- [#69](https://github.com/Misoto22/misoto22-design/pull/69) [`7ef871e`](https://github.com/Misoto22/misoto22-design/commit/7ef871ee1b064138380c1978b8842a3287fc7e26) Thanks [@Misoto22](https://github.com/Misoto22)! - A floating panel now reads as floating, and a list draws one highlight rather
+  than two.
+  
+  **Depth.** Every overlay — menu, popover, select, dialog, sheet, palette — sat
+  on `--paper` over a page of `--paper` with a hairline between them, so nothing
+  said the two were different surfaces. `--panel-lift` is the offset under them,
+  and it does not break Law 2: the law says a box-shadow is never BLURRED, not
+  that there is never one. Two hard steps in the rule colours, which is a stack
+  seen from the front — the flattest way to say depth without drawing light.
+  
+  **One highlight.** `SidebarItem` drew the current page filled and filled a row
+  under the pointer, which is two rows claiming to be where the reader is. While
+  the pointer is in the list the fill is the pointer's, and it returns to the
+  current row when the pointer leaves. `aria-current` never moves — nothing about
+  what is TRUE changes, only what is drawn.
+
+- [#69](https://github.com/Misoto22/misoto22-design/pull/69) [`b28c818`](https://github.com/Misoto22/misoto22-design/commit/b28c81871b943c04a7d44e6b7d547c972554650b) Thanks [@Misoto22](https://github.com/Misoto22)! - `TabsList` no longer grows a vertical scrollbar beside a row of tabs.
+  
+  `overflow-x: auto` on its own computes `overflow-y` to `auto` as well, and the
+  active trigger's `-mb-px` rule leaves the content exactly one pixel taller than
+  the box — enough for a browser to draw a full-height scrollbar next to a strip
+  with nothing to scroll. A strip only ever scrolls sideways, so it now says so.
+
+- [#69](https://github.com/Misoto22/misoto22-design/pull/69) [`1acaffa`](https://github.com/Misoto22/misoto22-design/commit/1acaffac34f22c889d13eeac3b495b659fed1865) Thanks [@Misoto22](https://github.com/Misoto22)! - Three things that did not line up.
+  
+  **`Sidebar` renders without a provider.** It threw, which is defensible for a
+  hook a consumer called by hand and wrong for the component: `<Sidebar>` on its
+  own is the first thing anybody writes, and the documentation site's own props
+  panel renders exactly that and got an error boundary instead of a rail. The
+  parts now fall back to the state a rail with no controls would be in — open,
+  not collapsible. `useSidebar` still throws, because a call to the hook is code
+  asking for state nothing is keeping.
+  
+  **`ErrorState`'s code was set `leading-none`.** At the title step this face
+  draws about 62px of ink and a line box of exactly the font size is 47, so the
+  figures overflowed their own box by seven pixels at each end — pressing against
+  the eyebrow above and eating a third of the gap to the heading below. It has a
+  real line box now, and the space the layout asks for is the space that appears.
+  
+  **`TD` says why it is top-aligned, and when not to be.** A 36px row action
+  beside 16px of text makes a 52px row, and top-aligned every other cell hangs at
+  the top of it with twenty pixels of nothing underneath.
+
 ## 0.8.0
 
 ### Minor Changes
