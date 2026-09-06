@@ -1,5 +1,110 @@
 # @misoto22/design
 
+## 0.6.0
+
+### Minor Changes
+
+- [#47](https://github.com/Misoto22/misoto22-design/pull/47) [`09fc30a`](https://github.com/Misoto22/misoto22-design/commit/09fc30a621361f2c705829c60552c288320637d4) Thanks [@Misoto22](https://github.com/Misoto22)! - The package documents itself for agents, offline: a `misoto22-design` CLI, a
+  skill, and a README.
+  
+  The docs were on a website while the version being written against was in
+  `node_modules`, and neither side could see the disagreement. Everything an agent
+  needs now ships in the same tarball as the source it was generated from.
+  
+  - `npx misoto22-design docs <Component>` prints one component in full — every
+    prop with its type and default, the exported unions, the keyboard contract,
+    the accessibility promises, the `@example` blocks. The median component is
+    about 500 tokens, against roughly 28,000 for all fifty-two. It resolves parts
+    and types too, so `docs CardBody`, `docs TH` and `docs ButtonVariant` all land
+    on the right file — which is what you have when an import just failed.
+  - `npx misoto22-design docs --installed` is the cheap half: the resolved version
+    and every component name, a few hundred tokens.
+  - `npx misoto22-design init --agents-md` installs the skill under
+    `.claude/skills/` and points `AGENTS.md` at it. Its name and description are
+    about 110 tokens and are all a session carries until something touches the
+    package; the body and the five rule files load from there.
+  - `README.md` was listed in `files` and did not exist, so the npm page has been
+    blank. It exists now.
+  
+  Two things the old documentation said were not true. There has never been a
+  `data-accent` attribute — `--accent` is a custom property — and
+  `data-surface="glass"` was never listed, so nothing pointed at an axis value
+  that does work. The axes are now read out of the stylesheets that define them
+  rather than described by hand, and a test fails when the authored half stops
+  matching.
+  
+  Nothing about the runtime changed: same exports, same CSS, same bundle.
+
+- [#49](https://github.com/Misoto22/misoto22-design/pull/49) [`625198b`](https://github.com/Misoto22/misoto22-design/commit/625198b30a106c4c6e56df5d9e353f944f2bca18) Thanks [@Misoto22](https://github.com/Misoto22)! - Add twenty data-visualisation primitives.
+  
+  Sixteen ship from a new `@misoto22/design/charts` entry with `recharts` and
+  `motion` as OPTIONAL peer dependencies — `AreaChart`, `BarChart`, `LineChart`,
+  `ComposedChart`, `ScatterChart`, `PieChart`, `RadarChart`, `RadialChart`,
+  `FunnelChart`, `TreemapChart`, `SankeyChart`, `BoxPlot`, `Histogram`,
+  `WaterfallChart`, `Facet` and the toolbar-driven zoom — each a compound component
+  composed from axes, grid, tooltip, legend, dots, a background plate and a
+  keyboard-driven zoom brush. The main entry and its size budget are unchanged: an
+  app that renders a Badge does not pay for a rendering engine.
+  
+  `Heatmap`, `Sparkline`, `BarList`, `BigNumber` and `BulletChart` ship from the
+  same entry and need NO engine at all.
+  The heatmap is a real `<table>` with weighted cells, so the structure a screen
+  reader walks is the structure the eye reads; the sparkline is one `<path>`, so a
+  hundred of them in a table cost nothing.
+  
+  The token layer gains a data block: `--series-1` … `--series-8` (a neutral ramp
+  whose adjacent steps clear ΔE 21 and 3:1 on their own ground), the `--chart-*`
+  roles, and `--chart-fill` / `--chart-texture` — the only tokens in the system
+  that hold different numbers on the two grounds, because ink at 14% over paper is
+  a legible band and paper-white at 14% over near-black is nothing. Texture is the
+  primary carrier of series identity; the ramp supports it. `data-chart-palette`
+  is a seventh theme axis that swaps the ramp for a validated categorical palette.
+  
+  Every chart requires a `title`, renders its rows again as a visually hidden
+  table, and drops its intro animation under `prefers-reduced-motion`.
+  
+  Borrowed from a survey of the field, and each one fixing something that was
+  missing rather than adding a variant:
+  
+  - **An annotation layer** — `ReferenceLine`, `ReferenceBand` and `Annotation` on
+    every cartesian chart, stacked in the order editorial charting settled on
+    (band behind the grid, line above the marks, note above both). Most charts
+    that look like they need a second series need a target line instead.
+  - **Axis titles** (`<Chart.XAxis label>`), because an axis reading 0 · 100 · 200
+    says nothing about whether those are people, milliseconds or dollars.
+  - **Selective value labels** — `<Chart.Values show="last | first-last | extremes
+    | all">`. The default prints one number, not one per point.
+  - **`formatNumber`** with compact, percent, currency, duration and byte styles,
+    and a compact default on every value axis above four digits.
+  - **An empty state.** `data: []` now renders `ChartEmpty` rather than a bare
+    pair of axes, which is indistinguishable from a failed load.
+  - **Forced-colours support** in `tokens.css`. Browsers do not remap SVG, so the
+    chart tokens re-point onto system colours there and texture carries the
+    series apart; `Heatmap` reveals its numbers, since its wash is gone.
+  - **`BarList`** — a ranked list with the bar behind the name, which a
+    horizontal bar chart cannot do.
+  - **`BigNumber`** — one figure at headline size with a delta whose direction is
+    stated by the call site, never inferred from the sign.
+  - **`BulletChart`** — Stephen Few's replacement for the dashboard gauge: a
+    measure, its target and its qualitative bands in the height of a line of
+    text. Plain HTML, so ten of them stack into a status page for free.
+  - **The statistical family** — `BoxPlot`, `Histogram` and `WaterfallChart`.
+    Each documents what it HIDES rather than only what it shows: a box cannot
+    tell one hump from two, a histogram's shape is a property of its bin width,
+    and a waterfall's connectors imply a sequence most breakdowns do not have.
+  - **`Facet`** — the same chart once per group on one shared scale, which is the
+    answer to eight series overplotted into a hairball. The shared domain is the
+    default: on independent scales a group peaking at 40 and one peaking at 4,000
+    draw the same shape, and the comparison is not merely lost but inverted.
+  - **Sonification** — `<Chart.Sonify>` plays a series as pitch over time for a
+    reader who cannot see the plot. Never autoplays; sound only ever starts from
+    an explicit user action, which is a different question from
+    `prefers-reduced-motion`.
+  - **A chart toolbar** — step zoom, reset, and taking the figure away as a PNG
+    or a CSV. Capped at five controls with no overflow menu, so a cartesian chart
+    does not statically reach a menu component every consumer would then ship.
+    Zoom and the brush drive ONE window, so they cannot disagree.
+
 ## 0.5.0
 
 ### Minor Changes
