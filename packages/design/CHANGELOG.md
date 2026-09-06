@@ -1,5 +1,66 @@
 # @misoto22/design
 
+## 0.7.0
+
+### Minor Changes
+
+- [#52](https://github.com/Misoto22/misoto22-design/pull/52) [`212f6d4`](https://github.com/Misoto22/misoto22-design/commit/212f6d4a62cf6b55a7b422505e7de356364ac551) Thanks [@Misoto22](https://github.com/Misoto22)! - Add `@misoto22/design/diagrams`: five diagram figures and the chrome to explore one.
+  
+  `ArchitectureFigure`, `WorkflowFigure`, `SequenceFigure`, `DataflowFigure` and
+  `LifecycleFigure` render the JSON schemas published by
+  [archify](https://github.com/tt-a1i/archify), so a specification authored for
+  that tool renders here with no translation step — in this system's own terms
+  rather than in archify's palette. Where archify separates seven kinds of node
+  by hue, these carry the kind twice, as a drawn sigil and as a word on the
+  plate's eyebrow, so the distinction survives a greyscale print and a
+  colour-blind reader. The only colour any of them spends is `--success` and
+  `--danger` on a terminal lifecycle state, which is what those two tokens were
+  reserved for.
+  
+  Every position comes out of the specification, so the figures render on a
+  server and produce identical markup twice — there is no layout to do and
+  therefore no shift on hydration. The `<svg>` is `role="img"` with a name, and
+  each figure publishes its nodes and relationships beside it as an ordinary
+  list; passing `onSelectNode` turns that list into the keyboard's route to a
+  selection.
+  
+  `DiagramCanvas`, `DiagramToolbar`, `DiagramExportMenu`, `DiagramInspector`,
+  `DiagramMinimap` and `DiagramLegend` are the reader-facing half: pan and zoom,
+  a grouped action bar, PNG / JPEG / WebP / SVG / share-card export with the
+  theme's custom properties baked into real colours, a detail panel and an
+  overview map.
+  
+  They ship from their own entry point so a page rendering a `Badge` does not pay
+  for a routing engine; `check-size` fails if they ever leak into the main
+  barrel. The shared SVG export helpers now live in `src/lib/svg-export.ts`.
+
+### Patch Changes
+
+- [#55](https://github.com/Misoto22/misoto22-design/pull/55) [`eff6c5c`](https://github.com/Misoto22/misoto22-design/commit/eff6c5c3f18b867d6950ed7896eb2c171ff8eb7e) Thanks [@Misoto22](https://github.com/Misoto22)! - Fold the chart PNG export onto the shared SVG export.
+  
+  `charts/lib/export.ts` and `lib/svg-export.ts` each carried the same computed-
+  style walker, the same standalone-document builder and the same canvas
+  rasteriser — arrived at independently, for charts and for diagrams, and already
+  diverging: the shared copy had picked up `marker-start`/`mid`/`end`, without
+  which an exported arrow comes out headless. Two copies of a paint walker means
+  the next fix lands in one of them.
+  
+  The chart module keeps only what a Recharts chart knows and a diagram does not:
+  which `<svg>` in the subtree is the plot, what a row of chart data looks like as
+  a CSV record, and that the ground behind an exported plot is `--chart-surface`.
+  It is 387 lines down to 182, and `chartToPng`'s signature is unchanged.
+  
+  `findPlotSvg` now has a test, which it did not before. Both of its narrowings
+  are load-bearing and each fails the same silent way — the toolbar sits outside
+  the plot wrapper and every control in it is an `<svg>`, the legend draws its
+  swatches inside it — so an export that skipped either one would be a picture of
+  an icon, which looks like a working download until somebody opens the file.
+  
+  Two visible differences, both from the shared serialiser: the exported title
+  band is 34px at 15px rather than 30px at 13px, and a chart exported before it
+  has been measured now says `serializeSvg:` rather than `chartToPng:` in the
+  error it throws.
+
 ## 0.6.1
 
 ### Patch Changes
