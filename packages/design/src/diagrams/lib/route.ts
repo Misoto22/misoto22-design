@@ -27,6 +27,23 @@ const STUB = 18
 /** The turn radius on an orthogonal corner. */
 const CORNER = 8
 
+/**
+ * How far out of true a line may be and still be drawn straight.
+ *
+ * Two boxes on the same row are rarely on exactly the same centre — a taller
+ * label, a different icon, a row that grew by four units — and a router that
+ * insists on the arithmetic answers a four-unit difference with a dogleg: two
+ * corners, an S, and a line that looks like it is avoiding something. It is
+ * not; it is being honest about four units, which is a fact no reader wanted.
+ *
+ * Two corner radii is the threshold, because that is the shortest dogleg that
+ * can draw itself. Below it `roundedPath` clamps both curves to a third of a
+ * leg already shorter than the radius, so what renders is not a pair of turns
+ * but a kink. Straightening it loses nothing and removes the only thing in the
+ * picture that was inviting a reader to wonder why.
+ */
+const STRAIGHT_SNAP = CORNER * 2
+
 export interface RouteRequest {
   from: Box
   to: Box
@@ -61,7 +78,7 @@ export interface RoutedEdge {
  * comparing centres would flip that pair to top/bottom as soon as the offset
  * exceeded half a box.
  */
-function autoSides(from: Box, to: Box): [Side, Side] {
+export function autoSides(from: Box, to: Box): [Side, Side] {
   const gapX = Math.max(to.x - (from.x + from.w), from.x - (to.x + to.w))
   const gapY = Math.max(to.y - (from.y + from.h), from.y - (to.y + to.h))
 
@@ -69,6 +86,26 @@ function autoSides(from: Box, to: Box): [Side, Side] {
     return to.x >= from.x ? ['right', 'left'] : ['left', 'right']
   }
   return to.y >= from.y ? ['bottom', 'top'] : ['top', 'bottom']
+}
+
+/**
+ * The two faces a line will actually use, author's choice or the router's.
+ *
+ * Exported because the SPREAD has to key on the real face and cannot wait for
+ * the router to decide it. Keyed on the word "auto" instead — which is what it
+ * used to do — every auto-routed line leaving one node counted as sharing one
+ * face, however far apart the faces they resolved to were. A node with one line
+ * going right and one going down had both of them nudged off centre to make
+ * room for each other on a face neither was using.
+ */
+export function resolveSides(
+  from: Box,
+  to: Box,
+  fromSide?: Side,
+  toSide?: Side,
+): [Side, Side] {
+  const [autoFrom, autoTo] = autoSides(from, to)
+  return [fromSide ?? autoFrom, toSide ?? autoTo]
 }
 
 /** The point on a face where a line attaches, given its share of that face. */
@@ -163,6 +200,45 @@ function connect(
 
   // One elbow. The axis of the OUTGOING face decides which corner it is.
   return fromH ? [a, [b[0], a[1]], b] : [a, [a[0], b[1]], b]
+}
+
+/**
+ * Moves the arriving port onto the leaving one, when they are nearly in line.
+ *
+ * Only for faces that oppose each other on one axis — a corner turn is a real
+ * turn and keeps its elbow — and only within the target face's usable span, so
+ * a snap can never slide an arrowhead off the end of the box it points at.
+ * Returns the port unchanged when neither holds, and the router then draws the
+ * dogleg it would have drawn.
+ *
+ * The END moves rather than the start: a reader follows a line from its source,
+ * and the source is where the emphasis and the label usually are.
+ */
+function straighten(
+  start: [number, number],
+  end: [number, number],
+  fromSide: Side,
+  toSide: Side,
+  to: Box,
+): [number, number] {
+  const fromH = isHorizontal(fromSide)
+  if (fromH !== isHorizontal(toSide)) return end
+  // Facing each other, not the same side twice: right→right is a line that has
+  // to go around, and there is nothing there to straighten.
+  const opposed = fromH
+    ? (fromSide === 'right') !== (toSide === 'right')
+    : (fromSide === 'bottom') !== (toSide === 'bottom')
+  if (!opposed) return end
+
+  if (fromH) {
+    if (Math.abs(start[1] - end[1]) > STRAIGHT_SNAP) return end
+    if (start[1] < to.y + to.h * 0.12 || start[1] > to.y + to.h * 0.88) return end
+    return [end[0], start[1]]
+  }
+
+  if (Math.abs(start[0] - end[0]) > STRAIGHT_SNAP) return end
+  if (start[0] < to.x + to.w * 0.12 || start[0] > to.x + to.w * 0.88) return end
+  return [start[0], end[1]]
 }
 
 /** Drops points that repeat, and collapses three points on one straight run into two. */
@@ -269,7 +345,12 @@ export function routeEdge(request: RouteRequest): RoutedEdge {
   const toSide = request.toSide ?? autoTo
 
   const start = port(from, fromSide, request.fromOffset)
-  const end = port(to, toSide, request.toOffset)
+  const rawEnd = port(to, toSide, request.toOffset)
+  // Not when either end was spread. Spreading exists to keep two arrowheads off
+  // one coordinate, and a snap is exactly the move that would put them back —
+  // so a face with company keeps its arithmetic.
+  const spread = request.fromOffset !== undefined || request.toOffset !== undefined
+  const end = spread ? rawEnd : straighten(start, rawEnd, fromSide, toSide, to)
 
   let points: [number, number][]
 

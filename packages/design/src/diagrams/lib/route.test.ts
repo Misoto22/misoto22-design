@@ -164,3 +164,54 @@ describe('turning corners', () => {
     expect(route.points).toHaveLength(2)
   })
 })
+
+describe('a nearly straight line', () => {
+  it('is drawn straight when the two faces are a few units out of true', () => {
+    // Two boxes on the same row are rarely on exactly the same centre, and the
+    // dogleg that answers a four-unit difference is two corners and an S.
+    const route = routeEdge({
+      from: { x: 0, y: 0, w: 100, h: 60 },
+      to: { x: 200, y: 4, w: 100, h: 60 },
+    })
+    expect(route.points).toHaveLength(2)
+    expect(route.points[0]![1]).toBe(route.points[1]![1])
+  })
+
+  it('keeps the dogleg once the difference is a turn rather than a wobble', () => {
+    const route = routeEdge({
+      from: { x: 0, y: 0, w: 100, h: 60 },
+      to: { x: 200, y: 120, w: 100, h: 60 },
+    })
+    expect(route.points.length).toBeGreaterThan(2)
+  })
+
+  it('does not slide the arrowhead off the box it points at', () => {
+    // A tall target whose usable span does not reach the source's line.
+    const route = routeEdge({
+      from: { x: 0, y: 0, w: 100, h: 8 },
+      to: { x: 200, y: 10, w: 100, h: 12 },
+    })
+    const end = route.points[route.points.length - 1]!
+    expect(end[1]).toBeGreaterThanOrEqual(10)
+    expect(end[1]).toBeLessThanOrEqual(22)
+  })
+
+  it('leaves a spread face alone, because spreading is what keeps arrowheads apart', () => {
+    const straightened = routeEdge({
+      from: { x: 0, y: 0, w: 100, h: 60 },
+      to: { x: 200, y: 4, w: 100, h: 60 },
+      toOffset: 0.3,
+    })
+    expect(straightened.points.length).toBeGreaterThan(2)
+  })
+
+  it('keeps the elbow on a corner turn, which is a real turn', () => {
+    const route = routeEdge({
+      from: { x: 0, y: 0, w: 100, h: 60 },
+      to: { x: 200, y: 4, w: 100, h: 60 },
+      fromSide: 'right',
+      toSide: 'top',
+    })
+    expect(route.points.length).toBeGreaterThan(2)
+  })
+})
