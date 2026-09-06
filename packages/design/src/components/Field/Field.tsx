@@ -90,12 +90,27 @@ type WirableControl = ReactElement<{
  * the label AND by itself, so `<Field label="Region"><Select/></Field>`
  * announces "Region, Australia" rather than either half.
  *
- * Two things stay out of reach. A `<label for>` does not activate a
- * `role="radiogroup"`, so `RadioGroup` and `ToggleGroup` are named by pointing
- * back at the label and the words do not click through — exactly as a
- * `<legend>` does not. And `required` reaches a control as `aria-required`,
- * which `DatePicker`'s plain `<button>` trigger has nowhere to put; there the
- * asterisk is the only marker.
+ * Three things stay out of reach, and each of them is the control's own markup
+ * rather than a gap in this wiring. A `<label for>` binds only to a labellable
+ * element, so the words do not click through to a `RadioGroup`, a `ToggleGroup`
+ * or a `Slider`: the first two are a `role="radiogroup"` named by pointing back
+ * at the label instead, exactly as a `<legend>` is, and the third carries
+ * `role="slider"` on a thumb below a roleless root. `required` reaches a control
+ * as `aria-required`, which `DatePicker`'s plain `<button>` trigger and a
+ * multiple-value `ToggleGroup`'s `role="toolbar"` have nowhere to put; there the
+ * asterisk is the only marker. And `aria-invalid` reaches `Slider`'s root rather
+ * than its thumb, so an errored slider is drawn wrong without being announced
+ * wrong.
+ *
+ * Each composite still takes its own `label` prop — that is what names it
+ * standing outside a field, and `Select`, `Combobox` and `DatePicker` warn when
+ * it is blank. It is no longer used INSTEAD of this one's.
+ *
+ * What no wiring can reach, the field says out loud in development rather than
+ * failing silently: `FIELD_CONTROL_NOT_LABELLABLE` when the child is a host
+ * element a label cannot bind to — the `<div>` wrapper that takes the id and
+ * leaves the control inside it with nothing — and `FIELD_CONTROL_NOT_WIRED`
+ * when there is no single element to wire at all.
  *
  * @example
  * <Field label="Email" required hint="We never share it."><Input type="email" /></Field>
