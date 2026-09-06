@@ -152,8 +152,13 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 function Nav({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <SidebarProvider collapsible="none" shortcut={null}>
-      <nav aria-label={label} className="flex h-full flex-col">
-        <SidebarContent className="gap-5 p-0 pb-6">{children}</SidebarContent>
+      {/* `compact`, and it is the system's own axis rather than a number
+          invented here: this is a dense index driven by a mouse, which is
+          exactly the trade `data-density` documents. Ten groups at the
+          comfortable 44px floor is four hundred pixels of mostly nothing, and
+          a reader looking for Breadcrumb scrolls past it. */}
+      <nav aria-label={label} data-density="compact" className="flex h-full flex-col">
+        <SidebarContent className="gap-2 p-0 pb-6">{children}</SidebarContent>
       </nav>
     </SidebarProvider>
   )
@@ -201,11 +206,11 @@ function Row({
   // is open, or two rows claim to be the current page at once.
   const active = pathname === href
   return (
-    // 15px, and no `font-light`. The rail is the one column that is read at a
-    // glance rather than word by word, and a 300 weight at 14px is thin enough
-    // to be work — in Chinese, where every glyph carries more strokes in the
-    // same box, it is thin enough to be a squint.
-    <SidebarItem asChild href={href} active={active} className="text-[15px]">
+    // The component's own 14px, not a bump to 15. The rail was carrying one
+    // size for its rows and another for its headings, which is two type scales
+    // in a 16rem column — and the argument for 15 was against `font-light` at
+    // 14, which this has never used.
+    <SidebarItem asChild href={href} active={active}>
       <Link href={href} onClick={onNavigate}>
         {children}
       </Link>

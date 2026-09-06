@@ -337,10 +337,15 @@ export interface SidebarGroupProps {
 /**
  * A labelled block of rows, optionally foldable.
  *
- * The heading is the same size as the rows beneath it and outranks them by
- * weight and by one step of ink. It used to be smaller, which inverts the
- * hierarchy a heading exists to express: a group then reads as a footnote over
- * a list rather than as a title over its own contents.
+ * The heading is the same SIZE as the rows beneath it and outranks them by
+ * weight and by ink. Both halves of that are corrections. Smaller, it inverted
+ * the hierarchy it exists to express — a group read as a footnote over a list
+ * rather than as a title over its own contents. In the MONO face, which is
+ * where it went next, ten of them stacked in a column read as a terminal
+ * listing: mono is this system's voice for code, metadata and figures, and a
+ * navigation heading is none of those. Rank belongs to weight and to a step up
+ * the ink ladder, which are the two signals that can outrank a row without
+ * changing what kind of thing it is.
  *
  * An open group draws a hairline down its rows. Fifty rows under seven headings
  * have nothing in them saying which heading any given row belongs to — only the
@@ -379,12 +384,10 @@ export function SidebarGroup({
 
   const heading = (
     <>
-      <span className="truncate font-mono text-[15px] font-medium tracking-[0.02em] text-(--ink-2)">
-        {label}
-      </span>
+      <span className="truncate text-sm font-medium text-(--ink)">{label}</span>
       {badge}
       {count !== undefined && (
-        <span className="ms-auto font-mono text-[13px] text-(--ink-3-aa)">{count}</span>
+        <span className="ms-auto text-xs tabular-nums text-(--ink-3-aa)">{count}</span>
       )}
     </>
   )
@@ -392,7 +395,7 @@ export function SidebarGroup({
   if (!collapsible) {
     return (
       <div role="group" aria-labelledby={labelId} className={cn('flex flex-col gap-1', className)}>
-        <div className="flex min-h-9 items-center gap-1.5 px-3 py-1.5" id={labelId}>
+        <div className="flex min-h-8 items-center gap-1.5 px-2 py-1" id={labelId}>
           {heading}
           {action}
         </div>
@@ -408,7 +411,7 @@ export function SidebarGroup({
     // a guessed maximum.
     <Collapsible open={open} onOpenChange={setOpen} className={cn('flex flex-col gap-1', className)}>
       <div className="flex min-h-9 items-center gap-1.5">
-        <CollapsibleTrigger className="group/heading flex min-h-9 flex-1 items-center gap-1.5 rounded-(--radius-row) px-3 py-1.5 text-start transition-colors duration-(--duration-fast) hover:bg-(--stone)">
+        <CollapsibleTrigger className="group/heading flex min-h-8 flex-1 items-center gap-1.5 rounded-(--radius-sm) px-2 py-1 text-start transition-colors duration-(--duration-fast) hover:bg-(--stone)">
           <ChevronRight
             size={12}
             strokeWidth={2}

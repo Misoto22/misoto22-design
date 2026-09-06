@@ -47,7 +47,7 @@ export function NavItem({
   ...rest
 }: NavItemProps) {
   const cls = cn(
-    'flex min-h-(--control-h-sm) items-center gap-3 rounded-(--radius) px-3 py-2 text-sm transition-colors duration-(--duration-fast)',
+    'flex min-h-(--control-h-sm) items-center gap-2.5 rounded-(--radius-sm) px-2.5 py-1.5 text-sm transition-colors duration-(--duration-fast)',
     active
       ? 'bg-(--stone) font-medium text-(--ink)'
       : 'text-(--ink-3-aa) hover:bg-(--stone) hover:text-(--ink)',
