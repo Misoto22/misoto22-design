@@ -22,10 +22,20 @@ const groups = GROUPS as string[]
 const axisDefaults = AXIS_DEFAULTS as Record<string, string>
 const derivedAxes = themeAxes() as Record<string, string[]>
 
-const COMPONENTS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'components')
-const SOURCE_DIRS = readdirSync(COMPONENTS_DIR).filter((entry) =>
-  statSync(join(COMPONENTS_DIR, entry)).isDirectory(),
-)
+const SRC = join(dirname(fileURLToPath(import.meta.url)), '..')
+
+/**
+ * Two trees, because the package ships two entries. `src/charts` holds the
+ * data-visualisation half behind its own export, and its shared pieces live in
+ * `lib/` — lowercase, which is how they are told apart from a component: every
+ * component directory is a PascalCase name, and nothing else in either tree is.
+ */
+const componentDirs = (dir: string) =>
+  readdirSync(join(SRC, dir))
+    .filter((entry) => /^[A-Z]/.test(entry))
+    .filter((entry) => statSync(join(SRC, dir, entry)).isDirectory())
+
+const SOURCE_DIRS = [...componentDirs('components'), ...componentDirs('charts')]
 
 /**
  * The catalog is the one hand-written file in the package, which makes it the

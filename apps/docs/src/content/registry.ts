@@ -20,14 +20,17 @@ import catalog from '../generated/catalog'
  * before an open panel spills out of it. Nothing else.
  *
  * `dir` and `slug` are both the component's name — the directory under
- * `packages/design/src/components`, and the name in kebab-case. Neither is
- * authored; `catalog.test.ts` in the package fails if either stops being true.
+ * `packages/design/src/components` or `src/charts`, and the name in
+ * kebab-case. Neither is authored; `catalog.test.ts` in the package fails if
+ * either stops being true.
  */
 
 export const GROUPS = catalog.groups as readonly string[] as readonly ComponentGroup[]
 
 export type ComponentGroup =
   | 'Actions'
+  | 'Charts'
+  | 'Data'
   | 'Display'
   | 'Feedback'
   | 'Forms'
@@ -38,7 +41,7 @@ export type ComponentGroup =
 export interface ComponentEntry {
   /** URL segment — the name in kebab-case. */
   slug: string
-  /** Directory under packages/design/src/components — the generated-data key. */
+  /** Directory under packages/design/src/components or src/charts — the generated-data key. */
   dir: string
   /** Display name. */
   name: string
@@ -87,6 +90,24 @@ const PREVIEW_HEIGHTS: Record<string, string> = {
   popover: 'min-h-[20rem]',
   'searchable-menu': 'min-h-[27rem]',
   select: 'min-h-[24rem]',
+
+  // A plot needs room the way an open panel does: a chart squeezed into a
+  // short card loses its axis labels before it loses anything else.
+  'area-chart': 'min-h-[22rem]',
+  'bar-chart': 'min-h-[22rem]',
+  'box-plot': 'min-h-[24rem]',
+  'composed-chart': 'min-h-[22rem]',
+  facet: 'min-h-[28rem]',
+  'funnel-chart': 'min-h-[24rem]',
+  histogram: 'min-h-[24rem]',
+  'line-chart': 'min-h-[22rem]',
+  'pie-chart': 'min-h-[24rem]',
+  'radar-chart': 'min-h-[24rem]',
+  'radial-chart': 'min-h-[24rem]',
+  'sankey-chart': 'min-h-[24rem]',
+  'scatter-chart': 'min-h-[22rem]',
+  'treemap-chart': 'min-h-[24rem]',
+  'waterfall-chart': 'min-h-[24rem]',
 }
 
 export const COMPONENTS: ComponentEntry[] = catalog.components.map((entry) => ({

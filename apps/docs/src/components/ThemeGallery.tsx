@@ -7,7 +7,20 @@ import { getMessages } from '@/i18n/messages'
 import { AXES, DEFAULTS, PRESETS, useTheme, type Axis } from './ThemeProvider'
 import { ThemeSpecimen } from './ThemeSpecimen'
 
+/** The axes a PRESET combines — the ones that change how the page looks. */
 const ORDER: Axis[] = ['surface', 'radius', 'rules', 'type', 'motion', 'density']
+
+/**
+ * Every axis the system has, for the reference card.
+ *
+ * `chartPalette` is here and not in `ORDER` on purpose: it changes what a chart
+ * is painted with and nothing else, so a preset that carried it would be
+ * claiming a look it does not have.
+ */
+const ALL_AXES: Axis[] = [...ORDER, 'chartPalette']
+
+/** `chartPalette` as it is written in the DOM. */
+const attribute = (axis: Axis) => `data-${axis.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`
 
 /**
  * Five themes on one page, each drawn by the components below it.
@@ -89,10 +102,10 @@ export function ThemeGallery({ locale }: { locale: Locale }) {
           </h2>
           <p className="m-0 text-[13px] leading-relaxed text-(--ink-2)">{t.themes.axesLead}</p>
           <dl className="m-0 grid gap-x-6 gap-y-2 sm:grid-cols-2">
-            {ORDER.map((axis) => (
+            {ALL_AXES.map((axis) => (
               <div key={axis} className="flex flex-col gap-0.5 border-t border-(--rule) pt-2">
                 <dt className="eyebrow text-(--ink-3-aa)">
-                  {t.themes.axes[axis]} <span className="lowercase">— data-{axis}</span>
+                  {t.themes.axes[axis]} <span className="lowercase">— {attribute(axis)}</span>
                 </dt>
                 <dd className="m-0 text-[13px] text-(--ink-2)">
                   {AXES[axis].map((value) => t.themes.values[value] ?? value).join(' · ')}

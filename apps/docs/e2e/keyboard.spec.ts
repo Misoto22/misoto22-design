@@ -88,22 +88,24 @@ test('the sidebar groups collapse, so the index is not one long column', async (
   await expect(page.getByRole('button', { name: /Switch to the (light|dark) theme/ })).toBeVisible()
 
   const nav = page.getByRole('navigation', { name: 'Documentation' })
-  const surfaces = nav.getByRole('button', { name: /Surfaces/ })
+  // Table sits under Data rather than Surfaces: it renders data without a
+  // rendering engine, which is exactly what that group means.
+  const data = nav.getByRole('button', { name: /Data/ })
 
-  // Forty-nine rows under seven headings is taller than most screens, and a
-  // reader looking at one component has no use for the other forty-eight.
-  await expect(surfaces).toHaveAttribute('aria-expanded', 'false')
+  // Sixty rows under nine headings is taller than most screens, and a reader
+  // looking at one component has no use for the other fifty-nine.
+  await expect(data).toHaveAttribute('aria-expanded', 'false')
   await expect(nav.getByRole('link', { name: 'Table', exact: true })).toBeHidden()
 
-  await surfaces.click()
-  await expect(surfaces).toHaveAttribute('aria-expanded', 'true')
+  await data.click()
+  await expect(data).toHaveAttribute('aria-expanded', 'true')
   await expect(nav.getByRole('link', { name: 'Table', exact: true })).toBeVisible()
 })
 
 test('the group holding the current page opens itself', async ({ page }) => {
   await page.goto('/components/table/')
   const nav = page.getByRole('navigation', { name: 'Documentation' })
-  await expect(nav.getByRole('button', { name: /Surfaces/ })).toHaveAttribute('aria-expanded', 'true')
+  await expect(nav.getByRole('button', { name: /Data/ })).toHaveAttribute('aria-expanded', 'true')
   await expect(nav.getByRole('link', { name: 'Table', exact: true })).toBeVisible()
 })
 
@@ -172,10 +174,13 @@ test('the palette reaches beyond titles, into props and keyboard keys', async ({
   await filter.fill('sortDirection')
   await expect(page.getByRole('option').first()).toContainText('Table')
 
-  // And a key.
+  // And a key. `F10` rather than `PageUp`: three components document the Page
+  // keys, so asserting which one ranks first was asserting a tie-break — and a
+  // tie-break moves the moment the index gains an entry, which says nothing
+  // about whether the reach works. Only ContextMenu documents F10.
   await filter.fill('')
-  await filter.fill('PageUp')
-  await expect(page.getByRole('option').first()).toContainText('Slider')
+  await filter.fill('F10')
+  await expect(page.getByRole('option').first()).toContainText('ContextMenu')
 })
 
 test('the changelog page reads the repository CHANGELOG', async ({ page }) => {

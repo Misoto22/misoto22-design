@@ -11,7 +11,7 @@
  *
  * Three outputs, one input each, no hand-maintained duplicates:
  *
- *   agent/catalog.mjs + src/components/**  → dist/agent/<Component>.md
+ *   agent/catalog.mjs + src/{components,charts}/**  → dist/agent/<Component>.md
  *   agent/catalog.mjs                      → dist/agent/catalog.json
  *   agent/catalog.mjs                      → dist/agent/index.md
  *
@@ -176,7 +176,14 @@ function indexText() {
 }
 
 function main() {
-  const props = extractProps(join(ROOT, 'src', 'components'))
+  // Both entries. The charts ship from `@misoto22/design/charts` behind
+  // optional peers, but an agent asking what `AreaChart` takes is asking the
+  // same question as one asking about `Button`, and a documentation set that
+  // answers only half of the package is one an agent cannot rely on.
+  const props = {
+    ...extractProps(join(ROOT, 'src', 'components')),
+    ...extractProps(join(ROOT, 'src', 'charts')),
+  }
 
   const missing = CATALOG.filter((entry) => !props[entry.name])
   if (missing.length > 0) {

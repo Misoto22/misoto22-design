@@ -13,6 +13,14 @@ import { ROUTES } from './routes'
 test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true })
 
 test('no page is wider than the phone it is read on', async ({ page }) => {
+  // One test rather than one per route, because the check is a loop of
+  // navigations and paying browser startup a hundred and seventy times to
+  // parallelise it costs more than it saves. The consequence is that the time
+  // budget has to SCALE with the site: a fixed 30 s passed until the charts
+  // entry added forty pages, and then failed on CI while still passing on a
+  // warm laptop — the least useful way for a suite to break.
+  test.setTimeout(Math.max(60_000, ROUTES.length * 1_500))
+
   const wide: { route: string; over: number; culprit: string }[] = []
 
   for (const route of ROUTES) {

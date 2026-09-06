@@ -82,6 +82,25 @@
      rather than the semantic token (which inverts). */
   --photo-scrim: #101010;
 
+  /* ─── Data ─────────────────────────────────────────────────────────────
+     What a chart is allowed to read. The series ramp itself stays a
+     primitive — a chart names a SERIES by index, and an index has no role to
+     alias — but everything around the marks does have one, and naming it here
+     is what keeps a chart from reaching for --rule or --ink directly.
+
+     --chart-cursor is deliberately heavier than --chart-grid: the crosshair
+     has to be findable against the grid it crosses, and at hairline weight on
+     a dashed grid it was not. */
+  --chart-surface: var(--paper);
+  --chart-grid: var(--rule);
+  --chart-cursor: var(--rule-2);
+  --chart-axis: var(--ink-3-aa);
+  --chart-track: var(--series-track);
+  /* The decorative plate behind the plot — a dot field, a hatch, a grid of
+     plus marks. One step quieter than the grid, because it sits BEHIND data
+     and must never compete with it for the same read. */
+  --chart-pattern: var(--rule);
+
   /* ─── Depth ────────────────────────────────────────────────────────────
      Law 2 — a box-shadow is never blurred. The system has no elevation ramp;
      depth is a hard offset in ink, applied per component. These three resolve
