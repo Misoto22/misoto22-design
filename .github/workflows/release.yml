@@ -111,18 +111,45 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
-      # Pushes the version commit and the release tags.
-      contents: write
-      # Opens and updates the "Version Packages" pull request.
-      pull-requests: write
       # Mints the short-lived OIDC token npmjs exchanges for publish rights, and
       # the whole reason no npm credential is stored anywhere.
+      #
+      # Nothing else is granted, because nothing else uses this token. The
+      # version commit, the pull request and the tags are all written with the
+      # App installation token minted below, for the reason that step explains.
       id-token: write
     steps:
+      # WHO opens the version pull request decides whether it can ever be
+      # merged. GitHub fires no workflows for events from a run's own
+      # `GITHUB_TOKEN` — the guard that stops a workflow triggering itself — so
+      # a pull request opened with it arrives carrying no checks at all, and
+      # the `main` ruleset requires three. It then sits `BLOCKED` until a person
+      # pushes a commit onto it, reopens it, or approves its runs by hand.
+      #
+      # An App installation token is a different actor and its events start
+      # workflows normally. It is here for that alone, not for extra reach: so
+      # that the pull request this job opens can pass the same gate this job is
+      # itself subject to, and merge without a person in the loop.
+      - name: Mint an installation token for the release App
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.MISOTO_RELEASE_APP_ID }}
+          private-key: ${{ secrets.MISOTO_RELEASE_APP_PRIVATE_KEY }}
+
       # Changesets reads the history to work out what has been released.
+      #
+      # Checked out with the App's token rather than the run's own, and that is
+      # load-bearing rather than tidiness: `actions/checkout` persists whatever
+      # it is given as an `extraheader`, and that header outranks the `.netrc`
+      # the changesets action writes from its own env. Hand this step the
+      # default token and the version branch is pushed as `github-actions[bot]`
+      # however the action is configured — which is exactly the push that
+      # starts no workflows.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
 
       - uses: ./.github/actions/setup
         with:
@@ -154,11 +181,27 @@ jobs:
           commit: 'chore(release): version packages'
           title: 'chore(release): version packages'
         env:
-          # The only credential here, and it is not an npm one: GITHUB_TOKEN
-          # opens the version pull request. Publishing authenticates through
-          # OIDC against the trusted publisher configured on the package, so
-          # there is no NPM_TOKEN to leak, rotate or expire.
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The only credential here, and it is not an npm one: this opens the
+          # version pull request. Publishing authenticates through OIDC against
+          # the trusted publisher configured on the package, so there is no
+          # NPM_TOKEN to leak, rotate or expire.
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      # Queue the merge rather than wait for someone to notice the pull request
+      # went green. `--auto` is a queue and not a bypass: it merges only once
+      # every check the ruleset requires has passed, so a version pull request
+      # that fails `verify` — a release entry with no Chinese translation is
+      # how that happens — stays open, unmerged, and visible.
+      #
+      # The merge is an App event as well, so it starts the `main` run that
+      # publishes. That is the second half of why the token matters: with this
+      # run's own token the merge would land on `main` and nothing would follow.
+      - name: Merge the version pull request once it is green
+        if: steps.changesets.outputs.pullRequestNumber != ''
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR: ${{ steps.changesets.outputs.pullRequestNumber }}
+        run: gh pr merge "$PR" --auto --squash --repo "$GITHUB_REPOSITORY"
 
       # The action decides whether anything shipped by PARSING the publish CLI's
       # human-readable output, and does not recognise this CLI version's
