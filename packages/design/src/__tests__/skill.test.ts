@@ -21,7 +21,10 @@ interface Source {
   exportedTypes?: { name: string }[]
 }
 
-const props = extractProps(join(ROOT, 'src', 'components')) as Record<string, Source>
+const props = {
+  ...(extractProps(join(ROOT, 'src', 'components')) as Record<string, Source>),
+  ...(extractProps(join(ROOT, 'src', 'charts')) as Record<string, Source>),
+}
 
 const claims = JSON.parse(readFileSync(join(SKILL, 'evals', 'claims.json'), 'utf8')) as {
   naming: { use: string; avoid: string }[]
@@ -133,6 +136,31 @@ describe('skill structure', () => {
     const linked = [...skill.matchAll(/\]\(\.\/rules\/([\w-]+\.md)\)/g)].map((m) => m[1])
     expect(linked.length).toBeGreaterThan(0)
     expect(linked.filter((file) => !present.has(file))).toEqual([])
+  })
+
+  it('names every entry point a consumer has to import from', () => {
+    // The skill is what a session carries before it has run anything, so a
+    // specifier missing here is one an agent never learns exists — and every
+    // chart it then writes imports from a barrel that does not export it.
+    const skill = readFileSync(join(SKILL, 'SKILL.md'), 'utf8')
+    const exports = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).exports
+    const specifiers = Object.keys(exports)
+      .filter((key) => !key.endsWith('.css') && !key.endsWith('.json'))
+      .map((key) => (key === '.' ? '@misoto22/design' : `@misoto22/design${key.slice(1)}`))
+    expect(specifiers.filter((specifier) => !skill.includes(specifier))).toEqual([])
+  })
+
+  it('does not describe an attribute the stylesheets have never had', () => {
+    // `data-accent` was documented for months and has never existed. It was
+    // still here, in the same skill whose own rules/tokens.md says it is not.
+    const files = ['SKILL.md', ...readdirSync(join(SKILL, 'rules')).map((f) => `rules/${f}`)]
+    const claims = files.filter((file) => {
+      const text = readFileSync(join(SKILL, file), 'utf8')
+      // A line saying it does NOT exist is the point, so only count the ones
+      // that offer it as something to set.
+      return /(?:set|use|plus|,)\s*`?data-accent/.test(text)
+    })
+    expect(claims).toEqual([])
   })
 
   it('leaves no rule file unreferenced', () => {

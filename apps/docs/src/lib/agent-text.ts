@@ -87,7 +87,7 @@ export function componentText(entry: ComponentEntry): string {
     `${entry.summary}`,
     '',
     `- Group: ${entry.group}`,
-    `- Import: \`import { ${entry.name} } from '@misoto22/design'\``,
+    `- Import: \`import { ${entry.name} } from '${entry.entry}'\``,
     `- Page: ${SITE}/components/${entry.slug}/`,
   ]
 
