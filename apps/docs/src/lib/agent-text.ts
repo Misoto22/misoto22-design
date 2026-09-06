@@ -96,6 +96,36 @@ export function componentText(entry: ComponentEntry): string {
 
   if (entry.when) out.push('## When to reach for it', '', entry.when, '')
 
+  // Anatomy and best practices sit here, between the summary and the promises,
+  // because that is where `packages/design/scripts/emit-agent.mjs` puts them —
+  // and the two renderings of one catalog drifting apart is exactly the failure
+  // this file exists to avoid. Match that file when either shape changes.
+  if (entry.anatomy?.length) {
+    out.push(
+      '## Anatomy',
+      '',
+      ...entry.anatomy.map(
+        (part) => `- **${part.element}**${part.required ? ' (required)' : ''} — ${part.description}`,
+      ),
+      '',
+    )
+  }
+
+  if (entry.practices?.length) {
+    // Split rather than interleaved: the two halves are read against each
+    // other, and a reader scanning for what NOT to do should not have to filter
+    // a mixed list to find it.
+    out.push('## Best practices', '')
+    for (const [kind, heading] of [
+      ['do', 'Do'],
+      ['dont', 'Don’t'],
+    ] as const) {
+      const half = entry.practices.filter((practice) => practice.kind === kind)
+      if (half.length === 0) continue
+      out.push(`### ${heading}`, '', ...half.map((practice) => `- ${practice.text}`), '')
+    }
+  }
+
   if (entry.accessibility?.length) {
     out.push('## Accessibility', '', ...entry.accessibility.map((line) => `- ${line}`), '')
   }

@@ -12,6 +12,15 @@ const SPEC = {
   connections: [{ id: 'a', from: 'edge', to: 'api', label: 'HTTPS' }],
 }
 
+/**
+ * Five files behind one trigger, grouped by what they are for: PNG, JPEG and
+ * WebP are the artwork rasterised at 2x, SVG is the artwork itself with every
+ * custom property resolved to a real colour, and the share card is a 1200 x 630
+ * PNG with the title printed above the diagram. targetRef points at the wrapper
+ * around the figure rather than at the svg, and the menu finds the figure’s own
+ * artwork inside it. title is what names the download, slugged — Request path
+ * arrives as request-path.png.
+ */
 export function Example() {
   const figure = useRef<HTMLDivElement>(null)
 

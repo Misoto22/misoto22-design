@@ -34,8 +34,13 @@ export interface ArticleProps extends HTMLAttributes<HTMLElement> {
  * Composable either way: pass `html` for a rendered string, or children for
  * real elements. A post that mixes the two — prose with a `Diagram` dropped
  * into the middle — renders its blocks in order and gives each one an
- * `Article`; a component inside keeps its own classes, because every rule in
- * the layer is a bare element selector that a utility outranks.
+ * `Article`. Inside one, these rules BEAT a component's utilities:
+ * `article.css` is imported unlayered while Tailwind's utilities sit in
+ * `@layer utilities`, and an unlayered rule wins over a layered one whatever
+ * either one's specificity is. That is the mechanism rather than an accident —
+ * it is what lets a `Markdown` paragraph, a `Text` carrying `m-0`, give its
+ * margin up to the article's rhythm. A component that has to hold a property
+ * inside an article needs an inline style, not a class.
  *
  * @example
  * <Article html={renderedMarkdown} />

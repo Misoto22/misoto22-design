@@ -13,11 +13,19 @@ const data = [
 
 const ORIENTATIONS: BoxPlotOrientation[] = ['vertical', 'horizontal']
 
+/**
+ * Long category names are the case horizontal exists for: under a column
+ * ap-southeast-2 has to be rotated to fit, and beside a row it reads straight.
+ * The axes are composed once and resolve themselves — XAxis and YAxis each read
+ * the orientation and swap between the category role and the value role, and
+ * the grid flips which set of rules it draws — so the toggle changes one prop
+ * and nothing else in the tree. That is also why neither axis carries a label
+ * here: the axis a unit belongs to changes with the orientation, and a label
+ * pinned to YAxis would end up naming the regions.
+ */
 export function Example() {
   const [orientation, setOrientation] = useState<BoxPlotOrientation>('vertical')
 
-  // Region codes are the case `horizontal` exists for: under a column they
-  // have to be rotated to fit, and beside a row they read straight.
   return (
     <div className="flex w-full flex-col gap-4">
       <ToggleGroup

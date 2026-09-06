@@ -1,5 +1,13 @@
 import { DataflowFigure } from '@misoto22/design/diagrams'
 
+/**
+ * Two sources joining at one gate. The mono chip under each label is the
+ * classification, printed apart from the wording because a pipeline gets read
+ * for what is inside the arrow rather than for what the arrow is called —
+ * clickstream and no PII answer different questions, and only one of them is the
+ * question a governance reviewer arrived with. The stage headings are the axis,
+ * so how far something has got is answered by looking up rather than by tracing.
+ */
 export function Example() {
   return (
     <DataflowFigure

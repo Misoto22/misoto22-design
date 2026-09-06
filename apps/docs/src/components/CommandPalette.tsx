@@ -135,8 +135,20 @@ export function CommandPalette() {
             return (
               <CommandItem
                 key={page.slug}
-                value={`foundations ${page.title}`}
+                // The title, and the section on the ROW rather than inside the
+                // searchable value — the same rule the components list below is
+                // built on, arrived at the same way. cmdk scores one string, so
+                // a section word glued onto the front of a title is searched as
+                // part of the title: typing "dark" took d and a out of
+                // "foundations" and r and k out of "Working", and ranked
+                // "Working with AI" above the theme switch this palette's own
+                // empty state tells the reader to type "dark" to find. The
+                // group it sat in renders before Appearance and cmdk does not
+                // reorder groups, so one junk match at the top of an early
+                // group is the top of the whole list.
+                value={page.title}
                 icon={<Icon />}
+                meta={page.group === 'guide' ? t.nav.guide : t.nav.foundations}
                 onSelect={() => go(`/foundations/${page.slug}/`)}
               >
                 {foundationCopy(locale, page.slug).title ?? page.title}

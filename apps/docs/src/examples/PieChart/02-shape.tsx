@@ -27,13 +27,18 @@ const SHAPES = {
 
 type Shape = keyof typeof SHAPES
 
+/**
+ * Four shapes out of three props — innerRadius, paddingAngle and cornerRadius —
+ * over one set of four values. Raising innerRadius above zero makes it a donut,
+ * which is the easier of the two to read: the hole takes away the area a reader
+ * would otherwise try to judge and leaves the arc. The last option sets a
+ * NEGATIVE paddingAngle so the wedges overlap, and the surface-coloured stroke
+ * each sector then carries is what re-separates them into stacked cards — a
+ * look rather than a reading, since all four shapes draw the same four numbers.
+ */
 export function Example() {
   const [shape, setShape] = useState<Shape>('donut')
 
-  // A donut is easier to read than a full pie: the eye compares arc LENGTH
-  // rather than area, and arc length is the honest encoding. `overlapping` uses
-  // a negative padding angle — each wedge's surface-coloured stroke is what
-  // re-separates them into stacked cards.
   return (
     <div className="flex w-full flex-col gap-4">
       <ToggleGroup

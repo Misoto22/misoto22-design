@@ -13,10 +13,16 @@ const data = [
 
 const config = { desktop: { label: 'Desktop' } } satisfies ChartConfig
 
+/**
+ * Three ways to say "this one", side by side. A monochrome chart has no brighter
+ * colour to reach for, so glowing puts a halo behind the series that is the point
+ * of the figure; buffer draws the last category as an open hatch, the idiom for a
+ * period still in progress, the same height as any other bar but visibly not the
+ * same kind of fact; and hover highlight drops every bar the pointer is not on to
+ * 30%. That last one is driven by the pointer, so it can never be the only thing
+ * carrying a reading.
+ */
 export function Example() {
-  // Three ways to say "this one". A monochrome chart has no "brighter" to reach
-  // for, so the halo does that job; `buffer` says a period is still open; and
-  // hover-highlight dims everything the pointer is not on.
   return (
     <div className="grid w-full gap-8 lg:grid-cols-3">
       <BarChart title="Glowing" showTitle config={config} data={data}>

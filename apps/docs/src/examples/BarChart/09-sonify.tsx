@@ -18,12 +18,15 @@ const config = {
 
 const money = formatNumber({ style: 'currency', currency: 'AUD', fractionDigits: 0 })
 
+/**
+ * Two series on screen and one worth listening to. keys narrows the run, because
+ * playback is sequential — each series plays in full, one after another — and a
+ * listener rarely wants all of them. formatValue is what the announcement speaks,
+ * so the range is read out in the units the axis prints, "from $9,200 to $31,400"
+ * rather than "9200"; leave it off and the spoken range falls back to the default
+ * tick format, which is not the one on the axis beside it.
+ */
 export function Example() {
-  // `keys` narrows the run to the one series worth listening to: sequential
-  // playback means one run per series, and a listener rarely wants all of them.
-  //
-  // `formatValue` is what the announcement speaks, so the range is read out in
-  // the same units the axis prints — "from $9,200 to $31,400", not "9200".
   return (
     <BarChart title="Revenue by month" config={config} data={data} xDataKey="month">
       <BarChart.Sonify keys={['revenue']} formatValue={money} />

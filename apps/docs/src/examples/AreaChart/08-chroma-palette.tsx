@@ -17,10 +17,16 @@ const config = {
   tablet: { label: 'Tablet' },
 } satisfies ChartConfig
 
+/**
+ * The sanctioned way to add hue, and the only one: the attribute on any ancestor
+ * re-points the eight series custom properties at a categorical palette validated
+ * against both grounds, and nothing in the chart below mentions a colour. The
+ * alternative is hand-picked hexes in a config's colors array, which is where an
+ * unvalidated, colour-blind-hostile palette gets born. Three of the light steps
+ * sit below 3:1 on paper, which is the documented reason the legend is not
+ * optional above one series.
+ */
 export function Example() {
-  // The sanctioned way to add hue, and the only one: an attribute on any
-  // ancestor swaps the whole series ramp for a palette validated against both
-  // grounds. Nothing in the chart below mentions a colour.
   return (
     <div data-chart-palette="chroma" className="w-full">
       <AreaChart title="Visitors per month" config={config} data={data} xDataKey="month">

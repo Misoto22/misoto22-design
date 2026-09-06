@@ -14,10 +14,19 @@ const desktop = [
 
 const config = { desktop: { label: 'Desktop' } } satisfies ChartConfig
 
+/**
+ * Two measures against each other, one mark per observation — the only chart
+ * here whose x axis is a NUMBER rather than a category, which is what lets it
+ * answer correlation, clustering and outliers. Seven points rising together is
+ * a pattern and not a coefficient: nothing here fits a line, and the chart
+ * claims no share of ms explained by kB. Each solid mark carries a
+ * surface-coloured ring, the hairline that keeps two overlapping observations
+ * countable — past a few hundred points that stops working and density has to
+ * be shown some other way. The table prop is not bookkeeping: a scatter's rows
+ * live on each Scatter rather than on the root, so unlike every other chart in
+ * the package the hidden table cannot be inferred and has to be declared.
+ */
 export function Example() {
-  // The only chart here whose x axis is a NUMBER rather than a category, which
-  // is the point: correlation, clustering and outliers are the questions that
-  // do not survive being bucketed into a bar.
   return (
     <ScatterChart
       title="Load time against bundle size"

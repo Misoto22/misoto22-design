@@ -18,13 +18,33 @@ import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import ts from 'typescript'
 
+const LINK_KINDS = new Set([
+  ts.SyntaxKind.JSDocLink,
+  ts.SyntaxKind.JSDocLinkCode,
+  ts.SyntaxKind.JSDocLinkPlain,
+])
+
+/**
+ * One piece of a JSDoc comment, as text.
+ *
+ * `{@link Name}` arrives as its own node whose `text` is empty and whose `name`
+ * holds the identifier, so joining the parts on `text` alone DELETED the link
+ * and left the sentence around it dangling — seven prop rows published
+ * "See .". The link renders as its bare identifier: that is what a reader
+ * greps for, and the type it names is already printed in the row beside it.
+ */
+function commentPart(part) {
+  if (!LINK_KINDS.has(part.kind) || !part.name) return part.text ?? ''
+  return ts.isIdentifier(part.name) ? part.name.text : part.name.getText()
+}
+
 /** JSDoc text for a node, with the `@example` / `@default` tags split out. */
 function readDoc(node) {
   const jsDoc = node.jsDoc?.[node.jsDoc.length - 1]
   if (!jsDoc) return { description: '', examples: [], defaultValue: undefined }
 
   const text = (comment) =>
-    typeof comment === 'string' ? comment : (comment ?? []).map((part) => part.text ?? '').join('')
+    typeof comment === 'string' ? comment : (comment ?? []).map(commentPart).join('')
 
   const examples = []
   let defaultValue

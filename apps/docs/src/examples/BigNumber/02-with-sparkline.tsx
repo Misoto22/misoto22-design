@@ -5,10 +5,15 @@ import { BigNumber, Sparkline } from '@misoto22/design/charts'
 
 const trend = [31, 28, 34, 30, 39, 44, 41, 48]
 
+/**
+ * The pairing every dashboard reaches for: the number answers how much, and the
+ * run beneath it answers how it got there, without spending a whole panel on an
+ * axis nobody reads off. children is where that run goes, under the label, the
+ * number and the delta; the sparkline takes a label of its own because the heading
+ * above it names a different fact. Reach for a LineChart the moment the shape has
+ * to be read precisely — a sparkline has no axis to read it against, by design.
+ */
 export function Example() {
-  // The pairing every dashboard reaches for: the number answers "how much",
-  // and the run under it answers "and how did we get here" — without spending
-  // a whole panel on an axis nobody reads off.
   return (
     <div className="grid w-full gap-6 sm:grid-cols-2">
       <Card>

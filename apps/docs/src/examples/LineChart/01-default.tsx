@@ -16,10 +16,15 @@ const config = {
   mobile: { label: 'Mobile' },
 } satisfies ChartConfig
 
+/**
+ * Several series compared against each other, which is the one question a line
+ * chart exists for. There is no fill variant on offer here on purpose: filling
+ * four overlapping series makes that comparison unanswerable. The stroke carries
+ * the difference instead — the second line is dashed rather than left to a step
+ * of grey — and the legend names both, because neither the ramp nor the dash
+ * describes itself.
+ */
 export function Example() {
-  // A line chart has no fill variant to offer, on purpose: filling four
-  // overlapping series makes "compare these against each other" unanswerable,
-  // and that is the only question a line chart exists for.
   return (
     <LineChart title="Visitors per month" config={config} data={data} xDataKey="month">
       <LineChart.Grid />

@@ -21,14 +21,20 @@ const config = {
 const VARIANTS: RadarVariant[] = ['filled', 'lines']
 const GRIDS = ['polygon', 'circle'] as const
 
+/**
+ * A second series on the web, and the two props that decide whether the pair
+ * can be told apart. Filled polygons overlap, and judging areas through two
+ * layers of translucency is the one thing a radar is worst at — lines gives up
+ * the fill and keeps the outline, which is what carries the shape anyway.
+ * gridType circle swaps the polygon web for rings, so the grid reads as a scale
+ * instead of competing with the marks as a second shape. Clicking a series or
+ * its legend entry drops the other to a fifth of its opacity, which is the way
+ * back to one silhouette at a time.
+ */
 export function Example() {
   const [variant, setVariant] = useState<RadarVariant>('lines')
   const [gridType, setGridType] = useState<(typeof GRIDS)[number]>('polygon')
 
-  // `lines` is the honest default above one series: filled polygons overlap,
-  // and judging areas through two layers of translucency is what a radar is
-  // worst at. A circle grid reads as a scale rather than as a second shape
-  // competing with the mark.
   return (
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-wrap gap-3">

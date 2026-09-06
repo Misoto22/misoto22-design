@@ -19,12 +19,19 @@ const buckets: HistogramBin[] = [
 
 const MODES: HistogramMode[] = ['frequency', 'density']
 
+/**
+ * Buckets that arrived already counted, at the widths a metrics backend chose,
+ * getting wider as the values grow. Under frequency the 100 to 250 bucket reads
+ * as a real shoulder, and it is only there because that bucket is fifteen times
+ * as wide as the first one — a wider bucket collects more observations at the
+ * same underlying rate. density divides each count by n times the bucket width,
+ * so the bars enclose an area of one and the tail flattens into what the data
+ * actually says. Reach for it whenever the buckets are uneven, and whenever two
+ * histograms of different sample sizes have to be compared.
+ */
 export function Example() {
   const [mode, setMode] = useState<HistogramMode>('frequency')
 
-  // Under `frequency` the 100–250 bucket looks like a real shoulder. It is
-  // fifteen times as wide as the first one, and under `density` — count over
-  // n × width — the tail flattens into what the data actually says.
   return (
     <div className="flex w-full flex-col gap-4">
       <ToggleGroup

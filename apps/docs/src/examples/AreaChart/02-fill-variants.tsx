@@ -24,6 +24,14 @@ const VARIANTS: AreaVariant[] = [
   'hatched',
 ]
 
+/**
+ * The six fills, cycled on one series so the differences are comparable. With no
+ * hue to spend, this is the axis that separates two areas before the ramp does,
+ * so a chart with more than one area should vary this before it varies anything
+ * else. gradient is the default and dissolves toward the axis, solid reads as a
+ * band rather than a slope, and the three textures are the ones that still
+ * separate two series in a greyscale print.
+ */
 export function Example() {
   const [variant, setVariant] = useState<AreaVariant>('gradient')
 

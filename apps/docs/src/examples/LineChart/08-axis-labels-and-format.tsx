@@ -13,10 +13,17 @@ const data = [
 const latency = { p95: { label: 'p95 latency' } } satisfies ChartConfig
 const spend = { spend: { label: 'Ad spend' } } satisfies ChartConfig
 
+/**
+ * Naming what an axis measures, and writing its numbers the way the reader thinks
+ * of them. An axis reading 0, 100, 200 says nothing about whether those are
+ * people, milliseconds or dollars, so name the unit once — on the axis, or in the
+ * series label, but once, because the second copy is noise. formatNumber returns
+ * a function rather than a string so it can be handed straight to a tickFormatter,
+ * which Recharts calls once per tick and which must not rebuild an
+ * Intl.NumberFormat each time; a formatted tick is also wider, which is what the
+ * explicit width is for.
+ */
 export function Example() {
-  // An axis reading 0 · 100 · 200 says nothing about whether those are people,
-  // milliseconds or dollars. Name it once — on the axis, or in the series
-  // label, but once.
   return (
     <div className="grid w-full gap-8 lg:grid-cols-2">
       <LineChart title="p95 latency" showTitle config={latency} data={data}>

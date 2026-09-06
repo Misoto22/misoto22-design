@@ -33,13 +33,20 @@ const config = {
 const SHAPES: ScatterShape[] = ['circle', 'square', 'triangle', 'diamond', 'cross', 'ring']
 const VARIANTS: ScatterVariant[] = ['solid', 'outline']
 
+/**
+ * Two clouds that overlap, and the props that keep them apart. The package's
+ * ramp is monochrome, so shape is doing the work hue does elsewhere: circle
+ * against cross separates two overlapping clouds far better than two steps of
+ * grey, and a shape survives overprinting where a lightness step does not.
+ * outline hollows the mark out, which is the version to reach for where the
+ * clouds sit on top of each other, since a hollow mark shows the one underneath
+ * it. Past three series shape stops separating them, and the answer is a grid
+ * of small multiples — one plot per series, same axes — not a fourth glyph.
+ */
 export function Example() {
   const [shape, setShape] = useState<ScatterShape>('circle')
   const [variant, setVariant] = useState<ScatterVariant>('solid')
 
-  // Shape is doing what hue does elsewhere. Two overlapping clouds separate far
-  // better by circle-versus-cross than by two steps of grey — and shape
-  // survives overprinting, which a lightness step does not.
   return (
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-wrap gap-3">

@@ -23,13 +23,20 @@ const config = { desktop: { label: 'Desktop' } } satisfies ChartConfig
 const DOTS: ChartDotVariant[] = ['default', 'border', 'colored-border']
 const REVEALS: ChartRevealType[] = ['forward', 'reverse', 'center-out', 'edges-in', 'none']
 
+/**
+ * Markers and the intro wipe are one subject because they share one mask: it
+ * covers the area's fill, its stroke and its resting dots together, so the
+ * markers arrive with the line instead of popping in ahead of it, which is what
+ * happens when the two are animated apart. The key on the chart is what replays
+ * the reveal — changing animationType alone would not remount the area. A reveal
+ * is a per-frame animated SVG mask and the heaviest thing in the package, which
+ * is why none is a real answer and is also where an OS reduce-motion preference
+ * lands.
+ */
 export function Example() {
   const [dot, setDot] = useState<ChartDotVariant>('border')
   const [reveal, setReveal] = useState<ChartRevealType>('forward')
 
-  // Switching the reveal remounts the area, which is what replays it. The
-  // resting dot shares that wipe, so the markers arrive with the line rather
-  // than popping in ahead of it.
   return (
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-wrap gap-3">

@@ -1,5 +1,13 @@
 import { Diagram } from '@misoto22/design'
 
+/**
+ * A request, drawn as three ranks with the work nested inside the middle one.
+ * Only the nodes an edge names carry an id, and each edge is written in the
+ * order the array runs: an edge is matched against the node immediately before
+ * this one, so one written to-from, or between two nodes that are not
+ * neighbours, draws nothing and reports nothing. The caption names the figure
+ * for a screen reader as well as for a reader.
+ */
 export function Example() {
   return (
     <Diagram

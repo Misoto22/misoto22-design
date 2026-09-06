@@ -16,11 +16,14 @@ const config = {
   profit: { label: 'Profit' },
 } satisfies ChartConfig
 
+/**
+ * Bars and a line over one axis — the shape for "the volume, and the rate it
+ * moved at". One value axis, always: two measures at different scales belong in
+ * two charts, or indexed to a common base, because a second y-scale lets the
+ * author choose where the lines cross, which is the single most misleading thing
+ * a chart can do. The axis this exposes is the only one, by design.
+ */
 export function Example() {
-  // One value axis, always. Two measures at different scales belong in two
-  // charts or indexed to a common base — a second y-scale lets the author
-  // choose where the lines cross, which is the single most misleading thing a
-  // chart can do.
   return (
     <ComposedChart title="Revenue and profit" config={config} data={data} xDataKey="month">
       <ComposedChart.Grid />

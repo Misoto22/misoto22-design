@@ -16,12 +16,19 @@ const steps: WaterfallStep[] = [
   { name: 'Operating profit', type: 'total' },
 ]
 
+/**
+ * type total plants a bar on the baseline and sets the running figure, and it is
+ * used twice in the middle here — gross profit, then operating profit — so the
+ * cascade restates itself where a reader would otherwise be adding five floating
+ * lengths in their head. Neither subtotal carries a value, so neither can disagree
+ * with the steps above it. Turn the connectors off and the same bars become a row
+ * of lengths at unrelated heights, which is the argument for keeping them on and
+ * also the argument for taking them off deliberately: where the order of the steps
+ * is arbitrary, the connectors claim a sequence the data does not have.
+ */
 export function Example() {
   const [connectors, setConnectors] = useState(true)
 
-  // Turn the connectors off and the same bars become a row of floating
-  // lengths. They are the only thing saying the steps compose into a cascade —
-  // which is also why they should come off when the order is arbitrary.
   return (
     <div className="flex w-full flex-col gap-4">
       <ToggleGroup

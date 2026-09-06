@@ -24,12 +24,18 @@ const config = {
 const STACKS: BarStackType[] = ['default', 'stacked', 'percent']
 const ORIENTATIONS: BarOrientation[] = ['vertical', 'horizontal']
 
+/**
+ * Two choices that interact. Stacking asks a different question at each setting —
+ * default compares, stacked totals, percent shares — while orientation is about
+ * the category names: "Organic search" reads straight beside a row and has to be
+ * rotated or truncated under a column. The axes swap with it, which is the one
+ * part the call site does by hand: the category dataKey moves from the X axis to
+ * the Y, and that axis needs a width wide enough for the longest label.
+ */
 export function Example() {
   const [stackType, setStackType] = useState<BarStackType>('default')
   const [orientation, setOrientation] = useState<BarOrientation>('vertical')
 
-  // Horizontal is what long category NAMES want: "Organic search" reads
-  // straight beside a row and has to be rotated under a column.
   const horizontal = orientation === 'horizontal'
 
   return (

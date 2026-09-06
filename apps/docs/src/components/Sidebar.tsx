@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { groupedComponents } from '@/content/registry'
-import { FOUNDATIONS } from '@/content/foundations'
+import { foundationsInGroup } from '@/content/foundations'
 import { TEMPLATES } from '@/content/templates'
 import { sectionFor } from '@/content/sections'
 import { ThemeRail } from './ThemeRail'
@@ -108,6 +108,21 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         <Row href={localePath(locale, '/')} pathname={pathname} onNavigate={onNavigate}>
           {t.nav.overview}
         </Row>
+        {/* "Getting started" and "Working with AI" live at /foundations/… like
+            every other page in this file — they are foundations entries that
+            carry prose instead of a token category. They belong in this group
+            rather than under Foundations, because a reader looking for the
+            install command is not looking for a scale. */}
+        {foundationsInGroup('guide').map((page) => (
+          <Row
+            key={page.slug}
+            href={localePath(locale, `/foundations/${page.slug}/`)}
+            pathname={pathname}
+            onNavigate={onNavigate}
+          >
+            {foundationCopy(locale, page.slug).title ?? page.title}
+          </Row>
+        ))}
         <Row href={localePath(locale, '/principles/')} pathname={pathname} onNavigate={onNavigate}>
           {t.nav.principles}
         </Row>
@@ -117,7 +132,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </Section>
 
       <Section title={t.nav.foundations}>
-        {FOUNDATIONS.map((page) => (
+        {foundationsInGroup('foundations').map((page) => (
           <Row
             key={page.slug}
             href={localePath(locale, `/foundations/${page.slug}/`)}

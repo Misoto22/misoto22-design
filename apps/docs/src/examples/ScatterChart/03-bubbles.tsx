@@ -12,10 +12,16 @@ const releases = [
 
 const config = { releases: { label: 'Releases' } } satisfies ChartConfig
 
+/**
+ * A third measure on the same two axes, carried by ZAxis. Recharts scales the z
+ * range in AREA units, which is what makes it safe: map a value to a RADIUS
+ * instead and doubling it quadruples the ink, so a release with twice the
+ * downloads would read as four times as popular. The 60 to 900 range here is a
+ * fifteenfold span of area and roughly a fourfold span of diameter. outline is
+ * deliberate too — bubbles overlap by construction, and a solid mark hides
+ * whatever smaller one it lands on.
+ */
 export function Example() {
-  // A third measure, mapped to each mark's AREA rather than its radius.
-  // Doubling a radius quadruples the ink, so a radius mapping makes a value
-  // twice as large read as four times as large — the classic bubble-chart lie.
   return (
     <ScatterChart
       title="Load time, bundle size and downloads"

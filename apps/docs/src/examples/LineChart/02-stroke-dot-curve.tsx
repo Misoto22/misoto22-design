@@ -25,14 +25,21 @@ const STROKES: LineStrokeVariant[] = ['solid', 'dashed', 'animated-dashed']
 const DOTS: ChartDotVariant[] = ['default', 'border', 'colored-border']
 const CURVES = ['linear', 'monotone', 'step', 'bump'] as const
 
+/**
+ * Three knobs on one line: how the stroke is drawn, what marks each point, and
+ * how the curve gets from one row to the next. Every dot is painted from its
+ * series gradient sampled at the x it sits on — a full-width rect filled with
+ * that gradient and clipped to a circle — because filling the circle directly
+ * would restart the gradient inside each marker, and every dot on the line would
+ * come out the same colour. The curve is the knob that changes what the chart
+ * claims rather than how it looks, and the rows themselves cannot tell you which
+ * setting is honest.
+ */
 export function Example() {
   const [stroke, setStroke] = useState<LineStrokeVariant>('solid')
   const [dot, setDot] = useState<ChartDotVariant>('border')
   const [curve, setCurve] = useState<ChartCurveType>('linear')
 
-  // Every dot is painted from its series gradient sampled at the x it sits on.
-  // Filling the circle directly would restart the gradient inside each marker,
-  // and every dot on the line would come out the same colour.
   return (
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-wrap gap-3">

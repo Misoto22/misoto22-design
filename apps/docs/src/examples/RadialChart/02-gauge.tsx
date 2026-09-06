@@ -10,12 +10,18 @@ const config = { used: { label: 'Used' } } satisfies ChartConfig
 
 const VARIANTS: RadialVariant[] = ['full', 'semi']
 
+/**
+ * One value against a fixed total — the case a radial chart is unambiguously
+ * right for. max is what makes it a gauge: without it the scale comes from the
+ * data and the lone bar always fills the arc, which would draw 62 and 98
+ * identically. The track behind the bar is the other half of the reading, since
+ * it is the remainder the value is a fraction of. semi drops the centre to 70
+ * percent of the box so the half circle sits in the middle of its own space
+ * rather than at the top of it.
+ */
 export function Example() {
   const [variant, setVariant] = useState<RadialVariant>('semi')
 
-  // `max` is what makes it a gauge. Without it the scale comes from the data
-  // and the single bar always fills the arc — which would make 62% and 98% look
-  // identical. The track behind it is what makes "how much is left" readable.
   return (
     <div className="flex w-full flex-col gap-4">
       <ToggleGroup

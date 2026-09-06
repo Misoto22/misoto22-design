@@ -26,13 +26,18 @@ const config = {
 const BARS: BarVariant[] = ['default', 'hatched', 'duotone', 'duotone-reverse', 'gradient', 'stripped']
 const STROKES: AreaStrokeVariant[] = ['solid', 'dashed', 'animated-dashed']
 
+/**
+ * The bar half carries the same six fills as a plain BarChart and the line half
+ * the same three strokes, so a composed chart is not a third vocabulary to learn
+ * — the dot slot composes inside the line exactly as it does in LineChart. That
+ * is the reason to reach for this rather than laying two charts over each other:
+ * one config, one axis, one set of variants, and a tooltip that reports the bar
+ * and the line for the same row.
+ */
 export function Example() {
   const [bar, setBar] = useState<BarVariant>('duotone')
   const [stroke, setStroke] = useState<AreaStrokeVariant>('solid')
 
-  // The bar half carries the same six fills as a plain BarChart; the line half
-  // carries the same three strokes as a LineChart. Nothing here is a third
-  // vocabulary to learn.
   return (
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-wrap gap-3">

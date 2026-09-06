@@ -11,6 +11,17 @@ const TAGS = [
   { value: 'night', label: 'Night' },
 ]
 
+/**
+ * Several at once, with the trigger summarising rather than listing: two labels,
+ * then a count. That threshold is what stops the field growing with its value
+ * and reflowing the form on every pick. The panel stays open while you choose,
+ * and the clear control beside the chevron is a span with a button role — a
+ * real nested button inside the trigger is invalid markup that browsers
+ * reparent out of the field entirely. One catch worth knowing: the trigger's
+ * aria-label replaces its text, so a screen reader hears Tags and never “3
+ * selected” — print the choice outside the control if it has to be confirmable
+ * without opening the panel.
+ */
 export function Example() {
   return (
     <Field

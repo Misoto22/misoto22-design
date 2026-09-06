@@ -57,11 +57,15 @@ test('dialog: traps focus and restores it to the trigger', async ({ page }) => {
 
 test('tabs: arrow keys move between tabs and switch the panel', async ({ page }) => {
   await page.goto('/components/tabs/')
-  const list = page.getByRole('tablist').first()
+  // The component page is itself a pair of tabs now — Overview and Properties —
+  // so the page carries two tab lists and the outer one comes first. The inner
+  // one is named rather than counted: this is the example the test is about.
+  const example = page.locator('[data-example="Tabs/01-default"]')
+  const list = example.getByRole('tablist')
   await list.getByRole('tab', { name: 'Preview' }).focus()
   await page.keyboard.press('ArrowRight')
   await expect(list.getByRole('tab', { name: 'Code' })).toBeFocused()
-  await expect(page.getByRole('tabpanel')).toContainText('The source that produced it.')
+  await expect(example.getByRole('tabpanel')).toContainText('The source that produced it.')
 })
 
 test('the skip link is the first thing a keyboard reaches', async ({ page }) => {

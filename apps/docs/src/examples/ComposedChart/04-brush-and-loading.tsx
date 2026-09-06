@@ -13,6 +13,14 @@ const config = {
   profit: { label: 'Profit' },
 } satisfies ChartConfig
 
+/**
+ * The two states a dashboard chart spends most of its time in, side by side. On
+ * the left, a brush over thirty days: composed as a child, and the plot above
+ * then renders only the window it selects. On the right, the same chart loading —
+ * and a brush would not appear there even if one were composed, because a brush
+ * is suppressed while isLoading is on: there is nothing yet to choose a window
+ * from.
+ */
 export function Example() {
   return (
     <div className="grid w-full gap-8 lg:grid-cols-2">

@@ -14,10 +14,16 @@ const config = {
   backups: { label: 'Backups' },
 } satisfies ChartConfig
 
+/**
+ * Three totals on one arc with no max, so the scale comes from the data and the
+ * largest bar always fills the ring. The caveat is geometric: a bar's LENGTH is
+ * its value but its RADIUS is not, so an inner bar and an outer bar holding the
+ * same number are drawn at different lengths, and the ring flatters whatever
+ * sits outermost. That makes this a display for three or four values a reader
+ * will glance at, and a BarChart the honest choice for anything being ranked.
+ * The legend does the naming, since the arcs carry no axis of their own.
+ */
 export function Example() {
-  // A radial bar's LENGTH is its value but its RADIUS is not, so an inner and
-  // an outer bar of the same value are drawn different lengths. Past about four
-  // bars a BarChart is the honest choice.
   return (
     <RadialChart
       title="Storage used by tier"

@@ -17,6 +17,15 @@ const SPEC = {
   ],
 }
 
+/**
+ * A figure wider than the room it is given, in a frame that can be moved around
+ * it. A drag pans, the plate in the corner zooms, and the percentage between its
+ * two buttons is the reset; a plain wheel is deliberately left to the page, so
+ * only Command or Control with the wheel zooms. The frame is a real tab stop, so
+ * plus, minus, zero and the arrow keys do the same work with no pointer at all.
+ * The figure’s own heading, key and cards are turned off here because the canvas
+ * is holding artwork, not an article.
+ */
 export function Example() {
   return (
     <DiagramCanvas height="16rem" label="Request path">

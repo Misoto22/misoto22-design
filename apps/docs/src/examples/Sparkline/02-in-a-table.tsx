@@ -15,6 +15,14 @@ const ROWS = [
 // misleading — and it is the single most common way they are misused.
 const DOMAIN: [number, number] = [0, 80]
 
+/**
+ * A column of sparklines, every one of them pinned to the same domain. That is the
+ * whole lesson: on domains derived per row, each run peaks and troughs at the same
+ * heights, so a channel that halved and a channel that doubled draw the same
+ * picture — the single way a table of sparklines becomes actively misleading. Each
+ * run also carries its own label, because a screen reader meets four of these in
+ * four cells and nothing else in the row names them.
+ */
 export function Example() {
   return (
     <Table caption="Visitors by channel, last seven weeks">

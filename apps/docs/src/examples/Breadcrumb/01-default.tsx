@@ -1,5 +1,14 @@
 import { Breadcrumb } from '@misoto22/design'
 
+/**
+ * Where you are, as a path. The last crumb is plain text carrying
+ * aria-current="page" and never a link to itself — a self-link is the most
+ * common breadcrumb bug, and it offers a screen reader a navigation that goes
+ * nowhere. The separators sit in their own aria-hidden list items, so the trail
+ * is read as its items rather than as home slash components slash. label names
+ * the nav landmark; a page that can hold two trails has to name both, or a
+ * reader gets two entries called Breadcrumb and no way to choose.
+ */
 export function Example() {
   return (
     // Named, because the page that documents this component has a breadcrumb

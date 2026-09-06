@@ -13,13 +13,18 @@ const samples = [
 
 const WIDTHS = ['auto', '5', '14', '40'] as const
 
+/**
+ * The same numbers, four times. bins takes a count of equal-width buckets, and
+ * moving it moves the picture: at five the two humps merge into one, at forty
+ * the shape dissolves into a row of one-count bars, and auto hands the choice
+ * back to Freedman–Diaconis. That is not a defect to be tuned away — binning IS
+ * this — so the defences are to name the rule that drew the picture, as the
+ * title does, and to look at more than one width before believing a feature
+ * such as the gap between two humps.
+ */
 export function Example() {
   const [choice, setChoice] = useState<(typeof WIDTHS)[number]>('auto')
 
-  // The same numbers, four times. At five bins the two humps are one; at forty
-  // the shape dissolves into noise. A histogram's shape is a property of its
-  // bin width as much as of its data, which is why the rule that drew the
-  // picture is worth saying out loud.
   return (
     <div className="flex w-full flex-col gap-4">
       <ToggleGroup

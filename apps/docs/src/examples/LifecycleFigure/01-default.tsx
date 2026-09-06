@@ -1,5 +1,15 @@
 import { LifecycleFigure } from '@misoto22/design/diagrams'
 
+/**
+ * The rail across the top is not in the spec. A lifecycle diagram gives its
+ * first lane to the ordered phases, and the arrows between consecutive columns
+ * there are drawn for you at the emphasis weight, so an author declares only the
+ * edges that leave the spine — here, the three that pass through Blocked. This
+ * is also the one figure allowed colour, and it spends exactly two tokens: one
+ * on the completed state, one on the failed one. Every other kind is carried by
+ * shape, so a greyscale print loses the two outcomes and keeps every other
+ * distinction.
+ */
 export function Example() {
   return (
     <LifecycleFigure

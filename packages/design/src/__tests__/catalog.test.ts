@@ -7,11 +7,27 @@ import { AXIS_DEFAULTS, CATALOG, ENTRY_POINTS, GROUPS, slugOf } from '../../agen
 // @ts-expect-error — a build script, run here for the fact it derives.
 import { themeAxes } from '../../scripts/theme-axes.mjs'
 
+interface AnatomyPart {
+  element: string
+  required?: boolean
+  description: string
+}
+
+interface Practice {
+  // `kind` is the catalog's own union, widened here on purpose: typed as the
+  // union, a check for a third value is dead code TypeScript removes, and this
+  // file is reading data that no compiler saw.
+  kind: string
+  text: string
+}
+
 interface CatalogEntry {
   name: string
   group: string
   summary: string
   when?: string
+  anatomy?: AnatomyPart[]
+  practices?: Practice[]
   accessibility?: string[]
   keyboard?: { keys: string[]; does: string }[]
   related?: string[]
@@ -81,6 +97,24 @@ describe('agent catalog', () => {
     expect(new Set(slugs).size).toBe(slugs.length)
   })
 
+  it('concatenates every group file, once each, in GROUPS order', () => {
+    // The entries live one group to a file under `agent/catalog/` so that ten
+    // people can write them at once; `catalog.mjs` puts them back together. That
+    // is the seam this file did not have before. A group file left out of the
+    // concatenation is a dozen components that quietly stop existing, and a
+    // group reached twice is a heading that renders twice — neither of which any
+    // other check here would notice, because every entry that IS present is
+    // still perfectly well-formed.
+    //
+    // The count is written out on purpose. Adding a component means changing it,
+    // which is the moment to look at the import list.
+    expect(entries).toHaveLength(92)
+    const runs = entries
+      .map((entry) => entry.group)
+      .filter((group, index, all) => group !== all[index - 1])
+    expect(runs).toEqual(groups)
+  })
+
   it('places every entry in a declared group', () => {
     const declared = new Set(groups)
     expect(entries.filter((entry) => !declared.has(entry.group)).map((entry) => entry.name)).toEqual(
@@ -138,6 +172,53 @@ describe('agent catalog', () => {
         .map(() => entry.name),
     )
     expect(bad).toEqual([])
+  })
+
+  it('names every anatomy part and says what it is for', () => {
+    // A part is what a reader points at. Half a row points at nothing, or
+    // names something and leaves the reader to guess why it is there.
+    const bad = entries.flatMap((entry) =>
+      (entry.anatomy ?? [])
+        .filter((part) => !part.element?.trim() || !part.description?.trim())
+        .map((part) => `${entry.name}.${part.element || '?'}`),
+    )
+    expect(bad).toEqual([])
+  })
+
+  it('labels every practice do or dont, and gives it something to say', () => {
+    // The emitter splits the list on `kind`. A third value is a judgement that
+    // is written, shipped in the tarball, and rendered nowhere.
+    const bad = entries.flatMap((entry) =>
+      (entry.practices ?? [])
+        .filter((practice) => !['do', 'dont'].includes(practice.kind) || !practice.text?.trim())
+        .map((practice) => `${entry.name}: ${practice.kind}`),
+    )
+    expect(bad).toEqual([])
+  })
+
+  it('keeps both halves of every practice list', () => {
+    // Half a table is worse than no table. A Do column on its own reads as the
+    // whole judgement, and the failure the other half names goes unwritten —
+    // which is exactly the state a half-filled entry ships in.
+    const lopsided = entries
+      .filter((entry) => (entry.practices ?? []).length > 0)
+      .filter(
+        (entry) =>
+          !entry.practices?.some((practice) => practice.kind === 'do') ||
+          !entry.practices?.some((practice) => practice.kind === 'dont'),
+      )
+    expect(lopsided.map((entry) => entry.name)).toEqual([])
+  })
+
+  it('fills both fields for Button, the entry the rest are written against', () => {
+    // The reference entry: the one the other ninety-one are copied from, so it
+    // is the one that has to still be complete when they are.
+    const button = entries.find((entry) => entry.name === 'Button')
+    expect(button?.anatomy?.length ?? 0).toBeGreaterThan(0)
+    expect(button?.anatomy?.some((part) => part.required)).toBe(true)
+    const kinds = (button?.practices ?? []).map((practice) => practice.kind)
+    expect(kinds.filter((kind) => kind === 'do').length).toBeGreaterThanOrEqual(3)
+    expect(kinds.filter((kind) => kind === 'dont').length).toBeGreaterThanOrEqual(2)
   })
 
   it('explains exactly the theme axes the stylesheets define', () => {

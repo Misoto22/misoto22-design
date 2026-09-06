@@ -15,10 +15,18 @@ const cells: HeatmapCell[] = TEAMS.flatMap((row, team) =>
   })),
 )
 
+/**
+ * Diverging reads distance from the midpoint, so both directions darken and the
+ * middle of the scale is the page itself — the scale for a delta, a residual,
+ * anything whose zero is a real boundary rather than just the bottom. The domain
+ * is pinned symmetrically on purpose: derived, it would run from the lowest
+ * reading to the highest and leave the midpoint wherever the extremes happened to
+ * fall rather than on the zero the scale hinges on. The week with no reading is
+ * drawn as a dashed outline instead of the palest cell, because a gap is not a
+ * zero, and showValues caps the wash at 35 percent of the ramp so a printed number
+ * clears its own background on every cell.
+ */
 export function Example() {
-  // Diverging reads DISTANCE from the midpoint, so both directions darken and
-  // the middle of the scale is the surface. The missing reading is drawn as a
-  // dashed outline rather than as the palest cell — a gap is not a zero.
   return (
     <Heatmap
       title="Weekly delta against target"

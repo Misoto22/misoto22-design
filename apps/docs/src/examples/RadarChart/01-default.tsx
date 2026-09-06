@@ -13,10 +13,17 @@ const data = [
 
 const config = { current: { label: 'Current' } } satisfies ChartConfig
 
+/**
+ * One profile across six named dimensions: what a radar offers is a silhouette
+ * to recognise, not magnitudes to compare. Two consequences follow from the
+ * geometry and neither is a matter of taste — doubling every value quadruples
+ * the area the polygon encloses, so the fill overstates the difference it
+ * appears to show, and reordering the spokes redraws the same six numbers as a
+ * different shape, which makes the axis order a choice the chart cannot label.
+ * Dot variant border marks each vertex, which is where the values actually are;
+ * the edges between them are interpolation rather than data.
+ */
 export function Example() {
-  // A radar reads a SHAPE, not a set of values: the area it encloses depends on
-  // the order its spokes happen to be in, so it is the wrong chart for
-  // comparing magnitudes and the right one for recognising a silhouette.
   return (
     <RadarChart title="Team profile" config={config} data={data} angleDataKey="skill">
       <RadarChart.PolarGrid />

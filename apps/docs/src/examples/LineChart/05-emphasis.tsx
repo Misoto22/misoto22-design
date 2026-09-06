@@ -16,6 +16,14 @@ const config = {
   mobile: { label: 'Mobile' },
 } satisfies ChartConfig
 
+/**
+ * Two ways to mark one line out from the other. A monochrome chart has no
+ * brighter colour to reach for, so glowing puts a halo behind the one series that
+ * is the point of the figure, and it is the only blur in the package. buffer
+ * dashes the final leg, which is the idiom for a value that is a projection
+ * rather than a measurement. showTitle prints each figure's name, hidden by
+ * default because most call sites already have a heading above the chart.
+ */
 export function Example() {
   return (
     <div className="grid w-full gap-8 lg:grid-cols-2">

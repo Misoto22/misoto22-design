@@ -2,6 +2,16 @@
 
 import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
 
+/**
+ * The same strip in both of its modes. single has radio semantics and moves one
+ * filled pill between its options, so the eye follows a thing travelling;
+ * multiple fills each pressed segment on its own, because there is no single
+ * selection to travel. The choice is not cosmetic — the wrong one tells a
+ * screen reader that picking one format unpicks the others. A single group
+ * needs a defaultValue or a value: the pill appears only once it has measured a
+ * selected segment, so a group that starts empty is a bare strip with nothing
+ * marked in it. Neither wraps nor scrolls, so stop at about five segments.
+ */
 export function Example() {
   return (
     <div className="flex flex-col gap-8">

@@ -1,5 +1,15 @@
 import { SkeletonBlock, SkeletonLine, SkeletonPage, SkeletonText } from '@misoto22/design'
 
+/**
+ * The skeleton for the list that replaces it, built on the same grid — a 9rem
+ * plate beside a kicker, a title and two lines of prose. That match is the
+ * whole job: a skeleton whose shape differs from what lands is a layout shift
+ * the reader was warned about and then subjected to anyway. One SkeletonPage
+ * wraps the lot, so there is one live region, one sentence read aloud and one
+ * pulse rather than eight bars breathing out of phase. Nothing here flips
+ * aria-busy to false — the frame is unmounted, not updated — so whatever
+ * replaces it has to announce itself or take focus.
+ */
 export function Example() {
   return (
     <SkeletonPage label="Loading projects">

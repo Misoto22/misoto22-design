@@ -16,16 +16,17 @@ const config = {
   p50: { label: 'p50 latency' },
 } satisfies ChartConfig
 
+/**
+ * Two series play one after the other, each introduced by name, rather than
+ * together with one panned to each ear. Panning is the better demo and the worse
+ * choice: it assumes a stereo output and two usable ears, so a mono speaker or a
+ * single hearing aid collapses both runs into one melody the listener cannot
+ * unpick, and it caps the feature at two series. Both are pitched against the
+ * same range, exactly as they share one value axis on screen, so p50's flatness
+ * low in the range is audible as flatness rather than renormalised into a second
+ * dramatic line.
+ */
 export function Example() {
-  // Two series play one after the other, each introduced by name, rather than
-  // together with one panned to each ear. Panning is the better demo and the
-  // worse choice: it needs a stereo output and two usable ears, so a mono
-  // speaker or a single hearing aid collapses both runs into one melody the
-  // listener cannot unpick.
-  //
-  // Both are pitched against the SAME range, exactly as they share one value
-  // axis on screen — so p50's flatness low in the range is audible as
-  // flatness, not renormalised into a second dramatic line.
   return (
     <LineChart title="Latency per week, milliseconds" config={config} data={data} xDataKey="week">
       <LineChart.Sonify align="start" noteMs={180} />

@@ -27,12 +27,19 @@ const config = {
 const VARIANTS: ChartTooltipVariant[] = ['solid', 'frosted']
 const ROUNDNESS: ChartTooltipRoundness[] = ['sm', 'md', 'lg']
 
+/**
+ * What a reader can do with a chart rather than what it looks like. The legend
+ * entries are real buttons with aria-pressed, so Tab reaches them and Enter
+ * toggles a series — a styled div with a click handler could do neither — and the
+ * bars take a click to select for the same reason. The tooltip's ground and its
+ * corner are the two knobs worth exposing, and defaultIndex opens it on a row
+ * before anything is hovered, so the panel is legible in a screenshot and to a
+ * reader who never moves a pointer.
+ */
 export function Example() {
   const [variant, setVariant] = useState<ChartTooltipVariant>('solid')
   const [roundness, setRoundness] = useState<ChartTooltipRoundness>('lg')
 
-  // The legend entries are real buttons with aria-pressed — Tab reaches them
-  // and Enter toggles the series, which a styled div could not do.
   return (
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-wrap gap-3">

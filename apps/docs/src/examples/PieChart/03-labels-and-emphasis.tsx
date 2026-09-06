@@ -16,11 +16,18 @@ const config = {
   edge: { label: 'Edge' },
 } satisfies ChartConfig
 
+/**
+ * Two answers to the same weakness, side by side. On the left, PieChart.Label
+ * prints the value on each wedge: a pie's whole weakness is that an angle is
+ * hard to read, and a printed number removes the guess entirely. On the right
+ * the question is not the ranking but one wedge — glowingSectors haloes Chrome,
+ * and isClickable on both the pie and the legend lets a click drop every other
+ * sector to 15 percent opacity so the chosen one stands alone. Reach for the
+ * labels when the numbers matter, and for the glow when only one of them does.
+ */
 export function Example() {
   return (
     <div className="grid w-full gap-8 lg:grid-cols-2">
-      {/* Worth reaching for: a pie's whole weakness is that an angle is hard to
-          read, and a printed number removes the guess entirely. */}
       <PieChart
         title="Labelled"
         showTitle

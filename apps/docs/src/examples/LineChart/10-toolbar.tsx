@@ -13,15 +13,17 @@ const config = {
   mobile: { label: 'Mobile' },
 } satisfies ChartConfig
 
+/**
+ * The toolbar and the brush drive one window, so they cannot disagree: step the
+ * zoom and the handles below move, drag a handle and reset zoom lights up. Ninety
+ * days is the case that wants both — the strip shows the shape you are choosing
+ * from, the buttons step into it precisely. Composing the toolbar is also what
+ * switches the plot's own gestures on: it becomes focusable, arrow keys pan, plus
+ * and minus zoom, zero resets, and dragging across the plot zooms to that span.
+ * The wheel is gated behind Ctrl or Cmd, because a chart that swallowed a plain
+ * wheel event would trap the page's scroll under the pointer.
+ */
 export function Example() {
-  // The toolbar and the brush drive ONE window, so they cannot disagree: step
-  // the zoom and the handles below move, drag a handle and "reset zoom" lights
-  // up. Ninety days is the case that needs both — the strip shows the shape you
-  // are choosing from, the buttons step into it precisely.
-  //
-  // The plot is focusable: tab to it and arrow keys pan, plus and minus zoom,
-  // zero resets. Ctrl and the wheel zoom around the pointer, and dragging
-  // across the plot zooms to that span.
   return (
     <LineChart title="Visitors per day" config={config} data={data} xDataKey="day">
       <LineChart.Toolbar exports={['png', 'csv']} />

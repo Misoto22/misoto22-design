@@ -13,10 +13,16 @@ const packages = [
   { name: 'sonner', size: 28 },
 ]
 
+/**
+ * Eight packages as one partition of a whole. A treemap encodes value as area,
+ * which the eye reads worse than length and far better than angle, and it is the
+ * only form here that stays readable at fifty items. Two rules keep it honest: no
+ * negative values, because an area cannot be negative, and the tiles have to sum
+ * to something the reader recognises as the whole — under a dozen items with a
+ * ranking to read, a BarChart is the more precise encoding, since a treemap
+ * deliberately does not order its tiles by value alone.
+ */
 export function Example() {
-  // Area is the encoding, so the data has to be non-negative and has to sum to
-  // something a reader recognises as the whole. It is the only form here that
-  // stays readable at fifty items.
   return (
     <TreemapChart title="Bundle size by package" data={packages} showLabels>
       <TreemapChart.Tooltip />

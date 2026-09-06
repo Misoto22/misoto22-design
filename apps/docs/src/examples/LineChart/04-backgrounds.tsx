@@ -29,11 +29,17 @@ const VARIANTS: ChartBackgroundVariant[] = [
   'bubbles',
 ]
 
+/**
+ * Eleven decorative plates, and the count is the point: with no hue to spend, a
+ * chart's personality has to come from somewhere, and the plate is the one place
+ * texture can be loud without competing with the marks. It is drawn to the plot
+ * rectangle rather than to the whole SVG, so it stops where the data stops and
+ * never runs underneath the tick labels. It is not a grid, though — this example
+ * composes it in place of one, and a plate helps nobody read a value off an axis.
+ */
 export function Example() {
   const [variant, setVariant] = useState<ChartBackgroundVariant>('dots')
 
-  // The plate is bounded to the PLOT rectangle, not to the whole SVG, so it
-  // stops where the data stops and never runs underneath the tick labels.
   return (
     <div className="flex w-full flex-col gap-4">
       <ToggleGroup

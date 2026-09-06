@@ -7,10 +7,22 @@
    has to be the element names themselves.
 
    Scoped to `[data-m22-article]`, which the `Article` component writes. Nothing
-   here leaks: a page that does not opt in is untouched, and a component
-   rendered INSIDE an article keeps its own classes, because every rule below
-   is a bare element selector at specificity 0,1,1 — a utility on a component
-   wins.
+   here leaks: a page that does not opt in is untouched.
+
+   Inside one, these rules BEAT a component's utilities, and that is the
+   mechanism the composition rests on rather than an accident. `styles/index.css`
+   imports this file unlayered while Tailwind's utilities sit in
+   `@layer utilities`, and an unlayered rule wins over a layered one whatever
+   either one's specificity is. So a `Markdown` paragraph — a `Text` carrying
+   `m-0` — gives its margin up to the rhythm below, which is the only reason
+   markdown dropped into an article reads as an article. The low specificity
+   here is for ordering these rules against EACH OTHER (see the `:is()` note
+   further down), not for losing to a utility.
+
+   A component that has to keep a property inside an article therefore cannot
+   do it with a class: it needs an inline style, or a tag this file does not
+   reach for — which is why `Diagram` draws its caption as a `<div>` rather than
+   as a `<figcaption>`.
 
    It reads only tokens. Re-point the palette or move the radius factor and the
    article moves with everything else, which is the whole reason this is here

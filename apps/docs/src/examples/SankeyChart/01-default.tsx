@@ -30,10 +30,18 @@ const config = {
   Left: { label: 'Left' },
 } satisfies ChartConfig
 
+/**
+ * The only chart here whose data is a GRAPH rather than a table: it takes nodes
+ * and links, and each link names its ends by index into that node array. Width
+ * is quantity and a node is drawn as tall as the flows through it, so a link
+ * the data leaves out quietly shrinks the node it should have fed — and a flow
+ * that returns to a stage it already left has no left-to-right reading at all.
+ * The hidden table lists the FLOWS rather than the nodes for the same reason: a
+ * table of node totals loses every from-to the diagram exists to state.
+ * NodeLabel with showValues prints the number beside each name, because a
+ * band's width is no easier to measure by eye than a wedge's angle.
+ */
 export function Example() {
-  // The only chart here whose data is a graph rather than a table, so it takes
-  // { nodes, links } — and its hidden table lists the FLOWS rather than the
-  // nodes, because a table of node totals loses every "from → to".
   return (
     <SankeyChart title="Visits by source and outcome" config={config} data={data} nodeWidth={12}>
       <SankeyChart.Node radius={3}>

@@ -2,11 +2,17 @@
 
 import { BigNumber } from '@misoto22/design/charts'
 
+/**
+ * Three deltas, each with its direction stated by the call site rather than
+ * inferred from the sign: errors down 12 percent is good news and revenue down 12
+ * percent is not, and no component can tell which one it is holding, so intent is
+ * what decides whether a change is tinted ok or danger. The arrow and the
+ * screen-reader word carry that same reading, which is what keeps it legible in
+ * greyscale, under forced colours, and to a reader who cannot separate the two
+ * tints. A delta of zero is flat — a sideways arrow and no tint at all — which is
+ * why a neutral intent still has something to say.
+ */
 export function Example() {
-  // Direction is stated by the call site, never inferred from the sign:
-  // "errors down 12%" is good news and "revenue down 12%" is not, and no
-  // component can tell which it is holding. The arrow and the words carry the
-  // reading; the status tint is the third signal, never the only one.
   return (
     <div className="grid w-full gap-10 sm:grid-cols-3">
       <BigNumber

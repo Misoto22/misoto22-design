@@ -1,5 +1,14 @@
 import { WorkflowFigure } from '@misoto22/design/diagrams'
 
+/**
+ * A release pipeline with the failure path in a lane of its own. mainPath is
+ * what gives the figure a subject: every edge between two consecutive ids on it
+ * is drawn at the emphasis weight whatever its own variant says, so a reader
+ * following the heavy run gets the green path without reading a word. The
+ * exception lane is the one washed band in these diagrams, and the rollback edge
+ * is dashed and soft on purpose — a failure path drawn at the weight of the happy
+ * one is a runbook nobody can skim.
+ */
 export function Example() {
   return (
     <WorkflowFigure

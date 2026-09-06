@@ -24,12 +24,17 @@ const VARIANTS: BarVariant[] = [
   'stripped',
 ]
 
+/**
+ * Six ways to fill a bar, cycled on one series so they are comparable. stripped
+ * is the one that survives density best: it rounds only the top corners and
+ * prints a 2px cap of the series colour above a wash, so at twenty bars it still
+ * reads as twenty distinct values where a solid block has become a wall. The
+ * rest trade weight for texture, and with no hue to spend this is what separates
+ * two series before the ramp does.
+ */
 export function Example() {
   const [variant, setVariant] = useState<BarVariant>('default')
 
-  // `stripped` is the one that survives density best: at twenty bars a solid
-  // block becomes a wall, and a 2px cap over a wash still reads as twenty
-  // distinct values.
   return (
     <div className="flex w-full flex-col gap-4">
       <ToggleGroup

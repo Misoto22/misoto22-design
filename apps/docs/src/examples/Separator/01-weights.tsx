@@ -1,5 +1,12 @@
 import { Separator } from '@misoto22/design'
 
+/**
+ * The three weights, in the order they are meant to be spent. They are ordered
+ * rather than interchangeable, so a hard rule between two table rows tells the
+ * reader the table ended there — and the hard one is not a darker grey, it is
+ * --ink itself. Three named weights are the whole set; a fourth grey tuned by
+ * eye through className is how a monochrome page drifts.
+ */
 export function Example() {
   return (
     <div className="flex w-full flex-col gap-5">

@@ -16,10 +16,13 @@ const config = {
   mobile: { label: 'Mobile' },
 } satisfies ChartConfig
 
+/**
+ * Two series, two textures. In the monochrome default the fill is the primary
+ * thing that tells them apart and the grey ramp only supports it, which is also
+ * what survives a greyscale print and a colour-blind reader. Reach for an area
+ * rather than a line when the quantity under the curve is itself the reading.
+ */
 export function Example() {
-  // Two series, two textures. In the monochrome default the FILL is what tells
-  // them apart and the grey ramp supports it — which is also what survives a
-  // greyscale print and a colour-blind reader.
   return (
     <AreaChart title="Visitors per month" config={config} data={data} xDataKey="month">
       <AreaChart.Grid />

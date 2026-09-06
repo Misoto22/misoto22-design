@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { Field } from './Field'
 import { Input } from '../Input/Input'
+import { Switch } from '../Switch/Switch'
 
 describe('Field', () => {
   it('labels the control even when no htmlFor is supplied', () => {
@@ -57,5 +58,66 @@ describe('Field', () => {
     // reader but still sits in the label's text content, so the accessible name
     // here is "Email *".
     expect(screen.getByRole('textbox')).toHaveAttribute('aria-required', 'true')
+  })
+  it('labels a settings row through the accessible name, not the DOM shape', () => {
+    // The row puts the label on one side and the control on the other, so
+    // nothing about the markup implies the association. What matters is that a
+    // screen reader gets "Email notifications" when it lands on the switch.
+    render(
+      <Field layout="row" label="Email notifications" description="A digest every Monday.">
+        <Switch defaultChecked />
+      </Field>,
+    )
+    const control = screen.getByRole('switch', { name: 'Email notifications' })
+    expect(control).toHaveAccessibleDescription('A digest every Monday.')
+  })
+
+  it('announces the description in the stacked layout too', () => {
+    render(
+      <Field label="Email notifications" description="A digest every Monday.">
+        <Input />
+      </Field>,
+    )
+    expect(screen.getByLabelText('Email notifications')).toHaveAccessibleDescription(
+      'A digest every Monday.',
+    )
+  })
+
+  it('announces the description and the error together', () => {
+    // Two different things: the description explains the setting, the error
+    // explains what is wrong with the value. A row that has both has to say
+    // both, in that order.
+    render(
+      <Field
+        layout="row"
+        label="Retention"
+        description="How long logs are kept."
+        error="Must be at least one day."
+      >
+        <Input />
+      </Field>,
+    )
+    const control = screen.getByRole('textbox')
+    expect(control).toHaveAccessibleDescription('How long logs are kept. Must be at least one day.')
+    expect(control).toHaveAttribute('aria-invalid', 'true')
+  })
+
+  it('keeps the row layout working with no description at all', () => {
+    render(
+      <Field layout="row" label="Two-factor authentication">
+        <Switch />
+      </Field>,
+    )
+    expect(screen.getByRole('switch', { name: 'Two-factor authentication' })).toBeInTheDocument()
+  })
+
+  it('renders the control alone when the row has neither label nor description', () => {
+    const { container } = render(
+      <Field layout="row">
+        <Input aria-label="Search" />
+      </Field>,
+    )
+    expect(screen.getByRole('textbox', { name: 'Search' })).toBeInTheDocument()
+    expect(container.querySelector('label')).toBeNull()
   })
 })

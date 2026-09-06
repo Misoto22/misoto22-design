@@ -13,6 +13,15 @@ const config = {
   mobile: { label: 'Mobile' },
 } satisfies ChartConfig
 
+/**
+ * Forty rows and two series, which is where a line chart starts crossing itself.
+ * The strip is a miniature of the whole series with a lit window over the part
+ * the plot above is showing, so the reader can see what they are choosing from
+ * while they choose it. Its handles are positioned by inline style rather than by
+ * start and end classes on purpose: a cartesian plot is drawn first row first in
+ * every writing direction, so mirroring them under dir="rtl" would put the
+ * earlier handle at the end of a chart that still runs the other way.
+ */
 export function Example() {
   return (
     <LineChart title="Visitors per day" config={config} data={data} xDataKey="day">

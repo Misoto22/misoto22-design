@@ -11,16 +11,18 @@ const data = Array.from({ length: 24 }, (_, index) => ({
 
 const config = { desktop: { label: 'Desktop' } } satisfies ChartConfig
 
+/**
+ * The toolbar tops out at five controls and ships no overflow menu, which is a
+ * size decision as much as a design one: a row that can never outgrow five 44px
+ * targets does not need one, and the menu would cost every consumer of every
+ * cartesian chart the Radix menu the chart reaches statically. A chart in a
+ * narrow card drops controls instead — zoom={false}, or one export format rather
+ * than two. The two files are deliberately not the same picture: the PNG is the
+ * plot as it stands and follows the zoom, while the CSV is always the whole
+ * dataset, like the figure's hidden data table, because a spreadsheet quietly
+ * missing the rows you had zoomed past is data loss you cannot see.
+ */
 export function Example() {
-  // Five controls at most and no overflow menu: a row that can never outgrow
-  // five 44px targets does not need one, and the menu would cost every chart
-  // the Radix menu it reaches statically. A chart in a narrow card drops
-  // controls instead — `zoom={false}`, or one format rather than two.
-  //
-  // The two files are deliberately not the same picture. The PNG captures the
-  // plot as it stands, so it follows the zoom; the CSV is always the whole
-  // dataset, like the figure's hidden data table, because a spreadsheet quietly
-  // missing the rows you had zoomed past is data loss you cannot see.
   return (
     <BarChart title="Visitors by month" config={config} data={data} xDataKey="month">
       <BarChart.Toolbar exports={['png', 'csv']} />

@@ -16,10 +16,16 @@ const config = {
   Paid: { label: 'Paid' },
 } satisfies ChartConfig
 
+/**
+ * The default funnel: four stages, widest first, each with its name printed beside
+ * it. The taper encodes a ratio between neighbouring stages and the eye reads the
+ * enclosed area, so a funnel exaggerates a shallow drop and flattens a steep one —
+ * the printed label is the relief for that, and where the exact fall-off is the
+ * point a BarChart puts every stage on one honest scale instead. Order is the
+ * funnel and the data is never sorted for you, so the widest stage has to be
+ * first.
+ */
 export function Example() {
-  // The taper encodes a RATIO between neighbouring stages and the eye reads the
-  // enclosed area, so a funnel exaggerates a shallow drop. The printed label is
-  // the relief for that.
   return (
     <FunnelChart
       title="Signup funnel"

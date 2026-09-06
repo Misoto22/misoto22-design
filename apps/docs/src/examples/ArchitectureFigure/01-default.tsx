@@ -1,5 +1,13 @@
 import { ArchitectureFigure } from '@misoto22/design/diagrams'
 
+/**
+ * A request path on the default grid: every component names a row and a column,
+ * so nothing here is solved for and the markup a server sends is the markup the
+ * browser keeps. The region boundary is what makes ap-southeast-2 a place rather
+ * than a sixth box, and it is what puts the browser visibly outside it. One
+ * connection carries emphasis — without it four arrows of equal weight leave a
+ * reader to work out unaided which one the diagram is about.
+ */
 export function Example() {
   return (
     <ArchitectureFigure

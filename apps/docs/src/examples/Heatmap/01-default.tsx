@@ -18,10 +18,15 @@ const cells: HeatmapCell[] = DAYS.flatMap((row, day) =>
   }),
 )
 
+/**
+ * The sequential scale, for a value that only ever goes up — a count, a duration,
+ * a volume. The ramp is one hue, light to dark, because lightness is the only
+ * channel whose order the eye reads without consulting a legend; spending hue on
+ * magnitude is the perennial heatmap mistake, and there is no hue left here to get
+ * wrong. The domain is derived from the cells, which is right for a grid read on
+ * its own and wrong the moment a second grid is put beside it.
+ */
 export function Example() {
-  // A heatmap needs a scale whose order the eye can read without consulting a
-  // legend, and lightness is the only channel that is unambiguously ordered.
-  // Here there is no hue left to get wrong.
   return (
     <Heatmap
       title="Commits by weekday and hour"

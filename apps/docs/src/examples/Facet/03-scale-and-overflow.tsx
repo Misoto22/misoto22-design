@@ -55,13 +55,21 @@ function Panel({
   )
 }
 
+/**
+ * Two grids one prop apart, and then the cap. On the right every panel fills
+ * its own box, so Social — which never clears 410 — draws the same climb as
+ * Organic's 6,400: not a harder comparison but a false one, and nothing on the
+ * page admits it, which is why scales independent is never the safe answer.
+ * Below, fourteen channels drawn as six panels and an Other — sort last orders
+ * them by where each ended up, limit caps the grid before it becomes fourteen
+ * postage stamps, and overflow fold sums the tail into that last panel so the
+ * total stays true. Either way the grid prints a line under itself saying what
+ * it left out, because a grid that quietly stops at six is a grid the reader
+ * cannot audit.
+ */
 export function Example() {
   return (
     <div className="flex w-full flex-col gap-10">
-      {/* Two grids, the same four channels, one prop apart. On the right every
-          panel fills its own box, so Social — which never clears 410 — draws
-          the same climb as Organic's 6,400. That is not a harder comparison,
-          it is a false one, and nothing on the page admits it. */}
       <div className="grid gap-8 md:grid-cols-2">
         <Facet
           title="Visitors by channel, shared scale"
@@ -105,9 +113,6 @@ export function Example() {
         </Facet>
       </div>
 
-      {/* Fourteen channels, six panels. The tail is summed into one rather
-          than dropped, and the line under the grid says so either way — a grid
-          that quietly stops at six is a grid the reader cannot audit. */}
       <Facet
         title="Visitors by channel, top six"
         showTitle

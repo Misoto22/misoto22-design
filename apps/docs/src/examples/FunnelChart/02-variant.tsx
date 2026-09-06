@@ -20,12 +20,18 @@ const config = {
 
 const VARIANTS: FunnelVariant[] = ['stepped', 'ramp']
 
+/**
+ * stepped is the honest default: every stage keeps the same fill and the taper
+ * alone carries the drop. ramp darkens each stage as well, which encodes the same
+ * fact twice and invites a reader to compare two things that are one — the toggle
+ * is here to make that visible, not to offer the two as equals. The label prints
+ * people at the centre of each stage rather than the stage's name, since the
+ * number is exactly what the taper cannot be trusted to convey; the stage's name
+ * is what the tooltip carries.
+ */
 export function Example() {
   const [variant, setVariant] = useState<FunnelVariant>('stepped')
 
-  // `stepped` is the honest default: every stage keeps the same fill and the
-  // TAPER carries the drop. A ramp that also darkens each stage encodes the
-  // same fact twice and invites a comparison between two things that are one.
   return (
     <div className="flex w-full flex-col gap-4">
       <ToggleGroup

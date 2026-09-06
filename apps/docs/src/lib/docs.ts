@@ -42,6 +42,15 @@ export interface ExampleData {
   id: string
   /** The heading, with the ordering prefix stripped. */
   title: string
+  /**
+   * What the example demonstrates and when to reach for it, read from the JSDoc
+   * block above the file's `export function Example`.
+   *
+   * Optional because most examples do not carry one yet — the heading alone is
+   * how this section has always read, and a page must not depend on prose that
+   * is still being written.
+   */
+  description?: string
   snippet: string
   html: string
   /** What the block is written in, printed on the block itself. */

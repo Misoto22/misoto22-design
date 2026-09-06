@@ -35,15 +35,18 @@ const overplotted = Object.fromEntries(
 
 const single = { visitors: { label: 'Visitors' } } satisfies ChartConfig
 
+/**
+ * The same six channels twice, and the trade stated as a picture. Above, one
+ * plot and six lines: the legend has to be carried back into the hairball, and
+ * Paid search falling by half is invisible under Organic's rise. Below, six
+ * small plots on one domain, where that fall is the second thing you see and
+ * the ranking is the first. Faceting costs the direct overlay — crossovers and
+ * gaps between two named series are gone, and past about five series that is a
+ * trade worth making every time — and it costs a reshape, since a multi-series
+ * chart eats one row per month with a column per channel while a facet eats one
+ * row per month PER channel.
+ */
 export function Example() {
-  // The same six channels, twice. Above: one plot, six lines, a legend the eye
-  // has to carry back into a hairball — and Paid search falling by half is
-  // invisible under Organic's rise. Below: six small plots on one domain, where
-  // the fall is the second thing you see and the ranking is the first.
-  //
-  // What faceting costs is the direct overlay: crossovers and gaps between two
-  // named series are gone. Past about five series that is a trade worth making
-  // every time.
   return (
     <div className="flex w-full flex-col gap-10">
       <section className="flex flex-col gap-2">

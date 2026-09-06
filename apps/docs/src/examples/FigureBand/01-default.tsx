@@ -1,5 +1,12 @@
 import { FigureBand } from '@misoto22/design'
 
+/**
+ * Four figures, which with two is one of the only counts that fits: the grid is
+ * two columns until the wrapper reaches @3xl and four after, so three leaves a
+ * hole in both arrangements and five leaves three. id is required rather than
+ * optional because it is the React key — an index would put the next render's
+ * number under the previous label as soon as the list reordered.
+ */
 export function Example() {
   return (
     <FigureBand

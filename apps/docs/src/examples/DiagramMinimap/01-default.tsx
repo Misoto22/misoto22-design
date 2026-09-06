@@ -26,6 +26,15 @@ const SPEC = {
   ],
 }
 
+/**
+ * A map is only worth drawing when the frame is smaller than the artwork, so
+ * frame carries the canvas’s own box in CSS pixels and content the figure at its
+ * natural size. The rectangle is derived from the canvas’s view on every change
+ * rather than stored, which is why the two can never come to disagree. Clicking
+ * or dragging on the map reports a point in the artwork’s coordinates and
+ * centerOn does the moving — the minimap has no authority over the view, it only
+ * says where the reader pointed.
+ */
 export function Example() {
   const canvas = useRef<DiagramCanvasHandle>(null)
   const [view, setView] = useState<CanvasView>({ scale: 1, x: 0, y: 0 })

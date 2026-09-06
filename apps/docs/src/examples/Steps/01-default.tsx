@@ -1,5 +1,12 @@
 import { Steps } from '@misoto22/design'
 
+/**
+ * A pipeline as a rail: one thing after another, each with a noun for a name
+ * and a mono line of detail under it. The order is the content, so this is an
+ * ol — and label is the list's only name here, because no heading above it says
+ * what the sequence is. Exactly one step is current, which is the one thing the
+ * rail states rather than draws.
+ */
 export function Example() {
   return (
     <Steps

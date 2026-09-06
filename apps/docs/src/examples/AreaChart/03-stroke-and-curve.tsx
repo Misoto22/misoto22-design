@@ -23,12 +23,19 @@ const config = { desktop: { label: 'Desktop' } } satisfies ChartConfig
 const STROKES: AreaStrokeVariant[] = ['solid', 'dashed', 'animated-dashed']
 const CURVES = ['linear', 'monotone', 'step', 'bump'] as const
 
+/**
+ * The two axes of the line itself, and they sit at different levels: strokeVariant
+ * belongs to one area, curveType belongs to the whole chart. animated-dashed is a
+ * SMIL loop, which the stylesheet's reduced-motion rule cannot reach, so the
+ * component gates it and drops it entirely rather than merely slowing it. The
+ * curve is the setting that changes what the picture claims rather than how it
+ * looks — step says nothing was measured between two rows, monotone says the
+ * quantity moved smoothly, and the rows cannot tell you which is true.
+ */
 export function Example() {
   const [stroke, setStroke] = useState<AreaStrokeVariant>('dashed')
   const [curve, setCurve] = useState<ChartCurveType>('linear')
 
-  // The two axes of the line itself. `animated-dashed` is a SMIL loop, so it is
-  // dropped entirely under prefers-reduced-motion rather than merely slowed.
   return (
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-wrap gap-3">

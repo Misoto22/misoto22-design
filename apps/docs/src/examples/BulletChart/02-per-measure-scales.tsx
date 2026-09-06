@@ -14,11 +14,18 @@ const data = [
   { name: 'Open incidents', value: 3, target: 0, ranges: [1, 4], domain: [0, 8] as [number, number] },
 ]
 
+/**
+ * Four measures sharing no unit and no range, each carrying its own domain and its
+ * own ranges — which is what lets a latency in milliseconds sit above a percentage
+ * in the same block. Shared bands only mean something when the measures share a
+ * scale, so the chart-level ranges and domain are left off entirely here. showScale
+ * is off by default and the toggle turns it on, because with four different
+ * domains stacked up a reader has no other way to learn what either end of a track
+ * is worth.
+ */
 export function Example() {
   const [showScale, setShowScale] = useState(true)
 
-  // The scale is off by default. Turn it on when a reader has to know what the
-  // track's ends are — with four different domains stacked up, they do.
   return (
     <div className="flex w-full flex-col gap-4">
       <ToggleGroup

@@ -40,13 +40,20 @@ const config = {
 const LINKS: SankeyLinkVariant[] = ['gradient', 'source', 'target', 'solid']
 const LABELS: SankeyLabelPosition[] = ['outside', 'inside']
 
+/**
+ * The four link variants and the two label positions on one graph. gradient
+ * fades the source's colour into the target's and is the one that reads as
+ * movement; source and target attribute a whole band to one end, which is what
+ * to reach for when the question is where this came from rather than what
+ * became of it; solid gives up colour entirely and lets the node rectangles
+ * carry identity. Labels set to inside need a node wide enough to hold them,
+ * which is why nodeWidth jumps from 12 to 76 with the toggle — left at 12 the
+ * label runs outside the shape it is meant to sit in.
+ */
 export function Example() {
   const [link, setLink] = useState<SankeyLinkVariant>('gradient')
   const [position, setPosition] = useState<SankeyLabelPosition>('outside')
 
-  // `gradient` reads as flow; `source` and `target` attribute a band to one
-  // end; `solid` gives up colour and lets the node rectangles carry identity.
-  // Inside labels need a wide node to sit in.
   return (
     <div className="flex w-full flex-col gap-4">
       <div className="flex flex-wrap gap-3">

@@ -32,12 +32,18 @@ const tree = [
 
 const VARIANTS: TreemapVariant[] = ['ramp', 'nested']
 
+/**
+ * Two levels, and the two ways of painting them. ramp walks the series ramp so
+ * siblings separate by lightness, which is what a flat set of tiles wants; nested
+ * darkens by depth instead, so every tile at one level shares a weight and the
+ * question the paint answers becomes what is inside what. Only the leaves carry a
+ * size — a branch is the sum of its children — and the hidden data table is
+ * flattened to those leaves, because a nested tree read aloud row by row is not
+ * something anyone can follow.
+ */
 export function Example() {
   const [variant, setVariant] = useState<TreemapVariant>('nested')
 
-  // `ramp` walks the series ramp so siblings separate by lightness; `nested`
-  // darkens by DEPTH instead, which is the right encoding when the question is
-  // "what is inside what".
   return (
     <div className="flex w-full flex-col gap-4">
       <ToggleGroup

@@ -13,9 +13,15 @@ const referrers = [
   { name: 'linkedin.com', value: 640 },
 ]
 
+/**
+ * limit keeps the top three and sums the remaining five into one Other row rather
+ * than dropping them. A top three that silently discards the tail misstates the
+ * whole and gives the reader no way to tell it happened; the Other row is what
+ * keeps the column of numbers adding up to something. The three leading rows also
+ * carry an href, which turns the name itself into the link — the bar is a
+ * background on the same cell, so linking a row adds nothing extra for a screen
+ * reader to walk past.
+ */
 export function Example() {
-  // The tail is SUMMED into "Other" rather than dropped. A top three that
-  // silently discards the other five misstates the whole, and the reader has
-  // no way to tell it happened.
   return <BarList label="Top referrers" showLabel items={referrers} limit={3} />
 }

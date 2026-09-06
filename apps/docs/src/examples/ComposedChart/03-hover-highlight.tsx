@@ -16,10 +16,15 @@ const config = {
   profit: { label: 'Profit' },
 } satisfies ChartConfig
 
+/**
+ * Hovering a column dims every bar outside it. The highlight reads the chart's
+ * own tooltip index, which is the half that was missing where this came from: the
+ * state existed and was cleared on leave, but nothing ever set it, so the
+ * highlight never fired. It is driven by the pointer, so it can never be the only
+ * thing carrying a reading — the clickable legend, the tooltip and the figure's
+ * hidden data table are what a keyboard reaches instead.
+ */
 export function Example() {
-  // Hovering a column dims every bar outside it. The highlight reads the
-  // chart's own tooltip index — which is the half that was missing where this
-  // came from: the state existed, was cleared on leave, and nothing ever set it.
   return (
     <ComposedChart title="Revenue and profit" config={config} data={data}>
       <ComposedChart.Background variant="diagonal-lines" />

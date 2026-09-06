@@ -1,5 +1,12 @@
 import { StatusDot } from '@misoto22/design'
 
+/**
+ * The four tones, each next to the word that names it. The dot is aria-hidden
+ * without exception, so the tone is the one part of this component assistive
+ * tech never sees and the label has to carry the state on its own — an
+ * aria-label on the dot buys nothing, because a hidden element has no name to
+ * give. Only the live one pulses; everything settled sets pulse to false.
+ */
 export function Example() {
   return (
     <div className="flex flex-wrap items-center gap-6 text-sm text-(--ink-2)">

@@ -2,6 +2,15 @@
 
 import { Field, Select, SelectGroup, SelectItem, SelectLabel, SelectSeparator } from '@misoto22/design'
 
+/**
+ * Two groups under mono headings, divided by a hairline. Reach for SelectGroup
+ * and SelectLabel rather than a disabled item used as a heading: a disabled
+ * item is still an option, so a screen reader counts it and announces a list
+ * one longer than it is. The panel is ours the whole way down, which is the
+ * point — it does not change typeface, spacing and selection colour the moment
+ * it opens. Past roughly a dozen options this becomes a Combobox, because a
+ * list nobody can filter is slower to scan than one you can type into.
+ */
 export function Example() {
   return (
     <Field label="Region" hint="The list is ours, not the platform’s — open it." className="w-full max-w-xs">

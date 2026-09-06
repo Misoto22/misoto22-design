@@ -23,10 +23,18 @@ const ROWS = MONTHS.flatMap((month, index) =>
 
 const config = { visitors: { label: 'Visitors' } } satisfies ChartConfig
 
+/**
+ * Six channels as six small plots on ONE domain, which is the entire reason the
+ * component exists. Social peaks at 410 and Organic at 6,400, and that ratio is
+ * the first thing the grid says — on independent scales the two would draw the
+ * same rising line, so the comparison the reader came to make would be inverted
+ * rather than merely lost. The shared scale is computed across the panels and
+ * handed to the render function as panel.domain; a panel that does not pass it
+ * to its value axis has opted back into the broken version. yLabel and xLabel
+ * are printed once for the whole grid rather than once per panel, which is five
+ * axis titles the reader does not have to read again.
+ */
 export function Example() {
-  // Six panels on ONE domain. Social peaks at 410 and Organic at 6,400, and
-  // that difference is the first thing the grid says — on independent scales
-  // the two would draw the same rising line and say nothing.
   return (
     <Facet
       title="Visitors by channel, 2026"

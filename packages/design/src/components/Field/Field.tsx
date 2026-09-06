@@ -6,6 +6,19 @@ import type { HTMLAttributes, ReactElement, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 import { DEV, warn } from '../../lib/warn'
 
+/**
+ * Where the control sits relative to its label.
+ *
+ * `stacked` is the form row: label, control, message, down the page.
+ *
+ * `row` is the settings row: the label and its `description` in a column at the
+ * inline start, the control at the inline end, one rhythm down a settings
+ * screen. It is a layout, not a second component — the label wiring, the
+ * required marker and the message slot are the same three things either way,
+ * and a `SettingRow` beside this would be all three of them written twice.
+ */
+export type FieldLayout = 'stacked' | 'row'
+
 export interface FieldProps extends HTMLAttributes<HTMLDivElement> {
   /** Visible label text; renders a `--danger` asterisk when `required`. */
   label?: ReactNode
@@ -16,11 +29,23 @@ export interface FieldProps extends HTMLAttributes<HTMLDivElement> {
    * — a form library referencing it by name, say.
    */
   htmlFor?: string
+  /**
+   * A second line under the LABEL, explaining what the setting does.
+   *
+   * Distinct from `hint`, which sits under the control and belongs to the input
+   * — "We never share it". This belongs to the thing being switched on, and it
+   * is what makes a settings row a settings row. Both reach the control through
+   * `aria-describedby`, so a row that has a description and an error announces
+   * both.
+   */
+  description?: ReactNode
   /** Helper copy shown below the control when there is no `error`. */
   hint?: ReactNode
   /** Validation message; takes precedence over `hint` when present. */
   error?: ReactNode
   required?: boolean
+  /** Where the control sits relative to its label. See {@link FieldLayout}. */
+  layout?: FieldLayout
   children: ReactNode
 }
 
@@ -45,19 +70,38 @@ type WirableControl = ReactElement<{
  * reader. The id is now generated when it is not supplied.
  *
  * `hint` and `error` are one slot, not two stacked messages: when a field is
- * wrong, the thing to read is what is wrong with it.
+ * wrong, the thing to read is what is wrong with it. `description` is a
+ * different slot again — it explains the SETTING, not the input, and it is what
+ * `layout="row"` puts under the label to make a settings row.
+ *
+ * **What the wiring can and cannot reach.** `cloneElement` puts the id on the
+ * single control child, so the label lands wherever that child forwards its
+ * `id` — which is the focusable element for `Input`, `Textarea`,
+ * `NativeSelect`, `Checkbox` and `Switch`, and therefore for every control a
+ * settings row is normally built from. It is NOT the focusable element for the
+ * composite controls whose widget lives deeper in their own tree —
+ * `Slider`, `RadioGroup`, `ToggleGroup`, `Combobox`, `DatePicker` and `Select`
+ * — where the id lands on a wrapper and the label points at something a screen
+ * reader will not name. Each of those takes its own `label` prop for exactly
+ * that reason; use it, and leave this one's `label` off.
  *
  * @example
  * <Field label="Email" required hint="We never share it."><Input type="email" /></Field>
  * @example
  * <Field label="Name" error="Name is required."><Input /></Field>
+ * @example
+ * <Field layout="row" label="Email notifications" description="A digest every Monday.">
+ *   <Switch defaultChecked />
+ * </Field>
  */
 export function Field({
   label,
   htmlFor,
+  description,
   hint,
   error,
   required,
+  layout = 'stacked',
   children,
   className,
   ...rest
@@ -66,6 +110,7 @@ export function Field({
   const controlId = htmlFor ?? generatedId
   const message = error ?? hint
   const messageId = message != null ? `${controlId}-${error != null ? 'error' : 'hint'}` : undefined
+  const descriptionId = description != null ? `${controlId}-description` : undefined
 
   let control = children
   if (isValidElement(children)) {
@@ -73,7 +118,8 @@ export function Field({
     control = cloneElement(child, {
       id: child.props.id ?? controlId,
       'aria-describedby':
-        [child.props['aria-describedby'], messageId].filter(Boolean).join(' ') || undefined,
+        [child.props['aria-describedby'], descriptionId, messageId].filter(Boolean).join(' ') ||
+        undefined,
       'aria-required': required || child.props['aria-required'] || undefined,
       'aria-invalid':
         error != null ? (child.props['aria-invalid'] ?? true) : child.props['aria-invalid'],
@@ -112,8 +158,8 @@ export function Field({
     }
   }
 
-  return (
-    <div className={cn('flex flex-col gap-1.5', className)} {...rest}>
+  const heading = (label != null || description != null) && (
+    <div className="flex flex-col gap-1">
       {label != null && (
         <Label htmlFor={controlId} className="text-sm text-(--ink)">
           {label}
@@ -125,15 +171,44 @@ export function Field({
           )}
         </Label>
       )}
-      {control}
-      {message != null && (
-        <p
-          id={messageId}
-          className={cn('m-0 text-xs', error != null ? 'text-(--danger)' : 'text-(--ink-3-aa)')}
-        >
-          {message}
+      {description != null && (
+        <p id={descriptionId} className="m-0 text-xs text-(--ink-3-aa)">
+          {description}
         </p>
       )}
+    </div>
+  )
+
+  const note = message != null && (
+    <p
+      id={messageId}
+      className={cn('m-0 text-xs', error != null ? 'text-(--danger)' : 'text-(--ink-3-aa)')}
+    >
+      {message}
+    </p>
+  )
+
+  if (layout === 'row') {
+    return (
+      <div className={cn('flex flex-col gap-1.5', className)} {...rest}>
+        {/* `items-start` and not `items-center`: a description of two lines
+            would otherwise drag the switch down to the middle of the paragraph,
+            and a column of settings rows would have its controls on five
+            different lines. */}
+        <div className="flex items-start justify-between gap-6">
+          <div className="min-w-0 flex-1">{heading}</div>
+          <div className="shrink-0">{control}</div>
+        </div>
+        {note}
+      </div>
+    )
+  }
+
+  return (
+    <div className={cn('flex flex-col gap-1.5', className)} {...rest}>
+      {heading}
+      {control}
+      {note}
     </div>
   )
 }

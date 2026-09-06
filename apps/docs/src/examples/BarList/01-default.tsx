@@ -13,9 +13,15 @@ const referrers = [
   { name: 'linkedin.com', value: 640 },
 ]
 
+/**
+ * The ranked list at its plainest: eight rows, with the bar drawn behind the name
+ * rather than beside it. That is the thing a horizontal bar chart cannot do — it
+ * spends a third of its width on a category axis, and matching a name on that axis
+ * to its bar is two steps where reading the name off the bar is none. Rows are
+ * sorted descending unless sort says otherwise, and the scale's ceiling comes from
+ * the largest of them, so this list is readable on its own but not against a
+ * second one.
+ */
 export function Example() {
-  // The bar sits BEHIND the name rather than beside it, which is what a
-  // horizontal bar chart cannot do: reading a name off a y-axis and matching
-  // it to a bar is two steps, and reading it off the bar is none.
   return <BarList label="Top referrers" showLabel items={referrers} />
 }

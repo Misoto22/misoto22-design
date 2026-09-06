@@ -9,6 +9,11 @@ import { fixImportsPlugin } from 'esbuild-fix-imports-plugin'
  * default heap. It OOMs in CI and survives locally, which is the worst shape a
  * build failure can take.
  *
+ * The number tracks the entry count and has to be raised with it. 6144 built
+ * 120 entries; at 133 — the charts and the figures alongside the typography and
+ * layout primitives — the worker died again, and 8192 is what clears it.
+ * GitHub's ubuntu runners have 16 GB, so the ceiling is not close.
+ *
  * `bundle: false` compiles each source file 1:1 (transpile, not bundle), so the
  * output mirrors the module graph and esbuild keeps each file's `'use client'`
  * banner verbatim — a Next.js App Router app then gets correct server/client

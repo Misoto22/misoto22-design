@@ -26,12 +26,17 @@ const VARIANTS: ChartLegendVariant[] = [
   'horizontal-bar',
 ]
 
+/**
+ * Seven swatch shapes, and the mark is doing more work here than it would in a
+ * chromatic system: two lines differ by a step of grey and a dash pattern, and
+ * neither names itself, which is why a legend is required above one series rather
+ * than decorative. Matching the swatch to the mark — a bar beside a bar chart, a
+ * dot beside a scatter — is often the fastest way a reader ties the key to the
+ * plot.
+ */
 export function Example() {
   const [variant, setVariant] = useState<ChartLegendVariant>('rounded-square')
 
-  // Seven swatch shapes, and the mark is doing more work here than in a
-  // chromatic system: a bar-shaped swatch beside a bar chart ties the key to
-  // the plot faster than a dot would.
   return (
     <div className="flex w-full flex-col gap-4">
       <ToggleGroup

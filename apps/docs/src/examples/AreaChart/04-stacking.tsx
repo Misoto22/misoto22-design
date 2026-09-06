@@ -20,12 +20,17 @@ const config = {
 
 const STACKS: AreaStackType[] = ['default', 'stacked', 'expanded']
 
+/**
+ * Three different questions, not three looks: default compares two series,
+ * stacked reads their total, expanded reads their share — and the value axis
+ * switches to percentages on its own for the third. What stacking hides is the
+ * baseline: only the bottom band still sits on a straight line, so every band
+ * above it is a shape whose rises and falls are partly the band beneath it, which
+ * is why default is still the setting for "did mobile grow".
+ */
 export function Example() {
   const [stackType, setStackType] = useState<AreaStackType>('stacked')
 
-  // Three different questions, not three looks: `default` compares two series,
-  // `stacked` reads their total, `expanded` reads their share — and the Y axis
-  // switches to percentages on its own for the third.
   return (
     <div className="flex w-full flex-col gap-4">
       <ToggleGroup

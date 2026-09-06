@@ -13,12 +13,16 @@ const data = [
 
 const config = { desktop: { label: 'Desktop' } } satisfies ChartConfig
 
+/**
+ * Three layers, drawn in the order editorial charting settled on and fixed by the
+ * package rather than by the order they are composed in: the band is context and
+ * sits behind the grid, the line is a claim about the data and sits above the
+ * marks, and the note explains both and sits above everything, the hover dot
+ * included. Most charts that look like they need a second series need a reference
+ * line instead — "are we above the line" is a question a threshold answers at a
+ * glance and a second series does not.
+ */
 export function Example() {
-  // Three layers, drawn in the order editorial charting settled on: the BAND
-  // is context and sits behind the grid, the LINE is a claim about the data
-  // and sits above the marks, and the NOTE explains both and sits above
-  // everything. Most charts that look like they need a second series need a
-  // reference line instead.
   return (
     <AreaChart title="Visitors per month" config={config} data={data} xDataKey="month">
       <AreaChart.Grid />
