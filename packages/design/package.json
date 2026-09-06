@@ -2,7 +2,7 @@
   "name": "@misoto22/design",
   "version": "0.7.0",
   "private": false,
-  "description": "Monochrome design system — CSS tokens and accessible React primitives",
+  "description": "Monochrome design system \u2014 CSS tokens and accessible React primitives",
   "license": "MIT",
   "author": "Henry Chen",
   "type": "module",
@@ -13,6 +13,9 @@
     "dist",
     "skills",
     "bin",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "llms.txt",
     "LICENSE",
     "README.md"
   ],

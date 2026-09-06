@@ -31,9 +31,10 @@ const USAGE = `@misoto22/design ${version}
   misoto22-design docs --list         Every component, one line each.
   misoto22-design docs --installed    This package's version and what it ships.
                        [--json]
-  misoto22-design init [--agents-md]  Install the agent skill into this project
-                                      under .claude/skills/, and optionally
-                                      point AGENTS.md at it.
+  misoto22-design init                Install the agent skill into this project.
+                      [--agents-md]   Also point AGENTS.md at it.
+                      [--agent <id>]  Write only to one agent's directory:
+                                      "agents" (the shared path) or "claude".
 
 Docs on the web: https://ui.misoto22.com`
 
@@ -149,24 +150,69 @@ function docs(args) {
 const AGENTS_BLOCK = `
 ## @misoto22/design
 
-UI comes from \`@misoto22/design\`. Read \`.claude/skills/misoto22-design/SKILL.md\`
-before writing components against it — the names diverge from shadcn/ui in
-several places, and colour is never written as a raw class.
+UI comes from \`@misoto22/design\`. Read \`SKILL.md\` in the installed skill
+directory before writing components against it — the names diverge from
+shadcn/ui in several places, and colour is never written as a raw class.
 
 - One component in full: \`npx misoto22-design docs <Component>\`
 - Everything it ships: \`npx misoto22-design docs --installed\`
 `
 
+/**
+ * Where a skill goes, for the agents worth covering directly.
+ *
+ * `.agents/skills/` is the shared path — Codex, Cursor, GitHub Copilot, Gemini
+ * CLI, OpenCode, Cline, Zed, Warp, Amp and Replit all read it — and Claude Code
+ * is the one common agent with its own. Writing only to `.claude/` handed every
+ * other agent nothing, which was the bug.
+ *
+ * Deliberately two entries rather than the whole ecosystem. `npx skills` tracks
+ * around seventy directories and is one command away; a copy of that table kept
+ * here would be stale within a release, and this package's own rules are about
+ * not keeping copies of things that move.
+ */
+const AGENT_DIRS = {
+  agents: '.agents/skills',
+  claude: '.claude/skills',
+}
+
+/**
+ * Which directories to write, given the flags and what the project already has.
+ *
+ * The shared path is unconditional — it is the one an unknown agent is most
+ * likely to read. Claude's is added when the project already has a `.claude/`,
+ * so a project that does not use it does not grow a directory it will never
+ * open.
+ */
+function initTargets(args) {
+  const wanted = args[args.indexOf('--agent') + 1]
+  if (args.includes('--agent')) {
+    if (!wanted || !AGENT_DIRS[wanted]) {
+      fail(
+        `Unknown --agent "${wanted ?? ''}". Known: ${Object.keys(AGENT_DIRS).join(', ')}.\n` +
+          'For any other agent, `npx skills add Misoto22/misoto22-design` covers ~70 of them.',
+      )
+    }
+    return [AGENT_DIRS[wanted]]
+  }
+
+  const targets = [AGENT_DIRS.agents]
+  if (existsSync(join(process.cwd(), '.claude'))) targets.push(AGENT_DIRS.claude)
+  return targets
+}
+
 function init(args) {
-  const target = join(process.cwd(), '.claude', 'skills', 'misoto22-design')
   if (!existsSync(SKILL)) fail('This build has no skills/ directory.')
 
-  const existed = existsSync(target)
-  mkdirSync(dirname(target), { recursive: true })
-  cpSync(SKILL, target, { recursive: true })
-  process.stdout.write(
-    `${existed ? 'Updated' : 'Installed'} the skill at ${resolve(target)}\n`,
-  )
+  const written = []
+  for (const dir of initTargets(args)) {
+    const target = join(process.cwd(), dir, 'misoto22-design')
+    const existed = existsSync(target)
+    mkdirSync(dirname(target), { recursive: true })
+    cpSync(SKILL, target, { recursive: true })
+    written.push(`  ${existed ? 'updated' : 'installed'}  ${resolve(target)}`)
+  }
+  process.stdout.write(`${written.join('\n')}\n`)
 
   if (!args.includes('--agents-md')) {
     process.stdout.write('Pass --agents-md to also point AGENTS.md at it.\n')

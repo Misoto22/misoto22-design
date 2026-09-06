@@ -100,11 +100,25 @@ conventions without being told each time:
 npx misoto22-design init --agents-md
 ```
 
-That writes `.claude/skills/misoto22-design/` and points your `AGENTS.md` at it.
+That writes the skill to `.agents/skills/` — the path Codex, Cursor, GitHub
+Copilot, Gemini CLI, OpenCode, Cline, Zed and Warp all read — and to
+`.claude/skills/` as well when the project already has a `.claude/`. Use
+`--agent agents` or `--agent claude` to pick one. For any other agent,
+[`skills`](https://github.com/vercel-labs/skills) covers around seventy of them
+and finds this one without any configuration:
+
+```bash
+npx skills add Misoto22/misoto22-design
+```
+
 The skill is progressive: its name and description are about 110 tokens and are
 all that sits in a session until something actually touches this package. The
 body is around 2,200, and the five rule files load one at a time, only when the
 work reaches them.
+
+An agent that explores `node_modules` by filename rather than by command finds
+`AGENTS.md`, `CLAUDE.md` and `llms.txt` at the package root. They are pointers
+to the above and nothing else, so they cannot go stale between releases.
 
 The names diverge from shadcn/ui in a handful of places that a model writing
 from habit gets wrong — `CardBody` not `CardContent`, `THead`/`TBody`/`TR`/`TH`/`TD`
@@ -116,6 +130,28 @@ On the web, the same content is at
 [`/llms.txt`](https://ui.misoto22.com/llms.txt) (index),
 [`/llms-full.txt`](https://ui.misoto22.com/llms-full.txt) (everything inline),
 and `/components/<slug>/llms.txt` (one component).
+
+### It tells you when you get it wrong
+
+Some ways of misusing a component fail silently — a `Field` whose child is a
+wrapper wires the label onto the box, an icon-only `Button` with no accessible
+name renders perfectly and is invisible to a screen reader. Development warns on
+those where it happens, with a stable code, the offending field and an
+imperative fix:
+
+```
+[@misoto22/design] FIELD_CONTROL_NOT_LABELLABLE
+  Field's child is a <div>, which cannot take a label — so the id,
+  aria-describedby, aria-required and aria-invalid were applied to it rather
+  than to a control.
+  field: children
+  fix:   Put the control itself directly inside Field, with no wrapper. For a
+         row of controls, give each its own Field and lay them out around it.
+  docs:  npx misoto22-design docs Field
+```
+
+Every call site is behind `process.env.NODE_ENV`, so none of it reaches a
+production bundle.
 
 ## Accessibility
 

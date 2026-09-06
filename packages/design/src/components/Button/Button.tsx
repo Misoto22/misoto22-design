@@ -1,6 +1,7 @@
 import { Slot } from '@radix-ui/react-slot'
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+import { DEV, warn } from '../../lib/warn'
 import { Spinner } from '../Spinner/Spinner'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
@@ -148,6 +149,25 @@ export function Button(props: ButtonProps) {
   } = props
 
   const cls = cn(BASE, VARIANT[variant], iconOnly ? ICON_SIZE[size] : SIZE[size], className)
+
+  if (DEV && iconOnly) {
+    // The control renders correctly and is announced as "button" and nothing
+    // else. Nothing about the rendered page says so, which is why this is the
+    // single most common way a design system ships an unusable control.
+    const named =
+      typeof props['aria-label'] === 'string' && props['aria-label'].trim() !== ''
+    const described = typeof props['aria-labelledby'] === 'string'
+    if (!named && !described) {
+      warn({
+        code: 'BUTTON_ICON_ONLY_UNNAMED',
+        problem:
+          'An iconOnly Button has no text, so without an accessible name a screen reader announces it as "button" and nothing else.',
+        field: 'aria-label',
+        fix: 'Add aria-label with the action the button performs, e.g. aria-label="Delete invoice".',
+        component: 'Button',
+      })
+    }
+  }
 
   // A filled ground needs a spinner in the inherited colour; an outlined one
   // reads better against the page's own rule scale.
