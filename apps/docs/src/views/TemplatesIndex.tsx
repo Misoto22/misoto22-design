@@ -31,7 +31,11 @@ export function TemplatesIndex({ locale }: { locale: Locale }) {
             <Card className="h-full transition-colors duration-(--duration-fast) group-hover:border-(--rule-hard)">
               <CardBody className="flex h-full flex-col gap-4">
                 <div className="flex items-center gap-3">
-                  <CardTitle>{templateCopy(locale, template.slug).name ?? template.name}</CardTitle>
+                  {/* h2: these sit directly under the page title, with no section
+                      heading between. */}
+                  <CardTitle as="h2">
+                    {templateCopy(locale, template.slug).name ?? template.name}
+                  </CardTitle>
                   <Badge tone="outline">
                     {template.uses.length} {t.section.components.toLowerCase()}
                   </Badge>

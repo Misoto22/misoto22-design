@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { ROUTES } from './routes'
 
@@ -118,3 +119,38 @@ test('the overlays fit the screen they open on', async ({ page }) => {
   await page.getByRole('button', { name: 'Theme', exact: true }).click()
   await fits('the theme panel')
 })
+
+/**
+ * axe at phone width.
+ *
+ * The full sweep runs at a desktop viewport, and the DOM is the same at both —
+ * so this is not a second copy of it. It is a handful of routes where the
+ * RESPONSIVE layout changes what is rendered: the shell swaps a column for a
+ * drawer, the example canvas reflows, the templates change their grid.
+ */
+const RESPONSIVE = ['/', '/components/app-shell/', '/components/table/', '/templates/dashboard/']
+
+for (const theme of ['light', 'dark'] as const) {
+  for (const route of RESPONSIVE) {
+    test(`${theme}: ${route} has no axe violations on a phone`, async ({ page }) => {
+      await page.addInitScript((value) => {
+        try {
+          window.localStorage.setItem('m22-mode', value)
+        } catch {
+          // A storage-blocked context still gets the attribute below.
+        }
+      }, theme)
+      await page.goto(route)
+      await expect(page.locator('html')).toHaveAttribute('data-mode', theme)
+
+      const results = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'])
+        .analyze()
+
+      const summary = results.violations
+        .map((v) => `${v.id} (${v.impact}) — ${v.help}\n    ${v.nodes[0]?.target.join(' ')}`)
+        .join('\n')
+      expect(results.violations, summary).toEqual([])
+    })
+  }
+}

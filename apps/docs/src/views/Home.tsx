@@ -76,10 +76,10 @@ export function Home({ locale }: { locale: Locale }) {
         <SectionHeading id="install">{t.section.install}</SectionHeading>
         <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
           <div className="flex flex-col gap-4">
-            <CodeBlock {...snippet('install')} />
+            <CodeBlock {...snippet('install')} label="install" />
             <p className="m-0 text-sm leading-relaxed text-(--ink-3-aa)">{copy.installNote}</p>
           </div>
-          <CodeBlock {...snippet('usage')} />
+          <CodeBlock {...snippet('usage')} label="usage" />
         </div>
       </section>
 
@@ -134,10 +134,10 @@ export function Home({ locale }: { locale: Locale }) {
           {copy.tailwindNote}
         </p>
         <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-2">
-          <CodeBlock {...snippet('tailwind')} />
+          <CodeBlock {...snippet('tailwind')} label="tailwind" />
           <div className="flex flex-col gap-4">
-            <CodeBlock {...snippet('theme')} />
-            <CodeBlock {...snippet('override')} />
+            <CodeBlock {...snippet('theme')} label="theme" />
+            <CodeBlock {...snippet('override')} label="override" />
           </div>
         </div>
       </section>

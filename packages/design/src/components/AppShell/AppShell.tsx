@@ -22,6 +22,20 @@ export interface AppShellProps extends HTMLAttributes<HTMLDivElement> {
    * longer answer "where is the content".
    */
   contentAs?: 'main' | 'div'
+  /**
+   * Names the sidebar landmark.
+   *
+   * Two `complementary` landmarks with the same name cannot be told apart, and
+   * a shell rendered inside another page — a preview, a screenshot harness —
+   * makes exactly that pair. It is also the only way a non-English app gets a
+   * landmark name its readers can read.
+   */
+  sidebarLabel?: string
+  /** Names the navigation landmark inside the sidebar. */
+  navLabel?: string
+  /** The drawer toggle, closed and open. */
+  openLabel?: string
+  closeLabel?: string
   children: ReactNode
 }
 
@@ -43,6 +57,10 @@ export function AppShell({
   topbar,
   brand,
   contentAs: Content = 'main',
+  sidebarLabel = 'Sidebar',
+  navLabel = 'Primary',
+  openLabel = 'Open navigation',
+  closeLabel = 'Close navigation',
   children,
   className,
   ...rest
@@ -67,7 +85,7 @@ export function AppShell({
       {open && (
         <button
           type="button"
-          aria-label="Close navigation"
+          aria-label={closeLabel}
           onClick={() => setOpen(false)}
           className="fixed inset-0 z-(--z-scrim) bg-(--scrim) md:hidden"
         />
@@ -75,7 +93,7 @@ export function AppShell({
 
       <aside
         id={sidebarId}
-        aria-label="Sidebar"
+        aria-label={sidebarLabel}
         className={cn(
           'fixed inset-y-0 start-0 z-(--z-modal) flex w-60 flex-col border-e border-(--rule) bg-(--paper) transition-transform duration-(--duration-slow) ease-(--ease-out-expo)',
           // The drawer slides in from the edge reading STARTS at, so in an
@@ -88,7 +106,7 @@ export function AppShell({
           <div className="flex h-14 items-center border-b border-(--rule) px-5">{brand}</div>
         )}
         <nav
-          aria-label="Primary"
+          aria-label={navLabel}
           className="flex flex-1 flex-col gap-1 overflow-y-auto p-3 scroll-slim"
         >
           {sidebar}
@@ -99,7 +117,7 @@ export function AppShell({
         <header className="sticky top-0 z-(--z-sticky) flex h-14 items-center gap-3 border-b border-(--rule) bg-(--paper)/85 px-(--page-pad) backdrop-blur">
           <button
             type="button"
-            aria-label={open ? 'Close navigation' : 'Open navigation'}
+            aria-label={open ? closeLabel : openLabel}
             aria-expanded={open}
             aria-controls={sidebarId}
             onClick={() => setOpen((previous) => !previous)}
