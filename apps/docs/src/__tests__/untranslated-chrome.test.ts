@@ -48,6 +48,8 @@ const ENGLISH_BY_DESIGN: Record<string, string> = {
   'components/LawDemo.tsx':
     'The specimens ARE the demonstration: each law is illustrated with English type at the weight and step it argues about, and Chinese would change the thing being shown.',
   'components/ThemeSpecimen.tsx': 'Specimen labels, shown as an example of the type rather than read.',
+  'components/AxisChip.tsx':
+    'The same reason, one size down: this is the object drawn nineteen times so that one attribute is the only thing different between two of them, and words that changed with the locale would be a second difference in a comparison that has to have exactly one.',
 }
 
 /**

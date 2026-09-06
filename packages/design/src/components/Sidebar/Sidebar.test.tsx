@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Home, Settings } from 'lucide-react'
@@ -7,6 +7,7 @@ import {
   SidebarBranch,
   SidebarContent,
   SidebarGroup,
+  SidebarInset,
   SidebarItem,
   SidebarProvider,
   SidebarTrigger,
@@ -193,5 +194,192 @@ describe('without a provider', () => {
     const quiet = vi.spyOn(console, 'error').mockImplementation(() => {})
     expect(() => render(<Probe />)).toThrow(/SidebarProvider/)
     quiet.mockRestore()
+  })
+})
+
+/**
+ * Puts every media query at `matches`, which is how this suite reaches the
+ * drawer: jsdom has no media engine, so the setup file answers "no" to
+ * everything and the rail is a column in every other test in this file.
+ */
+function atDrawerWidth() {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    media: query,
+    matches: true,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  }))
+}
+
+describe('Sidebar at drawer width', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('starts closed, whatever defaultOpen said about the column', () => {
+    // `defaultOpen` answers "keep the rail beside the page". Read as "show the
+    // rail now", it is a phone that loads with its navigation over the page.
+    atDrawerWidth()
+    render(rail({ defaultOpen: true }))
+    expect(screen.getByRole('navigation', { name: 'Documentation' })).toHaveAttribute('inert')
+  })
+
+  it('is inert while closed, because off-screen is not closed', async () => {
+    // Translated off the page it still holds focus and is still read aloud, so
+    // a shut drawer puts its whole index between the reader and the page.
+    atDrawerWidth()
+    const user = userEvent.setup()
+    render(rail())
+
+    const nav = screen.getByRole('navigation', { name: 'Documentation' })
+    expect(nav).toHaveAttribute('inert')
+
+    await user.click(screen.getByRole('button', { name: 'Open the sidebar' }))
+    expect(nav).not.toHaveAttribute('inert')
+  })
+
+  it('closes onto a scrim, which is a button because tapping beside it is a gesture', async () => {
+    atDrawerWidth()
+    const user = userEvent.setup()
+    render(rail())
+
+    await user.click(screen.getByRole('button', { name: 'Open the sidebar' }))
+    const scrim = screen.getByRole('button', { name: 'Close the navigation' })
+
+    await user.click(scrim)
+    expect(screen.getByRole('navigation', { name: 'Documentation' })).toHaveAttribute('inert')
+  })
+
+  it('closes when a row in it is taken', async () => {
+    // Following a link inside an overlay and leaving the overlay open is a
+    // reader landing on a destination they cannot see.
+    atDrawerWidth()
+    const user = userEvent.setup()
+    render(rail())
+
+    await user.click(screen.getByRole('button', { name: 'Open the sidebar' }))
+    // "Settings3" — the row's trailing count is part of its accessible name.
+    await user.click(screen.getByRole('link', { name: /Settings/ }))
+
+    expect(screen.getByRole('navigation', { name: 'Documentation' })).toHaveAttribute('inert')
+  })
+
+  it('never collapses to icons, because closed here means off the page', async () => {
+    atDrawerWidth()
+    const user = userEvent.setup()
+    render(rail({ collapsible: 'icon' }))
+
+    // The label is still in the markup rather than moved into a tooltip: an
+    // icon rail is the answer for a layout that still has a column.
+    await user.click(screen.getByRole('button', { name: 'Open the sidebar' }))
+    expect(screen.getByRole('link', { name: /Settings/ })).toHaveTextContent('Settings')
+  })
+})
+
+describe('SidebarProvider persistence', () => {
+  // This environment has no `localStorage` at all — Node's own experimental one
+  // is disabled without `--localstorage-file` and jsdom's is shadowed by it — so
+  // the suite supplies the store it is testing against rather than asserting on
+  // a global that is simply absent here.
+  let store: Record<string, string>
+
+  beforeEach(() => {
+    store = {}
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) => store[key] ?? null,
+      setItem: (key: string, value: string) => {
+        store[key] = value
+      },
+      removeItem: (key: string) => {
+        delete store[key]
+      },
+      clear: () => {
+        store = {}
+      },
+    })
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('opens where the reader left it', async () => {
+    // "I put the rail away" is not "until the next page".
+    store.rail = 'closed'
+    render(rail({ persist: 'rail' }))
+
+    await screen.findByRole('button', { name: 'Open the sidebar' })
+  })
+
+  it('writes the docked state, and only that', async () => {
+    const user = userEvent.setup()
+    render(rail({ persist: 'rail' }))
+
+    await user.click(screen.getByRole('button', { name: 'Close the sidebar' }))
+    expect(store.rail).toBe('closed')
+  })
+
+  it('survives a storage-blocked context rather than failing to render', () => {
+    // Safari in private browsing, and any embedded frame with storage denied:
+    // the accessor itself throws rather than returning nothing.
+    vi.stubGlobal('localStorage', {
+      getItem: () => {
+        throw new Error('denied')
+      },
+      setItem: () => {
+        throw new Error('denied')
+      },
+    })
+    render(rail({ persist: 'rail' }))
+    expect(screen.getByRole('navigation', { name: 'Documentation' })).toBeInTheDocument()
+  })
+})
+
+describe('Sidebar side and variant', () => {
+  it('draws its edge on the side the page is on', () => {
+    render(rail({ side: 'end' }))
+    const nav = screen.getByRole('navigation', { name: 'Documentation' })
+    expect(nav).toHaveAttribute('data-side', 'end')
+    // Whole classes, not substrings: the drawer's own `max-md:border-e` CONTAINS
+    // "border-e", so a substring check reads the column's edge off the overlay's.
+    const classes = nav.className.split(/\s+/)
+    expect(classes).toContain('border-s')
+    expect(classes).not.toContain('border-e')
+  })
+
+  it('points the trigger at the edge it operates', () => {
+    render(rail({ side: 'end' }))
+    // lucide names the icon it renders, which is the only way to tell the two
+    // panel glyphs apart without a snapshot.
+    const trigger = screen.getByRole('button', { name: 'Close the sidebar' })
+    expect(trigger.querySelector('svg')).toHaveClass('lucide-panel-right-close')
+  })
+
+  it('gives the border to the panel, not to both halves', () => {
+    // Under `inset` the rail is the ground and the content is the panel. A rail
+    // that kept its own edge would draw two lines a few pixels apart.
+    render(
+      <SidebarProvider variant="inset">
+        <Sidebar label="Documentation">
+          <SidebarContent>
+            <SidebarGroup label="Guide" count={1}>
+              <SidebarItem href="#one" icon={Home}>
+                One
+              </SidebarItem>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+        <SidebarInset data-testid="page">Page</SidebarInset>
+      </SidebarProvider>,
+    )
+
+    expect(
+      screen.getByRole('navigation', { name: 'Documentation' }).className.split(/\s+/),
+    ).not.toContain('border-e')
+    expect(screen.getByTestId('page').className.split(/\s+/)).toContain('border')
   })
 })

@@ -82,8 +82,11 @@ test('the drawer opens, closes, and carries the index of the open section', asyn
   await page.goto('/components/button/')
   await expect(page.getByRole('button', { name: /Switch to the (light|dark) theme/ })).toBeVisible()
 
-  const aside = page.locator('aside')
+  // The rail IS the nav now. It used to be an `<aside>` with a second `<nav>`
+  // inside it — two landmarks for one column — and the shell hand-rolled the
+  // drawer around them; the package's Sidebar is both.
   const nav = page.getByRole('navigation', { name: 'Documentation' })
+  const aside = nav
 
   // Closed means unreachable, not merely off-screen: `inert` is what takes its
   // sixty links out of the tab order and out of the accessibility tree. A

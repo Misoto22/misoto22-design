@@ -43,7 +43,7 @@ import {
  */
 export function Example() {
   return (
-    <SidebarProvider collapsible="icon">
+    <SidebarProvider breakpoint={null} collapsible="icon">
       <div className="flex h-[38rem] w-full overflow-hidden rounded-(--radius-lg) border border-(--rule)">
         <Sidebar label="Workspace">
           <SidebarHeader>

@@ -64,7 +64,7 @@ export function Dashboard() {
     // `shortcut={null}`: this rail is a picture on somebody else's page, and a
     // template that grabbed Cmd+B would toggle a sidebar the reader cannot see
     // while they were trying to use the one they can.
-    <SidebarProvider collapsible="icon" shortcut={null}>
+    <SidebarProvider breakpoint={null} collapsible="icon" shortcut={null}>
     <div className="flex min-h-[36rem]">
       <Sidebar label="Console" className="hidden @3xl:flex">
         <SidebarHeader>

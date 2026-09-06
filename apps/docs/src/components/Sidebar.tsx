@@ -1,10 +1,8 @@
 'use client'
 
 import {
-  SidebarContent,
   SidebarGroup,
   SidebarItem,
-  SidebarProvider,
 } from '@misoto22/design'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -32,7 +30,7 @@ import { useLocale, useMessages } from '@/i18n/useLocale'
  * was obviously the one to use — so the field is gone and everything it could
  * match moved into the palette (see `content/haystack.ts`).
  */
-export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
+export function Sidebar() {
   const pathname = usePathname()
   const locale = useLocale()
   const t = useMessages()
@@ -44,7 +42,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
   if (section === 'components') {
     return (
-      <Nav label={t.nav.documentation}>
+      <>
         {/* The group holding the page you are on opens itself. Everything else
             stays rolled up until asked for: forty-nine rows under seven headings
             is a column taller than most screens, and a reader looking at Button
@@ -63,33 +61,31 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                 key={entry.slug}
                 href={localePath(locale, `/components/${entry.slug}/`)}
                 pathname={pathname}
-                onNavigate={onNavigate}
               >
                 {componentName(locale, entry.slug, entry.name)}
               </Row>
             ))}
           </Section>
         ))}
-      </Nav>
+      </>
     )
   }
 
   if (section === 'templates') {
     return (
-      <Nav label={t.nav.documentation}>
+      <>
         <Section title={t.nav.templates} count={TEMPLATES.length} defaultOpen>
           {TEMPLATES.map((template) => (
             <Row
               key={template.slug}
               href={localePath(locale, `/templates/${template.slug}/`)}
               pathname={pathname}
-              onNavigate={onNavigate}
             >
               {templateCopy(locale, template.slug).name ?? template.name}
             </Row>
           ))}
         </Section>
-      </Nav>
+      </>
     )
   }
 
@@ -118,7 +114,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   }))
 
   return (
-    <Nav label={t.nav.documentation}>
+    <>
       {[
         { title: t.nav.guide, rows: guide },
         { title: t.nav.foundations, rows: foundations },
@@ -130,37 +126,13 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           defaultOpen={group.rows.some((row) => row.href === pathname)}
         >
           {group.rows.map((row) => (
-            <Row key={row.href} href={row.href} pathname={pathname} onNavigate={onNavigate}>
+            <Row key={row.href} href={row.href} pathname={pathname}>
               {row.label}
             </Row>
           ))}
         </Section>
       ))}
-    </Nav>
-  )
-}
-
-/**
- * The rail's own chrome, from the package rather than from here.
- *
- * `collapsible="none"`: the SHELL owns whether this column is on screen, and it
- * takes the whole thing away rather than collapsing it to icons — ninety-two
- * component rows collapse to ninety-two identical file icons, which is a column
- * of width answering nothing. So the provider is here for the group and row
- * styling, and the state it would otherwise hold is never used.
- */
-function Nav({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <SidebarProvider collapsible="none" shortcut={null}>
-      {/* `compact`, and it is the system's own axis rather than a number
-          invented here: this is a dense index driven by a mouse, which is
-          exactly the trade `data-density` documents. Ten groups at the
-          comfortable 44px floor is four hundred pixels of mostly nothing, and
-          a reader looking for Breadcrumb scrolls past it. */}
-      <nav aria-label={label} data-density="compact" className="flex h-full flex-col">
-        <SidebarContent className="gap-2 p-0 pb-6">{children}</SidebarContent>
-      </nav>
-    </SidebarProvider>
+    </>
   )
 }
 
@@ -194,12 +166,10 @@ function Section({
 function Row({
   href,
   pathname,
-  onNavigate,
   children,
 }: {
   href: string
   pathname: string
-  onNavigate?: () => void
   children: React.ReactNode
 }) {
   // Exact match: `/components/` must not light up while `/components/button/`
@@ -211,7 +181,7 @@ function Row({
     // in a 16rem column — and the argument for 15 was against `font-light` at
     // 14, which this has never used.
     <SidebarItem asChild href={href} active={active}>
-      <Link href={href} onClick={onNavigate}>
+      <Link href={href}>
         {children}
       </Link>
     </SidebarItem>

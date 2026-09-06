@@ -84,3 +84,28 @@ if (typeof HTMLCanvasElement !== 'undefined') {
     return { measureText: () => ({ width: 0 }) } as unknown as CanvasRenderingContext2D
   } as HTMLCanvasElement['getContext']
 }
+
+/**
+ * jsdom has no media engine, so `matchMedia` is simply absent — and a component
+ * that asks a question about the viewport throws on mount rather than getting a
+ * wrong answer. `Sidebar` asks one: whether there is room for a column or only
+ * for a drawer.
+ *
+ * The stub answers "no" to everything, which puts every query at its false
+ * branch — the wide layout, the un-reduced motion — and that is the state the
+ * suite is written against. A test that needs the other answer replaces
+ * `window.matchMedia` for its own duration; there is no layout here for a real
+ * implementation to be right about.
+ */
+if (typeof window !== 'undefined') {
+  window.matchMedia ??= ((query: string) => ({
+    media: query,
+    matches: false,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  })) as typeof window.matchMedia
+}

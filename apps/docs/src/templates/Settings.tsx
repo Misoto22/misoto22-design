@@ -80,7 +80,7 @@ export function Settings() {
   const [dirty, setDirty] = useState(false)
 
   return (
-    <SidebarProvider collapsible="icon" shortcut={null}>
+    <SidebarProvider breakpoint={null} collapsible="icon" shortcut={null}>
     <div className="flex min-h-[40rem]">
       <Sidebar label="Settings" className="hidden @3xl:flex">
         <SidebarHeader>
