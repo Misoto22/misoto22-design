@@ -30,6 +30,18 @@ import '@misoto22/design/semantic.css'  // roles
 import '@misoto22/design/keyframes.css' // motion
 ```
 
+Diagrams ship from their own specifier, so a page that renders a `Badge` does
+not pay for a routing engine:
+
+```tsx
+import { ArchitectureFigure, DiagramCanvas } from '@misoto22/design/diagrams'
+```
+
+Five server-rendered figures — architecture, workflow, sequence, data-flow and
+lifecycle — plus the chrome to explore one. They read the JSON schemas
+published by [archify](https://github.com/tt-a1i/archify), so a specification
+authored for that tool renders here with no translation step.
+
 ## Theming
 
 Seven independent axes, each an attribute, each working on **any** element

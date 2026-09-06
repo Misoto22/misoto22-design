@@ -26,6 +26,7 @@ import { extractChangelog } from './extract-changelog.mjs'
 import { HIGHLIGHT, WHITE_RESET_DARK, WHITE_RESET_LIGHT } from './shiki-theme.mjs'
 import { createRenderer } from './render-markdown.mjs'
 import { extractProps } from '../../../packages/design/scripts/extract-props.mjs'
+import { ENTRY_POINTS } from '../../../packages/design/agent/catalog.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const DOCS = join(HERE, '..')
@@ -79,14 +80,15 @@ async function main() {
   )
 
   // ─── Props ───
-  // Two trees, one map. Charts live under their own directory and ship from
-  // their own entry point, but a reader does not care which barrel a thing
-  // came out of — and keying them together is what makes the registry test's
-  // "documents everything the package ships" cover charts as well.
-  const props = {
-    ...extractProps(join(DESIGN, 'src', 'components')),
-    ...extractProps(join(DESIGN, 'src', 'charts')),
-  }
+  // One map over every entry point the package declares. A reader does not care
+  // which barrel a thing came out of, and keying them together is what makes
+  // the registry test's "documents everything the package ships" cover all of
+  // them. Derived from ENTRY_POINTS rather than listed here, so the next entry
+  // is one line in the catalog and nothing in this file.
+  const props = Object.assign(
+    {},
+    ...Object.values(ENTRY_POINTS).map((folder) => extractProps(join(DESIGN, 'src', folder))),
+  )
   // Placed after the highlighter exists, below — see `highlightTypes`.
   writeFileSync(join(OUT, 'props.json'), JSON.stringify(props, null, 2))
 

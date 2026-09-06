@@ -4,6 +4,9 @@ What every component in `packages/design/src/components` is expected to do, and
 why. These are the rules a review checks against; the visual rules live on
 [ui.misoto22.com/principles](https://ui.misoto22.com/principles/).
 
+Everything here applies to `packages/design/src/diagrams` too — see
+[Entry points](#entry-points) for the one thing that differs.
+
 ## Shape
 
 - **One directory per component**, named for the component: `Button/Button.tsx`,
@@ -76,6 +79,41 @@ A component's JSDoc IS its documentation — the site parses it. So:
 - At least one `@example`, and at least one live example under
   `apps/docs/src/examples/<Component>/NN-name.tsx`. The registry test fails a
   component that has none.
+
+## Entry points
+
+Most components ship from the package root. A group that drags in weight the
+root should not pay for gets its own subpath instead:
+
+| Entry | What lives there |
+|---|---|
+| `@misoto22/design` | `src/components` — the primitives |
+| `@misoto22/design/diagrams` | `src/diagrams` — five figure renderers, a routing engine, and the chrome to explore one |
+
+A separate entry is a real commitment rather than a folder, and all of it has
+to be done together:
+
+- **`packages/design/agent/catalog.mjs`** is where the entry is declared, in
+  `ENTRY_POINTS`, and where each of its components carries `entry:`. That file
+  is the source of truth for what a component IS — the site, the offline agent
+  docs and the printed import line all read it, and `catalog.test.ts` fails a
+  component filed under a specifier its source does not live behind.
+- Its own barrel (`src/<entry>/index.ts`) and an `exports` map in
+  `package.json` pointing at `dist/<entry>/index.js`.
+- Its own `__tests__/{surface,coverage,ssr,a11y}` — the coverage gate is keyed
+  to its own directory listing, so a component added there without a fixture
+  fails the build exactly as one added to `src/components` does.
+- A line in `apps/docs/scripts/generate.mjs` and in `scripts/emit-agent.mjs`, so
+  the prop tables are extracted from the second tree as well. Miss the second
+  and `npx misoto22-design docs <Component>` throws on the whole catalog.
+- Two budgets in `scripts/check-size.mjs`: the entry as a whole, and one leaf
+  component from it. The second is the one that matters — it is what proves the
+  entry is still tree-shakeable rather than shipping whole.
+
+**Nothing under `src/components` may import from an entry.** That is the rule
+the whole arrangement rests on: one import in the wrong direction puts the
+routing engine back in the bundle that renders a `Badge`, and `check-size`
+fails on `whole package` rather than on the file that caused it.
 
 ## Gates
 

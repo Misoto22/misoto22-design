@@ -5,10 +5,14 @@
  * question after it — which components a real screen needs TOGETHER, and how
  * they space against each other once there are twelve of them rather than one.
  *
- * The two here are deliberately opposite densities. A console is many
- * components, close together, in a bounded column; a landing page is very few,
- * with a great deal of space and type doing most of the work. A system that
- * only looks right at one of those has one screen in it.
+ * They are deliberately opposite densities. A console is many components,
+ * close together, in a bounded column; a landing page is very few, with a
+ * great deal of space and type doing most of the work. A system that only
+ * looks right at one of those has one screen in it.
+ *
+ * The architecture explorer answers a question none of the others reaches: what
+ * happens when ONE OBJECT owns the viewport and everything else is chrome
+ * arranged over, beside and under it, rather than stacked in a column with it.
  */
 export interface TemplateEntry {
   slug: string
@@ -47,6 +51,16 @@ export const TEMPLATES: TemplateEntry[] = [
     tests:
       'Uneven records. A card grid hides them behind equal boxes; a ruled list does not, so a summary that runs three lines on one row and one on the next shows immediately.',
     uses: ['ToggleGroup', 'Input', 'Badge', 'Tag', 'Avatar', 'LinkArrow', 'Pagination', 'Separator', 'StatusPill', 'Button'],
+  },
+  {
+    slug: 'architecture',
+    id: 'Architecture',
+    name: 'Architecture explorer',
+    summary:
+      'One diagram given the screen: a floating toolbar, a pannable canvas, an inspector, a minimap, a key and the conclusions under it.',
+    tests:
+      'Chrome arranged AROUND a surface rather than stacked with it. A floating bar over a canvas, a panel that appears where the reader is already looking, a minimap in the far corner — spacing decisions only ever checked in a column do not survive that.',
+    uses: ['ArchitectureFigure', 'DiagramCanvas', 'DiagramToolbar', 'DiagramExportMenu', 'DiagramInspector', 'DiagramMinimap', 'DiagramLegend', 'Button', 'Badge', 'StatusPill', 'Tag', 'Toast'],
   },
   {
     slug: 'post',

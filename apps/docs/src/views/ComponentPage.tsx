@@ -45,6 +45,18 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
         ]}
       />
 
+      {/* Which specifier this ships from, printed only when it is not the root.
+          A reader who copies the root import for a chart or a figure gets a
+          module-not-found error and nothing on the page to explain it, because
+          a split entry is invisible until it bites. Every component carries the
+          field, so this compares rather than tests for its presence. */}
+      {entry.entry !== '@misoto22/design' && (
+        <p className="m-0 flex flex-wrap items-baseline gap-2">
+          <span className="eyebrow text-(--ink-3-aa)">{t.section.shipsFrom}</span>
+          <code className="font-mono text-[13px] text-(--ink)">{entry.entry}</code>
+        </p>
+      )}
+
       {(zh.when ?? entry.when) && (
         <Alert title={t.section.whenToReach} hideIcon>
           {zh.when ?? entry.when}

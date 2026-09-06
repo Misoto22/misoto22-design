@@ -79,6 +79,30 @@ const BUDGET = {
    * charts' to begin with.
    */
   singleChart: 40,
+  /**
+   * The diagrams entry, which ships from `@misoto22/design/diagrams`.
+   *
+   * Measured separately because that separation is the point: five renderers,
+   * an orthogonal routing engine and a pan-zoom canvas have no business in a
+   * bundle that renders a Badge. If this number ever appears inside
+   * `everything`, the figures have leaked into the main barrel.
+   *
+   * Loose, like the others, and for the same reason — it exists to catch a step
+   * change rather than a kilobyte. Most of it is the chrome: the export menu
+   * pulls in the dropdown, which pulls in Radix.
+   */
+  diagrams: 190,
+  /**
+   * ONE figure, bundled alone.
+   *
+   * The number that actually matters for this entry: a page that draws one
+   * sequence diagram must not ship the workflow lane solver, the minimap and
+   * the export pipeline. Read it against a floor of about 27 kB rather than
+   * against zero — that is `tailwind-merge` arriving with `cn`, which every
+   * component in the package already pays for and a consumer of the main entry
+   * already has.
+   */
+  singleFigure: 55,
 }
 
 const kb = (bytes) => Math.round((bytes / 1024) * 10) / 10
@@ -148,6 +172,18 @@ async function main() {
   )
   report.push(['one cartesian chart', kb(cartesianChart), BUDGET.cartesianChart])
   if (kb(cartesianChart) > BUDGET.cartesianChart) failures.push('one cartesian chart')
+  const diagrams = await bundleSize(`export * from './dist/diagrams/index.js'`)
+  report.push(['diagrams entry', kb(diagrams), BUDGET.diagrams])
+  if (kb(diagrams) > BUDGET.diagrams) failures.push('diagrams entry')
+
+  // Sequence is the leaf case on purpose: it needs no boundary frames and no
+  // routing engine, so anything router-shaped in this number means the entry is
+  // pulling in siblings a consumer did not ask for.
+  const singleFigure = await bundleSize(
+    `import { SequenceFigure } from './dist/diagrams/index.js'\nconsole.log(SequenceFigure)`,
+  )
+  report.push(['one figure', kb(singleFigure), BUDGET.singleFigure])
+  if (kb(singleFigure) > BUDGET.singleFigure) failures.push('one figure')
 
   const share = Math.round((single / everything) * 100)
   for (const [name, size, budget] of report) {
