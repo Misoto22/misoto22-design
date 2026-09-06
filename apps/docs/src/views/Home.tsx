@@ -173,6 +173,7 @@ export function Home({ locale }: { locale: Locale }) {
                 { href: '/llms.txt', note: t.agents.index },
                 { href: '/llms-full.txt', note: t.agents.full },
                 { href: '/components/button/llms.txt', note: t.agents.perComponent },
+                { href: '/components/button.md', note: t.agents.markdown },
               ].map((row) => (
                 <li key={row.href} className="flex flex-col gap-0.5">
                   <a

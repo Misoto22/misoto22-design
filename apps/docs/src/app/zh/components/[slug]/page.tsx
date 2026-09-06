@@ -27,6 +27,13 @@ export async function generateMetadata({
         'text/plain': [
           { url: `/components/${slug}/llms.txt`, title: `${entry.name} for agents` },
         ],
+        // The same bytes under the extension an agent guesses rather than
+        // reads. Declared as markdown because that is what it is; the
+        // `text/plain` entry above keeps the llmstxt.org name it was published
+        // under, and dropping that would break anything already pointed at it.
+        'text/markdown': [
+          { url: `/components/${slug}.md`, title: `${entry.name} as markdown` },
+        ],
       },
     },
   }

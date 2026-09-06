@@ -123,6 +123,7 @@ const en = {
     index: 'The index — what the system is, and a link per component.',
     full: 'Everything inline, in one file.',
     perComponent: 'One component, on its own.',
+    markdown: 'The same file, under the extension you would guess.',
   },
   themes: {
     title: 'Themes',
@@ -278,6 +279,7 @@ const zh: Messages = {
     index: '索引——这套系统是什么，以及每个组件一条链接。',
     full: '全部内容合成一个文件。',
     perComponent: '单个组件，单独一份。',
+    markdown: '同一份文件，用你会去猜的那个扩展名。',
   },
   themes: {
     title: '主题',
