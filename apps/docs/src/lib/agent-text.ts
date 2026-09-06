@@ -4,6 +4,7 @@ import { COMPONENTS, type ComponentEntry } from '@/content/registry'
 import { FOUNDATIONS } from '@/content/foundations'
 import { TEMPLATES } from '@/content/templates'
 import { LAWS } from '@/content/principles'
+import catalog from '@/generated/catalog'
 
 /**
  * The site, written for a reader that does not render CSS.
@@ -24,6 +25,16 @@ import { LAWS } from '@/content/principles'
  */
 
 const SITE = 'https://ui.misoto22.com'
+
+/**
+ * The theme axes, as the package derives them from its own stylesheets.
+ *
+ * Written out by hand here until it said there was a `data-accent` attribute,
+ * which there has never been, and did not mention `data-surface="glass"`,
+ * which there is. A list of someone else's file goes stale silently; this one
+ * did, and an agent reading it set an attribute that does nothing.
+ */
+const THEME_AXES = catalog.themeAxes as { axis: string; values: string[]; unset: string | null }[]
 
 interface PropRow {
   name: string
@@ -137,20 +148,17 @@ export function indexText(): string {
     '',
     '## Theming',
     '',
-    'Six attributes on the root re-point tokens the package already defines.',
-    'No component reads any of them, and none of them introduces a token.',
+    'Attributes that re-point tokens the package already defines. No component',
+    'reads any of them, and none of them introduces a token.',
     '',
-    '- `data-mode`: light | dark',
-    '- `data-surface`: paper | warm | cool',
-    '- `data-radius`: sharp | soft | round',
-    '- `data-rules`: quiet | hairline | firm',
-    '- `data-type`: editorial | grotesk | bookish',
-    '- `data-motion`: still | calm | snappy',
-    '- `data-density`: comfortable | compact',
+    ...THEME_AXES.map(
+      (axis) =>
+        `- \`${axis.axis}\`: ${axis.values.join(' | ')}${axis.unset ? ` (unset = ${axis.unset})` : ''}`,
+    ),
     '',
-    'Plus `data-accent`, which re-points the single token every chosen state reads.',
     'An unset attribute is the default; nothing is anchored to `:root`, so an',
-    'axis set on any element applies to the subtree below it.',
+    'axis set on any element applies to the subtree below it. There is no',
+    '`data-accent` attribute — `--accent` is a custom property, re-pointed in CSS.',
     '',
     '## Components',
     '',

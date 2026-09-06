@@ -15,7 +15,21 @@ export async function generateMetadata({
   const { slug } = await params
   const entry = BY_SLUG.get(slug)
   if (!entry) return {}
-  return { title: entry.name, description: componentCopy('en', slug).summary ?? entry.summary }
+  return {
+    title: entry.name,
+    description: componentCopy('en', slug).summary ?? entry.summary,
+    // The page it is on, written for a reader that does not render CSS. The
+    // root layout already advertises the index and the whole-site file; this is
+    // the one that is about THIS component, and it is a few hundred tokens
+    // against the full file's tens of thousands.
+    alternates: {
+      types: {
+        'text/plain': [
+          { url: `/components/${slug}/llms.txt`, title: `${entry.name} for agents` },
+        ],
+      },
+    },
+  }
 }
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {

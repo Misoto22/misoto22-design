@@ -1,0 +1,124 @@
+# @misoto22/design
+
+A monochrome design system for software, writing and photography: portable CSS
+tokens and accessible React 19 primitives. Paper ground, near-black mark, and
+status is the only chroma in the file.
+
+Components ship compiled — you import them, you do not copy them into your
+project.
+
+**[ui.misoto22.com](https://ui.misoto22.com)** · [Changelog](./CHANGELOG.md)
+
+## Install
+
+```bash
+npm install @misoto22/design
+```
+
+```tsx
+import { Button, Field, Input } from '@misoto22/design'
+import '@misoto22/design/styles.css'
+```
+
+`styles.css` is the whole compiled sheet — tokens, roles, motion and the
+vendored faces. An app that compiles its own Tailwind can take the portable
+layers instead:
+
+```tsx
+import '@misoto22/design/tokens.css'    // primitives
+import '@misoto22/design/semantic.css'  // roles
+import '@misoto22/design/keyframes.css' // motion
+```
+
+## Theming
+
+Seven independent axes, each an attribute, each working on **any** element
+rather than only on the root. An unset axis is the default.
+
+| Attribute | Values |
+| --- | --- |
+| `data-mode` | `light` `dark` |
+| `data-surface` | `warm` `cool` `glass` |
+| `data-radius` | `sharp` `round` |
+| `data-rules` | `quiet` `firm` |
+| `data-type` | `grotesk` `bookish` |
+| `data-motion` | `still` `snappy` |
+| `data-density` | `compact` |
+
+```tsx
+<section data-surface="warm" data-radius="sharp">…</section>
+```
+
+No component reads any of them, and none of them introduces a token. To
+re-accent the system, re-point one custom property:
+
+```css
+:root { --accent: var(--ok); }
+```
+
+## For agents
+
+This package is documented for the reader that installed it, not only for the
+one that can open a browser — and the two need different things. Everything
+below is generated from the source in this same tarball, so it describes the
+version you actually have rather than whatever the website shipped last.
+
+**One component, in full** — every prop with its type and default, the exported
+unions, the keyboard contract, the accessibility promises, the examples:
+
+```bash
+npx misoto22-design docs Button
+```
+
+The median component is about 500 tokens. It resolves parts and types too, so
+`docs CardBody`, `docs TH` and `docs ButtonVariant` all land on the right file —
+useful when an import just failed.
+
+**What is installed here**, as a few hundred tokens rather than fifty prop
+tables:
+
+```bash
+npx misoto22-design docs --installed
+```
+
+**Install the skill** into your project, so a coding agent picks up the
+conventions without being told each time:
+
+```bash
+npx misoto22-design init --agents-md
+```
+
+That writes `.claude/skills/misoto22-design/` and points your `AGENTS.md` at it.
+The skill is progressive: its name and description are about 110 tokens and are
+all that sits in a session until something actually touches this package. The
+body is around 2,200, and the five rule files load one at a time, only when the
+work reaches them.
+
+The names diverge from shadcn/ui in a handful of places that a model writing
+from habit gets wrong — `CardBody` not `CardContent`, `THead`/`TBody`/`TR`/`TH`/`TD`
+not `TableHeader`/…, and `title` as a prop on `DialogContent` rather than a
+`DialogTitle` child. The skill leads with that table, and
+`src/__tests__/skill.test.ts` fails the build if any of it stops being true.
+
+On the web, the same content is at
+[`/llms.txt`](https://ui.misoto22.com/llms.txt) (index),
+[`/llms-full.txt`](https://ui.misoto22.com/llms-full.txt) (everything inline),
+and `/components/<slug>/llms.txt` (one component).
+
+## Accessibility
+
+Every component is tested against `axe-core` best-practice rules, keyboard
+contracts are asserted key by key, and a prop that is required for
+accessibility is required in the type — `Table.caption`, `Progress.label`,
+`Avatar.alt`, `FloatingIconButton.label`. If it can be forgotten, it will be.
+
+Logical properties throughout, so the system is RTL-correct; motion is gated
+behind `prefers-reduced-motion`.
+
+## Requirements
+
+React 19, Node 24+. ESM only.
+
+## Licence
+
+MIT © Henry Chen

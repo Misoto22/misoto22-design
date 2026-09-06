@@ -1,5 +1,22 @@
 import { expect, test } from '@playwright/test'
-import { COMPONENTS } from '../src/content/registry'
+import { readdirSync, statSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+/**
+ * The components the built site actually published, read off the export.
+ *
+ * Not imported from the registry, because this job downloads `out/` and never
+ * runs the generator — the registry now reads generated data, and importing it
+ * here made a suite that tests an artifact depend on a source build. Reading
+ * the directory is also the stronger assertion: it compares the text against
+ * the pages that shipped beside it, rather than against the list both were
+ * rendered from.
+ */
+const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', 'out', 'components')
+const SLUGS = readdirSync(OUT)
+  .filter((entry) => statSync(join(OUT, entry)).isDirectory())
+  .sort()
 
 /**
  * The site has two audiences, and only one of them renders CSS.
@@ -21,10 +38,9 @@ test('llms.txt lists every component the site publishes', async ({ request }) =>
   expect(body).toContain('data-surface')
   expect(body).toContain("npm install @misoto22/design")
 
-  for (const entry of COMPONENTS) {
-    expect(body, `${entry.name} missing from llms.txt`).toContain(
-      `/components/${entry.slug}/llms.txt`,
-    )
+  expect(SLUGS.length).toBeGreaterThan(0)
+  for (const slug of SLUGS) {
+    expect(body, `${slug} missing from llms.txt`).toContain(`/components/${slug}/llms.txt`)
   }
 })
 
@@ -51,8 +67,11 @@ test('llms-full.txt carries every component inline', async ({ request }) => {
   expect(response.status()).toBe(200)
   const body = await response.text()
 
-  for (const entry of COMPONENTS) {
-    expect(body, `${entry.name} missing from llms-full.txt`).toContain(`# ${entry.name}\n`)
+  for (const slug of SLUGS) {
+    // The heading is the component's name; the slug is that name in kebab-case,
+    // which is the one identity the package guarantees (see catalog.test.ts).
+    const name = slug.replace(/(^|-)([a-z])/g, (_, dash, letter) => letter.toUpperCase())
+    expect(body, `${name} missing from llms-full.txt`).toContain(`# ${name}\n`)
   }
 })
 
@@ -68,4 +87,19 @@ test('a crawler is pointed at both the sitemap and the text', async ({ request, 
   // than on the root still finds it.
   await page.goto('/')
   await expect(page.locator('link[rel="alternate"][href="/llms.txt"]')).toHaveCount(1)
+})
+
+test('a component page points at its own text, not just the whole site', async ({ request }) => {
+  // The root layout advertises the index and the everything-inline file. Landing
+  // on one component and being offered only those two is the expensive path:
+  // llms-full.txt is every component, and the reader wants the one it is on.
+  //
+  // Asserted against the served HTML rather than the hydrated DOM, because the
+  // reader this is for does not run the JavaScript that would produce one.
+  for (const path of ['/components/combobox/', '/zh/components/combobox/']) {
+    const html = await (await request.get(path)).text()
+    expect(html, `${path} does not offer its own text`).toContain(
+      'href="https://ui.misoto22.com/components/combobox/llms.txt"',
+    )
+  }
 })
