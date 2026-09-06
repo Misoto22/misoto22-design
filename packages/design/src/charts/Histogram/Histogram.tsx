@@ -18,7 +18,7 @@ import {
 } from 'recharts'
 import { ChartContainer, type ChartConfig } from '../lib/chart'
 import { ChartFigure } from '../lib/figure'
-import { ChartEmpty, type ChartEmptyProps } from '../lib/empty'
+import { type ChartEmptyProps } from '../lib/empty'
 import { ChartBackground, type ChartBackgroundVariant } from '../lib/background'
 import { ChartTooltip } from '../lib/tooltip'
 import { BarHatchedFill, SeriesGradient } from '../lib/paint'
@@ -130,17 +130,50 @@ function binEdges(sorted: number[], bins: number | number[] | undefined): number
   return Array.from({ length: count + 1 }, (_, index) => low + index * width)
 }
 
-/** Raw observations, cut into buckets. */
-function bin(values: number[], bins: number | number[] | undefined): HistogramBin[] {
+/**
+ * Observations the bins do not reach, and the edge each fell outside.
+ *
+ * Only ever non-zero when the call site gave explicit `bins` edges: a derived
+ * width spans the data by construction. When it IS non-zero it is the reading
+ * that matters most — a tail cut off by a hand-picked range — and dropping it
+ * silently hid it from the picture, from the table and from the tooltip's
+ * share-of-total all at once.
+ */
+export interface HistogramOutside {
+  /** How many observations fell below the first edge. */
+  below: number
+  /** How many fell above the last. */
+  above: number
+  /** The first edge, and the last. */
+  edges: [number, number]
+}
+
+/** Raw observations, cut into buckets, with whatever the buckets missed. */
+function bin(
+  values: number[],
+  bins: number | number[] | undefined,
+): { bins: HistogramBin[]; outside: HistogramOutside | null } {
   const sorted = values.filter(Number.isFinite).sort((a, b) => a - b)
-  if (sorted.length === 0) return []
+  if (sorted.length === 0) return { bins: [], outside: null }
 
   const edges = binEdges(sorted, bins)
-  if (edges.length < 2) return []
+  if (edges.length < 2) return { bins: [], outside: null }
 
+  const low = edges[0]!
+  const high = edges[edges.length - 1]!
   const counts = new Array<number>(edges.length - 1).fill(0)
+  let below = 0
+  let above = 0
+
   for (const value of sorted) {
-    if (value < edges[0]! || value > edges[edges.length - 1]!) continue
+    if (value < low) {
+      below += 1
+      continue
+    }
+    if (value > high) {
+      above += 1
+      continue
+    }
     // The top edge belongs to the last bucket. Without that the largest
     // observation falls out of the histogram entirely, which is exactly the
     // point a reader is most likely to be looking for.
@@ -154,7 +187,10 @@ function bin(values: number[], bins: number | number[] | undefined): HistogramBi
     counts[index] = counts[index]! + 1
   }
 
-  return counts.map((count, index) => ({ from: edges[index]!, to: edges[index + 1]!, count }))
+  return {
+    bins: counts.map((count, index) => ({ from: edges[index]!, to: edges[index + 1]!, count })),
+    outside: below + above > 0 ? { below, above, edges: [low, high] } : null,
+  }
 }
 
 /** The bins with their midpoints, drawn heights and printed ranges. */
@@ -178,6 +214,31 @@ function resolve(
       label: `${formatValue(entry.from)} – ${formatValue(entry.to)}`,
     }
   })
+}
+
+/**
+ * The table's rows: every bucket, then whatever the buckets did not reach.
+ *
+ * The out-of-range rows are the only place the dropped observations appear as
+ * numbers. They carry no `height`, because they have no width to be drawn at —
+ * they are a count, not a bar.
+ */
+function tableRows(
+  bins: ResolvedBin[],
+  outside: HistogramOutside | null,
+  formatValue: (value: number) => string,
+): Record<string, unknown>[] {
+  const rows = bins as unknown as Record<string, unknown>[]
+  if (!outside) return rows
+
+  const extra: Record<string, unknown>[] = []
+  if (outside.below > 0) {
+    extra.push({ label: `Below ${formatValue(outside.edges[0])}`, count: outside.below })
+  }
+  if (outside.above > 0) {
+    extra.push({ label: `Above ${formatValue(outside.edges[1])}`, count: outside.above })
+  }
+  return [...rows, ...extra]
 }
 
 interface HistogramContextValue {
@@ -226,6 +287,12 @@ export interface HistogramProps {
    * How to cut `values` up: a number of equal-width bins, or the explicit
    * edges. Defaults to Freedman–Diaconis (`2 × IQR × n^(-1/3)`), falling back
    * to Sturges when the interquartile range is zero.
+   *
+   * Explicit edges are a RANGE as well as a set of buckets: an observation
+   * outside the first and last edge has no bucket to fall in. It is counted
+   * anyway — into the tooltip's share-of-total, and into a "Below" or "Above"
+   * row in the table — so a tail your edges cut off is still somewhere a reader
+   * can find it.
    */
   bins?: number | number[]
   /**
@@ -325,9 +392,14 @@ export function Histogram({
   const chartId = useId().replace(/:/g, '')
   const seriesKey = Object.keys(config)[0] ?? 'count'
 
+  const counted = useMemo(
+    () => (data ? { bins: data, outside: null } : bin(values ?? [], bins)),
+    [data, values, bins],
+  )
+
   const resolved = useMemo(
-    () => resolve(data ?? bin(values ?? [], bins), mode, formatValue),
-    [data, values, bins, mode, formatValue],
+    () => resolve(counted.bins, mode, formatValue),
+    [counted, mode, formatValue],
   )
 
   const domain = useMemo<[number, number]>(
@@ -336,9 +408,15 @@ export function Histogram({
     [resolved],
   )
 
+  // The SAMPLE, not the drawn buckets. A tooltip whose shares are taken over
+  // the bins alone always sums to 100%, however much of the data the bins
+  // missed — so the one number that would reveal the cut-off tail is exactly
+  // the one that hides it.
   const total = useMemo(
-    () => resolved.reduce((sum, entry) => sum + entry.count, 0),
-    [resolved],
+    () =>
+      resolved.reduce((sum, entry) => sum + entry.count, 0) +
+      (counted.outside ? counted.outside.below + counted.outside.above : 0),
+    [counted, resolved],
   )
 
   const context = useMemo<HistogramContextValue>(
@@ -359,7 +437,7 @@ export function Histogram({
           hideDataTable
             ? false
             : {
-                rows: resolved as unknown as Record<string, unknown>[],
+                rows: tableRows(resolved, counted.outside, formatValue),
                 rowKey: 'label',
                 columns: [
                   { key: 'count', label: 'Count' },
@@ -367,22 +445,20 @@ export function Histogram({
                 ],
               }
         }
+        isEmpty={isEmpty}
+        empty={empty}
       >
-        {isEmpty ? (
-          <ChartEmpty {...(empty || {})} />
-        ) : (
-          <ChartContainer config={config}>
-            <RechartsBarChart
-              id={chartId}
-              accessibilityLayer
-              margin={CHART_MARGIN}
-              data={resolved}
-              {...chartProps}
-            >
-              {children}
-            </RechartsBarChart>
-          </ChartContainer>
-        )}
+        <ChartContainer config={config}>
+          <RechartsBarChart
+            id={chartId}
+            accessibilityLayer
+            margin={CHART_MARGIN}
+            data={resolved}
+            {...chartProps}
+          >
+            {children}
+          </RechartsBarChart>
+        </ChartContainer>
       </ChartFigure>
     </HistogramContext.Provider>
   )

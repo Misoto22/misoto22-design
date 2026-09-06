@@ -72,8 +72,8 @@ export const FOUNDATIONS: FoundationPage[] = [
     related: ['agents', 'colour'],
     intro: [
       'Components ship compiled. You import them; you do not copy them into your project, and there is no CLI that writes a Button into your source tree for you to maintain. That is the trade the package makes: an upgrade is a version bump rather than a diff across forty files you now own.',
-      'Two peer dependencies, both React: react and react-dom at ^19.0.0. Everything else the components need — Radix, cmdk, sonner, lucide, tailwind-merge — is a real dependency and comes down with the package. Node 24 or newer, and the package is ESM only: the exports map carries an import condition and no require, so a CommonJS build will not resolve it.',
-      'The rest of this page is the part the README is thinnest on: which of the ten entries in the exports map you actually want, and what each one leaves out.',
+      'Four peer dependencies, and only two of them are React. react and react-dom at ^19.0.0 are required; motion and recharts are declared optional and are the price of one entry point — @misoto22/design/charts imports both, and without them installed it does not resolve. @misoto22/design/diagrams asks for neither. Everything else the components need — Radix, cmdk, sonner, lucide, react-day-picker, tailwind-merge — is a real dependency and comes down with the package. Node 24 or newer, and the package is ESM only: the exports map carries an import condition and no require, so a CommonJS build will not resolve it.',
+      'The rest of this page is the part the README is thinnest on: which of the twelve entries in the exports map you actually want, and what each one leaves out.',
     ],
     sections: [
       {
@@ -94,6 +94,16 @@ export const FOUNDATIONS: FoundationPage[] = [
         ],
         rows: [
           { term: '@misoto22/design', detail: 'The components, the types, `cn`, `CONTROL_BASE`, `CONTROL_BORDER`, `isInvalid`, `BRAND`.' },
+          {
+            term: '/charts',
+            detail:
+              'The charts, and the only reason the two optional peers exist — it imports `recharts` and `motion/react`. Behind its own entry so a page that renders a Badge pays for neither.',
+          },
+          {
+            term: '/diagrams',
+            detail:
+              'Five figure renderers and the canvas, toolbar, legend, minimap and inspector a reader explores one with. No peer beyond React.',
+          },
           { term: '/styles.css', detail: 'Everything, compiled: Tailwind + every layer below + the vendored faces. The single-import path.' },
           { term: '/tokens.css', detail: 'The primitives, plus the default dark swap and the compact density axis.' },
           { term: '/semantic.css', detail: 'The roles a component actually reads — `--background`, `--foreground-muted`, `--border-color`.' },
@@ -144,7 +154,7 @@ export const FOUNDATIONS: FoundationPage[] = [
       {
         key: 'depth',
         title: 'Depth',
-        note: 'Three of these resolve to nothing on purpose. A box-shadow in this system is never blurred; --lift is the hard ink offset that replaces the elevation ramp.',
+        note: 'Four of these draw nothing on purpose: --shadow-sm, --shadow and --shadow-lg resolve to none, and --shadow-color to transparent. A box-shadow in this system is never blurred; --lift is the hard ink offset that replaces the elevation ramp.',
       },
       { key: 'focus', title: 'Focus' },
     ],
@@ -162,7 +172,7 @@ export const FOUNDATIONS: FoundationPage[] = [
   {
     slug: 'space',
     title: 'Space & shape',
-    summary: 'The page gutter, the measures, and the four radii.',
+    summary: 'The page gutter, the measures, and the five radii.',
     related: ['shape', 'icons', 'elevation'],
     intro: [
       'Measures are capped in ch rather than px, so they track the type they are set in. --measure-record is a ceiling on a listed record’s description, not a width: a narrower column still wins.',
@@ -210,26 +220,26 @@ export const FOUNDATIONS: FoundationPage[] = [
       'There is no elevation ramp, and the four tokens named after one are there to neutralise it. --shadow-sm, --shadow and --shadow-lg all resolve to none, and --shadow-color to transparent. That is not an oversight waiting to be filled in: a component ported from a shadowed system keeps its shadow class, draws nothing, and stays flat, which is the entire point of declaring them. Law 2 — a box-shadow is never blurred — is enforced by the values rather than by a reviewer.',
       'The one depth cue the system does own is --lift: 3px 3px 0 0 var(--shadow-offset), a hard ink offset with no blur at all, and --lift-sm at 2px. --shadow-offset points at --clay, so the offset is the accent rather than a grey and it re-points when the accent does. Worth knowing before you reach for it: no component in the package uses either one — there is not a single shadow-(--lift) in the library. It is published as the sanctioned idiom for a consumer building a plate of their own, not as something the library leans on.',
       'What the library actually separates with is three things, in this order. A hairline: --rule between rows, --rule-2 around a box. A change of ground: --paper, --paper-2, --stone, three steps and no fourth. And reversal, which is what Card variant="plate" reaches for — it fills with the one reversed surface and carries its own title colour, because a hardcoded ink title on a reversed plate came out at 1.25:1 and was invisible on the one variant whose whole job is to look different. Use at most one plate per screen; two of them is a page with no ground left.',
-      'Height and stacking are separate questions here, and only the second one is real. Seven ranks — --z-rule at 1 through --z-toast at 300 — say what sits over what, and none of them implies a shadow, because there is none to cast. A surface’s rank is decided by what it has to survive: a dropdown has to clear a sticky header, a scrim has to cover the dropdown, a modal has to sit on the scrim, and a toast has to be visible over a modal that is asking a question. The ladder itself is tabled on Space & shape rather than repeated here.',
+      'Height and stacking are separate questions here, and only the second one is real. Seven ranks — --z-rule at 1 through --z-toast at 300 — say what sits over what, and none of them implies a shadow, because there is none to cast. A surface’s rank is decided by what it has to survive: a drawer has to clear a sticky header, a scrim has to cover both, a modal has to sit on its own scrim, an ANCHORED panel has to clear the modal it was opened from — a select inside a dialog is one of the most ordinary shapes there is, and ranked under the modal the panel paints behind the very dialog that summoned it — and a toast has to be visible over a modal that is asking a question. The ladder itself is tabled on Space & shape rather than repeated here.',
       'Two of the seven have component-facing aliases in the semantic layer, --z-dropdown and --z-overlay. Reach for those from a component and for the primitive ranks only when you are placing something the system has no name for.',
     ],
     categories: [
       {
         key: 'depth',
         title: 'Depth',
-        note: 'Four of these resolve to nothing, on purpose. --lift and --lift-sm are the offsets that replace the ramp — currently used by no component in the package, and published for consumers rather than consumed here.',
+        note: 'Four of these draw nothing on purpose: --shadow-sm, --shadow and --shadow-lg resolve to none, and --shadow-color to transparent. --lift and --lift-sm are the offsets that replace the ramp — currently used by no component in the package, and published for consumers rather than consumed here.',
       },
     ],
   },
   {
     slug: 'icons',
     title: 'Icons',
-    summary: 'One stroke weight, three sizes, and a library that has stopped shipping brand marks.',
+    summary: 'One stroke weight, three size tokens over five sizes in the source, and a library that has stopped shipping brand marks.',
     related: ['typography', 'space'],
     intro: [
-      'Every icon in the package comes from lucide-react, drawn at 1.5 stroke. There is one exception and it is bounded by size rather than by taste: a 12px mark inside a filled box — a checkbox tick, a combobox chip’s close, a table’s sort caret — is set at 2 or 3, because 1.5 at twelve pixels thins below a hairline and the glyph stops reading as a glyph.',
+      'Every icon in the package comes from lucide-react, drawn at 1.5 stroke. There is one exception and it is bounded by size rather than by taste: the seven small marks that sit inside a box — a checkbox tick, a combobox chip’s close, a table’s sort caret, a select’s tick — are drawn at 2, 2.5 or 3, six of them at 12px and one at 14, because 1.5 at twelve pixels thins below a hairline and the glyph stops reading as a glyph.',
       'Sixteen pixels is the default and carries most of the system: a chevron, a close, a check, a caret. 14px is for a mark inside a control’s own padding, where 16 would crowd the label — a select’s indicator, a popover’s close, a combobox’s clear. 18px is for a leading mark that opens a row rather than sitting inside one: a nav item, an alert’s tone mark, the command palette’s search. 20px is the app shell’s menu toggle, and 24px is reserved for an EmptyState, where the icon is the only thing on the surface.',
-      'Those four sizes and that stroke are named: --ico-s, --ico-m, --ico-l and --ico-stroke. Read them as the specification, not as the mechanism — nothing in the package reads them. Every icon in src/components is written as size={16} strokeWidth={1.5} in TSX, because the size lands on the SVG as an attribute rather than as a style. So the tokens are what a review checks against, and the numbers are what you will find in the source. Do not go looking for the var() that wires them together; there isn’t one.',
+      'Three of those five sizes are named, and the stroke with them: --ico-s is 14, --ico-m is 16, --ico-l is 20, --ico-stroke is 1.5. 18px and 24px have no token at all. Read the four as the specification, not as the mechanism — nothing in the package reads them. Every icon in src/components is written as size={16} strokeWidth={1.5} in TSX, because the size lands on the SVG as an attribute rather than as a style. So the tokens are what a review checks against, and the numbers are what you will find in the source. Do not go looking for the var() that wires them together; there isn’t one.',
       'An icon aligns by flex, never by baseline. Button sets inline-flex items-center gap-(--control-gap) on every variant, so the glyph centres against its label and the gap comes off the density axis rather than off a margin written at the call site. Centring is right on a line of text and wrong against a block of it: Alert’s tone mark sits beside a title and a paragraph, so it takes mt-px shrink-0 instead. shrink-0 is on most icons in the package and it is not decoration — without it a flex row squashes the glyph before it wraps the label, and a 16px icon compressed to 11 is the artefact everyone sees and nobody can name.',
       'An icon is decoration until proven otherwise, so aria-hidden is the default and nearly every icon in the package carries it. A chevron on an accordion, a tick in a checkbox, a tone mark on an alert whose words already say what went wrong — announcing any of those is the same sentence twice. The exceptions are the controls with no text at all. FloatingIconButton makes that the type’s problem: label is a required prop, so the code does not compile without it. Button does not — its JSDoc says an icon-only button REQUIRES aria-label and nothing checks it, so that is the one place a review still has to look. An icon-only control with no accessible name is the single most common way a design system ships something unusable.',
       'BRAND MARKS ARE GONE, and this is the kind of thing that breaks a build on upgrade rather than at review. The version resolved in this repository is lucide-react 1.40.0. It still ships thousands of icons and not one of them is a brand: there is no Github export, and no Twitter, Slack, Figma, Gitlab, Linkedin, Youtube, Chrome, Codepen, Framer, Dribbble, Instagram or Facebook either. import { Github } from "lucide-react" is a compile error, not a missing glyph. This documentation site has already paid it — the octocat in its own masthead is a hand-drawn path in apps/docs/src/components/GithubMark.tsx, filled with currentColor so it still follows the button into dark mode. @misoto22/design depends on lucide-react at ^1.33.0 as a dependency rather than a peer, so an app importing lucide directly resolves its own copy against its own range, and the failure lands on its upgrade rather than on ours.',

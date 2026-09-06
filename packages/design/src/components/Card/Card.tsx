@@ -26,6 +26,12 @@ const VARIANT = {
  * never a blur. A card that needs to read as raised is a `plate`, which
  * separates by reversal instead.
  *
+ * It clips to its own corner. A card that rounds and does not clip lays a
+ * full-bleed image's square corners over its round ones at all four corners,
+ * and the same goes for a filled first child — a defect that is invisible until
+ * the first card with an image at the top of it. Pass `overflow-visible` for
+ * the rarer card that deliberately overhangs.
+ *
  * Compose with the named sub-parts, or drop children straight in when the card
  * has no header or footer to speak of.
  *
@@ -38,7 +44,7 @@ const VARIANT = {
  */
 export function Card({ variant = 'outline', className, children, ...rest }: CardProps) {
   return (
-    <div className={cn('rounded-(--radius-lg)', VARIANT[variant], className)} {...rest}>
+    <div className={cn('overflow-hidden rounded-(--radius-lg)', VARIANT[variant], className)} {...rest}>
       {children}
     </div>
   )

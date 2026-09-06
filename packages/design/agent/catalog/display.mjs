@@ -201,12 +201,12 @@ export const DISPLAY = [
         element: 'Circle',
         required: true,
         description:
-          'The Radix root: a --rule hairline over --stone, overflow hidden, and one of three fixed squares — 28px, 36px or 48px.',
+          'The Radix root: a --rule hairline over --stone, overflow hidden, and one of three fixed squares — 28px, 36px or 48px. It carries role="img" and alt as its own name, because it is the one element in here that is always rendered.',
       },
       {
         element: 'Image',
         description:
-          'Rendered only when src is given, object-cover so a portrait crops to the circle instead of distorting. It is the only element in here that carries alt.',
+          'Rendered only when src is given, object-cover so a portrait crops to the circle instead of distorting. Its own alt is empty on purpose — the circle around it is what names the person, and a second name here is the same person read twice.',
       },
       {
         element: 'Initials',
@@ -217,7 +217,7 @@ export const DISPLAY = [
     practices: [
       {
         kind: 'do',
-        text: 'Print the person’s name beside the avatar. alt only reaches the DOM when src does, and the initials are aria-hidden — so a person with no photograph has no accessible text here at all, however carefully alt was written.',
+        text: 'Write alt for the person, not for the row: the circle carries it whether or not a photograph ever arrives, so a list where photographs are optional announces every person rather than every second one.',
       },
       {
         kind: 'do',
@@ -237,8 +237,9 @@ export const DISPLAY = [
       },
     ],
     accessibility: [
-      'alt describes the person, not the picture. An empty string is correct when the name is already printed beside it.',
-      'The initials are aria-hidden — read aloud they are noise.',
+      'alt names the circle itself, as role="img", so an avatar with no photograph still says who it is.',
+      'An empty alt is correct when the name is already printed beside it: the circle then takes no role at all rather than an unnamed one, and leaves the tree entirely.',
+      'The initials are aria-hidden — read aloud beside a name the root already gives, they are noise.',
     ],
   },
   {
@@ -379,7 +380,7 @@ export const DISPLAY = [
         element: 'Dot',
         required: true,
         description:
-          'A StatusDot handed tone and pulse. It is aria-hidden, which makes the tone the one part of this component assistive tech never sees.',
+          'A StatusDot handed tone and pulse. It is aria-hidden, so it is not where the tone reaches a reader who cannot see it.',
       },
       {
         element: 'Label',
@@ -387,11 +388,16 @@ export const DISPLAY = [
         description:
           'children in the eyebrow idiom — 11px uppercase mono, tracking pulled back from 0.2em to 0.12em because a pill is a shorter run than a section kicker.',
       },
+      {
+        element: 'Severity',
+        description:
+          'A visually-hidden “Warning” or “Error” at the warning and danger tones, so those two reach a reader through something other than a colour on a hidden dot. success and neutral add nothing: they are the absence of alarm, which is what a reader already assumes.',
+      },
     ],
     practices: [
       {
         kind: 'do',
-        text: 'Put the state in the words. tone reaches only the dot and the dot is aria-hidden, so “Degraded” in a warning pill and “Degraded” in a neutral one are the same sentence to anyone who cannot see the colour.',
+        text: 'Put the state in the words anyway. The severity word reaches a screen reader and nothing else — the pill’s own text is --ink-2 at every tone, so on a monochrome screen “Degraded” in a warning pill and in a neutral one are still the same pill.',
       },
       {
         kind: 'do',
@@ -409,6 +415,11 @@ export const DISPLAY = [
         kind: 'dont',
         text: 'One per view, not one per row. The label is an uppercase eyebrow at 0.12em tracking — the loudest small type the system has — and a column of them down a table is Badge’s job, which is why Badge carries the same status tones in plain 12px mono.',
       },
+    ],
+    accessibility: [
+      'The warning and danger tones are doubled by a visually-hidden severity word, because the dot that carries the colour is aria-hidden and has no name to give.',
+      'success and neutral are silent on purpose: announcing “OK” before every settled pill is noise charged to the two tones worth interrupting for.',
+      'Not a live region. A state that flips while the reader is on the page changes silently unless the call site owns a role="status" around it.',
     ],
     related: ['status-dot', 'badge'],
   },
@@ -558,11 +569,11 @@ export const DISPLAY = [
     practices: [
       {
         kind: 'do',
-        text: 'Give an id only to nodes an edge names, and write the edge in the order the array runs: it is matched against the node immediately before this one, so an edge between non-adjacent nodes, or one written to→from, draws nothing and reports nothing.',
+        text: 'Write an edge from a node to the node immediately after it in the same rank, in that order. An edge between non-adjacent nodes, or one written to→from, draws no arrow — and now says so in the console rather than leaving the author to spot a missing arrow in a picture that otherwise looks finished.',
       },
       {
         kind: 'do',
-        text: 'Keep ids unique across the whole spec. The same edges array is handed down to every rank, so a pair of ids reused two levels deeper draws the arrow again down there.',
+        text: 'Keep ids unique across the whole spec. Each edge is now spent at the first pair that matches it, so a reused pair no longer draws the arrow twice — but the arrow lands on whichever pair comes first, which is a diagram asserting something nobody wrote.',
       },
       {
         kind: 'do',
@@ -570,11 +581,11 @@ export const DISPLAY = [
       },
       {
         kind: 'dont',
-        text: 'accent is read only in the plate branch, so setting it on a node with children compiles, type-checks and paints nothing — a container is a band, and a band has no fill to take.',
+        text: 'accent is read only in the plate branch, so setting it on a node with children compiles, type-checks and paints nothing — a container is a band, and a band has no fill to take. Development says so; a production build does not.',
       },
       {
         kind: 'dont',
-        text: 'direction is read only from a node that HAS children. Set on a leaf it is ignored, because the axis a leaf sits on belongs to its parent.',
+        text: 'direction is read only from a node that HAS children. Set on a leaf it is ignored, because the axis a leaf sits on belongs to its parent — and, like accent on a band, it is reported in development rather than silently dropped.',
       },
       {
         kind: 'dont',
@@ -585,6 +596,7 @@ export const DISPLAY = [
       'A <figure> with role="group", named by its caption, so the whole picture is one thing a reader can skip.',
       'Arrows are aria-hidden: assistive tech reads the nodes in document order and has no use for a glyph pointing at the next one.',
       'Server-rendered markup, not a canvas — every label is real text a screen reader and a search engine can read.',
+      'A spec the renderer cannot honour — an unmatched edge, a duplicate id, accent on a band, direction on a leaf — prints a named warning in development, because the alternative is a confident picture of something else.',
     ],
     related: ['card', 'figure-band'],
   },

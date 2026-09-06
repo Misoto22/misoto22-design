@@ -4,7 +4,6 @@ import {
   Children,
   createContext,
   isValidElement,
-  useCallback,
   useContext,
   useEffect,
   useId,
@@ -25,6 +24,8 @@ import {
 import { useReducedMotion } from 'motion/react'
 import { ChartContainer, colorStops, type ChartConfig } from '../lib/chart'
 import { ChartFigure } from '../lib/figure'
+import { type ChartEmptyProps } from '../lib/empty'
+import { useChartSelection } from '../lib/selection'
 import { ChartBackground, type ChartBackgroundVariant } from '../lib/background'
 import { ChartDot, type ChartDotVariant } from '../lib/dot'
 import { ChartLegend, ChartLegendContent } from '../lib/legend'
@@ -99,8 +100,15 @@ export interface RadarChartProps<
   className?: string
   /** Escape hatch onto the raw Recharts chart element. */
   chartProps?: ComponentProps<typeof RechartsRadarChart>
-  /** The series lit on first render. Selection dims every other series. */
+  /** The series lit on first render, when the chart keeps its own selection. */
   defaultSelectedDataKey?: string | null
+  /**
+   * The selected series, driven from outside.
+   *
+   * Give this and the chart follows it; leave it undefined and the chart keeps
+   * its own, starting from `defaultSelectedDataKey`.
+   */
+  selectedDataKey?: string | null
   /** Fires when the selection changes, and with null when it is cleared. */
   onSelectionChange?: (selectedDataKey: string | null) => void
   /**
@@ -117,6 +125,11 @@ export interface RadarChartProps<
    * itself.
    */
   hideDataTable?: boolean
+  /**
+   * What the chart shows when it has nothing to draw. `false` keeps the empty
+   * plot, for a chart whose emptiness is itself the reading.
+   */
+  empty?: ChartEmptyProps | false
 }
 
 /**
@@ -149,22 +162,20 @@ export function RadarChart<
   className,
   chartProps,
   defaultSelectedDataKey = null,
+  selectedDataKey: controlledDataKey,
   onSelectionChange,
   isLoading = false,
   loadingPoints,
   angleDataKey,
   hideDataTable = false,
+  empty,
 }: RadarChartProps<TData, TConfig>) {
   const chartId = useId().replace(/:/g, '')
-  const [selectedDataKey, setSelectedDataKey] = useState<string | null>(defaultSelectedDataKey)
   const loadingData = useLoadingShape(isLoading, loadingPoints)
-
-  const selectDataKey = useCallback(
-    (next: string | null) => {
-      setSelectedDataKey(next)
-      onSelectionChange?.(next)
-    },
-    [onSelectionChange],
+  const [selectedDataKey, selectDataKey] = useChartSelection(
+    controlledDataKey,
+    defaultSelectedDataKey,
+    onSelectionChange,
   )
 
   const context = useMemo<RadarChartContextValue>(
@@ -191,6 +202,8 @@ export function RadarChart<
                 })),
               }
         }
+        isEmpty={!isLoading && data.length === 0}
+        empty={empty}
       >
         <ChartContainer config={config}>
           <RechartsRadarChart id={chartId} data={isLoading ? loadingData : data} {...chartProps}>

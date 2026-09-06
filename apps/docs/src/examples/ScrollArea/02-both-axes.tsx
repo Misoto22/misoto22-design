@@ -14,11 +14,12 @@ const ROWS = Array.from({ length: 14 }, (_, index) => [
 ])
 
 /**
- * orientation defaults to vertical, and the axis WITHOUT a bar is set to
- * overflow: hidden — so content wider than the box is not merely unmarked, it
- * is clipped, and no key and no gesture reaches it. Set both as soon as the
- * content is wider than the box, as this log is. The corner square only exists
- * at both. Do not nest one of these inside another on the same axis, either:
+ * orientation defaults to both, and it is written out here because the axis
+ * WITHOUT a bar is set to overflow: hidden — so narrowing this to vertical
+ * would leave content wider than the box not merely unmarked but clipped, with
+ * no key and no gesture reaching it. Narrow it only when one axis genuinely
+ * cannot overflow. The corner square only exists at both. Do not nest one of
+ * these inside another on the same axis, either:
  * the inner viewport consumes the wheel until it reaches its own end, so a
  * reader aiming at the outer list moves the inner one instead.
  */

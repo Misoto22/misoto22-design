@@ -1,4 +1,5 @@
-import type { HTMLAttributes } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
+import { DEV, warn } from '../../lib/warn'
 
 export interface ArticleProps extends HTMLAttributes<HTMLElement> {
   /**
@@ -17,6 +18,17 @@ export interface ArticleProps extends HTMLAttributes<HTMLElement> {
 }
 
 /**
+ * Whether `children` would actually put something on the page.
+ *
+ * `null`, `false` and `''` are what a conditional child evaluates to when it
+ * decided not to render, so none of them is a second Article and none of them
+ * is worth a warning.
+ */
+function rendersSomething(children: ReactNode): boolean {
+  return children !== undefined && children !== null && children !== false && children !== ''
+}
+
+/**
  * The long-form reading surface.
  *
  * Everything a Markdown pipeline can emit — headings, prose, lists, tables,
@@ -32,9 +44,11 @@ export interface ArticleProps extends HTMLAttributes<HTMLElement> {
  * hand-rolling a prose stylesheet is three prose stylesheets that drift.
  *
  * Composable either way: pass `html` for a rendered string, or children for
- * real elements. A post that mixes the two — prose with a `Diagram` dropped
- * into the middle — renders its blocks in order and gives each one an
- * `Article`. Inside one, these rules BEAT a component's utilities:
+ * real elements — one or the other, never both. `html` wins when both arrive,
+ * and says so in development: `html=""` is still `html`, which made losing a
+ * page of children a thing that could happen without a word. A post that mixes
+ * the two — prose with a `Diagram` dropped into the middle — renders its blocks
+ * in order and gives each one an `Article`. Inside one, these rules BEAT a component's utilities:
  * `article.css` is imported unlayered while Tailwind's utilities sit in
  * `@layer utilities`, and an unlayered rule wins over a layered one whatever
  * either one's specificity is. That is the mechanism rather than an accident —
@@ -56,9 +70,20 @@ export function Article({ html, as: Comp = 'article', className, children, ...re
   // wrapper around the rendered string — even a `display: contents` one, which
   // removes the box but not the DOM node — would take every heading and
   // paragraph out of the article's direct children and cost them their
-  // spacing. A page with both is a page with two Articles, and it should say
-  // so.
+  // spacing. A page with both is a page with two Articles, and it says so
+  // below rather than dropping half the page without a word.
   if (html !== undefined) {
+    if (DEV && rendersSomething(children)) {
+      warn({
+        code: 'ARTICLE_HTML_AND_CHILDREN',
+        problem:
+          'Article was given html and children together, so the children are not rendered at all. html is written with dangerouslySetInnerHTML, and there is no wrapper that could hold both — the rhythm is a child combinator, so anything put around the rendered string costs every block inside it its spacing.',
+        field: 'html',
+        fix: 'Render the two in order as two Articles, or drop whichever of html and children is not the content. An empty html string still counts as html.',
+        component: 'Article',
+      })
+    }
+
     return (
       <Comp
         data-m22-article

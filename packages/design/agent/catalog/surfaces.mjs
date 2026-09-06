@@ -65,7 +65,7 @@ export const SURFACES = [
       },
       {
         kind: 'dont',
-        text: 'Do not pass html and children together — html wins and the children are dropped with no warning. A post that mixes prose with components is two Articles in order, not one holding both.',
+        text: 'Do not pass html and children together — html wins and the children are dropped. It says so in development now, but html="" is still html, so a pipeline that rendered nothing takes the children down with it. A post that mixes prose with components is two Articles in order, not one holding both.',
       },
       {
         kind: 'dont',
@@ -93,7 +93,7 @@ export const SURFACES = [
         element: 'Box',
         required: true,
         description:
-          'A <div> with the --radius-lg corner and one of three grounds: outline, a hairline on the page ground and the default; plate, the one reversed feature surface; flat, no border at all, for a card whose grid already draws the rules between cells. It brings no padding and does not clip what is inside it.',
+          'A <div> with the --radius-lg corner and one of three grounds: outline, a hairline on the page ground and the default; plate, the one reversed feature surface; flat, no border at all, for a card whose grid already draws the rules between cells. It brings no padding, and it clips to its own corner.',
       },
       {
         element: 'Header',
@@ -130,7 +130,7 @@ export const SURFACES = [
       },
       {
         kind: 'do',
-        text: 'Add overflow-hidden for a full-bleed image: the box rounds its corners and does not clip, so an image at the top of a card lays its square corners over the card’s round ones.',
+        text: 'Pass overflow-visible for the card that deliberately overhangs — a marker pinned to its edge, a control that breaks the outline. The box clips by default, because a card that rounds and does not clip lays a full-bleed image’s square corners over its round ones.',
       },
       {
         kind: 'dont',
@@ -213,7 +213,7 @@ export const SURFACES = [
       },
       {
         kind: 'dont',
-        text: 'Do not treat the closed drawer as gone: on a phone it is translated off-screen rather than unmounted, so its links stay focusable and stay in the accessibility tree — Tab from the toggle walks into a menu the reader cannot see.',
+        text: 'Do not treat the closed drawer as unmounted: below md it is translated off-screen and marked inert, not removed, so everything inside it still renders and still runs its effects — a nav item that measures itself measures a box nobody can see.',
       },
       {
         kind: 'dont',
@@ -227,6 +227,8 @@ export const SURFACES = [
     accessibility: [
       'The drawer closes on Escape as well as on the scrim, so a keyboard user is not stranded inside it.',
       'The scrim is a <button>, because a div with an onClick is neither reachable nor announced.',
+      'Below md the closed drawer carries inert, so its links are out of the tab order and out of the accessibility tree rather than merely off screen. Above md it never is: there the sidebar is the page’s navigation column.',
+      'Both ways out return focus to the toggle. Focus left inside an inert subtree is focus the browser throws away, and the scrim is worse — it is the focused element and it unmounts.',
     ],
     related: ['nav-item'],
   },
@@ -257,7 +259,7 @@ export const SURFACES = [
       {
         element: 'Month and year picker',
         description:
-          'A role="group" drawn IN PLACE of the day grid rather than over it — twelve months in a 3×4 and up to twenty-four years in a 4×6, at exactly the size of the grid they replace. Focus moves in when it opens; Escape closes it and puts focus back on the caption.',
+          'A role="dialog" drawn IN PLACE of the day grid rather than over it — twelve months in a 3×4 and up to twenty-four years in a 4×6, at exactly the size of the grid they replace. Focus moves in when it opens and Tab wraps inside it; Escape closes it and puts focus back on the caption.',
       },
       {
         element: 'Day marks',
@@ -284,6 +286,10 @@ export const SURFACES = [
         text: 'Know what widening the span costs: the year grid pages 24 at a time, so the default ten either side is one page and no paging, and a range wide enough for a birth date is a reader stepping through pages to reach 1974.',
       },
       {
+        kind: 'do',
+        text: 'Translate the picker’s chrome alongside locale. locale reaches the month names and stops there, so a French calendar with the prop set still names its two panels and its four chevrons “Month and year”, “Previous year” and “Earlier years” until the CalendarLabels props are passed.',
+      },
+      {
         kind: 'dont',
         text: 'Do not stretch it with a width class: it is w-fit and lays out fixed 36px columns, so w-full only replaces w-fit and leaves the same grid sitting at the start edge of a wider box.',
       },
@@ -299,7 +305,8 @@ export const SURFACES = [
     accessibility: [
       'Arrows move a day, Page keys move a month, Home and End reach the week’s ends.',
       '“Today” is an outline and “selected” is a fill — one is a fact about the calendar, the other a choice the reader made, and they must not look alike.',
-      'Month and year are the system’s own Select, not the platform’s: a native list of a hundred years is a scroll rather than a choice, and it arrives styled by the operating system.',
+      'Month and year are one panel of buttons, not a native select: a platform list of a hundred years is a scroll rather than a choice, and it arrives styled by the operating system.',
+      'Tab wraps inside the open panel. It is opaque and the day grid is still mounted under it, so a Tab that left would put the reader on a day they cannot see — and past the caption that owns the Escape handler.',
       'The default span is ten years either side. A birth date needs a wider one, and asks for it with startMonth.',
     ],
     keyboard: [
@@ -327,7 +334,7 @@ export const SURFACES = [
         element: 'Viewport',
         required: true,
         description:
-          'The element that actually scrolls, and the one carrying role="region", tabIndex 0 and label. Radix hides the platform’s scrollbar on it and sets the axis WITHOUT a bar to overflow: hidden.',
+          'The element that actually scrolls, and the one carrying role="region", tabIndex 0 and label. Radix hides the platform’s scrollbar on it and sets the axis WITHOUT a bar to overflow: hidden. It is positioned, so an absolutely-positioned descendant travels with the content instead of hanging still over it.',
       },
       {
         element: 'Bar',
@@ -336,7 +343,7 @@ export const SURFACES = [
       },
       {
         element: 'Corner',
-        description: 'The square where two bars meet, which exists only at orientation="both".',
+        description: 'The square where two bars meet, which exists only at orientation="both" — the default.',
       },
     ],
     practices: [
@@ -346,7 +353,7 @@ export const SURFACES = [
       },
       {
         kind: 'do',
-        text: 'Set orientation="both" or "horizontal" as soon as the content is wider than the box: the axis without a bar is set to overflow: hidden, so what is past the edge is not merely unmarked — it is clipped, and no key and no gesture reaches it.',
+        text: 'Narrow orientation only when clipping the other axis is the thing you meant. Both axes scroll by default, because the axis without a bar is set to overflow: hidden — what is past that edge is not merely unmarked, it is unreachable by every key and every gesture, with the content perfectly well rendered.',
       },
       {
         kind: 'do',
@@ -364,6 +371,7 @@ export const SURFACES = [
     accessibility: [
       'The viewport stays focusable. A scrollable region whose contents are not focusable has nothing to Tab to, so everything past the fold does not exist without a mouse.',
       'label is required, because an unnamed keyboard stop announces "group" and nothing else.',
+      'Both axes scroll unless a caller narrows orientation, so content wider than the box stays reachable rather than being clipped without a bar.',
     ],
     keyboard: [
       { keys: ['Tab'], does: 'Moves focus into the region, which is what makes it scrollable at all without a mouse.' },

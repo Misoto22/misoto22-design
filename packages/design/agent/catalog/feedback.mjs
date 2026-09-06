@@ -28,7 +28,7 @@ export const FEEDBACK = [
         element: 'Ring',
         required: true,
         description:
-          'The inner span — 14px, 18px or 26px of border on a transparent box, and the only element size and tone reach.',
+          'The inner span — 14px, 18px or 26px of border on a transparent box, and the only element size, tone and className reach.',
       },
       {
         element: 'Leading quarter',
@@ -61,7 +61,7 @@ export const FEEDBACK = [
       },
       {
         kind: 'dont',
-        text: 'className is merged onto the wrapper and not onto the ring, so <Spinner className="size-8" /> grows an inline-flex box around an unchanged 18px ring. Size comes from size, and colour from tone.',
+        text: 'className is merged onto the ring AFTER size and tone, so it beats both: <Spinner size="lg" className="size-4" /> is a 16px ring, and the prop whose whole job was naming the size is the one that lost.',
       },
       {
         kind: 'dont',
@@ -96,7 +96,7 @@ export const FEEDBACK = [
       {
         element: 'Fill',
         description:
-          'Skeleton itself: a --stone rectangle with no height, no width and no radius of its own. Every dimension comes from className, which is why a bare <Skeleton /> renders a zero-height div and shows nothing.',
+          'Skeleton itself: a --stone rectangle one line tall — h-3 — and, being a div, already full width. Height is the one dimension the element does not have on its own, so that is the one the base supplies; anything in className replaces it.',
       },
       {
         element: 'Line, Block and Circle',
@@ -116,7 +116,7 @@ export const FEEDBACK = [
       },
       {
         kind: 'do',
-        text: 'Give every Skeleton its height and width in className. The base component sets a fill colour and nothing else, so the shape you forgot to size is not a small shape, it is no shape.',
+        text: 'Give every Skeleton the height of the thing it stands in for. The base falls back to one line, so a block left unsized is no longer invisible — it is a 12px bar where a 160px plate is about to land, and the page jumps by the difference.',
       },
       {
         kind: 'do',
@@ -124,7 +124,7 @@ export const FEEDBACK = [
       },
       {
         kind: 'dont',
-        text: 'Do not add animate-pulse to a part. The frame already animates opacity, a second ramp on a child multiplies with it, and a hand-written Tailwind animation carries neither data-m22-animated nor the m22-anim prefix — which is what the reduced-motion rule in keyframes.css matches on, so that one keeps running for a reader who asked it not to.',
+        text: 'Do not add animate-pulse to a part. The frame already animates opacity and a second ramp on a child multiplies with it, so the part beats at a rate the shape around it does not. Reduced motion is not the reason it is wrong: the rule in keyframes.css is a universal floor on animation-duration and transition-duration, so a hand-written Tailwind animation is clamped along with everything else. data-m22-animated is a component asserting its motion is decorative, not the mechanism that does the cancelling.',
       },
       {
         kind: 'dont',
@@ -160,7 +160,7 @@ export const FEEDBACK = [
       {
         element: 'Sweep',
         description:
-          'What replaces the fill when value is null: a quarter-width --accent bar travelling the track on transform alone, mirrored under rtl so it never reads as progress running backwards.',
+          'What replaces the fill when value is null: a quarter-width --accent bar travelling the track on transform alone, mirrored under rtl so it never reads as progress running backwards. Under prefers-reduced-motion it stops where it is drawn rather than filling the track.',
       },
       {
         element: 'Value row',
@@ -184,15 +184,15 @@ export const FEEDBACK = [
       },
       {
         kind: 'do',
-        text: 'Turn the quantity into a percentage before it gets here. The component clamps to 0–100 in silence, so a total that was underestimated parks the bar at 100% for the rest of the operation rather than admitting the estimate was wrong.',
+        text: 'Set max to the real total rather than converting to a percentage yourself. The width and aria-valuemax come off the same number, so the picture and the announcement cannot drift — but a value past the ceiling still clamps, and an underestimated total parks the bar at full for the rest of the operation rather than admitting the estimate was wrong.',
       },
       {
         kind: 'dont',
-        text: 'Do not pass max. It reaches the Radix root through rest while value is still clamped to 100, so max={500} paints a full bar and announces “100 of 500” — twenty per cent, according to the only thing a screen reader can read.',
+        text: 'Do not pass a max that is not a positive number. Radix refuses it, prints its own warning and falls back to 100, and the width falls back with it — so value={40} paints and announces forty per cent of a ceiling nobody chose.',
       },
       {
         kind: 'dont',
-        text: 'Do not leave an indeterminate bar on screen indefinitely: under prefers-reduced-motion the sweep becomes a full-width bar at 40% opacity, which is the shape of a finished bar sitting at rest. A reader who asked for less motion is looking at something that says it is done.',
+        text: 'Do not read the resting sweep as a position. Under prefers-reduced-motion it stops at a quarter of the track, which is what a determinate bar at 25% looks like — the announcement is the only thing that tells the two apart, and it is the reason omitting value matters.',
       },
       {
         kind: 'dont',
@@ -202,6 +202,7 @@ export const FEEDBACK = [
     accessibility: [
       'Omitting value drops aria-valuenow, so a screen reader hears “indeterminate” rather than a number that is a guess.',
       'label is required — a bare bar announces nothing.',
+      'The width is computed from value and max, the same pair Radix announces as aria-valuenow and aria-valuemax, so what is drawn and what is said cannot disagree.',
     ],
     related: ['spinner'],
   },
@@ -415,7 +416,7 @@ export const FEEDBACK = [
         element: 'Token style',
         required: true,
         description:
-          'sonner’s --normal-bg, --normal-text, --normal-border and --border-radius pointed at --paper, --ink, --rule-2 and --radius, plus the sans face. The --success-* and --error-* pairs are set alongside them but sonner only reads those under richColors.',
+          'sonner’s --normal-bg, --normal-text, --normal-border and --border-radius pointed at --paper, --ink, --rule-2 and --radius, plus the sans face. The --success-* and --error-* pairs join them only when richColors is on, which is the only state sonner reads them in.',
       },
       {
         element: 'Notification region',
@@ -448,6 +449,10 @@ export const FEEDBACK = [
         text: 'Keep the message to what happened. Three toasts are visible at a time and the rest wait their turn, so a loop that toasts per item shows the last three and delivers the others after the reader has moved on.',
       },
       {
+        kind: 'do',
+        text: 'Set data-mode on <html> and leave theme alone. sonner hard-codes the description’s colour per theme — #3f3f3f, overridden only under its dark theme — so a page painted dark by an attribute the Toaster was not following put that grey on --paper at roughly 1.85:1, and every toast with a description lost its second half.',
+      },
+      {
         kind: 'dont',
         text: 'Nothing a reader must act on belongs here. Four seconds is a deadline they were never told about, and the button is in a portal at the end of body that a keyboard reaches last — an Undo in a toast is an offer most people cannot take.',
       },
@@ -458,6 +463,10 @@ export const FEEDBACK = [
       {
         kind: 'dont',
         text: 'Do not report a failure with toast.error and consider it reported. The region is polite for every type, so the failure queues behind whatever the screen reader was already saying and can be removed before its turn comes.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not pass theme="system". It reads prefers-color-scheme, not data-mode, so a reader who overrode a dark operating system with a light page gets a dark toast over it — the same defect the old default had, pointing the other way.',
       },
     ],
     related: ['alert'],

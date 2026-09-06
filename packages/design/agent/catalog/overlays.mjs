@@ -21,7 +21,7 @@ export const OVERLAYS = [
         element: 'Scrim',
         required: true,
         description:
-          'The full-viewport --scrim layer at --z-overlay (200). It is what a click outside lands on, and it paints over everything the page had pinned below that rank — a FloatingIconButton at 100 included.',
+          'The full-viewport --scrim layer at --z-overlay (200). It is what a click outside lands on, and it paints over everything the page had pinned below that rank — a FloatingIconButton at 100 included. Not over an anchored panel: those sit at 220 precisely so a Select opened inside this dialog is still reachable.',
       },
       {
         element: 'Panel',
@@ -33,7 +33,7 @@ export const OVERLAYS = [
         element: 'Title',
         required: true,
         description:
-          'title, rendered as the Radix Title. Always present: when title is omitted a visually hidden one is rendered reading the literal word “Dialog”.',
+          'title, rendered as the Radix Title. Always present: when title is omitted a visually hidden one is rendered reading the literal word “Dialog”, and development warns DIALOG_TITLE_MISSING — the fallback exists so an unnamed modal is not shipped, not so one can be.',
       },
       {
         element: 'Description',
@@ -49,7 +49,7 @@ export const OVERLAYS = [
     practices: [
       {
         kind: 'do',
-        text: 'Pass title even when you set hideTitle: with no title at all the fallback accessible name is the literal string “Dialog”, so every unnamed modal in the app is announced as the same thing.',
+        text: 'Pass title even when you set hideTitle: with no title at all the fallback accessible name is the literal string “Dialog”, so every unnamed modal in the app is announced as the same thing — and it passes an automated accessibility check while doing it, which is why development warns instead of leaving it to a review.',
       },
       {
         kind: 'do',
@@ -65,11 +65,11 @@ export const OVERLAYS = [
       },
       {
         kind: 'dont',
-        text: 'DialogContent renders the Radix Portal with no container and never reads useOverlayContainer, so this is the one overlay OverlayContainer cannot redirect — inside a bounded frame it still covers the whole viewport rather than the frame.',
+        text: 'An OverlayContainer whose element is not positioned hands the dialog the wrong box: naming a container switches the panel from fixed to absolute, and an unpositioned container sends it to the nearest positioned ancestor instead — usually the page, which looks like the container was ignored.',
       },
       {
         kind: 'dont',
-        text: 'Any anchored panel opened from inside a dialog — Popover, DropdownMenu, Select — sits at --z-dropdown, which resolves to 100, under this panel’s 210; both portal to document.body, so the anchored panel is painted behind the dialog instead of over it.',
+        text: 'Two dialogs open at once are ordered by the DOM, not by a rank: both sit at --z-modal, so the one mounted last paints over the first — a command palette summoned over a dialog lands on top because it opened second, and reversing that order reverses the picture.',
       },
       {
         kind: 'dont',
@@ -107,12 +107,17 @@ export const OVERLAYS = [
       {
         element: 'Item',
         description:
-          'A row. icon takes the Lucide component itself and is rendered at 16px; destructive paints the row --danger; disabled drops pointer events and the opacity.',
+          'A row. icon takes either spelling — the Lucide component, sized to 16px here, or a rendered element, placed as given; destructive paints the row --danger; disabled drops pointer events and the opacity.',
       },
       {
         element: 'Label',
         description:
-          'A mono eyebrow over a group of rows. Visual only — Radix renders it as a plain div, and the arrow keys skip it.',
+          'A mono eyebrow, on its own. Visual only — Radix renders it as a plain div, and the arrow keys skip it. DropdownMenuGroup is the one that heads rows: it renders role="group" and points its aria-labelledby at this.',
+      },
+      {
+        element: 'Group',
+        description:
+          'A named section: role="group" around the rows, with label rendered inside it as the Label and named through aria-labelledby. The wiring is the component’s job because a caller doing it by hand has to invent an id.',
       },
       {
         element: 'Separator',
@@ -123,7 +128,7 @@ export const OVERLAYS = [
     practices: [
       {
         kind: 'do',
-        text: 'Pass icon the component and not an element — icon={Settings}, never icon={<Settings />}. It is typed LucideIcon and rendered as <Icon size={16} />, which is the exact opposite of CommandItem’s icon one import away.',
+        text: 'Pass icon the component — icon={Settings} — and let the row size it, so a menu of ten rows draws ten icons at one size rather than ten sizes. The element spelling is accepted too, and used to be the exact opposite of what CommandItem took one import away.',
       },
       {
         kind: 'do',
@@ -143,7 +148,7 @@ export const OVERLAYS = [
       },
       {
         kind: 'dont',
-        text: 'DropdownMenuLabel is Radix’s MenuLabel, a plain div with no role and nothing tying it to the rows beneath it: the heading is visual only, a screen reader stepping through by role never hears it, and no DropdownMenuGroup is exported to wire it up with.',
+        text: 'A bare DropdownMenuLabel over rows is a picture of a heading: Radix’s MenuLabel is a plain div with no role and nothing tying it to what follows, so the sections a sighted reader sees arrive as one undivided list. DropdownMenuGroup renders both halves and wires them together.',
       },
       {
         kind: 'dont',
@@ -153,6 +158,7 @@ export const OVERLAYS = [
     accessibility: [
       'Inside a bounded frame — a device preview, an embedded console — wrap the subtree in `<OverlayContainer container={el}>`. The panel then renders into that element and collides with its edges instead of the viewport’s, and inherits the `dir` and `data-density` set there.',
       'Highlight is driven by data-highlighted, which covers hover AND keyboard focus — styling :hover alone leaves the keyboard user unable to see where they are.',
+      'DropdownMenuGroup segments the menu for a screen reader as well as for the eye; a bare Label does it for the eye alone.',
     ],
     keyboard: [
       { keys: ['Enter', 'Space', '↓'], does: 'Opens the menu and lands on the first item.' },
@@ -289,7 +295,7 @@ export const OVERLAYS = [
       },
       {
         kind: 'dont',
-        text: 'The panel sits at --z-dropdown, which resolves to 100, while a Dialog panel is at --z-modal (210) — and both portal to document.body, so a popover opened from inside a dialog is painted behind it rather than over it.',
+        text: 'The panel sits at --z-dropdown, which resolves to 220 — above a Dialog’s 210, so that a popover opened FROM a dialog is reachable. A popover the page opened and your own state holds open therefore paints over a modal that arrives afterwards; Radix closes it on the interaction outside, and a controlled open that ignores that is the one way to see it.',
       },
     ],
     accessibility: [
@@ -358,11 +364,11 @@ export const OVERLAYS = [
       },
       {
         kind: 'dont',
-        text: 'The panel slides in on a transition, not a keyframe, and carries no data-m22-animated — and the reduced-motion rule in keyframes.css only cancels animation. So a reader who asked for less motion gets the scrim’s fade suppressed and the panel still sliding.',
+        text: 'Do not re-declare the travel in className. The panel carries data-m22-animated, which removes its transform outright under reduced motion; a second transform of your own only gets the universal floor, so it still arrives — a hundredth of a millisecond later, from wherever you put it.',
       },
       {
         kind: 'dont',
-        text: 'SheetContent portals straight to document.body and never reads useOverlayContainer, so inside a bounded frame it docks to the viewport’s edge rather than the frame’s — the same gap Dialog has, for the same reason.',
+        text: 'An OverlayContainer whose element is not positioned docks the sheet to the wrong box: naming a container switches the panel from fixed to absolute, so an unpositioned container sends it to the nearest positioned ancestor rather than to the frame.',
       },
       {
         kind: 'dont',
@@ -400,11 +406,16 @@ export const OVERLAYS = [
       {
         element: 'Item',
         description:
-          'A row, taking the same icon component, destructive and disabled props as DropdownMenuItem, and highlighting on the same data-highlighted.',
+          'A row, taking the same icon, destructive and disabled props as DropdownMenuItem — icon in either spelling — and highlighting on the same data-highlighted.',
       },
       {
         element: 'Label',
-        description: 'A mono eyebrow over a group of rows.',
+        description: 'A mono eyebrow, on its own, and visual only. ContextMenuGroup is the one that heads rows: it renders role="group" and points its aria-labelledby at this.',
+      },
+      {
+        element: 'Group',
+        description:
+          'A named section: role="group" around the rows, with label rendered inside it as the Label and named through aria-labelledby.',
       },
       {
         element: 'Separator',
@@ -430,7 +441,7 @@ export const OVERLAYS = [
       },
       {
         kind: 'dont',
-        text: 'ContextMenuLabel is Radix’s MenuLabel, a plain div with no role and nothing tying it to the rows under it: it is a visual heading, and a screen reader walking the menu by role never hears it.',
+        text: 'A bare ContextMenuLabel over rows is a picture of a heading: Radix’s MenuLabel is a plain div with no role and nothing tying it to what follows, so the sections a sighted reader sees arrive as one undivided list. ContextMenuGroup renders both halves and wires them together.',
       },
       {
         kind: 'dont',
@@ -482,7 +493,7 @@ export const OVERLAYS = [
     practices: [
       {
         kind: 'do',
-        text: 'Give every action keywords unless its id is the word a reader would actually type: the filter runs on the row’s value, and this component passes action.id as that value, so with opaque ids typing the visible label matches nothing.',
+        text: 'Give an action keywords for the word a reader reaches for that the label does not print — “download” for Export, “bin” for Delete. The label’s own text is lifted into the filter for you; a label built only from elements prints none, and development warns SEARCHABLE_MENU_LABEL_UNREADABLE rather than shipping a row nothing matches.',
       },
       {
         kind: 'do',
@@ -562,7 +573,7 @@ export const OVERLAYS = [
       },
       {
         kind: 'do',
-        text: 'Pass CommandItem an icon ELEMENT — icon={<Search size={16} />} — which is the reverse of DropdownMenuItem, whose icon takes the component itself. The two sit one import apart and the types are the only thing that warns you.',
+        text: 'Pass CommandItem an icon element — icon={<Search size={16} />} — when the glyph needs its own size or colour, and the component — icon={Search} — when it does not. Both spellings work here and in DropdownMenuItem; they used to be the reverse of each other one import apart.',
       },
       {
         kind: 'do',
@@ -570,7 +581,7 @@ export const OVERLAYS = [
       },
       {
         kind: 'dont',
-        text: 'Do not pass value to CommandItem unless the value is what a reader would type — cmdk filters on value first and only falls back to the row’s own text when there is none, so an id passed as the value makes the visible label unsearchable.',
+        text: 'Do not pass value to CommandItem unless the value is what a reader would type — cmdk filters on value first and only falls back to the row’s own text when there is none, so an id passed as the value makes the visible label unsearchable. Pass the label’s words as keywords when the id has to stay the value, which is what SearchableMenu does.',
       },
       {
         kind: 'dont',

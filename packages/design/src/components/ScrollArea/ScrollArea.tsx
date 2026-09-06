@@ -10,6 +10,15 @@ export interface ScrollAreaProps extends ComponentProps<typeof ScrollAreaPrimiti
    * keyboard stop, and an unnamed stop announces "group" and nothing else.
    */
   label: string
+  /**
+   * Which axes get a bar — and therefore which axes scroll at all. Radix sets
+   * the viewport's overflow from the bars that are mounted, so an axis without
+   * one is `hidden`: what is past that edge is not merely unmarked, it is
+   * unreachable by every key and every gesture.
+   *
+   * `both` is the default for that reason. Narrow it only when clipping the
+   * other axis is the thing you meant.
+   */
   orientation?: 'vertical' | 'horizontal' | 'both'
 }
 
@@ -26,12 +35,18 @@ export interface ScrollAreaProps extends ComponentProps<typeof ScrollAreaPrimiti
  * needs no component. This is for a bounded panel: a long option list, a log,
  * a sidebar that outgrows its column.
  *
+ * Both axes scroll unless a caller says otherwise. The old vertical default
+ * read as a statement about which bar to draw and was in fact a statement about
+ * which half of the content existed: Radix sets the viewport's overflow from
+ * the mounted bars, so the axis without one was `hidden` and everything past it
+ * was unreachable — silently, and with the content perfectly well rendered.
+ *
  * @example
  * <ScrollArea label="Deploy log" className="h-48">…</ScrollArea>
  */
 export function ScrollArea({
   label,
-  orientation = 'vertical',
+  orientation = 'both',
   className,
   children,
   ...props
@@ -46,7 +61,11 @@ export function ScrollArea({
         tabIndex={0}
         role="region"
         aria-label={label}
-        className="size-full rounded-[inherit]"
+        // Positioned, so an absolutely-positioned descendant — an `sr-only`
+        // label, a pinned marker — resolves against the thing that scrolls and
+        // travels with the content, rather than against the root and hanging
+        // still over it.
+        className="relative size-full rounded-[inherit]"
       >
         {children}
       </ScrollAreaPrimitive.Viewport>

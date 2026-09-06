@@ -88,13 +88,31 @@ function readDestructuredDefaults(fn, source) {
   return defaults
 }
 
+/**
+ * A property's name as a consumer would WRITE it, without its quotes.
+ *
+ * `getText` returns the source verbatim, so `'aria-describedby'?: string`
+ * arrived as `'aria-describedby'` — quotes and all. That reached the prop
+ * tables and the playground's generated JSX as a prop literally named with
+ * quotes, and it silently broke the `Omit`/`Pick` filter below, which strips
+ * the quotes off its key list and then compared it against names that still
+ * had them: a deliberately removed hyphenated prop stayed in the table.
+ *
+ * `.text` is the unquoted value on an identifier and on a string literal
+ * alike; only a computed name has none, and that falls back to the source.
+ */
+function memberName(member, source) {
+  const name = member.name
+  return ts.isIdentifier(name) || ts.isStringLiteral(name) ? name.text : name.getText(source)
+}
+
 function interfaceMembers(node, source) {
   return node.members
     .filter((member) => ts.isPropertySignature(member) && member.name)
     .map((member) => {
       const doc = readDoc(member)
       return {
-        name: member.name.getText(source),
+        name: memberName(member, source),
         type: member.type ? member.type.getText(source) : 'unknown',
         required: !member.questionToken,
         description: doc.description,

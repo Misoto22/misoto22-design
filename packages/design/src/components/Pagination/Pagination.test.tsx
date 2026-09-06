@@ -51,3 +51,46 @@ describe('Pagination', () => {
     expect(screen.getByRole('button', { name: 'Next page' })).toBeEnabled()
   })
 })
+
+describe('Pagination in a language other than English', () => {
+  it('takes the name of each step control', () => {
+    render(
+      <Pagination
+        page={2}
+        pageCount={5}
+        onPageChange={() => {}}
+        previousLabel="Page précédente"
+        nextLabel="Page suivante"
+      />,
+    )
+
+    // Both controls are an icon and nothing else, so these strings are their
+    // entire accessible name.
+    expect(screen.getByRole('button', { name: 'Page précédente' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Page suivante' })).toBeInTheDocument()
+  })
+
+  it('takes the name of a numbered page, which is a phrase and not a word', () => {
+    render(
+      <Pagination
+        page={2}
+        pageCount={5}
+        onPageChange={() => {}}
+        pageLabel={(page) => `第 ${page} 页`}
+      />,
+    )
+
+    // A function rather than a template string: the number does not sit in the
+    // same place in every language, and neither does the noun.
+    expect(screen.getByRole('button', { name: '第 2 页' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('button', { name: '第 5 页' })).toBeInTheDocument()
+  })
+
+  it('still says the English words when nothing else is offered', () => {
+    render(<Pagination page={2} pageCount={5} onPageChange={() => {}} />)
+
+    expect(screen.getByRole('button', { name: 'Previous page' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Next page' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Page 2' })).toBeInTheDocument()
+  })
+})

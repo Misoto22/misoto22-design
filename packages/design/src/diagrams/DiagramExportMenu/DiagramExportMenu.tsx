@@ -12,6 +12,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -24,8 +25,19 @@ export type ExportFormat = 'png' | 'jpeg' | 'webp' | 'svg' | 'share-card'
 /** What came of an export, for a page that wants to say so. */
 export interface ExportResult {
   format: ExportFormat
+  /**
+   * Whether the pipeline named by `source` finished without throwing.
+   *
+   * Read it with `source`, because the two sources can promise different
+   * amounts. `built-in` means a file was handed to the browser. `caller` means
+   * an `onExport` handler resolved — and a handler that did nothing resolves
+   * exactly like one that wrote a file, which is a thing this component cannot
+   * see and therefore does not claim.
+   */
   ok: boolean
   error?: Error
+  /** Which pipeline ran: this component's, or the caller's `onExport`. */
+  source: 'built-in' | 'caller'
 }
 
 /** A share card is a fixed frame, because the surfaces that consume one are. */
@@ -52,10 +64,24 @@ export interface DiagramExportMenuProps {
   /** Replaces the trigger. */
   trigger?: ReactNode
   className?: string
-  /** Runs instead of the built-in export — for a caller with its own pipeline. */
+  /**
+   * Runs instead of the built-in export — for a caller with its own pipeline.
+   *
+   * Taking it turns everything below into a no-op, INCLUDING the part that
+   * knows whether a file was produced: a result from this path reports
+   * `source: 'caller'` and an `ok` that means only "your handler resolved".
+   */
   onExport?: (format: ExportFormat) => void | Promise<void>
   /** Told what happened, so a page can raise a toast. */
   onResult?: (result: ExportResult) => void
+  /**
+   * Painted behind the artwork. Defaults to the surface the reader is looking
+   * at; `null` exports on a transparent ground.
+   *
+   * JPEG has no alpha channel, so it is flattened onto the reader's own paper
+   * whatever this says — a transparent JPEG is a black one.
+   */
+  background?: string | null
 }
 
 /**
@@ -72,13 +98,20 @@ export interface DiagramExportMenuProps {
  *
  * `onExport` is still there for a page with its own pipeline — a server-side
  * renderer, a different frame size — and taking it turns everything below into
- * a no-op.
+ * a no-op, which is why a result from that path says `source: 'caller'`: this
+ * component cannot see whether the handler produced a file, so it does not
+ * report that it did.
  *
  * What each format actually is, stated rather than implied.
  *
  * **SVG** is the artwork with resolved colours. It is editable and it is the
  * only lossless one, but it carries no web fonts: a machine without the family
  * renders it in a fallback, so type metrics will differ.
+ *
+ * **The ground** is the reader's own surface unless `background` says
+ * otherwise. `background={null}` exports on transparency — for a figure being
+ * dropped onto a coloured page — except in JPEG, which has no alpha and is
+ * flattened onto paper whatever is asked for.
  *
  * **PNG, JPEG and WebP** are the browser's own rasteriser re-drawing that SVG
  * at 2×. Not a screenshot — antialiasing and any effect a page stylesheet
@@ -98,23 +131,28 @@ export function DiagramExportMenu({
   className,
   onExport,
   onResult,
+  background,
 }: DiagramExportMenuProps) {
   const [busy, setBusy] = useState<ExportFormat | null>(null)
 
   async function run(format: ExportFormat) {
+    const source = onExport ? 'caller' : 'built-in'
     setBusy(format)
     try {
       if (onExport) {
         await onExport(format)
       } else {
-        await exportFigure(targetRef.current, title, format)
+        await exportFigure(targetRef.current, title, format, { background })
       }
-      onResult?.({ format, ok: true })
+      // `ok` says the pipeline finished, and `source` says whose. Reporting a
+      // bare success for a handler that may have done nothing was this menu
+      // claiming to know something only the caller can.
+      onResult?.({ format, ok: true, source })
     } catch (cause) {
       // Never swallowed: a download is something the reader just asked for, and
       // a click that quietly does nothing is indistinguishable from a broken
       // button. The caller gets the error to put in front of them.
-      onResult?.({ format, ok: false, error: cause as Error })
+      onResult?.({ format, ok: false, error: cause as Error, source })
     } finally {
       setBusy(null)
     }
@@ -136,25 +174,23 @@ export function DiagramExportMenu({
           <div key={group}>
             {index > 0 && <DropdownMenuSeparator />}
             <DropdownMenuLabel>{group}</DropdownMenuLabel>
+            {/* Menu ROWS, not buttons that happen to sit inside a menu. Radix
+                gives an item roving focus, typeahead and close-on-pick; a
+                plain <button> inside a role="menu" gets none of the three and
+                leaves the menu open over the file it just wrote. */}
             {ITEMS.filter((item) => item.group === group).map((item) => (
-              <button
+              <DropdownMenuItem
                 key={item.format}
-                type="button"
                 disabled={busy !== null}
-                onClick={() => void run(item.format)}
-                className={cn(
-                  'flex w-full flex-col items-start gap-0.5 rounded-(--radius-sm) px-2 py-1.5 text-start',
-                  'transition-colors duration-(--duration-fast)',
-                  'hover:bg-(--stone) focus-visible:bg-(--stone) focus-visible:outline-none',
-                  'disabled:pointer-events-none disabled:opacity-(--disabled-opacity)',
-                )}
+                onSelect={() => void run(item.format)}
+                className={cn('flex-col items-start gap-0.5')}
               >
                 <span className="text-[13px] leading-tight text-(--ink)">
                   {item.title}
                   {busy === item.format && ' …'}
                 </span>
                 <span className="mono-meta text-(--ink-3-aa)">{item.hint}</span>
-              </button>
+              </DropdownMenuItem>
             ))}
           </div>
         ))}
@@ -173,6 +209,7 @@ export async function exportFigure(
   target: HTMLElement | SVGSVGElement | null,
   title: string,
   format: ExportFormat,
+  options: { background?: string | null } = {},
 ): Promise<void> {
   const svg = findArtwork(target)
   if (!svg) throw new Error('exportFigure: found no <svg> to export inside the given element')
@@ -183,10 +220,15 @@ export async function exportFigure(
   const ink = readToken(svg, '--ink', '#101010')
   const font = getComputedStyle(svg).fontFamily || 'sans-serif'
 
+  // `null` is a request, not a missing value: a figure dropped onto a coloured
+  // page wants the page's own ground behind it, and a plate painted in every
+  // format meant no export could ever give it one.
+  const plate = options.background === null ? undefined : (options.background ?? paper)
+
   if (format === 'share-card') {
     const markup = serializeSvg(svg, {
       padding: 56,
-      background: paper,
+      background: plate,
       title,
       titleColor: ink,
       titleFont: font,
@@ -197,7 +239,7 @@ export async function exportFigure(
     return
   }
 
-  const markup = serializeSvg(svg, { padding: 20, background: paper })
+  const markup = serializeSvg(svg, { padding: 20, background: plate })
 
   if (format === 'svg') {
     downloadBlob(new Blob([markup], { type: 'image/svg+xml;charset=utf-8' }), exportFilename(title, 'svg'))

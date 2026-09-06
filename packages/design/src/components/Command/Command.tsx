@@ -1,9 +1,33 @@
 'use client'
 
 import { Command as CommandPrimitive } from 'cmdk'
-import { Search } from 'lucide-react'
-import type { ComponentProps, ReactNode } from 'react'
+import { Search, type LucideIcon } from 'lucide-react'
+import { isValidElement, type ComponentProps, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+
+/**
+ * True for a component type — `icon={Settings}` — rather than a rendered element.
+ *
+ * Everything a `ReactNode` can be is an element, a primitive, an array, another
+ * iterable or a promise; a Lucide icon is none of those, it is a `forwardRef`
+ * object. So both spellings are tellable apart at runtime, which is what lets
+ * one prop take either — and it has to, because this prop meant the opposite
+ * thing one import away and the wrong spelling failed at render, not at the
+ * type.
+ */
+function isIconComponent(icon: LucideIcon | ReactNode): icon is LucideIcon {
+  if (isValidElement(icon)) return false
+  if (typeof icon === 'function') return true
+  if (typeof icon !== 'object' || icon === null) return false
+  return !Array.isArray(icon) && !(Symbol.iterator in icon) && !('then' in icon)
+}
+
+/** The leading glyph, sized by this component when it was handed a component. */
+function iconNode(icon: LucideIcon | ReactNode): ReactNode {
+  if (!isIconComponent(icon)) return icon
+  const Icon = icon
+  return <Icon size={16} strokeWidth={1.5} aria-hidden />
+}
 import { Dialog, DialogContent } from '../Dialog/Dialog'
 import { Kbd } from '../Kbd/Kbd'
 
@@ -170,12 +194,13 @@ export interface CommandItemProps extends ComponentProps<typeof CommandPrimitive
   /** A shortcut printed at the end of the row. */
   shortcut?: string
   /**
-   * A leading glyph. Pass the icon element, sized 16.
+   * A leading glyph. Either spelling — `icon={<Settings size={16} />}` passes
+   * the element, `icon={Settings}` passes the component and this sizes it.
    *
    * It is what makes a long list scannable — the eye sorts by shape before it
    * reads, and forty identical rows of text defeat that.
    */
-  icon?: ReactNode
+  icon?: LucideIcon | ReactNode
   /**
    * A quiet note at the end of the row — what kind of thing this is, or its
    * current state. Not a description: a palette that prints a sentence per row
@@ -201,7 +226,7 @@ export function CommandItem({ shortcut, icon, meta, className, children, ...prop
     >
       {icon && (
         <span className="grid size-4 shrink-0 place-items-center text-(--ink-3-aa) [&_svg]:size-4">
-          {icon}
+          {iconNode(icon)}
         </span>
       )}
       {children}

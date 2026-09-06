@@ -12,10 +12,11 @@
  * WHAT IS DELIBERATELY NOT HERE: archify's routing micro-controls. `via`,
  * `channelX`, `channelY`, `labelAt`, `labelSegment` and `bias` exist there to
  * let an author nudge a line after a validator complains about a collision.
- * They are accepted below and honoured where they are cheap, because dropping a
- * field silently turns a valid specification into a different diagram — but
- * they are hints, not a contract, and a figure that needs many of them is a
- * figure that wants fewer edges.
+ * They are accepted below so a specification carrying them still typechecks,
+ * and each one says on its own field whether it is applied: `via` and the two
+ * channels are, but only between two nodes placed with `pos`; the three label
+ * nudges never are. They are hints, not a contract, and a figure that needs
+ * many of them is a figure that wants fewer edges.
  *
  * Every position in every type is EXPLICIT — a row and a column, a lane and a
  * step, a participant and a y. Nothing below is solved for. That is what makes
@@ -105,6 +106,22 @@ export interface DiagramMeta {
    */
   viewBox?: [number, number] | [number, number, number, number]
   legend?: { mode?: LegendMode; entries?: Record<string, { label?: string; visible?: boolean }> }
+  /**
+   * A guided reading, and no renderer here reads it.
+   *
+   * Accepted for the same reason `viewBox` is — an archify document carrying
+   * chapters still typechecks — and not applied for a different one: chapters
+   * are a CONTROL, not a layout. Lighting one means changing what is lit while
+   * a reader walks through them, and a figure that owned that state would be a
+   * figure with a hidden step counter, a second source of truth about what is
+   * selected, and no way for the page's own next/previous buttons to agree
+   * with it.
+   *
+   * So the chapters stay the caller's: hold the index, hand the chapter's
+   * `focus` ids to `activeIds`, and the figure dims everything else and
+   * announces how many are lit. That is the whole of what a renderer could
+   * have done, in a place a page can also put a heading and a caption.
+   */
   views?: DiagramView[]
 }
 
@@ -139,9 +156,25 @@ export interface EdgeBase {
   fromSide?: Side
   toSide?: Side
   route?: RouteMode | string
-  /** Waypoints the line is dragged through, in order. */
+  /**
+   * Waypoints the line is dragged through, in order.
+   *
+   * Honoured only when BOTH endpoints were placed with `pos` — see
+   * `Wire.keepWaypoints`. A waypoint is a coordinate in the space the author's
+   * nodes were placed in, and on a lane-and-column grid that space is one this
+   * renderer chose, not one the author saw.
+   */
   via?: Point[]
-  /** Pins the label rather than letting the router place it. */
+  /**
+   * Where the label goes, and where it is nudged to — accepted, never applied.
+   *
+   * These three are collision repairs authored against archify's router and
+   * measured in the positions THAT router produced. This one does not produce
+   * the same collisions, so honouring them moves labels off clear ground and
+   * onto the nodes they were nudged away from. Dropping the nudge and keeping
+   * the wording is the reading that preserves the meaning; the fields stay so
+   * a specification carrying them still typechecks.
+   */
   labelAt?: Point
   labelDx?: number
   labelDy?: number
@@ -156,7 +189,13 @@ export interface EdgeBase {
 
 export interface ArchitectureComponent extends NodeBase {
   type: NodeKind
-  /** Grid placement. Ignored when `pos` is given. */
+  /**
+   * Grid placement. Ignored when `pos` is given.
+   *
+   * Declaring NEITHER is also a placement: the component takes the next free
+   * cell in declaration order, wrapping at `layout.cols`. A missing one of the
+   * two still reads as 0, so `{ col: 2 }` is row 0, column 2.
+   */
   row?: number
   col?: number
   /** Absolute placement, in user units, overriding the grid. */
@@ -195,9 +234,11 @@ export interface ArchitectureSpec {
   meta: DiagramMeta
   layout?: {
     origin?: Point
+    /** How many columns the flow wraps at, for components with no row or col. */
     cols?: number
     gapX?: number
     gapY?: number
+    /** A cell's width, which is also the width of the plates drawn in it. */
     cellW?: number
     cellH?: number
   }
@@ -221,8 +262,10 @@ export interface WorkflowLane {
 export interface WorkflowPhase {
   id: string
   label: string
+  /** The columns this phase claims. The header rule is drawn across them. */
   fromCol: number
   toCol: number
+  /** `security` and `dashed` dash the phase's rule; `emphasis` thickens it. */
   variant?: Variant
 }
 
@@ -246,6 +289,11 @@ export interface WorkflowNode extends NodeBase {
  * `main` is the path the reader should be able to follow without thinking;
  * `branch` leaves it and comes back; `async` does not block; `return` goes
  * backwards; `error` leaves for the exception lane.
+ *
+ * Three of them reach the drawing on their own: `async` and `error` take the
+ * quiet dashed line, and `return` takes an open arrowhead. `main` and `branch`
+ * do not, because `mainPath` already draws that distinction as weight. An
+ * explicit `variant` overrides any of it.
  */
 export type WorkflowEdgeRole = 'main' | 'branch' | 'async' | 'return' | 'error'
 
@@ -304,12 +352,14 @@ export interface SequenceSpec {
   diagram_type?: 'sequence'
   meta: DiagramMeta & {
     /**
-     * `fixed` gives every participant the same column width; `spread` divides
-     * the figure evenly instead.
+     * `fixed` gives every participant a 148-unit column; `spread` gives every
+     * participant the width the WIDEST label needs.
      *
-     * Reach for `spread` when a fixed layout would leave a wide empty margin,
-     * or when a meaningful participant label does not fit. Shortening the label
-     * to make it fit is the wrong repair — the label is the data.
+     * Both are uniform — a sequence diagram with columns of different widths
+     * reads as a diagram where the wide participant matters more — so `spread`
+     * widens the whole figure rather than dividing it. Reach for it when a
+     * meaningful participant label does not fit a fixed column. Shortening the
+     * label to make it fit is the wrong repair: the label is the data.
      */
     column_fit?: 'fixed' | 'spread'
   }
@@ -384,8 +434,10 @@ export interface LifecycleState extends NodeBase {
   type: LifecycleStateKind
   /** A step number printed in the corner — `01`, `02a`. */
   step?: string
+  /** Which lane holds it. Defaults to the first, which is the main rail. */
   lane?: string
   col: number
+  /** Nudges this state off its lane's centre line, for a state that needs room. */
   yOffset?: number
 }
 

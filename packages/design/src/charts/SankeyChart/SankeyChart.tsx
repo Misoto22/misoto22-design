@@ -8,7 +8,6 @@ import {
   useContext,
   useId,
   useMemo,
-  useState,
   type FC,
   type ReactElement,
   type ReactNode,
@@ -24,6 +23,8 @@ import {
 import { motion, useReducedMotion } from 'motion/react'
 import { ChartContainer, colorStops, cssName, type ChartConfig } from '../lib/chart'
 import { ChartFigure } from '../lib/figure'
+import { type ChartEmptyProps } from '../lib/empty'
+import { useChartSelection } from '../lib/selection'
 import { ChartBackground, type ChartBackgroundVariant } from '../lib/background'
 import { ChartTooltip, ChartTooltipContent } from '../lib/tooltip'
 import { LoadingIndicator } from '../lib/loading'
@@ -102,10 +103,17 @@ export interface SankeyChartProps {
   /** How nodes are distributed within a column. */
   verticalAlign?: 'justify' | 'top'
   /**
-   * The node lit on first render. Selecting one dims every flow it does not
-   * touch.
+   * The node lit on first render, when the chart keeps its own selection.
+   * Selecting one dims every flow it does not touch.
    */
   defaultSelectedNode?: string | null
+  /**
+   * The selected node, driven from outside.
+   *
+   * Give this and the chart follows it; leave it undefined and the chart keeps
+   * its own, starting from `defaultSelectedNode`.
+   */
+  selectedNode?: string | null
   /** Fires when the selection changes, and with null when it is cleared. */
   onSelectionChange?: (selection: { name: string; value: number } | null) => void
   /**
@@ -118,6 +126,11 @@ export interface SankeyChartProps {
    * itself.
    */
   hideDataTable?: boolean
+  /**
+   * What the chart shows when it has nothing to draw. `false` keeps the empty
+   * plot, for a chart whose emptiness is itself the reading.
+   */
+  empty?: ChartEmptyProps | false
 }
 
 /**
@@ -154,20 +167,26 @@ export function SankeyChart({
   align = 'justify',
   verticalAlign = 'justify',
   defaultSelectedNode = null,
+  selectedNode: controlledNode,
   onSelectionChange,
   isLoading = false,
   hideDataTable = false,
+  empty,
 }: SankeyChartProps) {
   const chartId = useId().replace(/:/g, '')
-  const [selectedNode, setSelectedNode] = useState<string | null>(defaultSelectedNode)
 
-  const selectNode = useCallback(
+  const report = useCallback(
     (name: string | null) => {
-      setSelectedNode(name)
       if (!onSelectionChange) return
       onSelectionChange(name === null ? null : { name, value: nodeValue(data, name) })
     },
     [data, onSelectionChange],
+  )
+
+  const [selectedNode, selectNode] = useChartSelection(
+    controlledNode,
+    defaultSelectedNode,
+    report,
   )
 
   const context = useMemo<SankeyChartContextValue>(
@@ -206,6 +225,8 @@ export function SankeyChart({
                 ],
               }
         }
+        isEmpty={!isLoading && (data.nodes.length === 0 || data.links.length === 0)}
+        empty={empty}
       >
         {isLoading ? (
           <div className="relative aspect-video w-full">

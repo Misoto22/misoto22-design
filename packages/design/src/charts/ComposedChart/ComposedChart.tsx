@@ -4,7 +4,6 @@ import {
   Children,
   createContext,
   isValidElement,
-  useCallback,
   useContext,
   useId,
   useMemo,
@@ -25,7 +24,8 @@ import {
 import { motion, useReducedMotion } from 'motion/react'
 import { ChartContainer, type ChartConfig } from '../lib/chart'
 import { ChartFigure } from '../lib/figure'
-import { ChartEmpty, type ChartEmptyProps } from '../lib/empty'
+import { useChartSelection } from '../lib/selection'
+import { type ChartEmptyProps } from '../lib/empty'
 import { axisLabel } from '../lib/axis'
 import { defaultTick } from '../lib/format'
 import { Annotation, ReferenceBand, ReferenceLine } from '../lib/annotations'
@@ -148,8 +148,15 @@ export interface ComposedChartProps<
   animationType?: ChartRevealType
   barGap?: number
   barCategoryGap?: number
-  /** The series lit on first render. Selection dims every other series. */
+  /** The series lit on first render, when the chart keeps its own selection. */
   defaultSelectedDataKey?: string | null
+  /**
+   * The selected series, driven from outside.
+   *
+   * Give this and the chart follows it; leave it undefined and the chart keeps
+   * its own, starting from `defaultSelectedDataKey`.
+   */
+  selectedDataKey?: string | null
   /** Fires when the selection changes, and with null when it is cleared. */
   onSelectionChange?: (selectedDataKey: string | null) => void
   /**
@@ -214,6 +221,7 @@ export function ComposedChart<
   barGap,
   barCategoryGap,
   defaultSelectedDataKey = null,
+  selectedDataKey: controlledDataKey,
   onSelectionChange,
   isLoading = false,
   loadingBars,
@@ -223,7 +231,6 @@ export function ComposedChart<
 }: ComposedChartProps<TData, TConfig>) {
   const chartId = useId().replace(/:/g, '')
   const [introStartedAt] = useState(() => Date.now())
-  const [selectedDataKey, setSelectedDataKey] = useState<string | null>(defaultSelectedDataKey)
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const { rows: loadingData, onShimmerExit } = useLoadingRows(isLoading, loadingBars ?? 12)
   // One window, two views of it: the brush strip below the plot and the
@@ -260,12 +267,10 @@ export function ComposedChart<
   const isEmpty = !isLoading && empty !== false && data.length === 0
   const displayData = showBrush || showToolbar ? zoom.visibleData : data
 
-  const selectDataKey = useCallback(
-    (next: string | null) => {
-      setSelectedDataKey(next)
-      onSelectionChange?.(next)
-    },
-    [onSelectionChange],
+  const [selectedDataKey, selectDataKey] = useChartSelection(
+    controlledDataKey,
+    defaultSelectedDataKey,
+    onSelectionChange,
   )
 
   const context = useMemo<ComposedChartContextValue>(
@@ -306,10 +311,9 @@ export function ComposedChart<
             ? false
             : { rows: data, rowKey: xDataKey, columns }
         }
+        isEmpty={isEmpty}
+        empty={empty}
       >
-        {isEmpty ? (
-          <ChartEmpty {...(empty || {})} />
-        ) : (
         <ChartControls
           toolbar={showToolbar ? toolbarSlot : null}
           zoom={zoom}
@@ -364,7 +368,6 @@ export function ComposedChart<
           </RechartsComposedChart>
         </ChartContainer>
         </ChartControls>
-        )}
         <LoadingIndicator isLoading={isLoading} />
       </ChartFigure>
     </ComposedChartContext.Provider>

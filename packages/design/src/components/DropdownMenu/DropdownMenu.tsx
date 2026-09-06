@@ -2,9 +2,40 @@
 
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
 import type { LucideIcon } from 'lucide-react'
-import type { ComponentProps } from 'react'
+import { isValidElement, useId, type ComponentProps, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 import { useOverlayContainer } from '../../lib/overlay-container'
+
+/**
+ * True for a component type — `icon={Settings}` — rather than a rendered element.
+ *
+ * Everything a `ReactNode` can be is an element, a primitive, an array, another
+ * iterable or a promise; a Lucide icon is none of those, it is a `forwardRef`
+ * object. So both spellings are tellable apart at runtime, which is what lets
+ * one prop take either — and it has to, because this prop meant the opposite
+ * thing one import away and the wrong spelling failed at render, not at the
+ * type.
+ */
+function isIconComponent(icon: LucideIcon | ReactNode): icon is LucideIcon {
+  if (isValidElement(icon)) return false
+  if (typeof icon === 'function') return true
+  if (typeof icon !== 'object' || icon === null) return false
+  return !Array.isArray(icon) && !(Symbol.iterator in icon) && !('then' in icon)
+}
+
+/** The leading glyph, sized by this component when it was handed a component. */
+function iconNode(icon: LucideIcon | ReactNode): ReactNode {
+  if (icon === undefined || icon === null || icon === false) return null
+  if (!isIconComponent(icon)) {
+    return (
+      <span aria-hidden className="grid size-4 shrink-0 place-items-center [&_svg]:size-4">
+        {icon}
+      </span>
+    )
+  }
+  const Icon = icon
+  return <Icon size={16} strokeWidth={1.5} className="shrink-0" aria-hidden />
+}
 
 /** Radix DropdownMenu root + trigger, re-exported as typed passthroughs. */
 export const DropdownMenu = DropdownMenuPrimitive.Root
@@ -16,16 +47,17 @@ export type DropdownMenuContentProps = ComponentProps<typeof DropdownMenuPrimiti
  * A menu surface.
  *
  * A menu is a list of ACTIONS. If the items navigate somewhere, they belong in
- * a nav; if they set a value, that is a `Select` or a `RadioGroup` — Radix has
- * menu variants for both, and a plain item pretending to be a choice loses the
- * checked state a screen reader needs.
+ * a nav; if they set a value, that is a `Select` or a `RadioGroup` — this
+ * package ships no checkbox or radio menu item, and a plain item pretending to
+ * be a choice loses the checked state a screen reader needs.
  *
  * @example
  * <DropdownMenu>
  *   <DropdownMenuTrigger asChild><Button variant="secondary">Menu</Button></DropdownMenuTrigger>
  *   <DropdownMenuContent>
- *     <DropdownMenuLabel>Account</DropdownMenuLabel>
- *     <DropdownMenuItem icon={Settings}>Settings</DropdownMenuItem>
+ *     <DropdownMenuGroup label="Account">
+ *       <DropdownMenuItem icon={Settings}>Settings</DropdownMenuItem>
+ *     </DropdownMenuGroup>
  *     <DropdownMenuSeparator />
  *     <DropdownMenuItem icon={LogOut}>Sign out</DropdownMenuItem>
  *   </DropdownMenuContent>
@@ -60,8 +92,16 @@ export function DropdownMenuContent({
 }
 
 export interface DropdownMenuItemProps extends ComponentProps<typeof DropdownMenuPrimitive.Item> {
-  /** Optional leading icon, rendered before the label. */
-  icon?: LucideIcon
+  /**
+   * Optional leading icon, rendered before the label.
+   *
+   * Either spelling: `icon={Settings}` passes the component and this sizes it,
+   * `icon={<Settings size={16} />}` passes the element and this places it. The
+   * two used to mean opposite things one import apart — `CommandItem.icon` took
+   * the element while this took the component — and the wrong one did not fail
+   * a type check into anything actionable, it failed at render.
+   */
+  icon?: LucideIcon | ReactNode
   /** Paints the row as destructive. Use for delete, revoke, disconnect. */
   destructive?: boolean
 }
@@ -74,7 +114,7 @@ export interface DropdownMenuItemProps extends ComponentProps<typeof DropdownMen
  * unable to see where they are.
  */
 export function DropdownMenuItem({
-  icon: Icon,
+  icon,
   destructive = false,
   className,
   children,
@@ -89,7 +129,7 @@ export function DropdownMenuItem({
       )}
       {...rest}
     >
-      {Icon && <Icon size={16} strokeWidth={1.5} className="shrink-0" aria-hidden />}
+      {iconNode(icon)}
       {children}
     </DropdownMenuPrimitive.Item>
   )
@@ -108,7 +148,15 @@ export function DropdownMenuSeparator({
   )
 }
 
-/** Mono eyebrow heading for a group of items. */
+/**
+ * Mono eyebrow heading, on its own.
+ *
+ * Visual only: Radix renders it as a bare `<div>` with no role, so it segments
+ * the menu for a reader who can see it and for nobody else. Reach for
+ * `DropdownMenuGroup` when the eyebrow is a HEADING over rows; this is right
+ * for a line that heads nothing — the signed-in address at the top of an
+ * account menu.
+ */
 export function DropdownMenuLabel({
   className,
   ...rest
@@ -118,6 +166,42 @@ export function DropdownMenuLabel({
       className={cn('px-2.5 py-1.5 eyebrow text-(--ink-3-aa)', className)}
       {...rest}
     />
+  )
+}
+
+export interface DropdownMenuGroupProps
+  extends ComponentProps<typeof DropdownMenuPrimitive.Group> {
+  /** The eyebrow over the rows, and the group's accessible name. */
+  label?: ReactNode
+}
+
+/**
+ * A named section of a menu.
+ *
+ * The eyebrow alone was a picture of a heading. Radix's `MenuLabel` carries no
+ * role and no `aria-labelledby` wiring, and `MenuGroup` — which does carry
+ * `role="group"` — was not re-exported by this package at all, so a sighted
+ * reader saw three labelled sections and a screen-reader user got one
+ * undifferentiated list. This renders the group, renders the label inside it,
+ * and points the one at the other, which is the whole of the fix and not
+ * something a caller should have to remember.
+ *
+ * @example
+ * <DropdownMenuGroup label="Account">
+ *   <DropdownMenuItem icon={Settings}>Settings</DropdownMenuItem>
+ * </DropdownMenuGroup>
+ */
+export function DropdownMenuGroup({ label, children, ...rest }: DropdownMenuGroupProps) {
+  const id = useId()
+
+  return (
+    <DropdownMenuPrimitive.Group
+      aria-labelledby={label === undefined ? undefined : id}
+      {...rest}
+    >
+      {label !== undefined && <DropdownMenuLabel id={id}>{label}</DropdownMenuLabel>}
+      {children}
+    </DropdownMenuPrimitive.Group>
   )
 }
 

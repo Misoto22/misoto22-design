@@ -1,9 +1,10 @@
 'use client'
 
-import { useId, type ComponentProps, type ReactNode } from 'react'
+import { type ComponentProps, type ReactNode } from 'react'
 import { Treemap as RechartsTreemap } from 'recharts'
 import { ChartContainer, cssName, type ChartConfig } from '../lib/chart'
 import { ChartFigure } from '../lib/figure'
+import { type ChartEmptyProps } from '../lib/empty'
 import { ChartTooltip, ChartTooltipContent } from '../lib/tooltip'
 import type { ChartTooltipSlotProps } from '../AreaChart/AreaChart'
 
@@ -56,6 +57,11 @@ export interface TreemapChartProps {
   chartProps?: TreemapExtras
   /** Drops the hidden table view. Only correct when the page prints the data itself. */
   hideDataTable?: boolean
+  /**
+   * What the chart shows when it has nothing to draw. `false` keeps the empty
+   * plot, for a chart whose emptiness is itself the reading.
+   */
+  empty?: ChartEmptyProps | false
 }
 
 /**
@@ -91,12 +97,11 @@ export function TreemapChart({
   children,
   chartProps,
   hideDataTable = false,
+  empty,
 }: TreemapChartProps) {
-  const chartId = useId().replace(/:/g, '')
-
   // Flattened for the table view, because a nested tree read aloud row by row
   // is not something anyone can follow — the leaves are the facts.
-  const leaves = flatten(data)
+  const leaves = flatten(data, dataKey)
 
   return (
     <ChartFigure
@@ -113,6 +118,8 @@ export function TreemapChart({
               columns: [{ key: dataKey, label: 'Value' }],
             }
       }
+      isEmpty={data.length === 0}
+      empty={empty}
     >
       <ChartContainer config={config}>
         <RechartsTreemap
@@ -122,7 +129,7 @@ export function TreemapChart({
           aspectRatio={aspectRatio}
           isAnimationActive={false}
           content={
-            <TreemapTile chartId={chartId} variant={variant} config={config} showLabels={showLabels} />
+            <TreemapTile variant={variant} config={config} showLabels={showLabels} />
           }
           {...chartProps}
         >
@@ -133,17 +140,39 @@ export function TreemapChart({
   )
 }
 
-/** Every leaf, with the path that names it. */
-function flatten(nodes: TreemapNode[], prefix = ''): Record<string, unknown>[] {
+/**
+ * Every leaf, with the path that names it and whether the picture can hold it.
+ *
+ * A tile's AREA is its value, so a leaf at zero or below has no area to be
+ * drawn at: the layout gives it no width, the tile is dropped, and the leaf
+ * disappears from the picture while staying in this table. The table is the
+ * only place left that can say so, and saying nothing would leave the two views
+ * of one tree disagreeing about how many leaves there are.
+ */
+function flatten(
+  nodes: TreemapNode[],
+  dataKey: string,
+  prefix = '',
+): Record<string, unknown>[] {
   return nodes.flatMap((node) => {
     const path = prefix ? `${prefix} › ${node.name}` : node.name
-    if (node.children?.length) return flatten(node.children, path)
-    return [{ ...node, path }]
+    if (node.children?.length) return flatten(node.children, dataKey, path)
+
+    const value = Number(node[dataKey])
+    if (Number.isFinite(value) && value > 0) return [{ ...node, path }]
+    return [
+      {
+        ...node,
+        path,
+        [dataKey]: Number.isFinite(value)
+          ? `${value.toLocaleString()} — not drawn`
+          : 'not drawn',
+      },
+    ]
   })
 }
 
 interface TileProps {
-  chartId: string
   variant: TreemapVariant
   config: ChartConfig
   showLabels: boolean
@@ -165,7 +194,6 @@ interface TileProps {
  * reading as a partition of one whole.
  */
 function TreemapTile({
-  chartId,
   variant,
   config,
   showLabels,
@@ -210,9 +238,11 @@ function TreemapTile({
           {name}
         </text>
       )}
-      {/* A hidden id so the tooltip can key off the same name the tile paints. */}
+      {/* The tile's whole accessible reading. `<desc>` used to carry the chart's
+          generated id beside it — and `<desc>` IS the accessible description,
+          so every tile announced its name followed by an opaque string nothing
+          on the page could explain. */}
       <title>{name}</title>
-      <desc>{chartId}</desc>
     </g>
   )
 }

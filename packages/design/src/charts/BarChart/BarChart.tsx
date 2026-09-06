@@ -4,7 +4,6 @@ import {
   Children,
   createContext,
   isValidElement,
-  useCallback,
   useContext,
   useId,
   useMemo,
@@ -24,7 +23,8 @@ import type { RectRadius } from 'recharts/types/shape/Rectangle'
 import { motion, useReducedMotion } from 'motion/react'
 import { ChartContainer, type ChartConfig } from '../lib/chart'
 import { ChartFigure } from '../lib/figure'
-import { ChartEmpty, type ChartEmptyProps } from '../lib/empty'
+import { useChartSelection } from '../lib/selection'
+import { type ChartEmptyProps } from '../lib/empty'
 import { axisLabel } from '../lib/axis'
 import { defaultTick } from '../lib/format'
 import { Annotation, ReferenceBand, ReferenceLine } from '../lib/annotations'
@@ -92,6 +92,24 @@ const STACK_ID = 'm22-bar-stack'
  */
 const CHART_MARGIN = { top: 8, right: 12, bottom: 0, left: 12 }
 
+/**
+ * The gap between a bar's foot and its neighbour below in a stack, plus the
+ * hairline.
+ */
+const FOOT_GAP = 3
+
+/**
+ * The shortest a bar with a value on it may be drawn.
+ *
+ * Below `FOOT_GAP` the trim used to take the whole bar: a count of two on a
+ * scale topping out at a thousand rendered at zero height and was
+ * pixel-identical to a category with no rows at all. The full-column hit rect
+ * still caught the pointer, so the reader could hover a bar that was not there.
+ * One pixel is not much of a bar, and it is the difference between "small" and
+ * "absent" — which is the whole reading.
+ */
+const MIN_BAR_LENGTH = 1
+
 /** How a bar meets the plot. The primary carrier of identity in monochrome. */
 export type BarVariant = 'default' | 'hatched' | 'duotone' | 'duotone-reverse' | 'gradient' | 'stripped'
 
@@ -119,6 +137,11 @@ interface BarChartContextValue {
   animationType: ChartRevealType
   introStartedAt: number
   dataLength: number
+  /**
+   * Where the last row of `data` sits in the window on screen, or -1 when it is
+   * outside it. What `buffer` hatches.
+   */
+  bufferIndex: number
   selectedDataKey: string | null
   selectDataKey: (dataKey: string | null) => void
   isPointerInChart: boolean
@@ -176,8 +199,15 @@ export interface BarChartProps<
   barGap?: number
   /** Gap between categories. */
   barCategoryGap?: number
-  /** The series lit on first render. Selection dims every other series. */
+  /** The series lit on first render, when the chart keeps its own selection. */
   defaultSelectedDataKey?: string | null
+  /**
+   * The selected series, driven from outside.
+   *
+   * Give this and the chart follows it; leave it undefined and the chart keeps
+   * its own, starting from `defaultSelectedDataKey`.
+   */
+  selectedDataKey?: string | null
   /** Fires when the selection changes, and with null when it is cleared. */
   onSelectionChange?: (selectedDataKey: string | null) => void
   /**
@@ -241,6 +271,7 @@ export function BarChart<
   barGap,
   barCategoryGap,
   defaultSelectedDataKey = null,
+  selectedDataKey: controlledDataKey,
   onSelectionChange,
   isLoading = false,
   loadingBars,
@@ -253,7 +284,6 @@ export function BarChart<
   // here rather than from mount, because Recharts remounts every bar on any
   // re-render — a mount-anchored animation would replay on every hover.
   const [introStartedAt] = useState(() => Date.now())
-  const [selectedDataKey, setSelectedDataKey] = useState<string | null>(defaultSelectedDataKey)
   const [isPointerInChart, setIsPointerInChart] = useState(false)
   const { rows: loadingData, onShimmerExit } = useLoadingRows(isLoading, loadingBars ?? 12)
   // One window, two views of it: the brush strip below the plot and the
@@ -297,6 +327,15 @@ export function BarChart<
   const isEmpty = !isLoading && empty !== false && data.length === 0
   const displayData = showBrush || showToolbar ? zoom.visibleData : data
 
+  // Which bar on screen is the open period, if any is. Derived from the last
+  // ROW rather than from the last bar drawn: brushed or zoomed back into the
+  // middle of the range, the last bar in the window is a month that closed long
+  // ago, and hatching it says it is still being counted.
+  const bufferIndex =
+    data.length > 0 && displayData[displayData.length - 1] === data[data.length - 1]
+      ? displayData.length - 1
+      : -1
+
   // The rows on screen, so a brushed range sounds like what it looks like. The
   // skeleton's rows carry no real series, which is what leaves the control
   // disabled while data is in flight rather than playing yesterday's numbers.
@@ -307,12 +346,10 @@ export function BarChart<
     xDataKey,
   )
 
-  const selectDataKey = useCallback(
-    (next: string | null) => {
-      setSelectedDataKey(next)
-      onSelectionChange?.(next)
-    },
-    [onSelectionChange],
+  const [selectedDataKey, selectDataKey] = useChartSelection(
+    controlledDataKey,
+    defaultSelectedDataKey,
+    onSelectionChange,
   )
 
   const context = useMemo<BarChartContextValue>(
@@ -326,6 +363,7 @@ export function BarChart<
       animationType,
       introStartedAt,
       dataLength: displayData.length,
+      bufferIndex,
       selectedDataKey,
       selectDataKey,
       isPointerInChart,
@@ -333,6 +371,7 @@ export function BarChart<
     [
       animationType,
       barRadius,
+      bufferIndex,
       config,
       displayData,
       introStartedAt,
@@ -357,13 +396,12 @@ export function BarChart<
             ? false
             : { rows: data, rowKey: xDataKey, columns }
         }
+        isEmpty={isEmpty}
+        empty={empty}
       >
         {sonifySlot && (
           <ChartSonifyButton {...sonifySlot} title={title} series={sonifySeries} />
         )}
-        {isEmpty ? (
-          <ChartEmpty {...(empty || {})} />
-        ) : (
         <ChartControls
           toolbar={showToolbar ? toolbarSlot : null}
           zoom={zoom}
@@ -416,7 +454,6 @@ export function BarChart<
           </RechartsBarChart>
         </ChartContainer>
         </ChartControls>
-        )}
         <LoadingIndicator isLoading={isLoading} />
       </ChartFigure>
     </BarChartContext.Provider>
@@ -435,10 +472,14 @@ export interface BarProps {
   /** A halo behind the bars — for the one series that is the point of the figure. */
   glowing?: boolean
   /**
-   * Draws the LAST category as an open hatch rather than a solid bar.
+   * Draws the last row of `data` as an open hatch rather than a solid bar.
    *
    * The idiom for a period still in progress: the bar is the same height as any
    * other but is visibly not the same kind of fact.
+   *
+   * Tied to the last ROW, not to the last bar on screen. Brush or zoom into the
+   * middle of the range and no bar is hatched, because none of the periods in
+   * the window is still being counted.
    */
   buffer?: boolean
   /** `<BarChart.Values>`. */
@@ -472,6 +513,7 @@ function Bar({
     animationType: defaultAnimation,
     introStartedAt,
     dataLength,
+    bufferIndex,
     selectedDataKey,
     selectDataKey,
     isPointerInChart,
@@ -499,6 +541,7 @@ function Bar({
     introStartedAt,
     selectedDataKey,
     dataLength,
+    bufferIndex,
     onSelect: () => {
       if (!isClickable) return
       selectDataKey(isSelected ? null : dataKey)
@@ -571,6 +614,7 @@ interface BarShapeProps extends BarGeometry {
   introStartedAt: number
   selectedDataKey: string | null
   dataLength: number
+  bufferIndex: number
   onSelect: () => void
 }
 
@@ -603,11 +647,12 @@ function BarShape(props: BarShapeProps) {
     selectedDataKey,
     isActive,
     dataLength,
+    bufferIndex,
     onSelect,
   } = props
 
   const index = typeof props.index === 'number' ? props.index : -1
-  const isBufferBar = buffer && dataLength > 0 && index === dataLength - 1
+  const isBufferBar = buffer && index >= 0 && index === bufferIndex
   const isStripped = variant === 'stripped'
   const grow = growAnimation(animationType, index, dataLength, isHorizontal, introStartedAt)
 
@@ -631,8 +676,9 @@ function BarShape(props: BarShapeProps) {
         y={y}
         width={width}
         // Three pixels off the foot, which is the 2px surface gap between a bar
-        // and its neighbour above in a stack, plus the hairline.
-        height={Math.max(0, height - 3)}
+        // and its neighbour above in a stack, plus the hairline — but never all
+        // the way to nothing while there is still a bar to draw.
+        height={height <= 0 ? 0 : Math.max(MIN_BAR_LENGTH, height - FOOT_GAP)}
         opacity={opacity}
         radius={radius}
         fill={fill}

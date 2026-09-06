@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { foundationCopy } from '@/i18n/content'
+import { type FoundationCopy, foundationCopy } from '@/i18n/content'
 import { type Locale, localePath } from '@/i18n/locales'
 import { getMessages } from '@/i18n/messages'
 import { notFound } from 'next/navigation'
@@ -44,7 +44,7 @@ export async function FoundationPage({ locale, slug }: { locale: Locale; slug: s
           that documents a command or a stylesheet leads with the writing, and
           neither of those two has a table to be pushed down. */}
       {page.sections?.map((section) => (
-        <ProseSection key={section.id} section={section} />
+        <ProseSection key={section.id} section={section} copy={zh.sections?.[section.id]} />
       ))}
 
       {page.categories.map((category) => {
@@ -64,20 +64,27 @@ export async function FoundationPage({ locale, slug }: { locale: Locale; slug: s
   )
 }
 
+/** The Chinese for one section, looked up by `FoundationSection.id`. */
+type SectionCopy = NonNullable<FoundationCopy['sections']>[string]
+
 /**
  * One prose section: a heading, the writing, an optional definition list, and
  * the blocks a reader came to copy.
  *
- * Titles and body are English-only for now. `foundationCopy` returns `{}` for a
- * slug it has no Chinese for, and the page falls back to English field by field
- * rather than rendering a blank — so an untranslated section reads in English
- * instead of disappearing, which is the same rule the rest of the site follows.
+ * `foundationCopy` returns `{}` for a slug it has no Chinese for, and every
+ * field below falls back to English on its own — so a half-translated section
+ * reads as a page rather than as a gap, which is the same rule the rest of the
+ * site follows. A row falls back by its `term`, so a new row appears in English
+ * beside the translated ones instead of shifting every detail up by one.
+ *
+ * `snippets` and `commands` take no translation and are not offered one: an
+ * install line or an `npx` invocation is the same bytes in both languages.
  */
-function ProseSection({ section }: { section: FoundationSection }) {
+function ProseSection({ section, copy }: { section: FoundationSection; copy?: SectionCopy }) {
   return (
     <section className="flex flex-col gap-5">
-      <SectionHeading id={section.id}>{section.title}</SectionHeading>
-      <Prose text={section.body.join('\n\n')} />
+      <SectionHeading id={section.id}>{copy?.title ?? section.title}</SectionHeading>
+      <Prose text={(copy?.body ?? section.body).join('\n\n')} />
 
       {section.rows && (
         <dl className="m-0 flex flex-col divide-y divide-(--rule) border-y border-(--rule)">
@@ -88,7 +95,7 @@ function ProseSection({ section }: { section: FoundationSection }) {
             <div key={row.term} className="grid gap-1 py-3.5 md:grid-cols-[15rem_minmax(0,1fr)] md:gap-5">
               <dt className="m-0 font-mono text-xs text-(--ink)">{row.term}</dt>
               <dd className="m-0 max-w-(--measure-record) text-[13px] leading-relaxed text-(--ink-2)">
-                {row.detail}
+                {copy?.rows?.[row.term] ?? row.detail}
               </dd>
             </div>
           ))}

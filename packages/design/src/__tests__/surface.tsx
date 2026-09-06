@@ -251,7 +251,7 @@ export const SURFACE: SurfaceEntry[] = [
         edges: [{ from: 'edge', to: 'app', label: 'HTTPS' }],
         nodes: [
           { id: 'edge', label: 'Edge', note: 'CDN' },
-          { id: 'app', label: 'Application', accent: true, children: [{ label: 'Router' }] },
+          { id: 'app', label: 'Application', children: [{ label: 'Router', accent: true }] },
         ],
       }}
     />

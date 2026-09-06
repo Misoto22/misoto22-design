@@ -21,7 +21,7 @@ export const FORMS = [
       {
         element: 'Label',
         description:
-          'label, rendered as a Radix <Label> carrying htmlFor. Optional: leave it off and the row is a control with a message under it and no name of its own.',
+          'label, rendered as a Radix <Label> carrying htmlFor and an id. The id is what a trigger names itself from, alongside its own value, and what a group points back at — neither of which htmlFor can do.',
       },
       {
         element: 'Required mark',
@@ -32,7 +32,7 @@ export const FORMS = [
         element: 'Control slot',
         required: true,
         description:
-          'children — ONE element, which the field clones to add id, aria-describedby, aria-required and aria-invalid. This is the whole contract; everything else is layout.',
+          'children — ONE element, which the field clones to add id, aria-describedby, aria-required and aria-invalid, and which each control forwards to whatever element carries its role: the trigger for Select, Combobox and DatePicker, the root for a group, the thumb for a Slider. This is the whole contract; everything else is layout.',
       },
       {
         element: 'Description',
@@ -47,7 +47,7 @@ export const FORMS = [
       {
         element: 'Row layout',
         description:
-          'layout="row": the label and description in a column at the inline start, the control at the inline end, the message underneath both. Aligned to the START of the row and not centred, so a two-line description does not drag the switch down to the middle of the paragraph.',
+          'layout="row": the label and description in a column at the inline start, the control at the inline end, the message underneath both. The two columns are TOP-aligned — items-start on the block axis, not items-center — so a two-line description does not drag the switch down to the middle of the paragraph, and a column of settings rows keeps every control on the same line as the words that name it.',
       },
     ],
     practices: [
@@ -57,7 +57,7 @@ export const FORMS = [
       },
       {
         kind: 'do',
-        text: 'Let error carry the invalid state for Input, Textarea and NativeSelect — the field sets aria-invalid on the child and all three read either spelling through isInvalid, so adding invalid as well states the same fact twice from two places that can disagree.',
+        text: 'Let error carry the invalid state. The field sets aria-invalid on the control, and Input, Textarea, NativeSelect, Select and Combobox all read either spelling through isInvalid, so passing invalid as well states the same fact twice from two places that can disagree.',
       },
       {
         kind: 'do',
@@ -69,7 +69,7 @@ export const FORMS = [
       },
       {
         kind: 'dont',
-        text: 'It cannot label a RadioGroup or a ToggleGroup. Both roots are <div role="radiogroup">, and htmlFor only binds to a labelable element, so the words above the group name nothing — give the group its own aria-label.',
+        text: 'The words above a RadioGroup or a ToggleGroup name it but do not click through. Both roots are <div role="radiogroup">, which htmlFor does not bind to, so the label is pointed AT by the group instead — a reader who clicks it the way they click "Email" gets nothing, exactly as with a <legend>.',
       },
       {
         kind: 'do',
@@ -81,7 +81,7 @@ export const FORMS = [
       },
       {
         kind: 'dont',
-        text: 'Select, Combobox, DatePicker and Slider swallow the wiring outright — Radix’s select root renders no DOM at all, Combobox and DatePicker never spread unknown props, and the slider root is a <span> — so the hint below them is drawn and never announced. Each takes its own required label, and that is what names it.',
+        text: 'required is announced on every control here except DatePicker, whose trigger is a plain <button> — a role with nowhere to put aria-required. There the asterisk is the whole of the marking, and a screen reader meets an ordinary optional field.',
       },
     ],
     accessibility: [
@@ -89,7 +89,8 @@ export const FORMS = [
       'Wires aria-describedby, aria-required and aria-invalid onto the control, so validation is announced and not merely drawn.',
       'hint and error are one slot: when a field is wrong, the thing to read is what is wrong with it.',
       'description joins aria-describedby ahead of the message, so a settings row announces what the setting does and then what is wrong with it.',
-      'The row layout moves the label to the other side of the row and changes nothing about the association — it is still htmlFor pointing at the cloned id, which is why the row works for Switch, Checkbox, Input, Textarea and NativeSelect and not for the six composite controls above.',
+      'Every control forwards the wiring to the element that carries its role, so the hint under a Select or a Slider is announced and not merely drawn.',
+      'The row layout moves the label to the other side of the row and changes nothing about the association, so a settings row with a Switch or a Select in it is named by the words on the near side. Slider is the exception, and the layout cannot fix it: role="slider" is on the THUMB while the field’s label points at the roleless root, so there the label prop on the Slider is still the only name a reader hears.',
     ],
     related: ['input', 'select', 'switch'],
   },
@@ -207,12 +208,12 @@ export const FORMS = [
         element: 'Trigger',
         required: true,
         description:
-          'A <button role="combobox"> on CONTROL_BASE, so it matches the Input beside it exactly. It carries aria-label={label} and the chevron that turns over while the panel is open.',
+          'A <button role="combobox"> on CONTROL_BASE, so it matches the Input beside it exactly. It is named by the label and by its own value together, and carries the chevron that turns over while the panel is open.',
       },
       {
         element: 'Value',
         description:
-          'The chosen item’s text, or placeholder in --ink-3-aa when nothing is chosen. It has no truncation of its own, unlike the Combobox trigger.',
+          'The chosen item’s text, or placeholder in --ink-3-aa when nothing is chosen. It truncates, and it is the half of the accessible name that says what was picked.',
       },
       {
         element: 'Panel',
@@ -237,7 +238,7 @@ export const FORMS = [
       },
       {
         kind: 'do',
-        text: 'Pass invalid as well as the Field’s error — this is the one control of the four on CONTROL_BASE that reads only that spelling, so a form library setting aria-invalid leaves the border resting while the message below it goes red.',
+        text: 'Pick one spelling of invalid. The trigger reads the invalid prop and aria-invalid alike, including the one a Field sets from error, so setting both is two sources of truth for one border.',
       },
       {
         kind: 'do',
@@ -245,11 +246,11 @@ export const FORMS = [
       },
       {
         kind: 'dont',
-        text: 'The label above it does not click through. Field puts htmlFor on Radix’s select root, which renders no DOM node at all, so the words are bound to nothing — the required label prop is the trigger’s only name.',
+        text: 'Inside a Field with a label, the label prop here is not announced — the field’s words name the trigger — so a label that disagrees with the one above it is dead text nobody will ever hear.',
       },
       {
         kind: 'dont',
-        text: 'Do not let an option label run long: nothing truncates the value on the trigger, so it wraps and the field grows taller than the one beside it, which is the row that breaks a two-column form.',
+        text: 'Do not lean on the closed trigger to show a long option: it truncates to keep the field’s height, so the end of the value is only readable with the panel open.',
       },
       {
         kind: 'dont',
@@ -260,7 +261,7 @@ export const FORMS = [
       'Inside a bounded frame — a device preview, an embedded console — wrap the subtree in `<OverlayContainer container={el}>`. The panel then renders into that element and collides with its edges instead of the viewport’s, and inherits the `dir` and `data-density` set there.',
       'The option list is ours, so it does not change typeface, spacing and selection colour the moment it opens — which is what a native select does.',
       "The keyboard contract is the platform's: typeahead, arrows, Home and End, Escape to close without choosing.",
-      'label is required. The trigger shows a value, and a value is not a name.',
+      'label is required, and it is announced WITH the value: the trigger reads "Region, Australia", because a value is not a name and a name without the value is not the answer. Inside a Field the FIELD’s label supplies the name half — the trigger’s aria-labelledby points at that label and at the value — and the label prop here is neither rendered nor announced, so one that disagrees with the words above it is text nobody will hear.',
     ],
     keyboard: [
       { keys: ['Enter', 'Space', '↓'], does: 'Opens the list.' },
@@ -281,13 +282,13 @@ export const FORMS = [
         element: 'Wrapper',
         required: true,
         description:
-          'A relative <div> around the pair. It is the only control in this group that renders one, and className does NOT land on it — className goes to the <select> inside.',
+          'A relative <div> around the pair, and the element className lands on. It is the only control in this group where className does not go to the field itself, because the chevron is pinned to this box: a width set anywhere else strands the arrow at the far edge of the row.',
       },
       {
         element: 'Control box',
         required: true,
         description:
-          'The <select> on CONTROL_BASE, appearance-none so the platform’s own arrow is gone, with pe-9 of end padding so the longest option clears the drawn one.',
+          'The <select> on CONTROL_BASE, appearance-none so the platform’s own arrow is gone, with pe-9 of end padding so the longest option clears the drawn one. It fills the wrapper, so the wrapper’s width is the field’s width.',
       },
       {
         element: 'Chevron',
@@ -312,7 +313,7 @@ export const FORMS = [
       },
       {
         kind: 'do',
-        text: 'Constrain the width from the parent rather than with className. className lands on the <select> while the chevron is positioned against the wrapper, so a narrowed field leaves its own arrow stranded at the far edge of the row.',
+        text: 'Set the width with className. It lands on the wrapper the chevron is pinned to and the select fills it, so the arrow travels with the edge of the field rather than staying where the row ends.',
       },
       {
         kind: 'dont',
@@ -321,6 +322,10 @@ export const FORMS = [
       {
         kind: 'dont',
         text: 'Do not use the first option as the label. “Select a country” is announced as a choosable value and it is the value an untouched form submits — put the name in a Field and give that option value="" and disabled.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not send the control’s own ink or border through className: it dresses the wrapper, and the <select> inside keeps CONTROL_BASE whatever the box around it says.',
       },
     ],
     accessibility: [
@@ -352,7 +357,7 @@ export const FORMS = [
       {
         element: 'Dash',
         description:
-          'The minus that replaces the tick, chosen from props.checked === "indeterminate". That reads the CONTROLLED prop, so an uncontrolled box never draws it.',
+          'The minus that replaces the tick, chosen from the state the box is actually in — controlled or not, so defaultChecked="indeterminate" draws the dash it promised rather than a tick.',
       },
       {
         element: 'Label',
@@ -367,7 +372,7 @@ export const FORMS = [
       },
       {
         kind: 'do',
-        text: 'Drive indeterminate through the controlled checked prop. The glyph is picked from props.checked, so defaultChecked="indeterminate" fills the box and draws a tick — the “all of them” picture on a partly selected list.',
+        text: 'Hold an indeterminate box on controlled state. It is a report about OTHER rows, and clicking it hands you true — a “select all” header that keeps its own answer stops describing the list underneath it on the first click.',
       },
       {
         kind: 'do',
@@ -403,7 +408,7 @@ export const FORMS = [
         element: 'Group',
         required: true,
         description:
-          'A <div role="radiogroup"> stacking its options. Being a div is why a label above it cannot point at it, and why the group needs aria-label rather than a Field’s htmlFor.',
+          'A <div role="radiogroup"> stacking its options. Being a div is why the label above it names the group by being pointed AT — aria-labelledby, not htmlFor — and why the words do not click through.',
       },
       {
         element: 'Row',
@@ -424,7 +429,7 @@ export const FORMS = [
     practices: [
       {
         kind: 'do',
-        text: 'Give the group an aria-label. The root is a div, and htmlFor — including the one a Field draws — does not bind to a div, so without it the group is announced with no name at all and the options are three unlabelled radios.',
+        text: 'Name the group. Inside a Field its label does it, through aria-labelledby; standing alone it needs its own aria-label, and without either the group is announced as three unlabelled radios.',
       },
       {
         kind: 'do',
@@ -522,7 +527,7 @@ export const FORMS = [
         element: 'Trigger',
         required: true,
         description:
-          'A <button role="combobox"> carrying aria-label={label} and aria-expanded. Its text truncates rather than wrapping, so the field keeps its height whatever is chosen.',
+          'A <button role="combobox"> named by the label and its own summary together, carrying aria-expanded. Its text truncates rather than wrapping, so the field keeps its height whatever is chosen.',
       },
       {
         element: 'Summary',
@@ -560,7 +565,7 @@ export const FORMS = [
       },
       {
         kind: 'dont',
-        text: 'The trigger’s aria-label replaces its text as the accessible name, so a screen reader is told “Tags” and never “3 selected”. If the choice has to be confirmable without opening the panel, print it outside the control as well.',
+        text: 'Past two choices the trigger stops naming them — it announces “Tags, 3 selected”, and WHICH three is only in the panel. Print them beside the field when the choice has to be checkable without opening it.',
       },
       {
         kind: 'dont',
@@ -573,7 +578,7 @@ export const FORMS = [
     ],
     accessibility: [
       'The highlight moves through aria-activedescendant while focus stays in the input — the ARIA combobox pattern. Hand-rolled comboboxes move focus into the list, and the typed text stops being editable.',
-      'label is required: the trigger prints a value, and a value is not a name.',
+      'label is required, and it is announced with the summary rather than instead of it: the trigger reads “Tags, 3 selected”. Inside a Field the FIELD’s label supplies the name half and the label prop is neither rendered nor announced on the trigger — it still names the clear control, as “Clear Tags”, so it has to stay truthful even where the trigger no longer says it.',
     ],
     keyboard: [
       { keys: ['Enter', 'Space', '↓'], does: 'Opens the list.' },
@@ -593,7 +598,7 @@ export const FORMS = [
         element: 'Trigger',
         required: true,
         description:
-          'A <button> printing format(value) or the placeholder, with a calendar glyph pinned at the end. It carries aria-label={label}, and that is the whole of its accessible name.',
+          'A <button> printing format(value) or the placeholder, with a calendar glyph pinned at the end. It is named by the label and the printed date together, so the format is heard as well as seen.',
       },
       {
         element: 'Panel',
@@ -603,7 +608,7 @@ export const FORMS = [
       {
         element: 'Preset rail',
         description:
-          'A role="group" of plain buttons, present only when presets is set: on by default for DateRangePicker, off by default for DatePicker.',
+          'A role="group" of plain buttons, present only when presets is set: on by default for DateRangePicker, off by default for DatePicker. A shortcut that lands on a disabledDates day is drawn unavailable and refuses the click.',
       },
       {
         element: 'Calendar grid',
@@ -619,7 +624,7 @@ export const FORMS = [
     practices: [
       {
         kind: 'do',
-        text: 'Check disabledDates against your presets by hand. The rail calls preset.value() straight into the same setter the grid uses and is never tested against disabledDates, so “Last 30 days” will happily commit a range the grid itself refuses.',
+        text: 'Put the restriction in disabledDates rather than in your own handler. The rail asks it too, so a shortcut on a blocked day is disabled instead of committing a date the grid beside it refuses — a range preset is tested at its ENDS, so one straddling a blocked day is still offered, exactly as the grid still allows it.',
       },
       {
         kind: 'do',
@@ -631,7 +636,7 @@ export const FORMS = [
       },
       {
         kind: 'dont',
-        text: 'format changes only what the trigger prints. The trigger is named by aria-label, which replaces its text, so no amount of formatting reaches a screen reader — put the chosen date in the Field’s hint if it has to be heard.',
+        text: 'A Field’s required does not reach the trigger. It is a plain <button>, a role with nowhere to put aria-required, so the asterisk above is the whole of the marking and a screen reader meets an ordinary optional field.',
       },
       {
         kind: 'dont',
@@ -643,7 +648,7 @@ export const FORMS = [
       },
     ],
     accessibility: [
-      'The trigger prints the date in the visitor’s own locale, not a fixed dd/mm/yyyy.',
+      'The trigger prints the date in the visitor’s own locale, not a fixed dd/mm/yyyy, and announces it as part of its own name — so format reaches a screen reader too.',
       'DateRangePicker keeps the panel open until both ends are chosen — a range is not a value until it has a second date.',
       'The shortcut rail is plain buttons, not a menu: they set the same value the grid beside them sets, so they belong to one control and Tab in the same pass.',
       'Presets are computed on click, so “today” means today even on a tab left open overnight.',
@@ -671,18 +676,18 @@ export const FORMS = [
       {
         element: 'Thumb',
         description:
-          'One per entry in the value array — so the number of thumbs comes from the value, not from a prop. Each is a 16px circle with an invisible 44px hit area from a before pseudo-element.',
+          'One per entry in the value array — so the number of thumbs comes from the value, not from a prop, and a slider given neither value nor defaultValue falls back to the primitive’s own default of one thumb at the minimum. Each is a 16px circle with an invisible 44px hit area from a before pseudo-element.',
       },
       {
         element: 'Value readout',
         description:
-          'Only with showValue: a mono row above the track, the name on the start edge and the formatted value on the end, joined by an en dash when there are two. It prints the FIRST name only.',
+          'Only with showValue: a mono row above the track, the names on the start edge and the formatted values on the end, each joined by an en dash and in the thumbs’ own order — so a two-ended range reads “Minimum – Maximum” over “10 – 90”.',
       },
     ],
     practices: [
       {
         kind: 'do',
-        text: 'Always pass defaultValue or value. The thumbs are rendered from this component’s own array rather than from Radix’s [min] default, so a Slider given neither draws a track with nothing on it to drag.',
+        text: 'Pass defaultValue or value whenever there is more than one end to it. The thumb count comes from that array, so a price filter left to the default is a single thumb sitting at the minimum.',
       },
       {
         kind: 'do',
@@ -694,20 +699,25 @@ export const FORMS = [
       },
       {
         kind: 'dont',
-        text: 'format does not reach assistive tech. It renders the printed readout and nothing sets aria-valuetext, so a thumb showing “$1,200” still announces the bare number 1200.',
+        text: 'format becomes each thumb’s aria-valuetext, which REPLACES the number rather than decorating it — so a formatter that rounds hard or drops the unit is what a screen reader gets instead of the value.',
       },
       {
         kind: 'dont',
-        text: 'Do not rely on disabled looking disabled: the thumb is a <span>, and a disabled: variant needs a real form element, so a disabled slider is drawn exactly like a live one while refusing to move.',
+        text: 'Do not disable a slider to make it read-only: the whole control dims and stops taking the pointer, and Radix drops the thumb out of the tab order, so the value becomes unreachable rather than uneditable.',
       },
       {
         kind: 'dont',
-        text: 'Do not use showValue as the label for a two-thumb range — the heading prints names[0] only, so a slider labelled ["Minimum", "Maximum"] shows “Minimum” above both numbers.',
+        text: 'Do not pass two names to a one-thumb slider: the heading prints one name per THUMB, so the second is drawn nowhere and announced nowhere.',
+      },
+      {
+        kind: 'dont',
+        text: 'A Field’s label above it does not name it and does not click through: the role is on the THUMB and the root is a <span>, so the label prop here is the only name a reader hears. The hint and the error do reach the thumb.',
       },
     ],
     accessibility: [
       'label is required. A thumb that announces "42" and nothing else leaves a screen reader user with a number and no idea what it measures.',
       'A 44px hit area sits invisibly around the 16px thumb.',
+      'format is announced as aria-valuetext, so a thumb showing “$1,200” says that rather than 1200.',
       'Arrows step, Page keys jump, Home and End reach the ends.',
     ],
     keyboard: [
@@ -753,7 +763,7 @@ export const FORMS = [
       },
       {
         kind: 'do',
-        text: 'Name the strip with aria-label. The root is a div, so there is nothing for a label to bind to — and with type="single" it is a radiogroup, which assistive tech announces by name and count.',
+        text: 'Name the strip. Inside a Field its label does it, through aria-labelledby — the root is a div, so there is nothing for htmlFor to bind to — and standing alone it needs its own aria-label, which with type="single" is what a radiogroup is announced by.',
       },
       {
         kind: 'do',
@@ -770,6 +780,10 @@ export const FORMS = [
       {
         kind: 'dont',
         text: 'Do not put six options in it. The strip neither wraps nor scrolls, so past about five segments it simply runs out past its container, and that is a Select or a Combobox anyway.',
+      },
+      {
+        kind: 'dont',
+        text: 'A Field’s required marks a single-value strip and leaves a multiple-value one unmarked: that one is a role="toolbar", which takes no aria-required at all, so on type="multiple" the asterisk is the whole of the marking.',
       },
     ],
     accessibility: [

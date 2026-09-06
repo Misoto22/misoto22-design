@@ -88,7 +88,13 @@ describe('ComponentPage', () => {
     expect(screen.getByRole('button', { name: /Copy JSX/ })).toBeInTheDocument()
     // Button's own variant union, resolved through the alias the package
     // exports rather than through an inline union it does not write.
-    expect(screen.getByRole('combobox', { name: 'variant' })).toBeInTheDocument()
+    //
+    // Named `variant primary`, not `variant`: a Select trigger now carries
+    // both its name and its current value, so a reader hears which prop and
+    // what it is set to rather than only the first. Matching on the prefix
+    // keeps this asserting the prop the row is for, not the value it happens
+    // to open on.
+    expect(screen.getByRole('combobox', { name: /^variant\b/ })).toBeInTheDocument()
   })
 
   it('renders anatomy and best practices where the catalog has them', async () => {

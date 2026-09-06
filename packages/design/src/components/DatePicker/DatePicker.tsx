@@ -1,10 +1,11 @@
 'use client'
 
 import { CalendarDays } from 'lucide-react'
-import { useRef, useState, type ComponentProps } from 'react'
-import type { DateRange } from 'react-day-picker'
+import { useId, useRef, useState, type ComponentProps } from 'react'
+import { dateMatchModifiers, type DateRange } from 'react-day-picker'
 import { cn } from '../../lib/cn'
 import { Calendar } from '../Calendar/Calendar'
+import { useFieldControl } from '../Field/field-control'
 import { Popover, PopoverContent, PopoverTrigger } from '../Popover/Popover'
 
 export type { DateRange }
@@ -87,15 +88,23 @@ export const DATE_PRESETS: DatePreset<Date>[] = [
  * A `<nav>`-less list of plain buttons rather than a menu: they set the same
  * value the grid beside them sets, so they are part of one control and should
  * Tab in the same pass rather than opening something.
+ *
+ * Setting the same value means being refused for the same reasons: a shortcut
+ * that commits a date the grid beside it will not accept hands the caller back
+ * a value the control itself calls invalid. `blocked` is asked at render, so the
+ * button is visibly unavailable rather than silently inert, and again on click,
+ * because the value is computed then — "today" has to mean today.
  */
 function PresetRail<T>({
   presets,
   onPick,
   label,
+  blocked,
 }: {
   presets: DatePreset<T>[]
   onPick: (value: T) => void
   label: string
+  blocked?: (value: T) => boolean
 }) {
   return (
     <div
@@ -107,8 +116,13 @@ function PresetRail<T>({
         <button
           key={preset.label}
           type="button"
-          onClick={() => onPick(preset.value())}
-          className="rounded-(--radius-sm) px-2.5 py-1.5 text-start text-[13px] text-(--ink-2) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)"
+          disabled={blocked?.(preset.value()) ?? false}
+          onClick={() => {
+            const next = preset.value()
+            if (blocked?.(next)) return
+            onPick(next)
+          }}
+          className="rounded-(--radius-sm) px-2.5 py-1.5 text-start text-[13px] text-(--ink-2) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none"
         >
           {preset.label}
         </button>
@@ -134,11 +148,23 @@ export interface DatePickerProps {
   value?: Date
   defaultValue?: Date
   onValueChange?: (value: Date | undefined) => void
-  /** Names the control. Required — the trigger's text is a value, not a label. */
+  /**
+   * Names the control. Required — the trigger's text is a value, not a label.
+   *
+   * Announced together with the printed date rather than instead of it, so
+   * `format` reaches a screen reader as well as the screen. Inside a `Field`
+   * with a label, that label names the trigger and this one is not repeated.
+   */
   label: string
   placeholder?: string
   disabled?: boolean
-  /** Days the reader may not choose. Passed straight to the calendar. */
+  /**
+   * Days the reader may not choose.
+   *
+   * Reaches the calendar AND the shortcut rail: a preset landing on a blocked
+   * day is drawn unavailable and refuses the click, rather than committing a
+   * value the grid beside it would not accept.
+   */
   disabledDates?: ComponentProps<typeof Calendar>['disabled']
   /** How the chosen date is printed on the trigger. */
   format?: (date: Date) => string
@@ -148,6 +174,12 @@ export interface DatePickerProps {
    */
   presets?: boolean | DatePreset<Date>[]
   className?: string
+  /** The TRIGGER's id — the element a label points at. A `Field` sets it. */
+  id?: string
+  /** Ids of the copy describing the control. A `Field` sets it from hint, error and description. */
+  'aria-describedby'?: string
+  /** Announced on the trigger. A `Field` sets it from `error`. */
+  'aria-invalid'?: boolean | 'true' | 'false'
 }
 
 /**
@@ -177,11 +209,20 @@ export function DatePicker({
   format = formatDate,
   presets,
   className,
+  id,
+  'aria-describedby': describedBy,
+  'aria-invalid': ariaInvalid,
 }: DatePickerProps) {
   const rail = presets === true ? DATE_PRESETS : presets || undefined
   const [open, setOpen] = useState(false)
   const [uncontrolled, setUncontrolled] = useState<Date | undefined>(defaultValue)
   const current = value ?? uncontrolled
+
+  const field = useFieldControl()
+  const generated = useId()
+  const triggerId = id ?? generated
+  const valueId = `${triggerId}-value`
+  const nameId = field?.labelId ?? `${triggerId}-name`
 
   const choose = (next: Date | undefined) => {
     if (value === undefined) setUncontrolled(next)
@@ -189,19 +230,42 @@ export function DatePicker({
     if (next) setOpen(false)
   }
 
+  const refuses = (date: Date) =>
+    disabledDates !== undefined && dateMatchModifiers(date, disabledDates)
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
-        aria-label={label}
+        id={triggerId}
+        // The label and the printed date, in that order. `aria-label` outranked
+        // the trigger's own text, so `format` reached the screen and nothing
+        // else — the chosen date was invisible to a screen reader.
+        aria-labelledby={`${nameId} ${valueId}`}
+        aria-describedby={describedBy}
+        aria-invalid={ariaInvalid || undefined}
         disabled={disabled}
         className={cn(TRIGGER, current ? 'text-(--ink)' : 'text-(--ink-3-aa)', className)}
       >
-        {current ? format(current) : placeholder}
+        {field?.labelId == null && (
+          <span id={nameId} className="sr-only">
+            {label}
+          </span>
+        )}
+        <span id={valueId} className="truncate">
+          {current ? format(current) : placeholder}
+        </span>
         <CalendarDays size={14} strokeWidth={1.5} aria-hidden className="shrink-0 text-(--ink-3-aa)" />
       </PopoverTrigger>
       <PopoverContent label={label} align="start" className="w-auto overflow-hidden p-0">
         <div className="flex flex-col sm:flex-row">
-          {rail && <PresetRail presets={rail} onPick={choose} label={`${label} shortcuts`} />}
+          {rail && (
+            <PresetRail
+              presets={rail}
+              onPick={choose}
+              label={`${label} shortcuts`}
+              blocked={refuses}
+            />
+          )}
           <Calendar
             mode="single"
             selected={current}
@@ -219,9 +283,17 @@ export interface DateRangePickerProps {
   value?: DateRange
   defaultValue?: DateRange
   onValueChange?: (value: DateRange | undefined) => void
+  /** Names the control. Announced together with the printed range, not instead of it. */
   label: string
   placeholder?: string
   disabled?: boolean
+  /**
+   * Days the reader may not choose.
+   *
+   * Reaches the shortcut rail as well as the grid, at the ENDS of each preset
+   * range — a shortcut whose interior straddles a blocked day is still offered,
+   * the way the grid still lets a reader drag a range across one.
+   */
   disabledDates?: ComponentProps<typeof Calendar>['disabled']
   /** How many months are shown side by side. Falls back to one under `sm`. */
   months?: number
@@ -236,6 +308,12 @@ export interface DateRangePickerProps {
    */
   presets?: boolean | DatePreset<DateRange>[]
   className?: string
+  /** The TRIGGER's id — the element a label points at. A `Field` sets it. */
+  id?: string
+  /** Ids of the copy describing the control. A `Field` sets it from hint, error and description. */
+  'aria-describedby'?: string
+  /** Announced on the trigger. A `Field` sets it from `error`. */
+  'aria-invalid'?: boolean | 'true' | 'false'
 }
 
 /**
@@ -265,11 +343,24 @@ export function DateRangePicker({
   format = formatDate,
   presets = true,
   className,
+  id,
+  'aria-describedby': describedBy,
+  'aria-invalid': ariaInvalid,
 }: DateRangePickerProps) {
   const rail = presets === true ? RANGE_PRESETS : presets || undefined
   const [open, setOpen] = useState(false)
   const [uncontrolled, setUncontrolled] = useState<DateRange | undefined>(defaultValue)
   const current = value ?? uncontrolled
+
+  const field = useFieldControl()
+  const generated = useId()
+  const triggerId = id ?? generated
+  const valueId = `${triggerId}-value`
+  const nameId = field?.labelId ?? `${triggerId}-name`
+
+  const refuses = (range: DateRange) =>
+    disabledDates !== undefined &&
+    [range.from, range.to].some((date) => date != null && dateMatchModifiers(date, disabledDates))
 
   /**
    * How many days have been clicked since the panel opened.
@@ -304,11 +395,22 @@ export function DateRangePicker({
   return (
     <Popover open={open} onOpenChange={setPanel}>
       <PopoverTrigger
-        aria-label={label}
+        id={triggerId}
+        // The label and the printed range together — see DatePicker above.
+        aria-labelledby={`${nameId} ${valueId}`}
+        aria-describedby={describedBy}
+        aria-invalid={ariaInvalid || undefined}
         disabled={disabled}
         className={cn(TRIGGER, current?.from ? 'text-(--ink)' : 'text-(--ink-3-aa)', className)}
       >
-        <span className="truncate">{printed}</span>
+        {field?.labelId == null && (
+          <span id={nameId} className="sr-only">
+            {label}
+          </span>
+        )}
+        <span id={valueId} className="truncate">
+          {printed}
+        </span>
         <CalendarDays size={14} strokeWidth={1.5} aria-hidden className="shrink-0 text-(--ink-3-aa)" />
       </PopoverTrigger>
       <PopoverContent label={label} align="start" className="w-auto overflow-hidden p-0">
@@ -325,6 +427,7 @@ export function DateRangePicker({
                 setOpen(false)
               }}
               label={`${label} shortcuts`}
+              blocked={refuses}
             />
           )}
           <Calendar

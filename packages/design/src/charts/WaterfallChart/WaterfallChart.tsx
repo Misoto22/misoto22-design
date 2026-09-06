@@ -19,7 +19,7 @@ import {
 } from 'recharts'
 import { ChartContainer, type ChartConfig } from '../lib/chart'
 import { ChartFigure } from '../lib/figure'
-import { ChartEmpty, type ChartEmptyProps } from '../lib/empty'
+import { type ChartEmptyProps } from '../lib/empty'
 import { ChartBackground, type ChartBackgroundVariant } from '../lib/background'
 import { ChartTooltip } from '../lib/tooltip'
 import { BarHatchedFill, SeriesGradient } from '../lib/paint'
@@ -268,23 +268,21 @@ export function WaterfallChart({
                 ],
               }
         }
+        isEmpty={isEmpty}
+        empty={empty}
       >
-        {isEmpty ? (
-          <ChartEmpty {...(empty || {})} />
-        ) : (
-          <ChartContainer config={config}>
-            <RechartsBarChart
-              id={chartId}
-              accessibilityLayer
-              margin={CHART_MARGIN}
-              data={steps}
-              barCategoryGap="25%"
-              {...chartProps}
-            >
-              {children}
-            </RechartsBarChart>
-          </ChartContainer>
-        )}
+        <ChartContainer config={config}>
+          <RechartsBarChart
+            id={chartId}
+            accessibilityLayer
+            margin={CHART_MARGIN}
+            data={steps}
+            barCategoryGap="25%"
+            {...chartProps}
+          >
+            {children}
+          </RechartsBarChart>
+        </ChartContainer>
       </ChartFigure>
     </WaterfallContext.Provider>
   )

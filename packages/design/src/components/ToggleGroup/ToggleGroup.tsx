@@ -3,6 +3,7 @@
 import * as ToggleGroupPrimitive from '@radix-ui/react-toggle-group'
 import { createContext, useContext, useState, type ComponentProps } from 'react'
 import { cn } from '../../lib/cn'
+import { useFieldControl } from '../Field/field-control'
 import { useSelectionIndicator } from '../../lib/useSelectionIndicator'
 
 export type ToggleGroupProps = ComponentProps<typeof ToggleGroupPrimitive.Root>
@@ -28,13 +29,26 @@ const SingleValueContext = createContext<string | null>(null)
  * Distinct from `Tabs`, which switches PANELS and owns a tabpanel relationship.
  * A toggle group changes a value.
  *
+ * Inside a `Field` the strip takes its name from that label, by pointing back at
+ * it — the root is a div, and `<label for>` does not bind to one, so the words
+ * above it do not click through. Standing alone it still needs its own
+ * `aria-label`.
+ *
  * @example
  * <ToggleGroup type="single" defaultValue="grid" aria-label="Layout">
  *   <ToggleGroupItem value="grid">Grid</ToggleGroupItem>
  *   <ToggleGroupItem value="list">List</ToggleGroupItem>
  * </ToggleGroup>
  */
-export function ToggleGroup({ className, children, ...props }: ToggleGroupProps) {
+export function ToggleGroup({
+  className,
+  children,
+  'aria-required': ariaRequired,
+  ...props
+}: ToggleGroupProps) {
+  const field = useFieldControl()
+  const named = props['aria-label'] != null || props['aria-labelledby'] != null
+
   // Tracked here rather than left to Radix alone, because the sliding pill has
   // to know which item to measure — and an uncontrolled group never tells
   // anyone what it picked.
@@ -48,6 +62,12 @@ export function ToggleGroup({ className, children, ...props }: ToggleGroupProps)
   const root = (
     <ToggleGroupPrimitive.Root
       ref={ref}
+      aria-labelledby={named ? undefined : field?.labelId}
+      // Only on the single-value strip. Radix gives that one role="radiogroup",
+      // which takes aria-required; a multiple-value strip is a role="toolbar",
+      // where the attribute is not allowed at all — so a Field's `required`
+      // reaches one shape of this control and not the other.
+      aria-required={props.type === 'single' ? ariaRequired : undefined}
       className={cn(
         // `w-fit` as well as `inline-flex`: a flex or grid parent stretches its
         // children to the track by default, and `inline-flex` does not opt out

@@ -18,7 +18,7 @@ import {
 } from 'recharts'
 import { ChartContainer, type ChartConfig } from '../lib/chart'
 import { ChartFigure } from '../lib/figure'
-import { ChartEmpty, type ChartEmptyProps } from '../lib/empty'
+import { type ChartEmptyProps } from '../lib/empty'
 import { ChartBackground, type ChartBackgroundVariant } from '../lib/background'
 import { ChartTooltip } from '../lib/tooltip'
 import { SeriesGradient } from '../lib/paint'
@@ -344,27 +344,25 @@ export function BoxPlot({
                 ],
               }
         }
+        isEmpty={isEmpty}
+        empty={empty}
       >
-        {isEmpty ? (
-          <ChartEmpty {...(empty || {})} />
-        ) : (
-          <ChartContainer config={config}>
-            <RechartsBarChart
-              id={chartId}
-              accessibilityLayer
-              margin={CHART_MARGIN}
-              // Recharts' `layout` names the axis the CATEGORIES run along,
-              // which is the opposite of what a reader means by a horizontal
-              // chart. The flip is done once, here.
-              layout={isHorizontal ? 'vertical' : 'horizontal'}
-              data={boxes}
-              barCategoryGap="30%"
-              {...chartProps}
-            >
-              {children}
-            </RechartsBarChart>
-          </ChartContainer>
-        )}
+        <ChartContainer config={config}>
+          <RechartsBarChart
+            id={chartId}
+            accessibilityLayer
+            margin={CHART_MARGIN}
+            // Recharts' `layout` names the axis the CATEGORIES run along,
+            // which is the opposite of what a reader means by a horizontal
+            // chart. The flip is done once, here.
+            layout={isHorizontal ? 'vertical' : 'horizontal'}
+            data={boxes}
+            barCategoryGap="30%"
+            {...chartProps}
+          >
+            {children}
+          </RechartsBarChart>
+        </ChartContainer>
       </ChartFigure>
     </BoxPlotContext.Provider>
   )

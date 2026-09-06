@@ -1,5 +1,6 @@
 import { apiCopy } from '@/i18n/api'
 import { componentCopy, componentName, groupName } from '@/i18n/content'
+import { exampleCopy } from '@/i18n/examples'
 import { localePath, type Locale } from '@/i18n/locales'
 import { getMessages } from '@/i18n/messages'
 import { Alert, Badge, Kbd, Separator, TBody, TD, TH, THead, TR, Table } from '@misoto22/design'
@@ -70,6 +71,20 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
     description: apiCopy(locale, `${entry.dir}.${subject}#${row.name}`, row.description),
   }))
 
+  // Both tables are translated positionally, so both are resolved here, before
+  // anything reorders or filters them. `practices` in particular is split into
+  // two halves further down, and a lookup by index inside that filter would be
+  // indexing the half rather than the list the translation was written against.
+  const anatomy = (entry.anatomy ?? []).map((part, index) => ({
+    ...part,
+    element: zh.anatomy?.[index]?.element ?? part.element,
+    description: zh.anatomy?.[index]?.description ?? part.description,
+  }))
+  const practices = (entry.practices ?? []).map((practice, index) => ({
+    ...practice,
+    text: zh.practices?.[index] ?? practice.text,
+  }))
+
   const overview = (
     <>
       <section className="flex flex-col gap-4">
@@ -106,7 +121,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
         </section>
       )}
 
-      {entry.anatomy && entry.anatomy.length > 0 && (
+      {anatomy.length > 0 && (
         <section className="flex flex-col gap-4">
           <SectionHeading id="anatomy">{t.section.anatomy}</SectionHeading>
           <Table caption={`${entry.name} anatomy`}>
@@ -117,7 +132,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
               </TR>
             </THead>
             <TBody>
-              {entry.anatomy.map((part) => (
+              {anatomy.map((part) => (
                 <TR key={part.element}>
                   <TD className="align-top">
                     <span className="text-sm text-(--ink)">{part.element}</span>
@@ -137,7 +152,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
         </section>
       )}
 
-      {entry.practices && entry.practices.length > 0 && (
+      {practices.length > 0 && (
         <section className="flex flex-col gap-5">
           <SectionHeading id="best-practices">{t.section.practices}</SectionHeading>
           {/* Two lists, and the half a reader is in is said by an icon AND a
@@ -146,7 +161,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
               percent of men who cannot tell them apart. */}
           <div className="grid gap-6 sm:grid-cols-2">
             {PRACTICE_HALVES.map(({ kind, icon: Icon, tone }) => {
-              const half = entry.practices!.filter((practice) => practice.kind === kind)
+              const half = practices.filter((practice) => practice.kind === kind)
               if (half.length === 0) return null
               return (
                 <div key={kind} className="flex flex-col gap-3">
@@ -184,7 +199,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
                 <p className="m-0 eyebrow text-(--ink-3-aa)">{example.title}</p>
                 {example.description && (
                   <p className="m-0 max-w-(--w-reading) text-sm leading-relaxed text-(--ink-2)">
-                    {example.description}
+                    {exampleCopy(locale, `${entry.dir}/${example.id}`, example.description)}
                   </p>
                 )}
               </div>

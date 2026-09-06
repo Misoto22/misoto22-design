@@ -31,7 +31,22 @@ Some misuse fails silently, so the components say so in development:
 `FIELD_CONTROL_NOT_LABELLABLE` when a wrapper takes the label instead of the
 control, `BUTTON_ICON_ONLY_UNNAMED` when an icon-only button has no accessible
 name, `REQUIRED_NAME_BLANK` when a required name is an empty string. Each prints
-the field and an imperative fix, and none reaches a production bundle.
+the field and an imperative fix, once per problem, and none reaches a production
+bundle.
+
+Nineteen codes in all. Eight on the primitives —
+`ARTICLE_HTML_AND_CHILDREN`, `BREADCRUMB_CRUMB_NOT_LINKED`,
+`BUTTON_ICON_ONLY_UNNAMED`, `DIALOG_TITLE_MISSING`,
+`FIELD_CONTROL_NOT_LABELLABLE`, `FIELD_CONTROL_NOT_WIRED`,
+`REQUIRED_NAME_BLANK`, `SEARCHABLE_MENU_LABEL_UNREADABLE`. Five on `Diagram`,
+which checks the spec it was handed because a figure that ignores an edge still
+renders beautifully — `DIAGRAM_ACCENT_ON_CONTAINER`, `DIAGRAM_DIRECTION_ON_LEAF`,
+`DIAGRAM_DUPLICATE_ID`, `DIAGRAM_EDGE_NOT_ADJACENT`,
+`DIAGRAM_EDGE_UNKNOWN_NODE`. And six on the figures in
+`@misoto22/design/diagrams` — `DIAGRAM_CELL_COLLISION`, `DIAGRAM_EDGE_DANGLING`,
+`DIAGRAM_LANE_UNKNOWN`, `DIAGRAM_REF_UNKNOWN`, `DIAGRAM_SPEC_MUTATED`,
+`DIAGRAM_STAGE_OUT_OF_RANGE`. `skills/misoto22-design/rules/a11y.md` tables what
+each one fires on; `src/lib/warn.ts` is where they are printed.
 
 Three entry points, and importing from the wrong one throws rather than renders
 blank. Each `docs` file names its own on the `Import:` line.

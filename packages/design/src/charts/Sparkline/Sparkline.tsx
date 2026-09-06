@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+import { fraction } from '../lib/scale'
 
 /** The mark a sparkline is drawn with. */
 export type SparklineVariant = 'line' | 'area' | 'bars'
@@ -35,12 +36,13 @@ export interface SparklineProps {
 
 /** The polyline through a normalised run, in a 0–100 by 0–100 box. */
 function points(data: number[], min: number, max: number): { x: number; y: number }[] {
-  const span = max - min || 1
   const step = data.length > 1 ? 100 / (data.length - 1) : 0
   return data.map((value, index) => ({
     x: index * step,
-    // SVG y grows downward; the data does not.
-    y: 100 - ((value - min) / span) * 100,
+    // SVG y grows downward; the data does not. `fraction` is what puts a run
+    // that never changed through the middle rather than along the floor — see
+    // `lib/scale.ts` for why the middle is the honest answer.
+    y: 100 - fraction(value, min, max) * 100,
   }))
 }
 

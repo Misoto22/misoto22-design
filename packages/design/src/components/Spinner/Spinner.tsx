@@ -11,6 +11,8 @@ export interface SpinnerProps extends HTMLAttributes<HTMLSpanElement> {
    * ink ground an ink ring is invisible.
    */
   tone?: 'default' | 'current'
+  /** Merged onto the RING, after `size` and `tone`, so it overrides both. */
+  className?: string
   /**
    * Announced to assistive tech. Pass the specific thing being waited on
    * ("Loading projects"), not the generic word — a screen reader user hearing
@@ -51,6 +53,12 @@ const TONE = {
  * page is broken, prefer `Skeleton` — a shape that describes what is coming
  * beats a dot that describes nothing.
  *
+ * `className` reaches the RING, alongside `size` and `tone`, and overrides
+ * them: every utility a caller has for a spinner is about the ring, and merged
+ * onto the wrapper instead `className="size-8"` grew an invisible box around an
+ * unchanged 18px circle. Layout still works from there — the wrapper is
+ * `inline-flex` and takes the ring's margin box as its own.
+ *
  * @example
  * <Spinner size="lg" label="Loading projects" />
  * @example
@@ -68,7 +76,7 @@ export function Spinner({
     <span
       role={label === null ? undefined : 'status'}
       aria-hidden={label === null ? true : undefined}
-      className={cn('inline-flex shrink-0 items-center justify-center', className)}
+      className="inline-flex shrink-0 items-center justify-center"
       {...rest}
     >
       <span
@@ -77,6 +85,7 @@ export function Spinner({
           'inline-block rounded-full border-solid motion-safe:animate-[m22-spin_0.7s_linear_infinite]',
           SIZE[size],
           TONE[tone],
+          className,
         )}
       />
       {label !== null && <span className="sr-only">{label}</span>}

@@ -3,6 +3,7 @@
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group'
 import { useEffect, useRef, type ComponentProps, type FocusEvent, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+import { useFieldControl } from '../Field/field-control'
 
 /**
  * How recently an arrow key was pressed, in milliseconds, for selection to
@@ -27,6 +28,12 @@ export type RadioGroupProps = ComponentProps<typeof RadioGroupPrimitive.Root>
  * requires and what a stack of hand-rolled `<input type="radio">` wrappers
  * usually gets wrong.
  *
+ * Inside a `Field` the group takes its name from that label, by pointing back
+ * at it: the root is a `<div role="radiogroup">` and `<label for>` does not bind
+ * to one, so the words above it click through no more than a `<legend>` does.
+ * Standing alone, it still needs an `aria-label` of its own — an unnamed group
+ * is three unlabelled radios.
+ *
  * @example
  * <RadioGroup defaultValue="light" aria-label="Theme">
  *   <RadioGroupItem value="light">Light</RadioGroupItem>
@@ -34,7 +41,16 @@ export type RadioGroupProps = ComponentProps<typeof RadioGroupPrimitive.Root>
  * </RadioGroup>
  */
 export function RadioGroup({ className, ...props }: RadioGroupProps) {
-  return <RadioGroupPrimitive.Root className={cn('flex flex-col gap-2.5', className)} {...props} />
+  const field = useFieldControl()
+  const named = props['aria-label'] != null || props['aria-labelledby'] != null
+
+  return (
+    <RadioGroupPrimitive.Root
+      aria-labelledby={named ? undefined : field?.labelId}
+      className={cn('flex flex-col gap-2.5', className)}
+      {...props}
+    />
+  )
 }
 
 export interface RadioGroupItemProps

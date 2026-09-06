@@ -1,9 +1,58 @@
 'use client'
 
 import { Menu, X } from 'lucide-react'
-import { useEffect, useId, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from 'react'
 import type { HTMLAttributes, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+
+/**
+ * The width the sidebar stops being a drawer at — `--breakpoint-md`, the same
+ * 768px every `md:` variant below is compiled against. Written out rather than
+ * read from the token, because a media query string is not a custom property
+ * and `matchMedia` cannot resolve one.
+ */
+const DESKTOP = '(min-width: 768px)'
+
+/** True where nothing can answer the question: a server, or a DOM without it. */
+function cannotMeasure(): boolean {
+  return typeof window === 'undefined' || typeof window.matchMedia !== 'function'
+}
+
+function subscribeToWidth(onChange: () => void): () => void {
+  if (cannotMeasure()) return () => {}
+  const list = window.matchMedia(DESKTOP)
+  list.addEventListener('change', onChange)
+  return () => list.removeEventListener('change', onChange)
+}
+
+/**
+ * Falls back to "not a drawer", which is the safe answer rather than the likely
+ * one: an environment that cannot measure must not take an entire application's
+ * navigation out of the accessibility tree on a guess.
+ */
+function readIsDrawer(): boolean {
+  if (cannotMeasure()) return false
+  return !window.matchMedia(DESKTOP).matches
+}
+
+function readIsDrawerOnServer(): boolean {
+  return false
+}
+
+/**
+ * True while the sidebar is a drawer rather than a column.
+ *
+ * `open` alone cannot answer this. It is false on a desktop too, where the
+ * sidebar is a visible grid column — so anything keyed on `open` by itself
+ * would hide the navigation of every desktop app in the package.
+ *
+ * `useSyncExternalStore` rather than an effect: the server has no viewport, so
+ * it renders the desktop answer and React reconciles the real one on hydration
+ * instead of the two silently disagreeing.
+ */
+function useIsDrawer(): boolean {
+  return useSyncExternalStore(subscribeToWidth, readIsDrawer, readIsDrawerOnServer)
+}
 
 export interface AppShellProps extends HTMLAttributes<HTMLDivElement> {
   /** Navigation content for the sidebar (e.g. a stack of `NavItem`s). */
@@ -47,6 +96,12 @@ export interface AppShellProps extends HTMLAttributes<HTMLDivElement> {
  * cannot leave. The scrim is a `<button>` for the same reason — a `<div>` with
  * an `onClick` is not reachable by keyboard and not announced as anything.
  *
+ * Below `md` the closed drawer is `inert`. Sliding it off-screen is a visual
+ * state and nothing more: without that attribute every link in it stays
+ * focusable and stays in the accessibility tree, so Tab from the toggle walks
+ * into a menu nobody can see. Closing it also returns focus to the toggle,
+ * because the element focus was on is the element that just left.
+ *
  * @example
  * <AppShell brand={<Wordmark />} sidebar={<NavItem href="/">Home</NavItem>}>
  *   <Card>…</Card>
@@ -67,15 +122,31 @@ export function AppShell({
 }: AppShellProps) {
   const [open, setOpen] = useState(false)
   const sidebarId = useId()
+  const toggle = useRef<HTMLButtonElement>(null)
+  const isDrawer = useIsDrawer()
+
+  /**
+   * Both ways out, so both return focus.
+   *
+   * Escape used to leave the reader standing on a link that had just slid off
+   * screen; the scrim is worse, because the scrim itself is the focused element
+   * and it unmounts, dropping focus to `<body>`. Either way the drawer is about
+   * to become inert, and focus inside an inert subtree is focus the browser
+   * throws away.
+   */
+  const close = useCallback(() => {
+    setOpen(false)
+    toggle.current?.focus()
+  }, [])
 
   useEffect(() => {
     if (!open) return
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false)
+      if (event.key === 'Escape') close()
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [open])
+  }, [open, close])
 
   return (
     <div
@@ -86,7 +157,7 @@ export function AppShell({
         <button
           type="button"
           aria-label={closeLabel}
-          onClick={() => setOpen(false)}
+          onClick={close}
           className="fixed inset-0 z-(--z-scrim) bg-(--scrim) md:hidden"
         />
       )}
@@ -94,6 +165,12 @@ export function AppShell({
       <aside
         id={sidebarId}
         aria-label={sidebarLabel}
+        // Only below `md`, and only while it is shut. Above the breakpoint this
+        // element is the page's navigation column, and inert would delete it.
+        inert={isDrawer && !open}
+        // The transition is motion like any other, and the reduced-motion rule
+        // in keyframes.css matches on this attribute.
+        data-m22-animated
         className={cn(
           'fixed inset-y-0 start-0 z-(--z-modal) flex w-60 flex-col border-e border-(--rule) bg-(--paper) transition-transform duration-(--duration-slow) ease-(--ease-out-expo)',
           // The drawer slides in from the edge reading STARTS at, so in an
@@ -120,6 +197,7 @@ export function AppShell({
             aria-label={open ? closeLabel : openLabel}
             aria-expanded={open}
             aria-controls={sidebarId}
+            ref={toggle}
             onClick={() => setOpen((previous) => !previous)}
             className="-ms-2.5 grid size-11 place-items-center rounded-(--radius) text-(--ink-2) transition-colors duration-(--duration-fast) hover:text-(--ink) md:hidden"
           >

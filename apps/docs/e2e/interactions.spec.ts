@@ -123,9 +123,12 @@ test('combobox: several at once, and the panel stays open', async ({ page }) => 
   await page.goto('/components/combobox/')
   await ready(page)
 
-  // `exact`, because the panel's filter is a combobox too and is named
-  // "Tags: Search…" — deliberately, so the two are told apart.
-  const trigger = page.getByRole('combobox', { name: 'Tags', exact: true })
+  // A trigger is named by its label AND its value — "Tags, Film" — so the name
+  // moves as the value does and cannot be the whole of what identifies it. The
+  // prefix is the label half, and the trailing SPACE is what separates it from
+  // the panel's own filter: that is a combobox too, named "Tags: Search…"
+  // deliberately, so the two are told apart.
+  const trigger = page.getByRole('combobox', { name: /^Tags / })
   await trigger.click()
 
   const list = page.getByRole('listbox')
@@ -136,6 +139,9 @@ test('combobox: several at once, and the panel stays open', async ({ page }) => 
 
   await page.keyboard.press('Escape')
   await expect(trigger).toContainText('3 selected')
+  // On the screen AND in the ear. `aria-label` used to outrank the trigger's
+  // own text, so a reader heard "Tags" and never what they had picked.
+  await expect(trigger).toHaveAccessibleName('Tags 3 selected')
 })
 
 test('combobox: the panel is clipped to its own corners', async ({ page }) => {
@@ -162,7 +168,9 @@ test('date picker: the caption opens a month picker in place of the grid', async
   await expect(caption).toHaveAttribute('aria-expanded', 'false')
 
   await caption.click()
-  const picker = calendar.getByRole('group', { name: 'Month and year' })
+  // `dialog`, not `group`: the panel now holds Tab inside itself, and the role
+  // follows from that containment rather than decorating it.
+  const picker = calendar.getByRole('dialog', { name: 'Month and year' })
   await expect(picker).toBeVisible()
   // Twelve months at the size of the grid they replace: no scrolling, and
   // nothing floating over the calendar.
@@ -308,8 +316,11 @@ test('calendar: the year picker replaces the grid, and the day it selects is rou
   await calendar.getByRole('button', { name: /\w+ \d{4}/ }).first().click()
   // The year label inside the month panel opens the year grid — twenty years
   // in one page, which is why the default span is ten either side.
-  await calendar.getByRole('group', { name: 'Month and year' }).getByRole('button', { name: /^\d{4}$/ }).click()
-  const years = calendar.getByRole('group', { name: 'Year' })
+  await calendar
+    .getByRole('dialog', { name: 'Month and year' })
+    .getByRole('button', { name: /^\d{4}$/ })
+    .click()
+  const years = calendar.getByRole('dialog', { name: 'Year' })
   // Pages tile the range from its first year rather than being centred on the
   // year showing, so every year in the span is reachable — twenty-one here,
   // which is the ten either side the default span promises plus this one.

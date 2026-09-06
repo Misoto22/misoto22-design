@@ -14,6 +14,24 @@ export interface PaginationProps extends Omit<HTMLAttributes<HTMLElement>, 'onCh
   /** How many numbered pages sit either side of the current one. */
   siblings?: number
   label?: string
+  /**
+   * Names the two step controls.
+   *
+   * Each is a chevron and nothing else, so these strings are its entire
+   * accessible name — the same reason `AppShell` exposes `openLabel` and
+   * `closeLabel` rather than baking them in.
+   */
+  previousLabel?: string
+  nextLabel?: string
+  /**
+   * Names one numbered page.
+   *
+   * A function rather than a template, because the number does not sit in the
+   * same place in every language and neither does the noun around it —
+   * `"Page 3"`, `"第 3 页"`, `"Seite 3"`. The visible digit is the same either
+   * way; this is what a screen reader hears instead of a bare number.
+   */
+  pageLabel?: (page: number) => string
 }
 
 const GAP = '…' as const
@@ -77,6 +95,11 @@ const STEP =
  *
  * Renders nothing at one page or fewer. A pager for a single page is furniture.
  *
+ * Every string a reader hears is a prop. The chevrons carry no text, so
+ * `previousLabel` and `nextLabel` are the whole of those two controls' names,
+ * and `pageLabel` is a function because "Page 3" is a phrase whose parts move
+ * around between languages.
+ *
  * @example
  * <Pagination page={page} pageCount={12} onPageChange={setPage} />
  */
@@ -86,6 +109,9 @@ export function Pagination({
   onPageChange,
   siblings = 1,
   label = 'Pagination',
+  previousLabel = 'Previous page',
+  nextLabel = 'Next page',
+  pageLabel = (page) => `Page ${page}`,
   className,
   ...rest
 }: PaginationProps) {
@@ -101,7 +127,7 @@ export function Pagination({
     <nav aria-label={label} className={cn('flex items-center gap-1.5', className)} {...rest}>
       <button
         type="button"
-        aria-label="Previous page"
+        aria-label={previousLabel}
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
         className={cn(STEP, 'border-(--rule-2) text-(--ink-2) hover:border-(--ink) hover:text-(--ink)')}
@@ -134,7 +160,7 @@ export function Pagination({
               <button
                 type="button"
                 aria-current={entry === page ? 'page' : undefined}
-                aria-label={`Page ${entry}`}
+                aria-label={pageLabel(entry)}
                 data-indicator-active={entry === page ? 'true' : undefined}
                 onClick={() => onPageChange(entry)}
                 className={cn(
@@ -154,7 +180,7 @@ export function Pagination({
 
       <button
         type="button"
-        aria-label="Next page"
+        aria-label={nextLabel}
         disabled={page >= pageCount}
         onClick={() => onPageChange(page + 1)}
         className={cn(STEP, 'border-(--rule-2) text-(--ink-2) hover:border-(--ink) hover:text-(--ink)')}

@@ -1,8 +1,9 @@
 'use client'
 
 import { ChevronDown } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { isValidElement, useState, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+import { DEV, warn } from '../../lib/warn'
 import {
   Command,
   CommandEmpty,
@@ -15,10 +16,19 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '../Popover/Popover'
 
 export interface MenuAction {
-  /** Stable id, and what the filter matches on. */
+  /**
+   * Stable identity for the row. Not what the filter matches — the label is,
+   * and an id a reader would never type is exactly what this used to be.
+   */
   id: string
+  /** What the row prints. Its text is the first thing the filter matches. */
   label: ReactNode
-  /** Plain text the filter should match beyond the label. */
+  /**
+   * More text the filter should match, beyond the label's own words.
+   *
+   * The synonym a reader reaches for first: "download" for Export, "bin" for
+   * Delete. Required in practice only when the label prints no text at all.
+   */
   keywords?: string[]
   /** Printed at the end of the row. */
   shortcut?: string
@@ -39,6 +49,45 @@ export interface SearchableMenuProps {
   emptyMessage?: string
   align?: 'start' | 'center' | 'end'
   className?: string
+}
+
+/** The plain text a label prints, gathered through whatever wraps it. */
+function textOf(node: ReactNode): string {
+  if (typeof node === 'string') return node
+  if (typeof node === 'number') return String(node)
+  if (Array.isArray(node)) return node.map(textOf).join(' ')
+  if (isValidElement<{ children?: ReactNode }>(node)) return textOf(node.props.children)
+  return ''
+}
+
+/**
+ * What the filter matches this row on.
+ *
+ * cmdk derives an item's value from the first string in
+ * `[props.value, props.children, ref]`, and only falls back to the row's
+ * `textContent` when `value` is absent. This component passes the id as the
+ * value, because that is the row's identity and two rows may print the same
+ * words — so with the opaque ids an application actually has, the label a
+ * reader can SEE scored zero and the menu showed its empty state. Lifting the
+ * label's text into the keywords is what makes the visible words match, while
+ * the id stays the identity.
+ */
+function filterKeywords(action: MenuAction): string[] {
+  const label = textOf(action.label).trim()
+  const extra = action.keywords ?? []
+
+  if (DEV && !label && extra.length === 0) {
+    warn({
+      code: 'SEARCHABLE_MENU_LABEL_UNREADABLE',
+      problem:
+        'A SearchableMenu action has a label with no text in it, so the filter has nothing to match and the row can never be found by typing.',
+      field: 'actions[].label',
+      fix: 'Give the action keywords with the words a reader would type for it, or put text in the label.',
+      component: 'SearchableMenu',
+    })
+  }
+
+  return label ? [label, ...extra] : extra
 }
 
 /**
@@ -114,7 +163,7 @@ export function SearchableMenu({
                     <CommandItem
                       key={action.id}
                       value={action.id}
-                      keywords={action.keywords}
+                      keywords={filterKeywords(action)}
                       disabled={action.disabled}
                       shortcut={action.shortcut}
                       onSelect={() => {

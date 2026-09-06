@@ -4,11 +4,9 @@ import {
   Children,
   createContext,
   isValidElement,
-  useCallback,
   useContext,
   useId,
   useMemo,
-  useState,
   type ComponentProps,
   type FC,
   type ReactElement,
@@ -24,7 +22,8 @@ import {
 import { useReducedMotion } from 'motion/react'
 import { ChartContainer, percentTick, type ChartConfig } from '../lib/chart'
 import { ChartFigure } from '../lib/figure'
-import { ChartEmpty, type ChartEmptyProps } from '../lib/empty'
+import { useChartSelection } from '../lib/selection'
+import { type ChartEmptyProps } from '../lib/empty'
 import { axisLabel } from '../lib/axis'
 import { defaultTick } from '../lib/format'
 import { Annotation, ReferenceBand, ReferenceLine } from '../lib/annotations'
@@ -175,8 +174,15 @@ export interface AreaChartProps<
   animationType?: ChartRevealType
   /** How several marks combine: side by side, stacked, or normalised to 100%. */
   stackType?: AreaStackType
-  /** The series lit on first render. Selection dims every other series. */
+  /** The series lit on first render, when the chart keeps its own selection. */
   defaultSelectedDataKey?: string | null
+  /**
+   * The selected series, driven from outside.
+   *
+   * Give this and the chart follows it; leave it undefined and the chart keeps
+   * its own, starting from `defaultSelectedDataKey`.
+   */
+  selectedDataKey?: string | null
   /** Fires when the selection changes, and with null when it is cleared. */
   onSelectionChange?: (selectedDataKey: string | null) => void
   /**
@@ -243,6 +249,7 @@ export function AreaChart<
   animationType = 'forward',
   stackType = 'default',
   defaultSelectedDataKey = null,
+  selectedDataKey: controlledDataKey,
   onSelectionChange,
   isLoading = false,
   loadingPoints,
@@ -251,7 +258,6 @@ export function AreaChart<
   empty,
 }: AreaChartProps<TData, TConfig>) {
   const chartId = useId().replace(/:/g, '')
-  const [selectedDataKey, setSelectedDataKey] = useState<string | null>(defaultSelectedDataKey)
   const { rows: loadingData, onShimmerExit } = useLoadingRows(isLoading, loadingPoints)
   // One window, two views of it: the brush strip below the plot and the
   // toolbar above it both read and write this. See `useChartZoom` for why they
@@ -305,12 +311,10 @@ export function AreaChart<
     xDataKey,
   )
 
-  const selectDataKey = useCallback(
-    (next: string | null) => {
-      setSelectedDataKey(next)
-      onSelectionChange?.(next)
-    },
-    [onSelectionChange],
+  const [selectedDataKey, selectDataKey] = useChartSelection(
+    controlledDataKey,
+    defaultSelectedDataKey,
+    onSelectionChange,
   )
 
   const context = useMemo<AreaChartContextValue>(
@@ -350,13 +354,12 @@ export function AreaChart<
             ? false
             : { rows: data, rowKey: xDataKey, columns }
         }
+        isEmpty={isEmpty}
+        empty={empty}
       >
         {sonifySlot && (
           <ChartSonifyButton {...sonifySlot} title={title} series={sonifySeries} />
         )}
-        {isEmpty ? (
-          <ChartEmpty {...(empty || {})} />
-        ) : (
         <ChartControls
           toolbar={showToolbar ? toolbarSlot : null}
           zoom={zoom}
@@ -403,7 +406,6 @@ export function AreaChart<
           </RechartsAreaChart>
         </ChartContainer>
         </ChartControls>
-        )}
         <LoadingIndicator isLoading={isLoading} />
       </ChartFigure>
     </AreaChartContext.Provider>
@@ -614,7 +616,10 @@ function XAxis({
   )
 }
 
-/** The value axis. Formats as a percentage on its own when the stack is expanded. */
+/**
+ * The value axis. Formats as a percentage on its own when the stack is
+ * expanded, and steps aside for a `tickFormatter` of your own.
+ */
 function YAxis({
   tickLine = false,
   axisLine = false,
@@ -634,7 +639,10 @@ function YAxis({
       tickMargin={tickMargin}
       minTickGap={minTickGap}
       width={width}
-      tickFormatter={isExpanded ? percentTick : (tickFormatter ?? defaultTick)}
+      // A caller's formatter wins over the expanded stack's own, rather than
+      // being dropped by it: an axis that silently ignores what it was handed
+      // is indistinguishable from one that was handed a typo.
+      tickFormatter={tickFormatter ?? (isExpanded ? percentTick : defaultTick)}
       {...rest}
     >
       {axisLabel(label, 'y')}

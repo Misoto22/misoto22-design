@@ -20,11 +20,52 @@ export interface FigureModel {
   extent: Box
   artwork: ReactNode
   /** Every drawn box, for the summary list. */
-  nodes: { id: string; label: string; sublabel?: string; kind?: string }[]
+  nodes: FigureNode[]
   /** Every drawn line, for the summary list. */
   edges: { from: string; to: string; label?: string }[]
   /** The kinds actually used, and how each is drawn. */
   legend: { key: string; label: string; sample: ReactNode }[]
+  /**
+   * The figure's second axis, as a PARTITION of the nodes above.
+   *
+   * A workflow's lanes and a data flow's stages are not decoration around the
+   * boxes — they are the other half of every box's position, and a summary that
+   * lists the boxes alone has published one dimension of a two-dimensional
+   * picture. Giving the list this structure says it once, in the place a screen
+   * reader already walks, rather than repeating "in the CI lane" on every row.
+   *
+   * A node may appear in at most one band: the list is the keyboard's only
+   * route to a selection, and a node in two bands is two controls that do the
+   * same thing. Anything left out of every band is published after them.
+   */
+  bands?: FigureBand[]
+  /**
+   * What the picture says that is neither a box nor a line.
+   *
+   * Boundaries, phase captions, segment captions, activation bars: each is a
+   * real statement drawn inside an `aria-hidden` `<svg>`, and each is a
+   * sentence rather than a row, so each figure writes its own.
+   */
+  notes?: string[]
+}
+
+/** One drawn box, as the summary publishes it. */
+export interface FigureNode {
+  id: string
+  label: string
+  sublabel?: string
+  kind?: string
+  /** A short phrase the picture prints on the box: a step number. */
+  detail?: string
+}
+
+/** One band of a figure's second axis: a lane, a stage. */
+export interface FigureBand {
+  /** What KIND of band this is — "Lane", "Stage" — since the label is a name. */
+  kind: string
+  label: string
+  /** The nodes inside it, in the order the figure draws them. */
+  ids: string[]
 }
 
 export interface FigureChrome {
@@ -64,6 +105,13 @@ export interface FigureChrome {
  * picture, and it is why this component takes a model rather than markup — a
  * frame handed a finished `<svg>` could not have written it.
  *
+ * The list carries the figure's SECOND AXIS as its own structure. A workflow's
+ * lanes and a data flow's stages are half of where every box sits, and they are
+ * drawn inside the presentational `<svg>` — so a flat list of boxes published
+ * one dimension of a two-dimensional picture and called it the content. Nodes
+ * are grouped by their band, and the statements that group nothing — a
+ * boundary, a phase caption, an activation bar — follow as sentences.
+ *
  * The list is visually hidden by default and NOT hidden from assistive
  * technology, which is the opposite of what `aria-hidden` would do and the
  * whole point.
@@ -94,6 +142,25 @@ export function DiagramFrame({
   }`.trim()
 
   const showLegend = legend !== 'hidden' && model.legend.length > 0
+
+  // Bands partition the nodes; anything a figure left out of every band is
+  // still published, after them. A node dropped from the list entirely would be
+  // a node a keyboard cannot reach.
+  const bands = model.bands ?? []
+  const banded = new Set(bands.flatMap((band) => band.ids))
+  const loose = bands.length > 0 ? model.nodes.filter((node) => !banded.has(node.id)) : []
+
+  const row = (node: FigureNode) => (
+    <li key={node.id}>
+      {onSelectNode ? (
+        <button type="button" onClick={() => onSelectNode(node.id)}>
+          {summaryLine(node)}
+        </button>
+      ) : (
+        summaryLine(node)
+      )}
+    </li>
+  )
 
   return (
     <figure className={cn('m-0 flex flex-col gap-5', className)}>
@@ -128,19 +195,28 @@ export function DiagramFrame({
       {/* The picture's content, for anyone not looking at the picture. */}
       <div className="sr-only">
         <p>{description}</p>
-        <ul>
-          {model.nodes.map((node) => (
-            <li key={node.id}>
-              {onSelectNode ? (
-                <button type="button" onClick={() => onSelectNode(node.id)}>
-                  {summaryLine(node)}
-                </button>
-              ) : (
-                summaryLine(node)
-              )}
-            </li>
-          ))}
-        </ul>
+        {bands.length > 0 ? (
+          <ul>
+            {bands.map((band, index) => (
+              <li key={`${band.label}-${index}`}>
+                <span>{`${band.kind}: ${band.label}`}</span>
+                <ul>
+                  {band.ids.flatMap((id) => {
+                    const node = byId.get(id)
+                    return node ? [row(node)] : []
+                  })}
+                </ul>
+              </li>
+            ))}
+            {loose.length > 0 && (
+              <li>
+                <ul>{loose.map(row)}</ul>
+              </li>
+            )}
+          </ul>
+        ) : (
+          <ul>{model.nodes.map(row)}</ul>
+        )}
         {model.edges.length > 0 && (
           <ul>
             {model.edges.map((edge, index) => (
@@ -148,6 +224,13 @@ export function DiagramFrame({
                 {(byId.get(edge.from)?.label ?? edge.from)} → {(byId.get(edge.to)?.label ?? edge.to)}
                 {edge.label ? `: ${edge.label}` : ''}
               </li>
+            ))}
+          </ul>
+        )}
+        {model.notes && model.notes.length > 0 && (
+          <ul>
+            {model.notes.map((note, index) => (
+              <li key={index}>{note}</li>
             ))}
           </ul>
         )}
@@ -162,10 +245,11 @@ export function DiagramFrame({
   )
 }
 
-function summaryLine(node: { label: string; sublabel?: string; kind?: string }): string {
+function summaryLine(node: FigureNode): string {
   const parts = [node.label]
   if (node.kind) parts.push(`(${node.kind})`)
   if (node.sublabel) parts.push(`— ${node.sublabel}`)
+  if (node.detail) parts.push(`— ${node.detail}`)
   return parts.join(' ')
 }
 

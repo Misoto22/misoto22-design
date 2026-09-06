@@ -4,6 +4,8 @@ import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import type { ComponentProps, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+import { useOverlayContainer } from '../../lib/overlay-container'
+import { DEV, warn } from '../../lib/warn'
 
 /** Radix Dialog root + trigger + close, re-exported as typed passthroughs. */
 export const Dialog = DialogPrimitive.Root
@@ -39,7 +41,14 @@ function DialogHeader({
 
 export interface DialogContentProps
   extends Omit<ComponentProps<typeof DialogPrimitive.Content>, 'title' | 'className'> {
-  /** Heading text. When omitted, a visually-hidden title is rendered for a11y. */
+  /**
+   * Heading text.
+   *
+   * Pass one even when `hideTitle` is set. Radix requires a title, so omitting
+   * it renders a hidden fallback reading the literal word "Dialog" — which
+   * satisfies an automated accessibility check and announces every unnamed
+   * modal in the application as the same thing. Development says so out loud.
+   */
   title?: ReactNode
   /** Sub-heading under the title. */
   description?: ReactNode
@@ -65,8 +74,16 @@ export interface DialogContentProps
  * usually by leaving focus behind in the page underneath.
  *
  * Radix requires a `Dialog.Title` whether or not one is shown, so a dialog
- * without a visible heading still renders a hidden one rather than logging a
- * warning and shipping an unnamed modal.
+ * without a visible heading still renders a hidden one rather than shipping an
+ * unnamed modal — and warns in development, because the fallback it renders is
+ * the literal word "Dialog" and a placeholder that passes an accessibility
+ * check is how the problem survives a review.
+ *
+ * Portals into the element an enclosing `OverlayContainer` names, and switches
+ * from viewport positioning to container positioning when there is one. A
+ * `fixed` panel covers the page whatever it is portalled into, so honouring
+ * the container without that swap would have moved the markup and left the
+ * picture unchanged.
  *
  * @example
  * <Dialog>
@@ -85,17 +102,36 @@ export function DialogContent({
   hideTitle = false,
   ...rest
 }: DialogContentProps) {
+  const container = useOverlayContainer()
+
+  if (DEV && title === undefined) {
+    warn({
+      code: 'DIALOG_TITLE_MISSING',
+      problem:
+        'DialogContent has no title, so its accessible name is the fallback string "Dialog". Every unnamed modal in the app announces identically, and the check that would have caught it passes.',
+      field: 'title',
+      fix: 'Give it a title that says what the dialog asks. Add hideTitle when the heading would be furniture on screen.',
+      component: 'Dialog',
+    })
+  }
+
   return (
-    <DialogPrimitive.Portal>
+    <DialogPrimitive.Portal container={container ?? undefined}>
       <DialogPrimitive.Overlay
         data-m22-animated
-        className="fixed inset-0 z-(--z-overlay) bg-(--scrim) data-[state=open]:animate-[m22-fade-in_var(--duration-fast)_var(--ease)]"
+        className={cn(
+          'inset-0 z-(--z-overlay) bg-(--scrim) data-[state=open]:animate-[m22-fade-in_var(--duration-fast)_var(--ease)]',
+          container ? 'absolute' : 'fixed',
+        )}
       />
       <DialogPrimitive.Content
         data-m22-animated
         className={cn(
           'fixed left-1/2 top-1/2 z-(--z-modal) max-h-[85vh] w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 overflow-auto rounded-(--radius-lg) border border-(--panel-border) bg-(--panel-bg) p-6 panel-blur scroll-slim',
           'data-[state=open]:animate-[m22-panel-in_var(--duration-base)_var(--ease)]',
+          // Against the container's box rather than the viewport's, and capped
+          // by it: 92vw inside a 400px frame is not a cap at all.
+          container && 'absolute max-h-[calc(100%-2rem)] max-w-[calc(100%-2rem)]',
           className,
         )}
         {...rest}

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+import { DEV, warn } from '../../lib/warn'
 
 export interface DiagramNode {
   /** Only needed when an edge names this node. */
@@ -27,7 +28,12 @@ export interface DiagramSpec {
   /** How the top-level nodes are laid out. Defaults to a row. */
   direction?: 'row' | 'column'
   nodes: DiagramNode[]
-  /** Arrows between adjacent top-level nodes, by id. */
+  /**
+   * Arrows between adjacent siblings, by id and in the order the rank runs.
+   * Each edge is spent the first time a pair matches it, at whatever depth
+   * that pair sits — and an edge that matches nothing says so in development
+   * rather than drawing nothing and reporting nothing.
+   */
   edges?: DiagramEdge[]
   /** The figure's caption. */
   caption?: string
@@ -73,8 +79,8 @@ export interface DiagramProps {
  *     edges: [{ from: 'edge', to: 'app', label: 'HTTPS' }],
  *     nodes: [
  *       { id: 'edge', label: 'Edge', note: 'CDN' },
- *       { id: 'app', label: 'Application', accent: true, children: [
- *         { label: 'Router' },
+ *       { id: 'app', label: 'Application', children: [
+ *         { label: 'Router', accent: true },
  *         { label: 'Handlers' },
  *       ] },
  *     ],
@@ -83,11 +89,14 @@ export interface DiagramProps {
  */
 export function Diagram({ spec, className }: DiagramProps) {
   const { nodes, edges = [], direction = 'row', caption, label } = spec
+  const { leads, drawn } = resolveLeads(nodes, edges)
+
+  if (DEV) warnSpec(nodes, edges, drawn)
 
   return (
     <figure className={cn('m-0', className)} role="group" aria-label={label ?? caption ?? undefined}>
       <div className="overflow-x-auto rounded-(--radius-lg) border border-(--rule) bg-(--paper-2) p-[clamp(1.125rem,calc(2.5*var(--fluid)),1.875rem)] scroll-slim">
-        <NodeList nodes={nodes} edges={edges} direction={direction} depth={0} />
+        <NodeList nodes={nodes} leads={leads} direction={direction} depth={0} />
       </div>
       {caption && (
         // A <div>, not a <figcaption>. A long-form stylesheet dropped around
@@ -102,15 +111,56 @@ export function Diagram({ spec, className }: DiagramProps) {
   )
 }
 
+/** The arrow that leads INTO a node, for every node that earned one. */
+type Leads = Map<DiagramNode, DiagramEdge>
+
+/**
+ * Every arrow the spec earns, resolved once for the whole figure.
+ *
+ * Keyed by the node the arrow leads into, by OBJECT rather than by id: two
+ * nodes sharing an id are a defect in the spec, not a licence to draw the same
+ * arrow in two places. The same `edges` array used to be handed to every rank,
+ * so a pair of ids reused two levels down drew the arrow again down there — an
+ * arrow the author asked for once and the figure asserted twice.
+ *
+ * Ranks are walked breadth-first from the top and an edge is spent at the first
+ * pair that matches it, which makes "one edge, one arrow" a property of the
+ * renderer rather than a rule the author has to keep.
+ */
+function resolveLeads(nodes: DiagramNode[], edges: DiagramEdge[]): { leads: Leads; drawn: Set<DiagramEdge> } {
+  const leads: Leads = new Map()
+  const drawn = new Set<DiagramEdge>()
+  const ranks: DiagramNode[][] = [nodes]
+
+  while (ranks.length > 0) {
+    const rank = ranks.shift()!
+    for (let index = 1; index < rank.length; index += 1) {
+      const from = rank[index - 1]!
+      const to = rank[index]!
+      if (!from.id || !to.id) continue
+      const edge = edges.find(
+        (candidate) =>
+          !drawn.has(candidate) && candidate.from === from.id && candidate.to === to.id,
+      )
+      if (!edge) continue
+      drawn.add(edge)
+      leads.set(to, edge)
+    }
+    for (const node of rank) if (node.children?.length) ranks.push(node.children)
+  }
+
+  return { leads, drawn }
+}
+
 /** One rank of the diagram: the nodes, and any arrows between them. */
 function NodeList({
   nodes,
-  edges,
+  leads,
   direction,
   depth,
 }: {
   nodes: DiagramNode[]
-  edges: DiagramEdge[]
+  leads: Leads
   direction: 'row' | 'column'
   depth: number
 }) {
@@ -122,20 +172,14 @@ function NodeList({
         <NodeFrame
           key={node.id ?? `${node.label}-${index}`}
           node={node}
-          edges={edges}
+          leads={leads}
           depth={depth}
-          lead={index > 0 ? findEdge(edges, nodes[index - 1]!, node) : undefined}
+          lead={leads.get(node)}
           row={row}
         />
       ))}
     </div>
   )
-}
-
-/** The arrow that sits between two adjacent nodes, when an edge names them. */
-function findEdge(edges: DiagramEdge[], from: DiagramNode, to: DiagramNode): DiagramEdge | undefined {
-  if (!from.id || !to.id) return undefined
-  return edges.find((edge) => edge.from === from.id && edge.to === to.id)
 }
 
 /**
@@ -154,13 +198,13 @@ function findEdge(edges: DiagramEdge[], from: DiagramNode, to: DiagramNode): Dia
  */
 function NodeFrame({
   node,
-  edges,
+  leads,
   depth,
   lead,
   row,
 }: {
   node: DiagramNode
-  edges: DiagramEdge[]
+  leads: Leads
   depth: number
   lead?: DiagramEdge
   row: boolean
@@ -188,7 +232,7 @@ function NodeFrame({
             <div className="mt-3">
               <NodeList
                 nodes={children}
-                edges={edges}
+                leads={leads}
                 direction={node.direction ?? 'row'}
                 depth={depth + 1}
               />
@@ -261,6 +305,82 @@ function EdgeMark({ label, row }: { label?: string; row: boolean }): ReactNode {
       {label && <span className="mono-meta whitespace-nowrap">{label}</span>}
     </div>
   )
+}
+
+/**
+ * Everything the spec asked for that the renderer will not do, said out loud.
+ *
+ * All three failures here are silent by construction: the figure renders, it
+ * renders beautifully, and it describes something other than what was written.
+ * An author reading the picture has no way to tell an edge that was ignored
+ * from an edge they forgot, so the console is the only place left to say it.
+ *
+ * Dev only, and guarded at the call site so a production bundle drops the walk
+ * along with the messages.
+ */
+function warnSpec(nodes: DiagramNode[], edges: DiagramEdge[], drawn: Set<DiagramEdge>): void {
+  const ids = new Set<string>()
+  warnNodes(nodes, ids)
+
+  for (const edge of edges) {
+    if (drawn.has(edge)) continue
+    const pair = `${edge.from} → ${edge.to}`
+    const unknown = !ids.has(edge.from) || !ids.has(edge.to)
+
+    warn({
+      code: unknown ? 'DIAGRAM_EDGE_UNKNOWN_NODE' : 'DIAGRAM_EDGE_NOT_ADJACENT',
+      problem: unknown
+        ? `The edge ${pair} names an id no node in this spec carries, so no arrow is drawn and nothing else changes.`
+        : `The edge ${pair} names two nodes that are never consecutive siblings, so no arrow is drawn anywhere.`,
+      field: `spec.edges: ${pair}`,
+      fix: unknown
+        ? 'Give the node the id the edge names, or correct the edge to an id the spec already has.'
+        : 'Write the edge from a node to the node immediately after it in the same rank, in that order. Nesting is containment here; an edge is a step between siblings.',
+      component: 'Diagram',
+    })
+  }
+}
+
+/** The node half of {@link warnSpec}: duplicate ids, and props read by nobody. */
+function warnNodes(nodes: DiagramNode[], ids: Set<string>): void {
+  for (const node of nodes) {
+    if (node.id) {
+      if (ids.has(node.id)) {
+        warn({
+          code: 'DIAGRAM_DUPLICATE_ID',
+          problem: `Two nodes carry the id "${node.id}", so an edge naming it lands on whichever comes first and silently means the other.`,
+          field: `spec.nodes: id "${node.id}"`,
+          fix: 'Make every id unique across the whole spec, or drop it from the node no edge names.',
+          component: 'Diagram',
+        })
+      }
+      ids.add(node.id)
+    }
+
+    const isGroup = (node.children?.length ?? 0) > 0
+
+    if (isGroup && node.accent) {
+      warn({
+        code: 'DIAGRAM_ACCENT_ON_CONTAINER',
+        problem: `"${node.label}" has children, so it is drawn as a band — and a band has no fill for accent to take. It type-checks and paints nothing.`,
+        field: `spec.nodes: accent on "${node.label}"`,
+        fix: 'Move accent to the leaf the diagram is actually about, or drop the children so this node becomes that leaf.',
+        component: 'Diagram',
+      })
+    }
+
+    if (!isGroup && node.direction) {
+      warn({
+        code: 'DIAGRAM_DIRECTION_ON_LEAF',
+        problem: `"${node.label}" has no children, so there is nothing here to lay out — direction is read only from a node that has some.`,
+        field: `spec.nodes: direction on "${node.label}"`,
+        fix: 'Set direction on the parent whose axis you meant, or on spec.direction for the top rank.',
+        component: 'Diagram',
+      })
+    }
+
+    if (node.children) warnNodes(node.children, ids)
+  }
 }
 
 export default Diagram

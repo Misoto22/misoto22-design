@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+import { ChartEmpty, type ChartEmptyProps } from '../lib/empty'
 import { defaultTick } from '../lib/format'
 
 export interface BarListItem {
@@ -33,6 +34,13 @@ export interface BarListProps {
   /** Sorts descending before rendering. */
   sort?: boolean
   className?: string
+  /**
+   * What the list shows when it has nothing to rank.
+   *
+   * A caption over an empty `<tbody>` is a list that failed to load as far as
+   * the reader can tell, and the reader's next move is to reload the page.
+   */
+  empty?: ChartEmptyProps
 }
 
 /**
@@ -64,6 +72,7 @@ export function BarList({
   max,
   sort = true,
   className,
+  empty,
 }: BarListProps) {
   const ordered = sort ? [...items].sort((a, b) => b.value - a.value) : items
 
@@ -81,6 +90,17 @@ export function BarList({
       : ordered
 
   const ceiling = max ?? Math.max(1, ...shown.map((item) => item.value))
+
+  if (shown.length === 0) {
+    return (
+      <div className={cn('flex w-full flex-col gap-2', className)}>
+        <p className={cn('text-start', showLabel ? 'mb-2 eyebrow text-(--ink-3-aa)' : 'sr-only')}>
+          {label}
+        </p>
+        <ChartEmpty {...(empty || {})} />
+      </div>
+    )
+  }
 
   return (
     <div className={cn('flex w-full flex-col gap-2', className)}>

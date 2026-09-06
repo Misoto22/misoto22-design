@@ -25,7 +25,7 @@ export const DATA = [
         element: 'Scroll region',
         required: true,
         description:
-          'The focusable <div role="region"> around the table, named by caption. It carries the border setting and the density attribute, and it is what scrolls sideways — so the table exceeds the measure and the page does not.',
+          'The focusable <div role="region"> around the table, named by caption. It carries the border setting and the density attribute, and it is what scrolls sideways — so the table exceeds the measure and the page does not. It is also positioned, which is what keeps an sr-only label inside a cell from resolving against the document and dragging the page sideways with it.',
       },
       {
         element: 'Caption',
@@ -83,6 +83,7 @@ export const DATA = [
       'A sortable header is a button INSIDE the th, not a click handler on the cell — a cell with an onClick is not focusable and not announced, so the sort would exist only for a mouse.',
       'aria-sort is set from sortDirection, which is the only way a screen reader learns the table is ordered at all.',
       'No zebra striping at any border setting: in a monochrome system a striped row is a second surface competing with the page ground.',
+      'The scroll region is a containing block, so a visually-hidden label in a cell stays inside the table rather than escaping it and widening the page.',
     ],
     keyboard: [
       { keys: ['Tab'], does: 'Reaches the scroll region, and each sortable column header.' },
@@ -142,7 +143,7 @@ export const DATA = [
       },
       {
         kind: 'do',
-        text: 'Spell a cell’s row and column exactly as they appear in rows and columns: cells are looked up by that pair, so an unmatched entry draws nothing at all. Its number still counts toward the derived domain, which is how a typo stretches the ramp with a value that appears nowhere on the grid.',
+        text: 'Spell a cell’s row and column exactly as they appear in rows and columns: cells are looked up by that pair, so an unmatched entry draws nothing at all. It no longer counts toward the derived domain either — a typo used to stretch the ramp with a value that appeared nowhere on the grid, pushing every drawn cell into the first fraction of it.',
       },
       {
         kind: 'do',
@@ -219,8 +220,8 @@ export const DATA = [
         text: 'Downsample a long run before handing it over. The x step is 100 divided by one less than the number of points, spread across whatever width the cell has, so four hundred readings in a 200px cell land half a pixel apart and the path fills in as a band.',
       },
       {
-        kind: 'dont',
-        text: 'A run that never moves does not draw through the middle. With min equal to max the span falls back to 1 and every point normalises to zero, which is the BOTTOM of the box — so a flat 500 all week reads as a series sitting on its floor, and only a pinned domain gives it somewhere else to sit.',
+        kind: 'do',
+        text: 'Read a flat line through the middle as “unchanged”, not as “at its floor”. A run whose min equals its max has a scale with no width, so no position on it is truer than another and every point sits at the centre — the same answer Heatmap and BulletChart give a zero span, and the one that keeps “unchanged” and “pinned at its worst” apart in a column of them.',
       },
       {
         kind: 'dont',
@@ -275,6 +276,11 @@ export const DATA = [
         element: 'Other row',
         description:
           'What limit adds: one final row named Other carrying the summed tail, so the rows shown still account for the whole they were cut from.',
+      },
+      {
+        element: 'Empty state',
+        description:
+          'ChartEmpty under the label when there is nothing to rank. A caption over an empty tbody is a list that failed to load as far as the reader can tell, and reloading does not change it.',
       },
     ],
     practices: [
@@ -368,11 +374,11 @@ export const DATA = [
       },
       {
         kind: 'do',
-        text: 'Decide at the call site what a missing reading prints, an em dash or a “No data”. value goes straight into the headline with no empty state behind it, so an absent one leaves a label over a blank line, which reads as a broken layout rather than as a number nobody has.',
+        text: 'Let value be null when there is no reading. It prints an em dash at --ink-3-aa with an sr-only “No data” behind it, which is a number nobody has; a blank line under a label is a broken layout as far as the reader can tell. emptyValue changes what the dash is.',
       },
       {
         kind: 'dont',
-        text: 'Do not pass a delta of exactly zero to say nothing changed. It is drawn neutral, grey with a flat arrow, but the hidden words still take the intent’s side — so a zero under up-is-good is announced as “no change, worse” while the page shows no judgement at all. Omit delta when there is nothing to compare against.',
+        text: 'Do not expect a delta of exactly zero to carry the intent’s verdict. There is no direction for an intent to judge, so the tone, the arrow and the announced words all say “no change” and stop — a zero under up-is-good used to be announced as “no change, worse” while the page showed no judgement at all.',
       },
       {
         kind: 'dont',
@@ -430,7 +436,7 @@ export const DATA = [
     practices: [
       {
         kind: 'do',
-        text: 'Keep every range bound inside the domain. Bounds at or outside the two ends are dropped before the bands are built, so ranges of 60 and 80 on a domain of 0 to 50 draws one flat band and no boundary anywhere — a row that looks evaluated, is not, and raises nothing about it.',
+        text: 'Keep every range bound inside the domain. Bounds at or outside the two ends have no boundary to draw and are dropped before the bands are built, so ranges of 60 and 80 on a domain of 0 to 50 draws one flat band — the row LOOKS evaluated and is not. They stay in the table’s range-bounds cell, which is the only place the mismatch is visible.',
       },
       {
         kind: 'do',
@@ -442,7 +448,7 @@ export const DATA = [
       },
       {
         kind: 'dont',
-        text: 'A value past the end of the scale is clamped, not overflowed: 130 on a domain of 0 to 100 fills the track exactly as 100 does, and only the figure printed above the track says which it was. Pin domain wide enough for the overshoot you expect, or the row that blew through its target is the row that looks merely finished.',
+        text: 'A value past the end of the scale is clamped, not overflowed: 130 on a domain of 0 to 100 fills the track exactly as 100 does. A notch at the end of the track says it happened and the figure printed above says by how much — but the track itself cannot, so pin domain wide enough for the overshoot you expect rather than reading the row that blew through its target as one that merely finished.',
       },
       {
         kind: 'dont',

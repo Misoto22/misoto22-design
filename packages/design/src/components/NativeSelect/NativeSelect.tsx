@@ -22,6 +22,12 @@ export interface NativeSelectProps extends SelectHTMLAttributes<HTMLSelectElemen
  * list is drawn by the operating system, so it carries none of these tokens —
  * which is exactly why it stopped being the default.
  *
+ * `className` sizes the WRAPPER, not the `<select>` inside it. This is the one
+ * control here that renders two elements, and the chevron is pinned to the
+ * wrapper's end edge: a width on the select alone narrowed the box and left the
+ * arrow floating at the far side of the row. The select fills whatever the
+ * wrapper is.
+ *
  * @example
  * <NativeSelect defaultValue="au"><option value="au">Australia</option></NativeSelect>
  */
@@ -35,7 +41,7 @@ export function NativeSelect({
 }: NativeSelectProps) {
   const bad = isInvalid(invalid, ariaInvalid)
   return (
-    <div className="relative">
+    <div className={cn('relative', className)}>
       <select
         ref={ref}
         aria-invalid={ariaInvalid ?? (invalid ? true : undefined)}
@@ -43,7 +49,6 @@ export function NativeSelect({
           CONTROL_BASE,
           'cursor-pointer appearance-none pe-9',
           bad ? CONTROL_BORDER.invalid : CONTROL_BORDER.resting,
-          className,
         )}
         {...rest}
       >

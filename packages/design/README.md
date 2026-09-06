@@ -20,15 +20,23 @@ import { Button, Field, Input } from '@misoto22/design'
 import '@misoto22/design/styles.css'
 ```
 
-`styles.css` is the whole compiled sheet — tokens, roles, motion and the
-vendored faces. An app that compiles its own Tailwind can take the portable
+`styles.css` is the whole compiled sheet — tokens, roles, themes, motion and
+the vendored faces. An app that compiles its own Tailwind can take the portable
 layers instead:
 
 ```tsx
-import '@misoto22/design/tokens.css'    // primitives
+import '@misoto22/design/tokens.css'    // primitives, plus data-mode and data-density
 import '@misoto22/design/semantic.css'  // roles
+import '@misoto22/design/themes.css'    // the other six theming axes
 import '@misoto22/design/keyframes.css' // motion
 ```
+
+All four, or the theming table below is a table of attributes that do nothing.
+`data-mode` and `data-density` are declared in `tokens.css`; every other axis
+lives only in `themes.css`, and an app that skips it writes `data-radius="sharp"`
+and gets no error, no warning, and no corner. Two more layers are opt-in rather
+than missing: `@misoto22/design/fonts.css` carries the vendored faces, and
+`@misoto22/design/article.css` styles long-form prose.
 
 Diagrams ship from their own specifier, so a page that renders a `Badge` does
 not pay for a routing engine:
@@ -44,7 +52,7 @@ authored for that tool renders here with no translation step.
 
 ## Theming
 
-Seven independent axes, each an attribute, each working on **any** element
+Eight independent axes, each an attribute, each working on **any** element
 rather than only on the root. An unset axis is the default.
 
 | Attribute | Values |
@@ -56,6 +64,7 @@ rather than only on the root. An unset axis is the default.
 | `data-type` | `grotesk` `bookish` |
 | `data-motion` | `still` `snappy` |
 | `data-density` | `compact` |
+| `data-chart-palette` | `chroma` |
 
 ```tsx
 <section data-surface="warm" data-radius="sharp">…</section>
