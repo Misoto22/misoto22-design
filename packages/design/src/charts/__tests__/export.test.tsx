@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render as rtlRender, screen, within } from '@testing-library/react'
+import { rasterize, readToken, serializeSvg } from '../../lib/svg-export'
 import { chartToCsv, chartToPng, exportFilename } from '../lib/export'
 import { clampWindow, panWindow, zoomWindow } from '../lib/zoom'
 import { BarChart } from '../BarChart/BarChart'
@@ -7,6 +8,29 @@ import type { ChartConfig } from '../lib/chart'
 
 /** A UTF-8 byte order mark, written out so the assertions can say so. */
 const BOM = '\uFEFF'
+
+/**
+ * The general half of the export path lives in `lib/svg-export` and is tested
+ * there. Mocking it here leaves exactly the seam this module still owns: WHICH
+ * `<svg>` is the plot, and what ground and ink an exported chart carries.
+ */
+vi.mock('../../lib/svg-export', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../lib/svg-export')>()),
+  serializeSvg: vi.fn(() => '<svg/>'),
+  rasterize: vi.fn(async () => new Blob()),
+  readToken: vi.fn((_element: Element, name: string, fallback: string) =>
+    name === '--chart-surface' ? SURFACE : name === '--ink' ? INK : fallback,
+  ),
+}))
+
+const SURFACE = '#fafafa'
+const INK = '#101010'
+
+beforeEach(() => {
+  vi.mocked(serializeSvg).mockClear()
+  vi.mocked(rasterize).mockClear()
+  vi.mocked(readToken).mockClear()
+})
 
 const columns = [
   { key: 'month', label: 'Month' },
@@ -113,6 +137,40 @@ describe('PNG export', () => {
     // The failure a call site actually hits: exporting before the chart has
     // rendered. A 0-byte PNG would look like a broken feature.
     await expect(chartToPng(document.createElement('div'))).rejects.toThrow(/no <svg>/)
+  })
+
+  it('hands the plot to the serialiser, not the first icon it finds', async () => {
+    // The three decisions this function still owns after the general half moved
+    // to `lib/svg-export`. The first is the one that breaks silently: a toolbar
+    // sits inside the same wrapper and every control in it is an `<svg>`, so a
+    // naive `querySelector('svg')` exports a picture of a magnifying glass —
+    // which looks like a working download until someone opens the file.
+    // Both narrowings, in one fixture, because both are load-bearing and each
+    // fails the same silent way. The toolbar is outside the plot wrapper; the
+    // legend swatch is inside it.
+    const wrapper = document.createElement('div')
+    wrapper.innerHTML = `
+      <div role="group"><button><svg id="toolbar-icon"></svg></button></div>
+      <div data-slot="chart">
+        <div class="legend"><svg id="legend-swatch"></svg></div>
+        <svg id="plot" class="recharts-surface"></svg>
+      </div>
+    `
+    document.body.append(wrapper)
+
+    try {
+      await chartToPng(wrapper, { title: 'Visitors' })
+    } catch {
+      // jsdom cannot rasterise; what is asserted is what was handed over.
+    }
+
+    expect(serializeSvg).toHaveBeenCalledOnce()
+    const [svg, options] = vi.mocked(serializeSvg).mock.calls[0]!
+    expect(svg.id).toBe('plot')
+    expect(options?.background).toBe(SURFACE)
+    expect(options?.titleColor).toBe(INK)
+
+    wrapper.remove()
   })
 })
 
