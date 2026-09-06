@@ -3,7 +3,7 @@ import { Home } from '@/views/Home'
 
 export const metadata: Metadata = {
   // Absolute, so the layout's template does not append the site name twice.
-  title: { absolute: 'misoto22 design — 白色重置' },
+  title: { absolute: 'misoto22 design — 归白' },
 }
 
 export default function Page() {

@@ -48,22 +48,54 @@ finished in a minute and a quarter while the browser suite was still six minutes
 from done. A version that fails the a11y suite cannot be recalled, because npm
 does not let a version number be reused.
 
+### The Version Packages pull request arrives blocked, and the translation unblocks it
+
+It is opened by the workflow's own `GITHUB_TOKEN`, and GitHub fires no workflows
+for events from that token — the recursion guard that stops a workflow from
+triggering itself. So the pull request arrives with no checks at all, and under
+the `main` ruleset below, which requires three of them, it reads as `BLOCKED`.
+
+**Any event from a real account starts them.** In practice there is already one
+to make, and it is the step this release needs anyway:
+
+```bash
+git fetch origin && git checkout changeset-release/main
+# translate this release's entries in apps/docs/src/i18n/changelog.ts
+git commit -am 'docs(i18n): translate the <version> changelog' && git push
+# the push starts verify, browser and changeset; when they are green:
+gh pr merge <number> --squash
+```
+
+That is how 0.6.1 and 0.7.0 were cut — each of their pull requests carries the
+bot's version commit and one `docs(i18n)` commit from a person, and the checks
+ran off the second. When there is genuinely nothing to push, closing and
+reopening the pull request does the same job; 0.6.0 was cut that way.
+
 > [!IMPORTANT]
-> The **Version Packages** pull request is opened by the workflow's own
-> `GITHUB_TOKEN`, and GitHub does not trigger workflows for events from that
-> token — so that pull request carries no checks and cannot. Under the `main`
-> ruleset below it therefore reads as `BLOCKED`, and is merged deliberately:
->
-> ```bash
-> gh pr merge --squash --admin <number>
-> ```
->
-> That is sound rather than a hole in the gate. The pull request touches four
-> files — `package.json`, `CHANGELOG.md`, and the changesets it consumes — none
-> of which the test suite could have an opinion about, and its tree is verified
-> in full after the merge by the `main` run that publishes it, because `publish`
-> `needs: [verify, browser]`. The gate has not been skipped; it has been moved to
-> the side of the merge where it can actually run.
+> Which is why the Chinese changelog goes in **before** the merge rather than
+> after. `apps/docs/src/i18n/changelog.ts` carries each release's entries and a
+> gate checks it, and it used to be fine to catch that later — the ruleset ended
+> that, because later now means the post-merge `main` run, and that run is the
+> publish. The translation is no longer only good manners; it is the event that
+> makes the pull request mergeable at all.
+
+> [!WARNING]
+> **Not `--admin`.** An earlier version of this file recommended
+> `gh pr merge --squash --admin <number>` and called it the escape hatch this
+> step depends on. It is not one: `guard-git.py` in the misoto22 dev plugin
+> refuses `gh pr merge --admin` unconditionally, with no exception for this
+> pull request — so anyone following that advice, and every agent that reads
+> this file, hits a hard stop and starts hunting for a way around a guard. The
+> bypass has never actually been used to cut a release.
+
+None of this is a design. The step exists only because of which token opens the
+pull request, and it disappears entirely if the changesets action is given a
+GitHub App installation token or a PAT instead — a version pull request opened
+by either carries its own checks, and the translation goes back to being a
+courtesy rather than a key. **That is Henry's call rather than part of this
+process**: it means creating a credential, and by the machine's own rule a
+credential is created by a person and lives in 1Password, never generated or
+held by an agent.
 
 ## What protects `main`
 
@@ -76,7 +108,7 @@ branch-protection screen:
 | `verify / verify`, `browser / browser`, `changeset` must pass | The two gates that read the tree, plus the one that reads the pull request's manners. |
 | Branch must be up to date before merging | See below — this is the load-bearing one. |
 | No force-push, no deletion | `main` is what the registry and the site are cut from. |
-| Repository admin may bypass | The escape hatch the Version Packages merge above depends on. It is a deliberate `--admin`, not a default path. |
+| Repository admin may bypass | Present, and deliberately unused — see the Version Packages note above. `--admin` is refused by a hook, and reopening the pull request makes its checks run instead. |
 
 **Up-to-date is the one that earns its keep with parallel work.** Two branches
 can each be green against the `main` of an hour ago and still be broken

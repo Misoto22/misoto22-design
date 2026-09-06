@@ -186,7 +186,7 @@ type Widen<T> = { [K in keyof T]: T[K] extends string ? string : Widen<T[K]> }
 export type Messages = Widen<typeof en>
 
 const zh: Messages = {
-  tagline: '白色重置',
+  tagline: '归白',
   search: '搜索',
   searchAria: '搜索文档',
   searchEmpty: '没有匹配“{query}”的内容。索引覆盖名称、摘要、属性、快捷键与无障碍说明。',
@@ -343,12 +343,12 @@ const zh: Messages = {
       mono: '单色', chroma: '彩色',
     },
     presets: {
-      reset: { name: '白色重置', note: '系统出厂的样子。纸白底、细描边、衬线标题，强调色就是墨色。' },
+      reset: { name: '归白', note: '系统出厂的样子。纸白底、细描边、衬线标题，强调色就是墨色。' },
       broadsheet: { name: '大报', note: '暖色纸、直角、明确的描边。报纸读起来是一张网格，不是一叠卡片。' },
       console: { name: '控制台', note: '冷色底、紧凑行距、干脆的动效、单一界面字体。密集操作界面要的全在这。' },
       salon: { name: '沙龙', note: '大圆角、克制的描边，衬线一路用到正文。这是读的界面，不是干活的界面。' },
       clinic: { name: '诊室', note: '纸白底配单一无衬线，一点暖意都没有。圆角把它从“表单”里拉回来。' },
-      atelier: { name: '工作室', note: '暖色纸、克制的描边，衬线只留给标题。作品集的样子——颜色由作品来给。' },
+      atelier: { name: '画室', note: '暖色纸、克制的描边，衬线只留给标题。作品集的样子——颜色由作品来给。' },
       aqua: { name: '流光', note: '冷色底上的磨砂面板。全系统唯一花掉一次模糊的主题，而且只用在真正浮起来的表面背后。' },
       ledger: { name: '账册', note: '冷白底、直角、宽松行距。要连读一小时的报表界面，不是扫一眼就走的那种。' },
     },

@@ -21,6 +21,43 @@ describe('the Chinese catalogue', () => {
     expect(missing.map((entry) => entry.slug)).toEqual([])
   })
 
+  it('gives every component a Chinese name', () => {
+    // The sidebar prints `Button 按钮`, and a component with no name here is
+    // simply an English word in a Chinese index. It went unnoticed for all
+    // twenty chart and data primitives, because nothing in this file looked:
+    // the summary was there, the page read as translated, and the one place
+    // the gap showed was a list nobody diffs.
+    const missing = COMPONENTS.filter((entry) => !COMPONENTS_ZH[entry.slug]?.name)
+    expect(missing.map((entry) => entry.slug)).toEqual([])
+  })
+
+  it('bolds nothing, because these fields are printed as plain text', () => {
+    // `api.ts` is rendered as markdown and this file is not, which is not
+    // visible from inside either one — so `**…**` here reached the page as
+    // literal asterisks, on nineteen lines, for as long as they had been there.
+    //
+    // The English never bolds either; it emphasises with CAPS, which Chinese
+    // has no equivalent of. Every one of the nineteen turned out to carry its
+    // emphasis structurally anyway — 不只是…是…, 却, a repeated noun — so the
+    // markers were decoration on prose that did not need them.
+    //
+    // Backticks are deliberately NOT checked here. Those print literally too,
+    // but they are in the English as well, so they are one defect in the
+    // package's catalog rather than a translation that drifted.
+    const marked: string[] = []
+    for (const [slug, copy] of Object.entries(COMPONENTS_ZH)) {
+      const strings = [
+        copy.name,
+        copy.summary,
+        copy.when,
+        ...(copy.accessibility ?? []),
+        ...(copy.keyboard ?? []),
+      ]
+      if (strings.some((text) => text?.includes('**'))) marked.push(slug)
+    }
+    expect(marked).toEqual([])
+  })
+
   it.each(COMPONENTS.filter((entry) => entry.keyboard?.length))(
     'pairs $slug keyboard rows one to one',
     (entry) => {
