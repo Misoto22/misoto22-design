@@ -96,6 +96,7 @@ export * from './components/Collapsible/Collapsible'
 export * from './components/Breadcrumb/Breadcrumb'
 export * from './components/Pagination/Pagination'
 export * from './components/NavItem/NavItem'
+export * from './components/Sidebar/Sidebar'
 
 // ─── Surfaces / layout ───
 export * from './components/Card/Card'

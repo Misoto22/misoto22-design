@@ -289,6 +289,88 @@ export const NAVIGATION = [
     related: ['breadcrumb'],
   },
   {
+    name: 'Sidebar',
+    group: 'Navigation',
+    summary: 'A navigation rail down the side of an application.',
+    when: 'A whole application’s navigation, in a column that stays. A list of links inside a page is NavItem on its own; a strip of panels is Tabs.',
+    anatomy: [
+      {
+        element: 'Provider',
+        required: true,
+        description:
+          'SidebarProvider. It holds whether the rail is open and binds the shortcut that changes it, and it sits ABOVE both the rail and the content beside it — the page has to reserve the rail’s width, and a state that lived inside the rail could only ever be read downwards. It also supplies the tooltip provider a collapsed rail needs, so the icon state works without the app being told to wrap itself in one.',
+      },
+      {
+        element: 'Rail',
+        required: true,
+        description:
+          'Sidebar. A <nav>, not an <aside>: the element decides the landmark, and a rail of links announced as “complementary” is not the one a reader jumps to when they go looking for the navigation. Its width animates between --sidebar-w and --sidebar-w-icon while the column inside stays full width, so the rows do not reflow under the wipe.',
+      },
+      {
+        element: 'Header',
+        description:
+          'SidebarHeader. The brand, the workspace, the switcher — and where SidebarTrigger belongs. A control that hides a thing lives on the thing; out in an application’s masthead it is one more anonymous icon with nothing connecting it to the column it operates.',
+      },
+      {
+        element: 'Content',
+        description: 'SidebarContent. The scrolling middle, and the only part that scrolls.',
+      },
+      {
+        element: 'Group',
+        description:
+          'SidebarGroup: a heading, an optional count, an optional action, and rows behind a hairline. The heading is the same size as its rows and outranks them by weight and one step of ink — smaller than what it contains, it reads as a footnote over a list rather than as a title over its own contents.',
+      },
+      {
+        element: 'Row',
+        description:
+          'SidebarItem, which is NavItem plus the two things a rail adds: a trailing slot, and an answer for the state with no room for words. Collapsed, the label leaves the layout and becomes the row’s tooltip.',
+      },
+      {
+        element: 'Footer',
+        description: 'SidebarFooter. The utilities a rail ends on, kept out of the index above it.',
+      },
+    ],
+    practices: [
+      {
+        kind: 'do',
+        text: 'Give every row an icon if the rail collapses to icons. The icon is the whole of what a collapsed row shows, and SidebarItem keeps the label drawn on a row without one rather than leaving a blank line — which is a rail that is half collapsed.',
+      },
+      {
+        kind: 'do',
+        text: 'Choose collapsible by what the rows ARE. icon suits a fixed set a reader learns the shape of; offcanvas suits a long index nobody memorises, where a column of unrecognisable glyphs is worse than no column.',
+      },
+      {
+        kind: 'do',
+        text: 'Put SidebarTrigger in the header. It is where the component expects it and where a reader looks for it, and it is the difference between a control that belongs to the rail and one that has wandered into the masthead.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not reach for it for navigation inside a page. This is an application landmark that owns a whole edge of the window; a set of links in a column is NavItem, and putting those in a rail gives a page two navigation landmarks competing for the same reader.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not pass shortcut and then bind Cmd+B yourself. Two handlers on one chord toggle twice and land back where they started, which reads as a rail that ignores its own shortcut. Pass shortcut={null} where the app owns it.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not control open without onOpenChange. The trigger and the shortcut then both do nothing, and the state that looks broken is the one the caller froze.',
+      },
+    ],
+    accessibility: [
+      'label is required, and names the landmark. A page with two navigations in it announces two things called “navigation” unless each says which it is.',
+      'The trigger’s name says what it will DO and aria-expanded reports what is true now, so it is never the permanently ambiguous “Toggle sidebar”.',
+      'A collapsed row keeps its label as its accessible name, through a tooltip — an icon alone is a guess for a sighted reader and nothing at all for a screen reader.',
+      'A collapsed group keeps its heading as the group’s name even though the words are not drawn.',
+      'The current row carries aria-current="page", not only a darker ground.',
+    ],
+    keyboard: [
+      { keys: ['⌘B', 'Ctrl B'], does: 'Opens and closes the rail.' },
+      { keys: ['Enter', 'Space'], does: 'On a group heading, folds or unfolds it.' },
+      { keys: ['Tab'], does: 'Moves through the rows in the order they are drawn.' },
+    ],
+    related: ['nav-item', 'collapsible', 'app-shell'],
+  },
+  {
     name: 'NavItem',
     group: 'Navigation',
     summary: 'A row in a sidebar.',

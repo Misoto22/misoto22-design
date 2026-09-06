@@ -137,12 +137,16 @@ export function DocsShell({ children }: { children: ReactNode }) {
             it had room for. The rule under it is the EDGE weight, not the
             hairline, which is this system's own way of saying "this is a band,
             not a row". */}
-        {/* The wordmark, and on a phone the drawer's close button. The DESKTOP
-            collapse control is not here: it used to sit beside the wordmark and
-            move to the masthead once the sidebar was away, so the same action
-            was in two places depending on the state it was in — which is why
-            neither was findable. It is one button in the masthead now, and it
-            stays put. */}
+        {/* The wordmark, and the control that puts this column away.
+            The collapse button lives HERE, on the thing it collapses, rather
+            than out in the masthead among five other icons with nothing
+            connecting it to the column it operates.
+            It used to be in both places depending on the state, which is how
+            neither ended up findable. The rule now is one control per state and
+            never two at once: this one closes the rail while the rail is on
+            screen, and the masthead's own button — the same button a phone uses
+            to open the drawer — brings it back once there is no rail left to
+            put it in. */}
         <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-(--rule-2) px-4">
           <Link
             href={localePath(locale, '/')}
@@ -164,6 +168,20 @@ export function DocsShell({ children }: { children: ReactNode }) {
           >
             <X size={16} strokeWidth={1.5} aria-hidden />
           </Button>
+          {sidebar && (
+            <Button
+              iconOnly
+              size="sm"
+              variant="ghost"
+              className="max-lg:hidden"
+              aria-label={t.nav.collapseNav}
+              aria-expanded
+              aria-controls="docs-sidebar"
+              onClick={() => setDocked(false)}
+            >
+              <PanelLeftClose size={16} strokeWidth={1.5} aria-hidden />
+            </Button>
+          )}
         </div>
         {/* The four sections used to be repeated here, on the grounds that they
             live in the masthead on a desktop and had nowhere to go on a phone.
@@ -213,21 +231,20 @@ export function DocsShell({ children }: { children: ReactNode }) {
               misoto22 design
             </span>
           </Link>
-          {sidebar && (
+          {/* Only while there is no rail to hold its own control. Shown in
+              both states, this was the same action in two places at once. */}
+          {sidebar && !docked && (
             <Button
               iconOnly
               size="sm"
               variant="ghost"
               className="max-lg:hidden"
-              aria-label={docked ? t.nav.collapseNav : t.nav.expandNav}
-              aria-expanded={docked}
-              onClick={() => setDocked((previous) => !previous)}
+              aria-label={t.nav.expandNav}
+              aria-expanded={false}
+              aria-controls="docs-sidebar"
+              onClick={() => setDocked(true)}
             >
-              {docked ? (
-                <PanelLeftClose size={16} strokeWidth={1.5} aria-hidden />
-              ) : (
-                <PanelLeftOpen size={16} strokeWidth={1.5} aria-hidden />
-              )}
+              <PanelLeftOpen size={16} strokeWidth={1.5} aria-hidden />
             </Button>
           )}
 

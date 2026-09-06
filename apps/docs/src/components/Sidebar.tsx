@@ -1,10 +1,13 @@
 'use client'
 
-import { Collapsible, CollapsibleContent, CollapsibleTrigger, NavItem, cn } from '@misoto22/design'
-import { ChevronRight } from 'lucide-react'
+import {
+  SidebarContent,
+  SidebarGroup,
+  SidebarItem,
+  SidebarProvider,
+} from '@misoto22/design'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
 import { groupedComponents } from '@/content/registry'
 import { foundationsInGroup } from '@/content/foundations'
 import { TEMPLATES } from '@/content/templates'
@@ -137,90 +140,49 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   )
 }
 
+/**
+ * The rail's own chrome, from the package rather than from here.
+ *
+ * `collapsible="none"`: the SHELL owns whether this column is on screen, and it
+ * takes the whole thing away rather than collapsing it to icons — ninety-two
+ * component rows collapse to ninety-two identical file icons, which is a column
+ * of width answering nothing. So the provider is here for the group and row
+ * styling, and the state it would otherwise hold is never used.
+ */
 function Nav({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <nav
-      aria-label={label}
-      className="flex h-full flex-col gap-5 overflow-y-auto pb-6 scroll-slim"
-    >
-      {children}
-    </nav>
+    <SidebarProvider collapsible="none" shortcut={null}>
+      <nav aria-label={label} className="flex h-full flex-col">
+        <SidebarContent className="gap-5 p-0 pb-6">{children}</SidebarContent>
+      </nav>
+    </SidebarProvider>
   )
 }
 
 /**
- * A section heading in the rail.
+ * A group in the rail.
  *
- * Not `eyebrow`. That utility is 11px, uppercase, and tracked at 0.2em — right
- * for a kicker over a page title, and wrong for seven of them stacked in a
- * 17rem column, where it reads as small print. It is worse in Chinese, which
- * has no case to change and where letter-spacing only pulls the characters
- * apart: 「展 示」 is not a heading, it is a heading with a gap in it.
- *
- * The SIZE is the same 15px as the rows beneath it, and that is a correction
- * rather than a taste: at 12px the heading was smaller than everything it
- * contained, so a group read as a footnote over a list rather than as a title
- * over its own contents. Rank is carried by weight and by a step up the ink
- * ladder instead — the two signals that can outrank a row without shouting.
+ * A thin pass to the package's own `SidebarGroup`: this site was carrying its
+ * own heading, chevron, count and indent rule, which is how three rails that
+ * render the same component ended up looking like three components. What is
+ * left here is the one thing the package cannot know — whether the page being
+ * read is inside this group.
  */
-const HEADING =
-  'm-0 px-3 pb-1 font-mono text-[15px] font-medium tracking-[0.02em] text-(--ink-2)'
-
-interface SectionProps {
+function Section({
+  title,
+  count,
+  defaultOpen = false,
+  children,
+}: {
   title: string
-  /** How many rows are inside, printed on the far side of the heading. */
   count?: number
-  /**
-   * Whether it starts open.
-   *
-   * Every rail passes the same answer: open when the page being read is inside
-   * this group. There is no longer a `collapsible` flag beside it — one rail
-   * folding its groups while the rail next to it did not was the whole of why
-   * two views of the same component looked like two components.
-   */
   defaultOpen?: boolean
   children: React.ReactNode
-}
-
-/**
- * The rule down an open group, and the indent that goes with it.
- *
- * A group's rows used to sit at the same inset as its heading, so a column of
- * fifty rows had nothing in it saying which heading any given row belonged to —
- * only the vertical distance to the last one, which is gone the moment the list
- * is scrolled. A hairline running the height of the group answers it
- * continuously, which is what every documentation rail that works does.
- *
- * `ms-[0.9rem]` puts the rule under the chevron's own centre, so it reads as
- * dropping out of the marker rather than as a second unrelated edge.
- */
-const GROUP_RULE = 'ms-[0.9rem] flex flex-col gap-1 border-s border-(--rule) ps-2'
-
-function Section({ title, count, defaultOpen = false, children }: SectionProps) {
-  const [open, setOpen] = useState(defaultOpen)
-
+}) {
   return (
-    // Radix rather than `{open && …}`. A conditional render cannot animate —
-    // the rows are simply not there on the next frame — and Radix publishes the
-    // measured height, so the panel opens to what it actually is instead of to
-    // a guessed maximum.
-    <Collapsible open={open} onOpenChange={setOpen} className="flex flex-col gap-1">
-      <CollapsibleTrigger className="group flex min-h-9 items-center gap-1.5 rounded-(--radius-row) px-3 py-1.5 text-start transition-colors duration-(--duration-fast) hover:bg-(--stone)">
-        <ChevronRight
-          size={12}
-          strokeWidth={2}
-          aria-hidden
-          className="shrink-0 text-(--ink-3-aa) transition-transform duration-(--duration-base) ease-(--ease-out-expo) group-data-[state=open]:rotate-90"
-        />
-        <span className={cn(HEADING, 'm-0 p-0')}>{title}</span>
-        {count !== undefined && (
-          <span className="ms-auto font-mono text-[13px] text-(--ink-3-aa)">{count}</span>
-        )}
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <div className={GROUP_RULE}>{children}</div>
-      </CollapsibleContent>
-    </Collapsible>
+    <SidebarGroup label={title} count={count} defaultOpen={defaultOpen}>
+      {children}
+    </SidebarGroup>
   )
 }
 
@@ -243,10 +205,10 @@ function Row({
     // glance rather than word by word, and a 300 weight at 14px is thin enough
     // to be work — in Chinese, where every glyph carries more strokes in the
     // same box, it is thin enough to be a squint.
-    <NavItem asChild href={href} active={active} className="text-[15px]">
+    <SidebarItem asChild href={href} active={active} className="text-[15px]">
       <Link href={href} onClick={onNavigate}>
         {children}
       </Link>
-    </NavItem>
+    </SidebarItem>
   )
 }

@@ -69,6 +69,13 @@ import {
   Select,
   SelectItem,
   Separator,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarItem,
+  SidebarProvider,
+  SidebarTrigger,
   Sheet,
   SheetContent,
   SheetTrigger,
@@ -310,6 +317,22 @@ export const SURFACE: SurfaceEntry[] = [
         <option value="nz">New Zealand</option>
       </NativeSelect>
     </Field>
+  ) },
+  { dir: 'Sidebar', render: () => (
+    <SidebarProvider>
+      <Sidebar label="Documentation">
+        <SidebarHeader>
+          <span className="text-sm">Acme</span>
+          <SidebarTrigger className="ms-auto" />
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup label="Guide" count={2}>
+            <SidebarItem href="#start" icon={Inbox} active>Getting started</SidebarItem>
+            <SidebarItem href="#settings" icon={Settings} trailing="3">Settings</SidebarItem>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+    </SidebarProvider>
   ) },
   { dir: 'Separator', render: () => (
     <>

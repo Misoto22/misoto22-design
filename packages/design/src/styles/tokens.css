@@ -365,6 +365,21 @@
      declaration is dropped and every column loses its gutter in silence. */
   --table-pad-x: 0px;
 
+  /* ─── Sidebar ────────────────────────────────────────────────────────────
+     The two widths a navigation rail has, and the reason they are tokens
+     rather than numbers inside the component: an application shell has to
+     reserve exactly this much beside its content, and a shell that hard-codes
+     17rem while the rail believes something else is a gap or an overlap that
+     appears only at one window size. Both sides read the same name.
+
+     `--sidebar-w-icon` is what is left when the rail collapses to icons. It is
+     `--control-h-md` plus the rail's own padding, so a 44px pointer target
+     still fits inside it at comfortable density — a collapsed rail whose rows
+     are too small to hit is a rail nobody can use in the state it spends most
+     of its life in. */
+  --sidebar-w: 17rem;
+  --sidebar-w-icon: 3.5rem;
+
   /* ─── Floating surfaces ──────────────────────────────────────────────────
      What a panel that FLOATS fills with, and what it does to whatever is
      behind it. A dialog, a menu, a popover, a palette — the surfaces that sit
