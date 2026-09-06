@@ -18,5 +18,9 @@
   "override": {
     "lang": "tsx",
     "code": "// Every component merges your className LAST, through tailwind-merge — so a\n// conflicting utility replaces the built-in one instead of racing it in the\n// stylesheet.\n<Button className=\"px-2\">Tight</Button>\n// → px-2 wins; the base px-6 is dropped, not emitted alongside it."
+  },
+  "agent": {
+    "lang": "bash",
+    "code": "# One component in full — every prop with its type and default, the exported\n# unions, the keyboard contract, the accessibility promises, the examples.\nnpx misoto22-design docs Button\n\n# It resolves parts and types too, which is what you hold when an import fails.\nnpx misoto22-design docs CardBody\n\n# Install the skill under .claude/skills/, and point AGENTS.md at it.\nnpx misoto22-design init --agents-md"
   }
 }
