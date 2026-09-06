@@ -5,6 +5,15 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { EXAMPLES } from '@/generated/example-registry'
 
 /**
+ * How far a thumbnail may be shrunk before it stops being one.
+ *
+ * At half size the system's 15px body is 7.5px, which is the last step at which
+ * a reader can still tell a table from a form. Past it a card is showing that
+ * something exists rather than what it is, and cropping says more.
+ */
+const FLOOR = 0.5
+
+/**
  * The component itself, running, at the top of its card in the index.
  *
  * A gallery of names and one-line summaries makes a reader open a page to find
@@ -55,7 +64,21 @@ export function ComponentThumb({ exampleKey }: { exampleKey: string }) {
     const room = { w: band.clientWidth - 40, h: band.clientHeight - 24 }
     const natural = { w: node.scrollWidth, h: node.scrollHeight }
     if (natural.w === 0 || natural.h === 0) return
-    node.style.zoom = String(Math.min(1, room.w / natural.w, room.h / natural.h))
+
+    // WIDTH only. Fitting both axes sounds right and is not: an example is
+    // 440 wide and anything from 60 to 2,000 tall, so the height is what
+    // decided the scale — a Facet came out at 0.19 and an architecture figure
+    // at 0.35, which is a postage stamp with a scrollbar in it rather than a
+    // picture of anything. Every thumbnail now lands on roughly the same scale,
+    // which is also what makes a gallery read as a gallery.
+    const scale = Math.max(FLOOR, Math.min(1, room.w / natural.w))
+    node.style.zoom = String(scale)
+
+    // What does not fit is cropped from the BOTTOM, because a thumbnail of a
+    // tall thing is its top: a sidebar's header and first rows say "sidebar",
+    // and the same rail shrunk to fit says nothing. Short examples stay centred
+    // — a Badge pinned to the top of a 200px band is a badge that fell over.
+    band.dataset.cropped = natural.h * scale > room.h ? 'true' : 'false'
   }, [frame])
 
   useEffect(() => {
@@ -87,8 +110,14 @@ export function ComponentThumb({ exampleKey }: { exampleKey: string }) {
       // A fixed height, and the same one on every card: the band is the half of
       // the card a reader is actually looking at, so it is the half that must
       // not move from card to card.
-      className="relative -mx-5 -mt-5 mb-3 grid h-44 place-items-center overflow-hidden border-b border-(--rule) bg-(--paper-2)"
+      className="group/band relative -mx-5 -mt-5 mb-3 grid h-52 justify-items-center overflow-hidden border-b border-(--rule) bg-(--paper-2) content-center data-[cropped=true]:content-start data-[cropped=true]:pt-6"
     >
+      {/* A cropped thumbnail says so. Without it the cut reads as a rendering
+          fault rather than as "there is more of this on the page". */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-1 hidden h-10 bg-linear-to-b from-transparent to-(--paper-2) group-data-[cropped=true]/band:block"
+      />
       {mounted && (
         // 440px, and the same 440 on every card. This is the whole fix for a
         // gallery that used to squeeze its examples: a component handed the
