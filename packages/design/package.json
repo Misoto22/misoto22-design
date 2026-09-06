@@ -2,7 +2,7 @@
   "name": "@misoto22/design",
   "version": "0.6.1",
   "private": false,
-  "description": "Monochrome design system \u2014 CSS tokens and accessible React primitives",
+  "description": "Monochrome design system — CSS tokens and accessible React primitives",
   "license": "MIT",
   "author": "Henry Chen",
   "type": "module",
@@ -27,6 +27,10 @@
     "./charts": {
       "types": "./dist/charts/index.d.ts",
       "import": "./dist/charts/index.js"
+    },
+    "./diagrams": {
+      "types": "./dist/diagrams/index.d.ts",
+      "import": "./dist/diagrams/index.js"
     },
     "./styles.css": "./dist/styles.css",
     "./tokens.css": "./dist/tokens.css",

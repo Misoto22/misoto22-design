@@ -130,6 +130,40 @@
   --z-dropdown: var(--z-drawer);
   --z-overlay: var(--z-scrim);
 
+  /* ─── Diagrams ───────────────────────────────────────────────────────────
+     The figures in `@misoto22/design/diagrams`, which draw in SVG and
+     therefore cannot read a custom property from a presentation attribute —
+     every one of these reaches a mark through a style rule.
+
+     Named separately from the page's own rules rather than pointed straight at
+     --rule-2 because a figure is a PICTURE inside a document: its hairline has
+     to hold up against a 1200-wide raster export and a greyscale print, where
+     the page's own hairline is chosen to disappear. Keeping the two apart is
+     what lets a figure be tuned without touching a table.
+
+     Nothing here is a hue. The seven kinds of node are separated by drawn
+     sigils, and the only colour a figure spends is --success / --danger on a
+     terminal lifecycle state — the same two the rest of the system reserves
+     for state and refuses to spend on brand. */
+  --diagram-surface: var(--paper);
+  --diagram-node: var(--paper);
+  --diagram-node-2: var(--paper-2);
+  --diagram-band: var(--stone);
+  --diagram-chip: var(--paper-2);
+  --diagram-rule: var(--rule-2);
+  --diagram-rule-hard: var(--ink-3-aa);
+  --diagram-line: var(--ink-2);
+  --diagram-line-strong: var(--ink);
+  --diagram-line-soft: var(--ink-3-aa);
+  --diagram-sigil: var(--ink-3-aa);
+  --diagram-ink: var(--ink);
+  --diagram-ink-2: var(--ink-2);
+  --diagram-ink-3: var(--ink-3-aa);
+  /* The reversed plate, and its type. A figure gets ONE of these — the node the
+     diagram is about — for the same reason a page gets one Card variant="plate". */
+  --diagram-plate: var(--accent);
+  --diagram-plate-ink: var(--accent-foreground);
+
   /* ─── Layout ───────────────────────────────────────────────────────────── */
   --page-pad: var(--pad);
   --w-page: var(--maxw);

@@ -18,9 +18,10 @@
  * hand-kept copy is a copy that goes stale, and the site would have been the
  * one people believed.
  *
- * `name` is the only identifier. The directory under `src/components` is the
- * name, and the site's URL slug is the name in kebab-case; `catalog.test.ts`
- * fails if either stops being true, so neither is authored twice.
+ * `name` is the only identifier. The directory is the name, and the site's URL
+ * slug is the name in kebab-case; `catalog.test.ts` fails if either stops being
+ * true, so neither is authored twice. WHICH tree the directory sits in decides
+ * the specifier, and that is read off the filesystem — see `ENTRY_POINTS`.
  */
 
 /**
@@ -43,14 +44,18 @@
 /**
  * The sidebar's order, and it is an argument rather than an alphabet: a reader
  * arrives wanting to DO something, then to move, then to be interrupted, then
- * to be told what happened — and only after all of that to arrange, to display
- * and to plot. Alphabetical would put Actions beside Charts and call it a
- * taxonomy.
+ * to be told what happened — and only after all of that to arrange, to display,
+ * to plot and to draw. Alphabetical would put Actions beside Charts and call it
+ * a taxonomy.
  *
  * `Data` and `Charts` are two groups rather than one, and the line between them
  * is not cosmetic: everything in `Charts` needs the `recharts` peer dependency
  * and nothing in `Data` does. A reader who cannot add a rendering engine can
  * still use every entry in the first of the two.
+ *
+ * `Diagrams` is last because it is the furthest from a screen: the rest of this
+ * list builds an interface, and those draw a picture of a system. They are also
+ * the only group whose components render entirely on a server.
  */
 export const GROUPS = [
   'Actions',
@@ -62,6 +67,7 @@ export const GROUPS = [
   'Surfaces',
   'Data',
   'Charts',
+  'Diagrams',
 ]
 
 /** Every component's slug is its name in kebab-case. Derived, never authored. */
@@ -72,7 +78,7 @@ export const slugOf = (name) => name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLo
  *
  * The one fact here that a path cannot state: `.` is built from `src/index.ts`,
  * which re-exports `src/components/**`, so the specifier and the directory do
- * not share a name the way `./charts` and `src/charts` do. Everything else is
+ * not share a name the way `./charts` and `./diagrams` do. Everything else is
  * derived from it — which entry point a component belongs to is decided by the
  * tree its directory sits in, never authored beside it, for the same reason the
  * slug is not authored: a second copy of a fact is a copy that goes stale, and
@@ -80,14 +86,15 @@ export const slugOf = (name) => name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLo
  *
  * It is the line that most has to be right. A component named under the wrong
  * specifier does not produce a blank page, it produces an import that throws —
- * and `@misoto22/design/charts` exists precisely so an app that renders a Badge
- * does not resolve `recharts`.
+ * and the split entries exist precisely so an app that renders a Badge resolves
+ * neither `recharts` nor a routing engine.
  *
  * @type {Record<string, string>} specifier → directory under `src/`
  */
 export const ENTRY_POINTS = {
   '@misoto22/design': 'components',
   '@misoto22/design/charts': 'charts',
+  '@misoto22/design/diagrams': 'diagrams',
 }
 
 /** The specifier a consumer imports the root entry from. */
@@ -1003,6 +1010,136 @@ export const CATALOG = [
       'Panel order is a choice the call site makes explicitly through sort, because reading order is what a reader takes as ranking.',
     ],
     related: ['line-chart', 'sparkline'],
+  },
+  // ─── Diagrams ───
+  // Every entry below ships from `@misoto22/design/diagrams` and lives under
+  // `src/diagrams`. The five figures read the JSON schemas published by archify
+  // (github.com/tt-a1i/archify), so a specification authored for that tool
+  // renders here with no translation step — in this system's own monochrome
+  // terms rather than in archify's palette.
+  {
+    name: 'ArchitectureFigure',
+    group: 'Diagrams',
+    summary: 'A component map: services, datastores, trust boundaries, and what talks to what.',
+    when: 'Reach for it when the question is "what talks to what". If the question is "in what order", that is a workflow or a sequence; if it is "what is in this arrow", that is a data flow.',
+    accessibility: [
+      'The <svg> is role="img" with a name, so a screen reader announces a picture instead of walking two hundred <text> nodes in drawing order.',
+      'The diagram\u2019s content is published beside it as an ordinary list \u2014 every node with its kind, every relationship as "A \u2192 B: over HTTPS". That list is where the meaning lives for anyone not looking at the picture.',
+      'Passing onSelectNode turns that list into real buttons, which is the keyboard\u2019s only route to a selection: the plates inside the picture are presentational by construction.',
+    ],
+    related: ['dataflow-figure', 'diagram', 'diagram-canvas'],
+  },
+  {
+    name: 'WorkflowFigure',
+    group: 'Diagrams',
+    summary: 'A process in lanes and phases, with the main path drawn heavier than its branches.',
+    when: 'A runbook, an approval chain, a CI pipeline \u2014 anything with an owner per step. mainPath is what turns fourteen boxes into a diagram with a subject.',
+    accessibility: [
+      'Same contract as every figure: a named picture, with its nodes and relationships published as text beside it.',
+      'The exception lane is the one washed band in the system\u2019s diagrams, and it is still labelled \u2014 the wash is not carrying the meaning on its own.',
+    ],
+    related: ['lifecycle-figure', 'sequence-figure', 'steps'],
+  },
+  {
+    name: 'SequenceFigure',
+    group: 'Diagrams',
+    summary: 'A call chain over time: who asks whom, in what order, and what comes back.',
+    when: 'The only figure whose vertical axis means something. A message carries an explicit y, so two calls eight units apart happened together and two two hundred apart did not.',
+    accessibility: [
+      'Return messages are dashed AND take an open arrowhead \u2014 two signals, because the reply is what a reader most often needs to pick out of a dense trace.',
+      'The message list beside the picture reads in order, which is the same order the axis is drawn in.',
+    ],
+    related: ['workflow-figure', 'architecture-figure'],
+  },
+  {
+    name: 'DataflowFigure',
+    group: 'Diagrams',
+    summary: 'A pipeline: where data comes from, what happens to it, and who ends up with it.',
+    when: 'Structurally close to an architecture map, read for a different question. classification gets its own chip because a governance reviewer is looking for exactly that.',
+    accessibility: [
+      'A flow\u2019s classification is folded into its summary line, so "clickstream \u2014 PII touch" reaches a reader who cannot see the chip.',
+    ],
+    related: ['architecture-figure', 'lifecycle-figure'],
+  },
+  {
+    name: 'LifecycleFigure',
+    group: 'Diagrams',
+    summary: 'A state machine: what something can be, and what moves it between states.',
+    when: 'The one figure that spends colour, and it spends exactly the two tokens the system reserves for state. Every other distinction is shape, so a greyscale print keeps six of the eight.',
+    accessibility: [
+      'success and failure are the only coloured marks in the package\u2019s diagrams, and each is also a distinct plate shape \u2014 colour is never the only carrier.',
+      'The main rail is drawn between consecutive states in the first lane even when the specification does not list those transitions, because they are the diagram\u2019s spine rather than its exceptions.',
+    ],
+    related: ['workflow-figure', 'steps'],
+  },
+  {
+    name: 'DiagramCanvas',
+    group: 'Diagrams',
+    summary: 'A frame that a picture larger than it can be panned and zoomed inside.',
+    when: 'Any oversized figure \u2014 an SVG, an image, a table that will not fold. It knows nothing about nodes, which is what makes it reusable.',
+    accessibility: [
+      'The frame is a real tab stop, so the keyboard controls can be pressed at all.',
+      'A plain wheel scrolls the page. Zoom needs the platform modifier, so the canvas is never a scroll trap in the middle of an article.',
+    ],
+    keyboard: [
+      { keys: ['+', '='], does: 'Zooms in about the centre of the frame.' },
+      { keys: ['-'], does: 'Zooms out.' },
+      { keys: ['0'], does: 'Resets the scale and the offset together.' },
+      { keys: ['\u2190', '\u2192', '\u2191', '\u2193'], does: 'Pans. Shift pans further per press.' },
+    ],
+    related: ['diagram-minimap', 'architecture-figure', 'scroll-area'],
+  },
+  {
+    name: 'DiagramToolbar',
+    group: 'Diagrams',
+    summary: 'A bar of actions belonging to the surface underneath them.',
+    when: 'FloatingIconButton is one pinned action. This is the container for several, so they read as one object rather than as a scatter.',
+    accessibility: [
+      'role="toolbar" announces a toolbar rather than six unrelated buttons. It does not implement roving focus \u2014 Tab visits every control, which is honest for a bar of three.',
+    ],
+    related: ['floating-icon-button', 'diagram-export-menu'],
+  },
+  {
+    name: 'DiagramExportMenu',
+    group: 'Diagrams',
+    summary: 'Taking the figure off the page: PNG, JPEG, WebP, SVG and a 1200\u00d7630 share card.',
+    when: 'It does the export rather than emitting a format name, because the interesting half \u2014 baking custom properties into real colours before serialising \u2014 is the half a caller would not know to write.',
+    accessibility: [
+      'A failed export is reported through onResult rather than swallowed: a click that quietly does nothing is indistinguishable from a broken button.',
+    ],
+    related: ['dropdown-menu', 'diagram-toolbar'],
+  },
+  {
+    name: 'DiagramInspector',
+    group: 'Diagrams',
+    summary: 'What the reader just picked, written out beside the picture.',
+    when: 'A node holds about eight words before it stops being a node. Everything past those \u2014 the port, the owner, the six relationships \u2014 belongs here.',
+    accessibility: [
+      'A labelled region with aria-live="polite", not a dialog: the reader clicked a node, they did not open anything, so focus is never trapped or demanded.',
+      'Relationships are real buttons when they carry onSelect, which is how the graph becomes walkable peer by peer from the keyboard.',
+    ],
+    related: ['card', 'diagram-canvas'],
+  },
+  {
+    name: 'DiagramMinimap',
+    group: 'Diagrams',
+    summary: 'Where you are in something bigger than the window.',
+    when: 'Pairs with DiagramCanvas. The viewport rectangle is derived from the canvas\u2019s own view, never stored \u2014 a map that disagrees with its territory is worse than none.',
+    accessibility: [
+      'The miniature is aria-hidden. The figure it mirrors already publishes its own summary, and a second copy would read the whole diagram out twice.',
+    ],
+    related: ['diagram-canvas'],
+  },
+  {
+    name: 'DiagramLegend',
+    group: 'Diagrams',
+    summary: 'The key: which drawn form means which kind of thing.',
+    when: 'Not optional furniture in a monochrome system. When a queue and a cache differ by a sigil rather than a colour, this is the only place a reader is told what the sigil means.',
+    accessibility: [
+      'A list of pairs rather than a row of spans, so the count is part of what a screen reader says about it.',
+      'kindLegend, variantLegend and stateLegend build the standard sets out of the renderers\u2019 own drawing code, so the key can never drift from the figure.',
+    ],
+    related: ['architecture-figure', 'lifecycle-figure'],
   },
 ]
 

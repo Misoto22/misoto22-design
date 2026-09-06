@@ -57,6 +57,27 @@ test('each component has its own file, with its props and its keyboard', async (
   expect(body).toContain('## Example')
 })
 
+test('a component names the specifier it actually ships from', async ({ request }) => {
+  // The package ships from three entry points, and this line is the half an
+  // agent acts on without checking. A component documented under the root
+  // import is not a broken link — it is an instruction that throws in someone's
+  // project, and both split entries printed the root one until the catalog was
+  // taught which specifier each component lives behind.
+  const cases = [
+    ['button', 'Button', '@misoto22/design'],
+    ['bar-chart', 'BarChart', '@misoto22/design/charts'],
+    ['heatmap', 'Heatmap', '@misoto22/design/charts'],
+    ['architecture-figure', 'ArchitectureFigure', '@misoto22/design/diagrams'],
+  ] as const
+
+  for (const [slug, name, specifier] of cases) {
+    const body = await (await request.get(`/components/${slug}/llms.txt`)).text()
+    expect(body, `${name} names the wrong entry point`).toContain(
+      `import { ${name} } from '${specifier}'`,
+    )
+  }
+})
+
 test('a component with no page of its own is not published as text either', async ({ request }) => {
   const response = await request.get('/components/not-a-component/llms.txt')
   expect(response.status()).toBe(404)

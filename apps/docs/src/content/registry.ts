@@ -37,18 +37,19 @@ export type ComponentGroup =
   | 'Overlays'
   | 'Navigation'
   | 'Surfaces'
+  | 'Diagrams'
 
 export interface ComponentEntry {
   /** URL segment — the name in kebab-case. */
   slug: string
-  /** Directory under packages/design/src/components or src/charts — the generated-data key. */
+  /** Directory under one of the package's source trees — the generated-data key. */
   dir: string
   /**
    * The specifier this component is imported from.
    *
-   * Emitted rather than authored: `@misoto22/design/charts` is a separate entry
-   * point with its own peer dependencies, and an import line naming the wrong
-   * one does not render a blank page — it throws.
+   * Emitted rather than authored: `@misoto22/design/charts` and
+   * `@misoto22/design/diagrams` are separate entry points, and an import line
+   * naming the wrong one does not render a blank page — it throws.
    */
   entry: string
   /** Display name. */
@@ -116,6 +117,11 @@ const PREVIEW_HEIGHTS: Record<string, string> = {
   'scatter-chart': 'min-h-[22rem]',
   'treemap-chart': 'min-h-[24rem]',
   'waterfall-chart': 'min-h-[24rem]',
+
+  // A figure's chrome needs the same: an export menu and a minimap both draw
+  // over the card rather than inside it.
+  'diagram-export-menu': 'min-h-[26rem]',
+  'diagram-minimap': 'min-h-[24rem]',
 }
 
 export const COMPONENTS: ComponentEntry[] = catalog.components.map((entry) => ({
