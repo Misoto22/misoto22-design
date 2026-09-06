@@ -25,9 +25,9 @@ const DIST = join(ROOT, 'dist')
 /** Budgets in kilobytes, minified, before network compression. */
 const BUDGET = {
   /** The compiled stylesheet, without the vendored font files. */
-  styles: 90,
+  styles: 95,
   /** Everything, bundled and minified — the worst case a consumer can hit. */
-  everything: 420,
+  everything: 435,
   /**
    * One leaf component, bundled and minified. If this ever approaches
    * `everything`, tree shaking has stopped working and every consumer is

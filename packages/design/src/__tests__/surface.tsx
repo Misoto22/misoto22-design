@@ -21,6 +21,7 @@ import {
   CollapsibleSection,
   Code,
   CodeBlock,
+  ColorPicker,
   Combobox,
   Command,
   CommandEmpty,
@@ -56,6 +57,7 @@ import {
   LinkArrow,
   Markdown,
   NavItem,
+  NumberField,
   Pagination,
   Popover,
   PopoverContent,
@@ -288,6 +290,11 @@ export const SURFACE: SurfaceEntry[] = [
     <FloatingIconButton position="end" label="Back to top"><span aria-hidden>↑</span></FloatingIconButton>
   ) },
   { dir: 'Input', render: () => <Field label="Search"><Input type="search" /></Field> },
+  { dir: 'NumberField', render: () => (
+    <Field label="Line height" hint="Between 1 and 3.">
+      <NumberField defaultValue={1.5} min={1} max={3} step={0.1} />
+    </Field>
+  ) },
   { dir: 'Kbd', render: () => <p>Press <Kbd>⌘</Kbd> <Kbd>K</Kbd></p> },
   { dir: 'LinkArrow', render: () => <a href="#x">Read the paper<LinkArrow /></a> },
   { dir: 'NavItem', render: () => (
@@ -407,6 +414,11 @@ export const SURFACE: SurfaceEntry[] = [
     <CollapsibleSection title="Advanced settings">
       <p>Nothing here needs changing.</p>
     </CollapsibleSection>
+  ) },
+  { dir: 'ColorPicker', opensWith: 'Brand colour', render: () => (
+    <Field label="Brand colour">
+      <ColorPicker label="Brand colour" defaultValue="#a78bfa" />
+    </Field>
   ) },
   { dir: 'Combobox', render: () => (
     <Combobox

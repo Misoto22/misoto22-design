@@ -1,8 +1,9 @@
 'use client'
 
 import * as SliderPrimitive from '@radix-ui/react-slider'
-import { useState, type ComponentProps } from 'react'
+import { Fragment, useRef, useState, type ComponentProps } from 'react'
 import { cn } from '../../lib/cn'
+import { clampToRange, parseNumber, snapToStep } from '../../lib/numeric'
 import { warnBlankName } from '../../lib/warn'
 
 export interface SliderProps extends ComponentProps<typeof SliderPrimitive.Root> {
@@ -22,6 +23,20 @@ export interface SliderProps extends ComponentProps<typeof SliderPrimitive.Root>
    */
   showValue?: boolean
   /**
+   * Turns that readout into a box the number can be typed into, and implies
+   * `showValue`.
+   *
+   * A slider is a control for a NEIGHBOURHOOD; someone who needs 1,150 rather
+   * than roughly 1,200 is dragging a 16px thumb across a hundred steps to get
+   * it. This is the way out, in the place the value already is, rather than a
+   * second field beside the track that has to be kept in step by hand.
+   *
+   * The box shows `format`'s output at rest and the bare number while it has
+   * focus, so a reader still sees "$1,200" and a typist is never asked to type
+   * a currency symbol back.
+   */
+  editable?: boolean
+  /**
    * Renders the value with a unit or a currency, e.g. `(n) => n + '%'`.
    *
    * Reaches assistive tech as well as the readout: it becomes each thumb's
@@ -29,6 +44,12 @@ export interface SliderProps extends ComponentProps<typeof SliderPrimitive.Root>
    * bare number. Left off, the platform announces the value itself.
    */
   format?: (value: number) => string
+}
+
+/** Which box is being typed into, and what is in it. Only one can have focus. */
+interface Draft {
+  index: number
+  text: string
 }
 
 /**
@@ -43,6 +64,11 @@ export interface SliderProps extends ComponentProps<typeof SliderPrimitive.Root>
  * A 44px hit area sits invisibly around the 16px thumb, because a thumb sized
  * for the design is well under any pointer-target guideline.
  *
+ * `editable` is the answer to the thing a slider cannot do. Reach for it
+ * whenever the exact figure is the point — a budget, a timeout, a price — and
+ * leave it off when the value is genuinely approximate, because a box invites
+ * precision the setting may not have.
+ *
  * Inside a `Field`, the hint, the error and the requirement land on the THUMB,
  * which is the element carrying `role="slider"` — on the root they would sit on
  * a `<span>` with no role and announce nothing. The NAME still comes from
@@ -51,13 +77,21 @@ export interface SliderProps extends ComponentProps<typeof SliderPrimitive.Root>
  *
  * @example
  * <Slider label="Quality" defaultValue={[80]} max={100} step={5} showValue format={(n) => `${n}%`} />
+ * @example
+ * <Slider label="Monthly budget" defaultValue={[1200]} max={5000} step={50} editable format={(n) => `$${n}`} />
  */
 export function Slider({
   label,
   showValue = false,
+  editable = false,
   format,
   className,
   onValueChange,
+  value: controlledValue,
+  defaultValue,
+  min = 0,
+  max = 100,
+  step = 1,
   'aria-describedby': describedBy,
   'aria-required': ariaRequired,
   'aria-invalid': ariaInvalid,
@@ -81,14 +115,41 @@ export function Slider({
   // are rendered from THIS array rather than from Radix's, so an empty one is a
   // track with nothing on it to drag, which is what `<Slider label="Volume" />`
   // used to render.
-  const [uncontrolled, setUncontrolled] = useState<number[]>(
-    props.defaultValue ?? [props.min ?? 0],
-  )
-  const current = props.value ?? uncontrolled
+  const [uncontrolled, setUncontrolled] = useState<number[]>(defaultValue ?? [min])
+  const current = controlledValue ?? uncontrolled
+
+  // Mirrored into a ref because Escape clears the draft and blurs the box in
+  // the SAME event: the state update has not been applied by the time the
+  // blur handler runs, so a handler reading the state variable would see the
+  // abandoned text and commit exactly what Escape was pressed to discard.
+  const [draft, setDraft] = useState<Draft | null>(null)
+  const draftRef = useRef<Draft | null>(null)
+  const edit = (next: Draft | null) => {
+    draftRef.current = next
+    setDraft(next)
+  }
 
   const handleChange = (next: number[]) => {
-    if (props.value === undefined) setUncontrolled(next)
+    if (controlledValue === undefined) setUncontrolled(next)
     onValueChange?.(next)
+  }
+
+  /**
+   * Commits one typed box, or reports that there was no number in it.
+   *
+   * A thumb is also bounded by its NEIGHBOURS, which is the bound a typed
+   * value can cross and a dragged one cannot: typing 90 into the lower end of a
+   * range whose upper end is at 70 would otherwise hand Radix an unsorted array
+   * and leave the two thumbs crossed over.
+   */
+  const commit = (index: number, text: string): boolean => {
+    const parsed = parseNumber(text)
+    if (parsed === null) return false
+    const lower = index > 0 ? (current[index - 1] ?? min) : min
+    const upper = index < current.length - 1 ? (current[index + 1] ?? max) : max
+    const next = clampToRange(snapToStep(parsed, step, min), Math.max(min, lower), Math.min(max, upper))
+    if (next !== current[index]) handleChange(current.map((value, i) => (i === index ? next : value)))
+    return true
   }
 
   const print = format ?? String
@@ -97,6 +158,8 @@ export function Slider({
   // there are — a price filter called "Price" is not "Price – Price".
   const heading =
     names.length > 1 ? current.map((_, index) => names[index] ?? names[0]).join(' – ') : names[0]
+
+  const readout = showValue || editable
 
   return (
     <div
@@ -110,16 +173,81 @@ export function Slider({
         className,
       )}
     >
-      {showValue && (
-        <div className="flex items-baseline justify-between mono-meta text-(--ink-3-aa)">
+      {readout && (
+        <div className="flex items-baseline justify-between gap-4 mono-meta text-(--ink-3-aa)">
           <span>{heading}</span>
-          <span className="tabular-nums text-(--ink)">
-            {current.map((value) => print(value)).join(' – ')}
-          </span>
+          {editable ? (
+            <span className="flex items-baseline gap-1.5">
+              {current.map((value, index) => {
+                const editing = draft?.index === index
+                const text = editing ? draft.text : print(value)
+                return (
+                  <Fragment key={index}>
+                    {index > 0 && <span aria-hidden="true">–</span>}
+                    <input
+                      type="text"
+                      // Not `type="number"`: the box holds `format`'s output at
+                      // rest — "$1,200" — which a number input refuses to
+                      // display and silently blanks. `inputMode` is what still
+                      // brings up the numeric keypad on a phone.
+                      inputMode="decimal"
+                      // `disabled` on the wrapper is `pointer-events-none`,
+                      // which a keyboard walks straight past. Without this, the
+                      // one editable part of a disabled slider stays editable.
+                      disabled={props.disabled}
+                      value={text}
+                      // The name has to differ from the thumb's: both carry the
+                      // same value, and two controls announcing "Quality" is a
+                      // reader hearing the same control twice.
+                      aria-label={`${names[index] ?? names[0]}, exact value`}
+                      aria-describedby={describedBy}
+                      aria-required={ariaRequired}
+                      aria-invalid={(editing && parseNumber(draft.text) === null) || ariaInvalid || undefined}
+                      onFocus={() => edit({ index, text: String(value) })}
+                      onChange={(event) => edit({ index, text: event.target.value })}
+                      onBlur={() => {
+                        const pending = draftRef.current
+                        if (pending?.index === index) commit(index, pending.text)
+                        edit(null)
+                      }}
+                      onKeyDown={(event) => {
+                        const pending = draftRef.current
+                        if (event.key === 'Enter') {
+                          event.preventDefault()
+                          if (pending?.index === index && commit(index, pending.text)) edit(null)
+                        }
+                        if (event.key === 'Escape') {
+                          event.preventDefault()
+                          edit(null)
+                          event.currentTarget.blur()
+                        }
+                      }}
+                      className="w-20 rounded-(--radius-sm) border border-(--rule-2) bg-(--paper) px-1.5 py-0.5 text-end tabular-nums text-(--ink) transition-colors duration-(--duration-fast) hover:border-(--rule-hard) focus:border-(--ink) aria-invalid:border-(--danger)"
+                    />
+                  </Fragment>
+                )
+              })}
+            </span>
+          ) : (
+            <span className="tabular-nums text-(--ink)">
+              {current.map((value) => print(value)).join(' – ')}
+            </span>
+          )}
         </div>
       )}
+      {/* Controlled from THIS component's state even when the caller left it
+          uncontrolled, because the thumbs have to answer to more than dragging:
+          a number typed into the readout never passes through Radix, so a Root
+          holding its own `defaultValue` would keep the thumb where it was and
+          leave the figure above it disagreeing with the track. `min`, `max` and
+          `step` are passed on rather than spread for the same reason — the
+          typed value is reconciled against them here. */}
       <SliderPrimitive.Root
         className="group relative flex w-full touch-none select-none items-center py-3"
+        value={current}
+        min={min}
+        max={max}
+        step={step}
         onValueChange={handleChange}
         {...props}
       >
