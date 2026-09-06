@@ -102,7 +102,9 @@ describe('PropsPlayground', () => {
 
   it('gives an enum a select carrying the options its alias declares', () => {
     mount()
-    const trigger = screen.getByRole('combobox', { name: 'variant' })
+    // `variant primary`, not `variant` — a Select trigger carries its name
+    // and its current value, so the prefix is what identifies the row.
+    const trigger = screen.getByRole('combobox', { name: /^variant\b/ })
 
     fireEvent.keyDown(trigger, { key: 'ArrowDown' })
 

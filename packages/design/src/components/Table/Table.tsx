@@ -84,6 +84,12 @@ export interface TableProps extends TableHTMLAttributes<HTMLTableElement> {
  * element to Tab to and therefore no way to press an arrow key at it, so the
  * columns past the fold simply do not exist for anyone not using a mouse.
  *
+ * It is also POSITIONED, which is not decoration. `sr-only` is
+ * `position: absolute`, so a visually-hidden label in a cell resolves against
+ * the nearest positioned ancestor — and with none between it and the document,
+ * it escapes the scroll container and every `overflow-hidden` around it, and
+ * widens the page by however far the table happens to be scrolled.
+ *
  * No zebra striping at any border setting. In a monochrome system a striped row
  * is a second surface competing with the page ground, and the hairline between
  * rows is already enough to track a line across.
@@ -113,7 +119,7 @@ export function Table({
       role="region"
       aria-label={caption}
       data-table-density={density}
-      className={cn('w-full overflow-x-auto scroll-slim', BORDERS[borders])}
+      className={cn('relative w-full overflow-x-auto scroll-slim', BORDERS[borders])}
     >
       <table
         className={cn(

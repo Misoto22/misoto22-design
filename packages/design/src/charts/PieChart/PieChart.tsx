@@ -8,7 +8,6 @@ import {
   useContext,
   useId,
   useMemo,
-  useState,
   type ComponentProps,
   type FC,
   type ReactElement,
@@ -24,6 +23,8 @@ import {
 import { motion, useReducedMotion } from 'motion/react'
 import { ChartContainer, colorStops, cssName, type ChartConfig } from '../lib/chart'
 import { ChartFigure } from '../lib/figure'
+import { type ChartEmptyProps } from '../lib/empty'
+import { useChartSelection } from '../lib/selection'
 import { ChartBackground, type ChartBackgroundVariant } from '../lib/background'
 import { ChartLegend, ChartLegendContent } from '../lib/legend'
 import { ChartTooltip, ChartTooltipContent } from '../lib/tooltip'
@@ -92,8 +93,15 @@ export interface PieChartProps<TData extends Record<string, unknown>> {
   className?: string
   /** Escape hatch onto the raw Recharts chart element. */
   chartProps?: ComponentProps<typeof RechartsPieChart>
-  /** The sector lit on first render. */
+  /** The sector lit on first render, when the chart keeps its own selection. */
   defaultSelectedSector?: string | null
+  /**
+   * The selected sector, driven from outside.
+   *
+   * Give this and the chart follows it; leave it undefined and the chart keeps
+   * its own, starting from `defaultSelectedSector`.
+   */
+  selectedSector?: string | null
   /** Fires when the selection changes, and with null when it is cleared. */
   onSelectionChange?: (selection: { name: string; value: number } | null) => void
   /**
@@ -106,6 +114,11 @@ export interface PieChartProps<TData extends Record<string, unknown>> {
    * itself.
    */
   hideDataTable?: boolean
+  /**
+   * What the chart shows when it has nothing to draw. `false` keeps the empty
+   * plot, for a chart whose emptiness is itself the reading.
+   */
+  empty?: ChartEmptyProps | false
 }
 
 /**
@@ -135,19 +148,18 @@ export function PieChart<TData extends Record<string, unknown>>({
   className,
   chartProps,
   defaultSelectedSector = null,
+  selectedSector: controlledSector,
   onSelectionChange,
   isLoading = false,
   hideDataTable = false,
+  empty,
 }: PieChartProps<TData>) {
   // Not a literal. Two pies on one page shared a hard-coded id in the shape
   // this was ported from, so the second one inherited the first one's paint.
   const chartId = useId().replace(/:/g, '')
-  const [selectedSector, setSelectedSector] = useState<string | null>(defaultSelectedSector)
 
-  const selectSector = useCallback(
+  const report = useCallback(
     (name: string | null) => {
-      setSelectedSector(name)
-
       if (name === null) {
         onSelectionChange?.(null)
         return
@@ -156,6 +168,12 @@ export function PieChart<TData extends Record<string, unknown>>({
       if (row) onSelectionChange?.({ name, value: row[dataKey] as number })
     },
     [data, dataKey, nameKey, onSelectionChange],
+  )
+
+  const [selectedSector, selectSector] = useChartSelection(
+    controlledSector,
+    defaultSelectedSector,
+    report,
   )
 
   const context = useMemo<PieChartContextValue>(
@@ -179,6 +197,8 @@ export function PieChart<TData extends Record<string, unknown>>({
                 columns: [{ key: dataKey, label: 'Value' }],
               }
         }
+        isEmpty={!isLoading && data.length === 0}
+        empty={empty}
       >
         <ChartContainer config={config}>
           <RechartsPieChart id={chartId} accessibilityLayer {...chartProps}>

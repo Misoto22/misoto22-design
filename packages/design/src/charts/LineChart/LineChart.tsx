@@ -4,11 +4,9 @@ import {
   Children,
   createContext,
   isValidElement,
-  useCallback,
   useContext,
   useId,
   useMemo,
-  useState,
   type ComponentProps,
   type FC,
   type ReactElement,
@@ -26,7 +24,8 @@ import type { CurveProps } from 'recharts'
 import { useReducedMotion } from 'motion/react'
 import { ChartContainer, type ChartConfig } from '../lib/chart'
 import { ChartFigure } from '../lib/figure'
-import { ChartEmpty, type ChartEmptyProps } from '../lib/empty'
+import { useChartSelection } from '../lib/selection'
+import { type ChartEmptyProps } from '../lib/empty'
 import { axisLabel } from '../lib/axis'
 import { defaultTick } from '../lib/format'
 import { Annotation, ReferenceBand, ReferenceLine } from '../lib/annotations'
@@ -148,8 +147,15 @@ export interface LineChartProps<
    */
   curveType?: ChartCurveType
   animationType?: ChartRevealType
-  /** The series lit on first render. Selection dims every other series. */
+  /** The series lit on first render, when the chart keeps its own selection. */
   defaultSelectedDataKey?: string | null
+  /**
+   * The selected series, driven from outside.
+   *
+   * Give this and the chart follows it; leave it undefined and the chart keeps
+   * its own, starting from `defaultSelectedDataKey`.
+   */
+  selectedDataKey?: string | null
   /** Fires when the selection changes, and with null when it is cleared. */
   onSelectionChange?: (selectedDataKey: string | null) => void
   /**
@@ -214,6 +220,7 @@ export function LineChart<
   curveType = 'linear',
   animationType = 'forward',
   defaultSelectedDataKey = null,
+  selectedDataKey: controlledDataKey,
   onSelectionChange,
   isLoading = false,
   loadingPoints,
@@ -222,7 +229,6 @@ export function LineChart<
   empty,
 }: LineChartProps<TData, TConfig>) {
   const chartId = useId().replace(/:/g, '')
-  const [selectedDataKey, setSelectedDataKey] = useState<string | null>(defaultSelectedDataKey)
   const { rows: loadingData, onShimmerExit } = useLoadingRows(isLoading, loadingPoints)
   // One window, two views of it: the brush strip below the plot and the
   // toolbar above it both read and write this. See `useChartZoom` for why they
@@ -274,12 +280,10 @@ export function LineChart<
     xDataKey,
   )
 
-  const selectDataKey = useCallback(
-    (next: string | null) => {
-      setSelectedDataKey(next)
-      onSelectionChange?.(next)
-    },
-    [onSelectionChange],
+  const [selectedDataKey, selectDataKey] = useChartSelection(
+    controlledDataKey,
+    defaultSelectedDataKey,
+    onSelectionChange,
   )
 
   const context = useMemo<LineChartContextValue>(
@@ -299,13 +303,12 @@ export function LineChart<
             ? false
             : { rows: data, rowKey: xDataKey, columns }
         }
+        isEmpty={isEmpty}
+        empty={empty}
       >
         {sonifySlot && (
           <ChartSonifyButton {...sonifySlot} title={title} series={sonifySeries} />
         )}
-        {isEmpty ? (
-          <ChartEmpty {...(empty || {})} />
-        ) : (
         <ChartControls
           toolbar={showToolbar ? toolbarSlot : null}
           zoom={zoom}
@@ -350,7 +353,6 @@ export function LineChart<
           </RechartsLineChart>
         </ChartContainer>
         </ChartControls>
-        )}
         <LoadingIndicator isLoading={isLoading} />
       </ChartFigure>
     </LineChartContext.Provider>

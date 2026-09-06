@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 import { ChartFigure } from '../lib/figure'
-import { ChartEmpty, type ChartEmptyProps } from '../lib/empty'
+import { type ChartEmptyProps } from '../lib/empty'
 import { defaultTick } from '../lib/format'
+import { clampedFraction } from '../lib/scale'
 
 /**
  * The heaviest and lightest a qualitative band may be, as multiples of
@@ -52,9 +53,12 @@ interface ResolvedMeasure extends BulletMeasure {
 
 /** Where a value sits on the scale, 0 to 1, clamped to it. */
 function position(value: number, [low, high]: [number, number]): number {
-  const span = high - low
-  if (span === 0) return 0
-  return Math.min(1, Math.max(0, (value - low) / span))
+  return clampedFraction(value, low, high)
+}
+
+/** Whether a number is off the end of the scale it is being drawn against. */
+function overflows(value: number | undefined, [low, high]: [number, number]): boolean {
+  return value !== undefined && Number.isFinite(value) && (value > high || value < low)
 }
 
 /**
@@ -75,9 +79,13 @@ function bands(
   [low, high]: [number, number],
   formatValue: (value: number) => string,
 ): { list: ResolvedMeasure['bands']; label: string } {
-  const bounds = [...new Set(ranges.filter(Number.isFinite))]
-    .sort((a, b) => a - b)
-    .filter((bound) => bound > low && bound < high)
+  const set = [...new Set(ranges.filter(Number.isFinite))].sort((a, b) => a - b)
+  // A bound off the end of the scale has no boundary to draw: it would be a
+  // band with no width, or one that starts past the track. It is dropped from
+  // the picture and kept in the LABEL, because a caller who pinned `[0, 50]`
+  // and passed `[60, 80]` has made a mistake, and one flat band that says
+  // nothing is how it stays invisible.
+  const bounds = set.filter((bound) => bound > low && bound < high)
 
   const edges = [low, ...bounds, high]
   const count = edges.length - 1
@@ -92,8 +100,10 @@ function bands(
   }))
 
   // The label names the bounds the caller SET, not the band tops: the last
-  // band's top is the end of the scale, which is not a threshold anybody chose.
-  return { list, label: bounds.map(formatValue).join(', ') }
+  // band's top is the end of the scale, which is not a threshold anybody chose
+  // — and not the drawable subset either, or a bound the scale cannot hold
+  // would go missing from the reading as well as from the picture.
+  return { list, label: set.map(formatValue).join(', ') }
 }
 
 /** Every measure, with its scale and bands worked out. */
@@ -220,21 +230,19 @@ export function BulletChart({
               ],
             }
       }
+      isEmpty={measures.length === 0}
+      empty={empty}
     >
-      {measures.length === 0 ? (
-        <ChartEmpty {...(empty || {})} />
-      ) : (
-        <div className="flex w-full flex-col gap-4">
-          {measures.map((measure) => (
-            <BulletRow
-              key={measure.name}
-              measure={measure}
-              formatValue={formatValue}
-              showScale={showScale}
-            />
-          ))}
-        </div>
-      )}
+      <div className="flex w-full flex-col gap-4">
+        {measures.map((measure) => (
+          <BulletRow
+            key={measure.name}
+            measure={measure}
+            formatValue={formatValue}
+            showScale={showScale}
+          />
+        ))}
+      </div>
     </ChartFigure>
   )
 }
@@ -251,6 +259,7 @@ function BulletRow({
   const scale = measure.domain
   const barShare = position(measure.value, scale)
   const targetShare = measure.target === undefined ? null : position(measure.target, scale)
+  const runsOver = overflows(measure.value, scale) || overflows(measure.target, scale)
 
   return (
     <div className="flex w-full flex-col gap-1.5">
@@ -314,6 +323,21 @@ function BulletRow({
             data-slot="bullet-target"
             className="absolute inset-y-1 block w-0.5 bg-(--ink)"
             style={{ insetInlineStart: pct(targetShare), marginInlineStart: '-1px' }}
+          />
+        )}
+
+        {runsOver && (
+          // Clamped and silent, a number past the end of the scale fills the
+          // track exactly as a number AT the end of it does — so the one thing
+          // the row cannot say is the one thing the reader most needs to know.
+          // The notch is what breaks that tie; the printed figure above still
+          // carries the real number.
+          <span
+            data-slot="bullet-overflow"
+            className="absolute inset-y-0 end-0 block w-1.5 bg-(--chart-surface)"
+            style={{
+              clipPath: 'polygon(100% 0, 0 50%, 100% 100%)',
+            }}
           />
         )}
       </div>

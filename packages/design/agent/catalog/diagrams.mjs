@@ -31,7 +31,7 @@ export const DIAGRAMS = [
         element: 'Grid',
         required: true,
         description:
-          'What row and col index into: a 184 × 72 cell with 64 and 76 unit gutters, overridable per figure through spec.layout. pos replaces both and puts the box at an absolute coordinate instead.',
+          'What row and col index into: a 184 × 72 cell with 64 and 76 unit gutters, overridable per figure through spec.layout — where cellW is the pitch AND the width of the plates drawn at it. A component declaring neither row nor col flows into the next free cell, wrapping at layout.cols; pos replaces the grid entirely and puts the box at an absolute coordinate.',
       },
       {
         element: 'Component plate',
@@ -58,7 +58,7 @@ export const DIAGRAMS = [
     practices: [
       {
         kind: 'do',
-        text: 'Build a new spec object when something changes. The model is memoised on the spec’s identity, so mutating spec.components in place leaves the same reference and the figure goes on drawing the picture it was first given.',
+        text: 'Build a new spec object when something changes. The model is memoised on the spec’s identity, so mutating spec.components in place leaves the same reference and the figure goes on drawing the picture it was first given — development prints DIAGRAM_SPEC_MUTATED when it catches that, and a production build prints nothing and still draws the old picture.',
       },
       {
         kind: 'do',
@@ -66,11 +66,15 @@ export const DIAGRAMS = [
       },
       {
         kind: 'do',
-        text: 'Drive a guided reading yourself. meta.views typechecks and no renderer reads it: the chapter’s focus ids have to arrive as activeIds, which is what dims everything else and adds the "n highlighted" status line.',
+        text: 'Drive a guided reading yourself. meta.views typechecks and no renderer reads it — a chapter is a control rather than a layout — so the chapter’s focus ids have to arrive as activeIds, which is what dims everything else and adds the "n highlighted" status line.',
+      },
+      {
+        kind: 'do',
+        text: 'Leave row and col off the components you have no opinion about. They flow into the next free cell in declaration order, wrapping at layout.cols and stepping around whatever the placed ones claimed — a component declaring neither used to mean row 0, column 0, which is one plate with the rest of them underneath it.',
       },
       {
         kind: 'dont',
-        text: 'Nothing detects a collision. Two components sharing a row and a col are drawn at the same coordinate, one plate over the other, and the figure renders without complaint — the summary list still reports both, so the mistake exists only in the picture.',
+        text: 'Two components on one cell are still two plates at one coordinate, one drawn over the other: there is no second place to put the second plate. Development prints DIAGRAM_CELL_COLLISION naming both, which is the only signal — the picture is identical either way.',
       },
       {
         kind: 'dont',
@@ -111,7 +115,7 @@ export const DIAGRAMS = [
       {
         element: 'Phase header',
         description:
-          'A mono caption per phase, printed at the x of its fromCol on one rule that runs across the whole figure. A phase is an axis label, so it is set like one rather than framed.',
+          'A mono caption at the x of its fromCol, over a rule drawn across the columns from fromCol to toCol — so a phase’s extent is something a reader can see rather than a field only its author knows. variant dashes that rule for security and thickens it for emphasis. A phase is an axis label, so it is set like one rather than framed.',
       },
       {
         element: 'Group frame',
@@ -127,7 +131,7 @@ export const DIAGRAMS = [
     practices: [
       {
         kind: 'do',
-        text: 'Give every node a lane that spec.lanes declares. An unknown lane id resolves to the first lane, so a step written for the exception band is drawn in the right column, at the right size, in the wrong row — and nothing is raised.',
+        text: 'Give every node a lane that spec.lanes declares. An unknown lane id still resolves to the first lane — there is nowhere else to put the box — so a step written for the exception band is drawn in the right column, at the right size, in the wrong row, and development prints DIAGRAM_LANE_UNKNOWN naming the node.',
       },
       {
         kind: 'do',
@@ -135,11 +139,11 @@ export const DIAGRAMS = [
       },
       {
         kind: 'do',
-        text: 'Set variant: "dashed" on the edges you gave role: "error". role says what a line MEANS, and the renderer reads exactly one of its values — "return", for the open arrowhead — so an error edge left at the default variant is drawn at the weight and the solidity of the happy path.',
+        text: 'Say what an edge MEANS with role and let the drawing follow it. async and error take the quiet dashed line, return takes an open arrowhead, and main and branch add no stroke of their own because mainPath already draws that distinction as weight. An explicit variant overrides all of it, which is what it is for.',
       },
       {
         kind: 'dont',
-        text: 'A phase’s toCol is not drawn. The caption is printed at its fromCol on a rule that spans the figure, so two phases starting in the same column print on top of each other and a phase’s extent is not something a reader can see.',
+        text: 'Phases partition the columns; they do not stack. Each is drawn as a rule across its own span, so two phases claiming the same columns put two rules on one line and one caption over the other — and a reader cannot tell that from one phase drawn twice.',
       },
       {
         kind: 'dont',
@@ -208,7 +212,7 @@ export const DIAGRAMS = [
       },
       {
         kind: 'dont',
-        text: 'A message naming a participant that participants does not declare is not drawn — there is no column to draw it between. It stays in the summary list as the raw id, so the text reports a call the picture does not show.',
+        text: 'A message naming a participant that participants does not declare leaves the picture and the summary list together — there is no column to draw it between, and a text equivalent reporting a call the picture cannot show is two halves of one figure disagreeing. Development prints DIAGRAM_EDGE_DANGLING with both ends, which is now the only place that message is reported at all.',
       },
       {
         kind: 'dont',
@@ -263,7 +267,7 @@ export const DIAGRAMS = [
       },
       {
         kind: 'do',
-        text: 'Keep stage inside the stages you declared. A node’s x is computed from its own stage index rather than looked up, so a node at stage 5 beside four stages is drawn a full column past the last heading — under no heading at all, and with nothing raised.',
+        text: 'Keep stage inside the stages you declared. A node’s x is computed from its own stage index rather than looked up, so a node at stage 5 beside four stages is drawn a full column past the last heading, under no heading at all — development prints DIAGRAM_STAGE_OUT_OF_RANGE, and the summary files it under a band called outside the declared stages rather than beside the nodes the axis does label.',
       },
       {
         kind: 'do',
@@ -320,7 +324,7 @@ export const DIAGRAMS = [
     practices: [
       {
         kind: 'do',
-        text: 'Keep the first lane for the ordered spine and nothing else. Consecutive states there are joined by the implicit rail even when no transition declares the pair, so a state parked in lane 0 for spacing invents an edge the machine does not have.',
+        text: 'Keep the first lane for the ordered spine and nothing else. Consecutive states there are joined by the implicit rail even when no transition declares the pair, so a state parked in lane 0 for spacing invents an edge the machine does not have. A state whose lane id nothing declares is kept out of that rail and reported as DIAGRAM_LANE_UNKNOWN instead, because a typo should not be able to add an arrow.',
       },
       {
         kind: 'do',
@@ -332,7 +336,7 @@ export const DIAGRAMS = [
       },
       {
         kind: 'dont',
-        text: 'yOffset is accepted and deliberately not applied. It is a nudge measured in another renderer’s lane depth, so a state that only cleared its neighbour because of it returns to its lane’s centre line here — two plates that now sit too close want a column between them, not a push.',
+        text: 'yOffset moves the plate and moves nothing out of its way. The lane’s rule is drawn from what that lane holds, so a negative nudge drags the rule up with the state and a large positive one drops the plate into the band below — a state needing that much room wants a column of its own rather than a push.',
       },
       {
         kind: 'dont',
@@ -393,6 +397,10 @@ export const DIAGRAMS = [
       {
         kind: 'do',
         text: 'Move the view through the ref — zoomIn, zoomOut, reset, centerOn — rather than re-rendering the child at a new size. centerOn takes a point in the content’s own coordinates, which is what a minimap reports back.',
+      },
+      {
+        kind: 'do',
+        text: 'Hand onViewChange straight to a minimap. Each view carries the frame it was measured against as well as the scale and the offset, and that pair is the whole of the arithmetic a viewport rectangle is — the frame being the one number nothing outside the canvas can measure.',
       },
       {
         kind: 'dont',
@@ -508,7 +516,7 @@ export const DIAGRAMS = [
         element: 'Format row',
         required: true,
         description:
-          'One button per format, with its name and a mono hint under it \u2014 "Lossless, 2\u00d7 for retina", "Compact, flattened onto paper". The running one gains an ellipsis and every row is disabled until it finishes, so a second click cannot start a second export.',
+          'One menu row per format, with its name and a mono hint under it \u2014 "Lossless, 2\u00d7 for retina", "Compact, flattened onto paper". Real menu rows, so the arrow keys walk them, typing jumps to one, and picking one closes the menu over the file it just wrote. The running one gains an ellipsis and every row is disabled until it finishes, so a second click cannot start a second export.',
       },
       {
         element: 'Serialiser',
@@ -524,7 +532,7 @@ export const DIAGRAMS = [
       {
         element: 'Result',
         description:
-          'onResult, called with the format and either an ok or the Error. It is the only place a failed export is reported.',
+          'onResult, called with the format, an ok or the Error, and the source that produced it. It is the only place a failed export is reported.',
       },
     ],
     practices: [
@@ -539,6 +547,14 @@ export const DIAGRAMS = [
       {
         kind: 'do',
         text: 'Take onResult and put a failure in front of the reader. An unmeasured figure, a canvas tainted by a cross-origin image, a browser that returned no 2D context \u2014 each is reported there rather than thrown at the click, and the alternative is a menu item that quietly does nothing.',
+      },
+      {
+        kind: 'do',
+        text: 'Read source alongside ok. built-in says a file reached the browser; caller says your own onExport resolved, which is exactly what a handler that did nothing also does \u2014 the menu cannot see inside your pipeline and no longer reports as though it can.',
+      },
+      {
+        kind: 'do',
+        text: 'Pass background={null} for a figure going onto a coloured page. Every other export paints the reader\u2019s own surface behind the artwork, and JPEG is flattened onto that surface whatever this says, because a transparent JPEG is a black one.',
       },
       {
         kind: 'dont',
@@ -612,7 +628,7 @@ export const DIAGRAMS = [
       },
       {
         kind: 'dont',
-        text: 'Two facts sharing a label are two rows with the same key \u2014 the list is keyed by the label itself, so a panel with "Source" twice is a reconciliation bug rather than two rows. Name the second one, or give one row both values.',
+        text: 'Two facts sharing a label are two rows, and neither says which is which. They are keyed by position, so both render \u2014 and a panel with "Source" twice leaves the reader deducing from the values what the labels should have said. Name them apart when they mean different things.',
       },
       {
         kind: 'dont',
@@ -641,18 +657,18 @@ export const DIAGRAMS = [
         element: 'Miniature',
         required: true,
         description:
-          'The children under a CSS scale of width over content.width, anchored top-left, hidden from assistive technology and transparent to the pointer. It answers "what is there" at a glance and nothing more.',
+          'The children under a CSS scale of width over content.width, anchored top-left, hidden from assistive technology and transparent to the pointer. Drawn only once content has a size \u2014 at width 0 the scale would be 1 and the miniature would be the artwork\u2019s top-left corner at full size. It answers "what is there" at a glance and nothing more.',
       },
       {
         element: 'Viewport rectangle',
         required: true,
         description:
-          'An accent-washed rectangle computed from the canvas\u2019s view and the map\u2019s scale, floored at a few pixels so a deep zoom still leaves something on screen to see. It is derived on every render and never stored.',
+          'An accent-washed rectangle computed from the canvas\u2019s view and the map\u2019s scale, clipped to the plate so a viewport panned past the artwork stops claiming a map that reaches further, and floored at a few pixels so a deep zoom still leaves something on screen to see. It is derived on every render and never stored.',
       },
       {
         element: 'Seek layer',
         description:
-          'The transparent layer over the map that turns a press, or a drag with the button held, into a point in CONTENT coordinates and hands it to onSeek. It moves nothing itself \u2014 the map has no authority over the view.',
+          'The transparent layer over the map that turns a press, or a drag that STARTED on it, into a point in CONTENT coordinates and hands it to onSeek. A button pressed elsewhere and dragged across it moves nothing. Nor does the map itself \u2014 it has no authority over the view.',
       },
     ],
     practices: [
@@ -662,7 +678,11 @@ export const DIAGRAMS = [
       },
       {
         kind: 'do',
-        text: 'Measure content at the artwork\u2019s natural CSS size. Everything here is scaled by width over content.width, so a wrong content width scales the miniature and the rectangle by the same wrong factor: the map still looks plausible and points at the wrong part of the picture.',
+        text: 'Measure content at the artwork\u2019s natural CSS size. Everything here is scaled by width over content.width, so a wrong content width scales the miniature and the rectangle by the same wrong factor: the map still looks plausible and points at the wrong part of the picture. A width of 0 draws an empty plate instead, which is what a measurement that has not landed yet should look like.',
+      },
+      {
+        kind: 'do',
+        text: 'Let the canvas say how big the frame is. Every view a DiagramCanvas emits carries the frame it was measured against, so passing onViewChange through is enough \u2014 the frame prop is for a frame this component cannot be told about, and a hand-declared one is the single number that makes the rectangle lie.',
       },
       {
         kind: 'do',

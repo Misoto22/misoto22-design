@@ -120,8 +120,12 @@ export function DiagramInspector({
         // and its value, and a grid of divs tells a screen reader nothing about
         // which value belongs to which label.
         <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
-          {facts.map((fact) => (
-            <div key={fact.label} className="contents">
+          {/* Keyed by position, not by the label: two rows named "Source" is a
+              specification a caller is entitled to write — a node read out of
+              two files — and keying by the label made the second one collide
+              with the first rather than appear under it. */}
+          {facts.map((fact, index) => (
+            <div key={index} className="contents">
               <dt className="mono-meta text-(--ink-3-aa)">{fact.label}</dt>
               <dd
                 className={cn(

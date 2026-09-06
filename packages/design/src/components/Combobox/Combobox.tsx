@@ -1,8 +1,10 @@
 'use client'
 
 import { Check, ChevronsUpDown, X } from 'lucide-react'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { cn } from '../../lib/cn'
+import { CONTROL_BORDER, isInvalid } from '../../lib/control'
+import { useFieldControl } from '../Field/field-control'
 import { warnBlankName } from '../../lib/warn'
 import {
   Command,
@@ -24,7 +26,13 @@ export interface ComboboxOption {
 
 interface CommonProps {
   options: ComboboxOption[]
-  /** Names the control. Required — the trigger's text is a value, not a label. */
+  /**
+   * Names the control. Required — the trigger's text is a value, not a label.
+   *
+   * Announced together with the summary rather than instead of it, so a reader
+   * hears "Tags, 3 selected". Inside a `Field` with a label, that label names
+   * the trigger and this one is not repeated.
+   */
   label: string
   /** Shown on the trigger when nothing is chosen. */
   placeholder?: string
@@ -34,6 +42,14 @@ interface CommonProps {
   emptyMessage?: string
   disabled?: boolean
   className?: string
+  /** The TRIGGER's id — the element a label points at. A `Field` sets it. */
+  id?: string
+  /** Ids of the copy describing the control. A `Field` sets it from hint, error and description. */
+  'aria-describedby'?: string
+  /** Paints the resting border with `--danger` and is announced. A `Field` sets it from `error`. */
+  'aria-invalid'?: boolean | 'true' | 'false'
+  /** Announced on the trigger. A `Field` sets it from `required`. */
+  'aria-required'?: boolean
 }
 
 interface SingleProps extends CommonProps {
@@ -89,9 +105,20 @@ export function Combobox(props: ComboboxProps) {
     emptyMessage = 'Nothing matches.',
     disabled = false,
     className,
+    id,
+    'aria-describedby': describedBy,
+    'aria-invalid': ariaInvalid,
+    'aria-required': ariaRequired,
   } = props
   const multiple = props.multiple === true
   warnBlankName('Combobox', 'label', label, 'the trigger is announced with no name')
+
+  const field = useFieldControl()
+  const generated = useId()
+  const triggerId = id ?? generated
+  const summaryId = `${triggerId}-value`
+  const nameId = field?.labelId ?? `${triggerId}-name`
+  const bad = isInvalid(undefined, ariaInvalid)
 
   const [open, setOpen] = useState(false)
   const [uncontrolled, setUncontrolled] = useState<string[]>(() => {
@@ -142,16 +169,33 @@ export function Combobox(props: ComboboxProps) {
         // A combobox trigger is a button that OPENS a listbox; the roles for
         // the list itself belong to cmdk inside the panel.
         role="combobox"
+        id={triggerId}
         aria-expanded={open}
-        aria-label={label}
+        // The label and the summary, in that order — never the label alone.
+        // `aria-label` outranks the trigger's own text, so a reader was told
+        // "Tags" and never "3 selected". The two ids are named explicitly
+        // rather than pointing at the whole trigger, which would drag the clear
+        // control's own name into the value.
+        aria-labelledby={`${nameId} ${summaryId}`}
+        aria-describedby={describedBy}
+        aria-required={ariaRequired}
+        aria-invalid={bad || undefined}
         disabled={disabled}
         className={cn(
-          'group flex w-full items-center justify-between gap-2 rounded-(--radius) border border-(--rule-2) bg-(--paper) px-(--field-px) py-(--field-py) text-start text-sm transition-colors duration-(--duration-fast) hover:border-(--rule-hard) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none',
+          'group flex w-full items-center justify-between gap-2 rounded-(--radius) border bg-(--paper) px-(--field-px) py-(--field-py) text-start text-sm transition-colors duration-(--duration-fast) hover:border-(--rule-hard) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none',
+          bad ? CONTROL_BORDER.invalid : CONTROL_BORDER.resting,
           chosen.length > 0 ? 'text-(--ink)' : 'text-(--ink-3-aa)',
           className,
         )}
       >
-        <span className="truncate">{summary}</span>
+        {field?.labelId == null && (
+          <span id={nameId} className="sr-only">
+            {label}
+          </span>
+        )}
+        <span id={summaryId} className="truncate">
+          {summary}
+        </span>
         <span className="flex shrink-0 items-center gap-1">
           {multiple && chosen.length > 0 && (
             // A `<span role="button">` rather than a nested `<button>`, which

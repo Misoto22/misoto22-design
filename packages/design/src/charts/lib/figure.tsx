@@ -1,5 +1,6 @@
 import { useId, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+import { ChartEmpty, type ChartEmptyProps } from './empty'
 
 export interface ChartColumn {
   /** The row field this column reads. */
@@ -86,6 +87,19 @@ export interface ChartFigureProps {
   children: ReactNode
   /** The table view. Omit and it is generated; `false` opts out. */
   table?: Omit<ChartDataTableProps, 'caption'> | false
+  /**
+   * Whether there is nothing to draw. The plot is replaced by `empty` when it
+   * is true.
+   *
+   * Named as a question rather than derived from `table.rows`, because a chart
+   * mid-load has no rows either and wants its skeleton, not a message.
+   */
+  isEmpty?: boolean
+  /**
+   * What stands in for the plot when there is nothing to draw. `false` keeps
+   * the plot, for a chart whose emptiness is itself the reading.
+   */
+  empty?: ChartEmptyProps | false
 }
 
 /**
@@ -95,6 +109,12 @@ export interface ChartFigureProps {
  * Every chart root in the package wraps itself in this, so "the chart is
  * announced and its numbers are reachable" is a property of the system rather
  * than something each call site has to remember to add.
+ *
+ * The empty state is here for the same reason. Seven of the twenty charts had
+ * no `empty` at all — zero rows drew a named figure over a blank box, and
+ * `ChartDataTable` renders nothing below one row, so the picture and its text
+ * equivalent went silent together and the reader could not tell "no data" from
+ * "failed to load". A chart that forgets it now has to forget it here, once.
  */
 export function ChartFigure({
   title,
@@ -103,6 +123,8 @@ export function ChartFigure({
   className,
   children,
   table,
+  isEmpty = false,
+  empty,
 }: ChartFigureProps) {
   const captionId = `chart-title-${useId().replace(/:/g, '')}`
 
@@ -121,7 +143,7 @@ export function ChartFigure({
           <span className={cn(showTitle && 'mono-meta text-(--ink-3-aa)')}>{description}</span>
         )}
       </figcaption>
-      {children}
+      {isEmpty && empty !== false ? <ChartEmpty {...(empty || {})} /> : children}
       {table && <ChartDataTable caption={title} {...table} />}
     </figure>
   )

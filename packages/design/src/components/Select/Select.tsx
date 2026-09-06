@@ -2,10 +2,11 @@
 
 import * as SelectPrimitive from '@radix-ui/react-select'
 import { Check, ChevronDown, ChevronUp } from 'lucide-react'
-import type { ComponentProps, ReactNode } from 'react'
+import { useId, type ComponentProps, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 import { warnBlankName } from '../../lib/warn'
 import { useOverlayContainer } from '../../lib/overlay-container'
+import { useFieldControl } from '../Field/field-control'
 import { CONTROL_BASE, CONTROL_BORDER, isInvalid } from '../../lib/control'
 
 /** Radix Select root, group and label, as typed passthroughs. */
@@ -22,13 +23,29 @@ export interface SelectProps extends ComponentProps<typeof SelectPrimitive.Root>
    * picker over its own calendar, say.
    */
   contentClassName?: string
-  /** Names the control. Required — the trigger shows a value, and a value is not a name. */
+  /**
+   * Names the control. Required — the trigger shows a value, and a value is not
+   * a name.
+   *
+   * It is announced together with the value, not instead of it: the trigger is
+   * named by the label and by its own text, so a reader hears "Region,
+   * Australia". Inside a `Field` with a label, that label is used and this one
+   * is not repeated.
+   */
   label: string
   placeholder?: string
   /** Paints the resting border with `--danger` and reflects `aria-invalid`. */
   invalid?: boolean
   disabled?: boolean
   className?: string
+  /** The TRIGGER's id — the element a label points at. A `Field` sets it. */
+  id?: string
+  /** Ids of the copy describing the control. A `Field` sets it from hint, error and description. */
+  'aria-describedby'?: string
+  /** The spelling a form library sets; read together with `invalid`. */
+  'aria-invalid'?: boolean | 'true' | 'false'
+  /** Announced on the trigger. A `Field` sets it from `required`. */
+  'aria-required'?: boolean
   /** `SelectItem`s, optionally wrapped in `SelectGroup` with a `SelectLabel`. */
   children: ReactNode
 }
@@ -69,17 +86,36 @@ export function Select({
   className,
   contentClassName,
   children,
+  id,
+  'aria-describedby': describedBy,
+  'aria-invalid': ariaInvalid,
+  'aria-required': ariaRequired,
   ...props
 }: SelectProps) {
   warnBlankName('Select', 'label', label, 'the trigger is announced with no name')
-  const bad = isInvalid(invalid)
+  const bad = isInvalid(invalid, ariaInvalid)
+
+  const field = useFieldControl()
+  const generated = useId()
+  // The id belongs on the TRIGGER: Radix's root renders no DOM node at all, so
+  // an id handed to it lands nowhere and the label above points at nothing.
+  const triggerId = id ?? generated
+  const valueId = `${triggerId}-value`
+  const nameId = field?.labelId ?? `${triggerId}-name`
 
   const container = useOverlayContainer()
 
   return (
     <SelectPrimitive.Root disabled={disabled} {...props}>
       <SelectPrimitive.Trigger
-        aria-label={label}
+        id={triggerId}
+        // Named by the label AND by its own value, in that order. `aria-label`
+        // outranks name-from-content, so naming it "Region" told a reader the
+        // noun and never the answer — and the answer is the only thing on the
+        // trigger.
+        aria-labelledby={`${nameId} ${valueId}`}
+        aria-describedby={describedBy}
+        aria-required={ariaRequired}
         aria-invalid={bad || undefined}
         className={cn(
           CONTROL_BASE,
@@ -88,7 +124,17 @@ export function Select({
           className,
         )}
       >
-        <SelectPrimitive.Value placeholder={placeholder} />
+        {field?.labelId == null && (
+          <span id={nameId} className="sr-only">
+            {label}
+          </span>
+        )}
+        {/* Wrapped rather than styled directly: Radix's Value drops className.
+            The wrapper is also what `aria-labelledby` points at, so the name
+            picks up the value and not the chevron. */}
+        <span id={valueId} className="truncate">
+          <SelectPrimitive.Value placeholder={placeholder} />
+        </span>
         <SelectPrimitive.Icon asChild>
           <ChevronDown
             size={16}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useId, useMemo } from 'react'
+import { liveEdges, useSpecIdentity, warnUnknownRef } from '../lib/dev'
 import { DiagramFrame, type FigureChrome, type FigureModel } from '../lib/frame'
 import { round, textWidth, TYPE, type Box } from '../lib/geometry'
 import { resolveLegend, variantLegend } from '../lib/legend'
@@ -51,6 +52,7 @@ export function SequenceFigure({
   onSelectNode,
 }: SequenceFigureProps) {
   const uid = useId().replace(/:/g, '')
+  useSpecIdentity(spec, 'SequenceFigure')
   const model = useMemo(
     () => buildModel(spec, uid, activeIds, onSelectNode),
     [spec, uid, activeIds, onSelectNode],
@@ -101,9 +103,15 @@ function buildModel(
     return { participant, box: { x, y: HEAD.y, w: colW, h: HEAD.h } as Box }
   })
 
+  // A message to a participant nothing declares has no column to be drawn
+  // between, so the artwork returned null for it and the summary list went on
+  // reporting a call to a raw id — the picture and its text equivalent
+  // disagreeing about what the exchange contains. Both halves read this.
+  const messages = liveEdges('SequenceFigure', spec.messages, (id) => centre.has(id))
+
   const lastY = Math.max(
     HEAD.y + HEAD.h + 80,
-    ...spec.messages.map((message) => message.y),
+    ...messages.map((message) => message.y),
     ...(spec.activations ?? []).map((activation) => activation.to),
     ...(spec.segments ?? []).map((segment) => segment.to),
   )
@@ -152,6 +160,7 @@ function buildModel(
       {(spec.activations ?? []).map((activation, index) => {
         const x = centre.get(activation.participant)
         if (x === undefined) return null
+
         return (
           <rect
             key={`act-${index}`}
@@ -168,7 +177,7 @@ function buildModel(
       })}
 
       {/* Messages. */}
-      {spec.messages.map((message, index) => {
+      {messages.map((message, index) => {
         const from = centre.get(message.from)
         const to = centre.get(message.to)
         if (from === undefined || to === undefined) return null
@@ -205,7 +214,7 @@ function buildModel(
       ))}
 
       {/* Message wording last, so its mask covers every line. */}
-      {spec.messages.map((message, index) => {
+      {messages.map((message, index) => {
         const from = centre.get(message.from)
         const to = centre.get(message.to)
         if (from === undefined || to === undefined || !message.label) return null
@@ -223,8 +232,19 @@ function buildModel(
   )
 
   const used = [
-    ...new Set(spec.messages.map((message) => message.variant ?? 'default')),
+    ...new Set(messages.map((message) => message.variant ?? 'default')),
   ] as (Variant | 'return')[]
+
+  // The messages a span of the axis holds, which is what both a segment caption
+  // and an activation bar are actually saying. Naming them by the calls inside
+  // them rather than by their y bounds is the only version of that fact a
+  // reader who cannot see the axis can use.
+  const across = (from: number, to: number) =>
+    messages
+      .filter((message) => message.y >= from && message.y <= to && message.label)
+      .map((message) => message.label as string)
+
+  const named = new Map(spec.participants.map((p) => [p.id, p.label]))
 
   return {
     extent: { x: 0, y: 0, w: width, h: lifelineBottom + 24 },
@@ -235,11 +255,38 @@ function buildModel(
       sublabel: participant.sublabel,
       kind: participant.type,
     })),
-    edges: spec.messages.map((message) => ({
+    edges: messages.map((message) => ({
       from: message.from,
       to: message.to,
       label: message.label,
     })),
+    // Segments band the TIME axis and activations sit on a lifeline, so neither
+    // groups the participants; both are statements the picture makes and the
+    // list did not carry at all.
+    notes: [
+      ...(spec.segments ?? []).map((segment) => {
+        const held = across(segment.from, segment.to)
+        return held.length > 0
+          ? `Phase ${segment.label} covers ${held.join(', ')}.`
+          : `Phase ${segment.label} covers no message this figure labels.`
+      }),
+      ...(spec.activations ?? []).flatMap((activation) => {
+        const who = named.get(activation.participant)
+        if (who === undefined) {
+          warnUnknownRef(
+            'SequenceFigure',
+            'activations[].participant',
+            activation.participant,
+            'the bar is drawn on no lifeline at all',
+          )
+          return []
+        }
+        const held = across(activation.from, activation.to)
+        if (held.length > 1) return [`${who} is busy from ${held[0]} to ${held.at(-1)}.`]
+        if (held.length === 1) return [`${who} is busy during ${held[0]}.`]
+        return [`${who} is busy for a span none of the messages name.`]
+      }),
+    ],
     legend: variantLegend(
       resolveLegend(used, spec.meta.legend?.mode, VARIANTS, spec.meta.legend?.entries),
       spec.meta.legend?.entries,

@@ -4,6 +4,7 @@ import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import type { ComponentProps, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+import { useOverlayContainer } from '../../lib/overlay-container'
 
 /** Radix Dialog root, trigger and close — a sheet IS a dialog, docked. */
 export const Sheet = DialogPrimitive.Root
@@ -48,6 +49,9 @@ export interface SheetContentProps
  * The title is required, visible or not. A modal with no accessible name drops
  * a screen reader into an unnamed region with no way back out.
  *
+ * Portals into the element an enclosing `OverlayContainer` names, docking to
+ * that element's edge rather than the viewport's when there is one.
+ *
  * @example
  * <Sheet>
  *   <SheetTrigger asChild><Button variant="secondary">Filters</Button></SheetTrigger>
@@ -63,16 +67,32 @@ export function SheetContent({
   children,
   ...rest
 }: SheetContentProps) {
+  const container = useOverlayContainer()
+
   return (
-    <DialogPrimitive.Portal>
+    <DialogPrimitive.Portal container={container ?? undefined}>
       <DialogPrimitive.Overlay
         data-m22-animated
-        className="fixed inset-0 z-(--z-overlay) bg-(--scrim) data-[state=open]:animate-[m22-fade-in_var(--duration-fast)_var(--ease)]"
+        className={cn(
+          'inset-0 z-(--z-overlay) bg-(--scrim) data-[state=open]:animate-[m22-fade-in_var(--duration-fast)_var(--ease)]',
+          container ? 'absolute' : 'fixed',
+        )}
       />
       <DialogPrimitive.Content
+        // The panel's own assertion that its travel is decorative — the scrim
+        // beside it always made one and this half never did, so under reduced
+        // motion the fade was cancelled and the panel still slid the whole
+        // width of itself, which reads worse than leaving both alone. See the
+        // reduced-motion block in keyframes.css for what the marker now means:
+        // documentation with teeth, over a universal floor that no longer
+        // depends on anyone remembering it.
+        data-m22-animated
         className={cn(
           'fixed z-(--z-modal) flex flex-col overflow-y-auto border-(--panel-border) bg-(--panel-bg) p-6 panel-blur transition-transform duration-(--duration-slow) ease-(--ease-out-expo) scroll-slim',
           SIDE[side],
+          // Docked to the container's edge, and capped by its box — the widths
+          // above are read against the viewport and would overflow a frame.
+          container && 'absolute max-h-full max-w-full',
           className,
         )}
         {...rest}

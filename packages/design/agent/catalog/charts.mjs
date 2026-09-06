@@ -62,7 +62,7 @@ export const CHARTS = [
       },
       {
         kind: 'do',
-        text: 'Reach for stackType="expanded" when the reading is share rather than volume: it sets Recharts’ expand offset and <AreaChart.YAxis> swaps in percentTick on its own, so the axis reads 0% to 100% without a formatter at the call site.',
+        text: 'Reach for stackType="expanded" when the reading is share rather than volume: it sets Recharts’ expand offset and <AreaChart.YAxis> swaps in percentTick on its own, so the axis reads 0% to 100% without a formatter at the call site. A tickFormatter of your own still wins — the axis defers to it rather than dropping it, which it used to do without a word.',
       },
       {
         kind: 'do',
@@ -113,7 +113,7 @@ export const CHARTS = [
         element: 'Bars',
         required: true,
         description:
-          '<BarChart.Bar>, drawn through a custom shape: a transparent rectangle for the hit area, then the painted bar three pixels shorter than its slot so a stacked segment keeps a hairline of page between it and the one above.',
+          '<BarChart.Bar>, drawn through a custom shape: a transparent rectangle for the hit area, then the painted bar three pixels shorter than its slot so a stacked segment keeps a hairline of page between it and the one above. A bar shorter than that trim is floored at one pixel rather than taken to nothing, so a small count is never pixel-identical to an absent one.',
       },
       {
         element: 'Axes',
@@ -131,12 +131,21 @@ export const CHARTS = [
           '<BarChart.Values>, a slot composed inside a bar. show defaults to last; all is for five or six bars where the exact figures are the point, and past that it is a table wearing a chart.',
       },
       {
+        element: 'Hidden data table',
+        description:
+          'The sr-only table of the FULL data rather than of the brushed window, so a reader on the table is never shown less than the CSV export holds. hideDataTable removes it, and zero rows render nothing.',
+      },
+      {
         element: 'Empty state',
         description:
           'ChartEmpty, rendered in place of the plot when data is empty — a title, a reason and an optional action, so a filter that matched nothing is told apart from a load that failed. empty={false} keeps the bare axes instead.',
       },
     ],
     practices: [
+      {
+        kind: 'do',
+        text: 'Reach for buffer on a period still open. It hatches the last ROW rather than the last bar on screen, so brushing back into the middle of the range hatches nothing — a month that closed in March is never drawn as still being counted.',
+      },
       {
         kind: 'do',
         text: 'Leave the value axis anchored at zero. A bar encodes by LENGTH from the baseline, so a domain of ["dataMin", "dataMax"] passed through <BarChart.YAxis> turns a two percent gap into a doubled bar. This is the distortion a bar chart cannot survive and a LineChart can: a line encodes by slope, so clipping its domain rescales the reading rather than inventing one.',
@@ -284,6 +293,11 @@ export const CHARTS = [
         description:
           '<ComposedChart.Brush> in the container footer and <ComposedChart.Toolbar> above the plot. They drive one window, so a brushed range and a zoomed range cannot disagree about what is on screen.',
       },
+      {
+        element: 'Hidden data table',
+        description:
+          'The sr-only table of the FULL data rather than of the brushed window, so a reader on the table is never shown less than the CSV export holds. hideDataTable removes it, and zero rows render nothing.',
+      },
     ],
     practices: [
       {
@@ -324,7 +338,7 @@ export const CHARTS = [
         element: 'Figure frame',
         required: true,
         description:
-          'ChartFigure’s <figure>. There is no empty state and no axes here, so at zero rows this is all that renders: a name over a blank box, with the hidden table returning null.',
+          'ChartFigure’s <figure>, with an empty state at zero rows. There are no axes here, so without one a pie at zero rows was a name over a blank box with the hidden table returning null — the picture and its text equivalent silent together. empty={false} restores that, for a chart whose emptiness is the reading.',
       },
       {
         element: 'Wedges',
@@ -371,7 +385,7 @@ export const CHARTS = [
       },
       {
         kind: 'dont',
-        text: 'Do not leave paddingAngle at 0 if the chart has to survive forced colours. There is one fill variant here, so all eight --series-* tokens collapse to CanvasText and the sectors are stroked only when paddingAngle is negative — a default pie becomes one uniform disc, with the legend and the labels carrying the whole reading.',
+        text: 'Pass a POSITIVE paddingAngle if the chart has to survive forced colours. There is one fill variant here, so all eight --series-* tokens collapse to CanvasText and every wedge is the same solid shape; what separates them is geometry, and a gap of a degree or two is it. The stroke is not the mechanism — it is drawn only when paddingAngle is NEGATIVE, where the wedges overlap and the surface-coloured stroke re-separates them into stacked cards. 0 is the one value with neither, and a default pie in forced colours is one uniform disc with the legend and the labels carrying the whole reading.',
       },
     ],
     accessibility: [
@@ -459,7 +473,7 @@ export const CHARTS = [
         element: 'Figure frame',
         required: true,
         description:
-          'ChartFigure’s <figure>. Its hidden table is conditional on valueKey rather than on hideDataTable alone, which is the one place this chart differs from the rest of the group.',
+          'ChartFigure’s <figure>, with an empty state at zero rows. Its hidden table needs a value field, which it takes from valueKey or, failing that, from the dataKey of the composed <RadialChart.RadialBar> — so a chart that names neither still has no table.',
       },
       {
         element: 'Arcs',
@@ -490,7 +504,7 @@ export const CHARTS = [
       },
       {
         kind: 'do',
-        text: 'Pass valueKey. It is the only thing that turns the hidden table on here — miss it and the table is not empty, it is absent, and the figure has a name and no numbers behind it.',
+        text: 'Pass valueKey when the arc is not the only mark. It names the field the hidden table prints and the field the LEGEND reports a selection from; without either it or a composed <RadialChart.RadialBar> there is no value field, and the table is not empty but absent.',
       },
       {
         kind: 'do',
@@ -585,7 +599,7 @@ export const CHARTS = [
         element: 'Figure frame',
         required: true,
         description:
-          'ChartFigure’s <figure>. There is no isLoading and no empty here, so a chart with no observations draws a pair of axes over nothing — the call site owns both states.',
+          'ChartFigure’s <figure>, with isLoading and an empty state. Emptiness is read from the declared table rows, for the same reason the table is declared at all: the observations live on each <Scatter>, and the root cannot see them.',
       },
       {
         element: 'Numeric axes',
@@ -655,7 +669,7 @@ export const CHARTS = [
         element: 'Figure frame',
         required: true,
         description:
-          'ChartFigure’s <figure>. There is no empty state and no loading skeleton here: at zero stages the plot renders blank and the hidden table renders nothing, so both are the call site’s job.',
+          'ChartFigure’s <figure>, with an empty state at zero stages. There is still no loading skeleton, so that state remains the call site’s job.',
       },
       {
         element: 'Stages',
@@ -751,7 +765,7 @@ export const CHARTS = [
     practices: [
       {
         kind: 'do',
-        text: 'Feed it non-negative values that sum to something the reader recognises as the whole. Area is the encoding, an area cannot be negative, and a treemap of numbers that partition nothing is a picture of nothing.',
+        text: 'Feed it non-negative values that sum to something the reader recognises as the whole. Area is the encoding, an area cannot be negative, and a leaf at zero or below is laid out at zero width and dropped from the picture — the hidden table prints it as “not drawn” rather than letting the two views disagree about how many leaves there are.',
       },
       {
         kind: 'do',
@@ -883,12 +897,12 @@ export const CHARTS = [
       {
         element: 'Binning rule',
         description:
-          'Not a mark on screen and the most consequential part of the figure: bins takes a bucket count or the explicit edges, and the default is Freedman-Diaconis capped at 200 buckets, falling back to Sturges when the interquartile range is zero.',
+          'Not a mark on screen and the most consequential part of the figure: bins takes a bucket count or the explicit edges, and the default is Freedman-Diaconis capped at 200 buckets, falling back to Sturges when the interquartile range is zero. Explicit edges are also a RANGE — an observation outside the first and last has no bucket, and is counted into the tooltip’s share and into a Below or Above row of the table rather than dropped.',
       },
       {
         element: 'Hidden data table',
         description:
-          'The sr-only table prints each bucket’s two edges as its row header and its count beside them — the only exact reading a binned chart can offer, since every bar stands for a range rather than for a value.',
+          'The sr-only table prints each bucket’s two edges as its row header and its count beside them — the only exact reading a binned chart can offer, since every bar stands for a range rather than for a value. Observations outside explicit edges get their own Below and Above rows, because they have no bar anywhere.',
       },
     ],
     practices: [
@@ -903,6 +917,10 @@ export const CHARTS = [
       {
         kind: 'do',
         text: 'Give values or data, never both. data wins when both arrive, so the values array is then binned by nothing and drawn by nothing, with no warning anywhere.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not read the tooltip’s share as a share of the bars. It is a share of the SAMPLE, so a set of buckets summing to 96% is telling you the other 4% fell outside your own edges — which is the one reading a share taken over the drawn buckets could never give, because it always sums to 100.',
       },
       {
         kind: 'dont',

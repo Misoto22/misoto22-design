@@ -145,9 +145,11 @@ export function wiresFor<E extends EdgeBase>(
     const from = boxes.get(edge.from)
     const to = boxes.get(edge.to)
     // A relationship naming a node that is not in the figure is a specification
-    // error, and drawing it from nowhere to nowhere would hide that. Dropping
-    // it leaves the summary list — which iterates the same array — as the place
-    // the mistake shows up as a line pointing at an id no node claims.
+    // error, and drawing it from nowhere to nowhere would hide that. The
+    // figures filter the same edges through `liveEdges` before they get here,
+    // so the drop is announced once in development and the summary list agrees
+    // with the picture; this guard is what makes that agreement structural
+    // rather than a convention every renderer has to remember.
     if (!from || !to) continue
     out.push({ edge, from, to, ...decorate?.(edge) })
   }

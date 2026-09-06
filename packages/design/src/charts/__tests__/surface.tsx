@@ -39,6 +39,20 @@ export interface ChartSurfaceEntry {
   /** The directory under src/charts. Keyed to the coverage check. */
   dir: string
   render: () => ReactElement
+  /**
+   * The same chart with nothing to draw.
+   *
+   * Required, and required because seven of the twenty shipped without an empty
+   * state at all: zero rows drew a named figure over a blank box, and the
+   * hidden table renders nothing below one row, so the picture and its text
+   * equivalent went silent together. "No data" and "failed to load" then look
+   * the same to the reader, and reloading does not help.
+   *
+   * A new chart cannot be added without answering this, which is the point —
+   * the gap was never one author forgetting, it was each chart being written
+   * without the one before it in view.
+   */
+  renderEmpty: () => ReactElement
 }
 
 const series = {
@@ -168,6 +182,12 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
         <AreaChart.Area dataKey="mobile" variant="hatched" />
       </AreaChart>
     ),
+    renderEmpty: () => (
+      <AreaChart title="Visitors per month" config={series} data={[]} xDataKey="month">
+        <AreaChart.XAxis dataKey="month" />
+        <AreaChart.Area dataKey="desktop" />
+      </AreaChart>
+    ),
   },
   {
     dir: 'BarChart',
@@ -179,6 +199,12 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
         <BarChart.Legend isClickable />
         <BarChart.Bar dataKey="desktop" variant="duotone" />
         <BarChart.Bar dataKey="mobile" variant="hatched" />
+      </BarChart>
+    ),
+    renderEmpty: () => (
+      <BarChart title="Visitors by month" config={series} data={[]} xDataKey="month">
+        <BarChart.XAxis dataKey="month" />
+        <BarChart.Bar dataKey="desktop" />
       </BarChart>
     ),
   },
@@ -196,6 +222,12 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
         <LineChart.Line dataKey="mobile" strokeVariant="dashed" />
       </LineChart>
     ),
+    renderEmpty: () => (
+      <LineChart title="Visitors per month" config={series} data={[]} xDataKey="month">
+        <LineChart.XAxis dataKey="month" />
+        <LineChart.Line dataKey="desktop" />
+      </LineChart>
+    ),
   },
   {
     dir: 'ComposedChart',
@@ -207,6 +239,12 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
         <ComposedChart.Legend />
         <ComposedChart.Bar dataKey="desktop" variant="gradient" />
         <ComposedChart.Line dataKey="mobile" />
+      </ComposedChart>
+    ),
+    renderEmpty: () => (
+      <ComposedChart title="Visitors and sessions" config={series} data={[]} xDataKey="month">
+        <ComposedChart.XAxis dataKey="month" />
+        <ComposedChart.Bar dataKey="desktop" />
       </ComposedChart>
     ),
   },
@@ -225,6 +263,17 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
         <PieChart.Legend />
       </PieChart>
     ),
+    renderEmpty: () => (
+      <PieChart
+        title="Visitors by browser"
+        config={browsers}
+        data={[]}
+        dataKey="visitors"
+        nameKey="browser"
+      >
+        <PieChart.Pie />
+      </PieChart>
+    ),
   },
   {
     dir: 'RadarChart',
@@ -233,6 +282,11 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
         <RadarChart.PolarGrid />
         <RadarChart.PolarAngleAxis dataKey="skill" />
         <RadarChart.Tooltip />
+        <RadarChart.Radar dataKey="current" />
+      </RadarChart>
+    ),
+    renderEmpty: () => (
+      <RadarChart title="Team profile" config={skills} data={[]} angleDataKey="skill">
         <RadarChart.Radar dataKey="current" />
       </RadarChart>
     ),
@@ -252,6 +306,11 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
         <RadialChart.Legend />
       </RadialChart>
     ),
+    renderEmpty: () => (
+      <RadialChart title="Visitors by browser" config={browsers} data={[]} nameKey="browser">
+        <RadialChart.RadialBar dataKey="visitors" />
+      </RadialChart>
+    ),
   },
   {
     dir: 'SankeyChart',
@@ -262,6 +321,11 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
         </SankeyChart.Node>
         <SankeyChart.Link variant="gradient" />
         <SankeyChart.Tooltip />
+      </SankeyChart>
+    ),
+    renderEmpty: () => (
+      <SankeyChart title="Visits by outcome" config={flow} data={{ nodes: [], links: [] }}>
+        <SankeyChart.Node />
       </SankeyChart>
     ),
   },
@@ -284,6 +348,16 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
         <ScatterChart.Scatter dataKey="desktop" data={scatterA} />
       </ScatterChart>
     ),
+    renderEmpty: () => (
+      <ScatterChart
+        title="Load time against bundle size"
+        config={{ desktop: { label: 'Desktop' } }}
+        table={{ rows: [], rowKey: 'kb', columns: [{ key: 'ms', label: 'Load (ms)' }] }}
+      >
+        <ScatterChart.XAxis dataKey="kb" />
+        <ScatterChart.YAxis dataKey="ms" />
+      </ScatterChart>
+    ),
   },
   {
     dir: 'FunnelChart',
@@ -301,11 +375,27 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
         <FunnelChart.Tooltip />
       </FunnelChart>
     ),
+    renderEmpty: () => (
+      <FunnelChart
+        title="Signup funnel"
+        config={stageConfig}
+        data={[]}
+        dataKey="people"
+        nameKey="stage"
+      >
+        <FunnelChart.Funnel />
+      </FunnelChart>
+    ),
   },
   {
     dir: 'TreemapChart',
     render: () => (
       <TreemapChart title="Bundle size by package" data={packages}>
+        <TreemapChart.Tooltip />
+      </TreemapChart>
+    ),
+    renderEmpty: () => (
+      <TreemapChart title="Bundle size by package" data={[]}>
         <TreemapChart.Tooltip />
       </TreemapChart>
     ),
@@ -315,10 +405,16 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
     render: () => (
       <Heatmap title="Commits by weekday and hour" columns={HOURS} rows={DAYS} cells={heat} />
     ),
+    renderEmpty: () => (
+      <Heatmap title="Commits by weekday and hour" columns={[]} rows={[]} cells={[]} />
+    ),
   },
   {
     dir: 'Sparkline',
     render: () => <Sparkline label="Weekly signups" data={[12, 18, 9, 24, 30, 22, 41]} value="41" />,
+    renderEmpty: () => (
+      <Sparkline label="Weekly signups" data={[]} />
+    ),
   },
   {
     dir: 'BarList',
@@ -332,6 +428,9 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
         ]}
       />
     ),
+    renderEmpty: () => (
+      <BarList label="Top referrers" items={[]} />
+    ),
   },
   {
     dir: 'BigNumber',
@@ -342,6 +441,9 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
         delta={{ value: 0.124, label: 'vs last month', intent: 'up-is-good' }}
       />
     ),
+    renderEmpty: () => (
+      <BigNumber label="Monthly revenue" value={null} />
+    ),
   },
   {
     dir: 'BoxPlot',
@@ -351,6 +453,11 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
         <BoxPlot.XAxis />
         <BoxPlot.YAxis label="ms" />
         <BoxPlot.Tooltip />
+        <BoxPlot.Boxes />
+      </BoxPlot>
+    ),
+    renderEmpty: () => (
+      <BoxPlot title="Response time by region" data={[]}>
         <BoxPlot.Boxes />
       </BoxPlot>
     ),
@@ -366,11 +473,19 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
         <Histogram.Bars />
       </Histogram>
     ),
+    renderEmpty: () => (
+      <Histogram title="Request duration" values={[]}>
+        <Histogram.Bars />
+      </Histogram>
+    ),
   },
   {
     dir: 'BulletChart',
     render: () => (
       <BulletChart title="Quarterly targets" data={targets} ranges={[50, 80]} domain={[0, 100]} />
+    ),
+    renderEmpty: () => (
+      <BulletChart title="Quarterly targets" data={[]} />
     ),
   },
   {
@@ -381,6 +496,11 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
         <WaterfallChart.XAxis />
         <WaterfallChart.YAxis />
         <WaterfallChart.Tooltip />
+        <WaterfallChart.Bars />
+      </WaterfallChart>
+    ),
+    renderEmpty: () => (
+      <WaterfallChart title="ARR bridge" data={[]}>
         <WaterfallChart.Bars />
       </WaterfallChart>
     ),
@@ -402,6 +522,11 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
             domain={panel.domain}
           />
         )}
+      </Facet>
+    ),
+    renderEmpty: () => (
+      <Facet title="Visitors by channel" data={[]} by="channel" value="visitors" xDataKey="month">
+        {(panel) => <Sparkline label={panel.name} data={[]} />}
       </Facet>
     ),
   },

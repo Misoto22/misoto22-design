@@ -5,6 +5,7 @@ import { cloneElement, isValidElement, useId } from 'react'
 import type { HTMLAttributes, ReactElement, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 import { DEV, warn } from '../../lib/warn'
+import { FieldControlProvider } from './field-control'
 
 /**
  * Where the control sits relative to its label.
@@ -74,16 +75,27 @@ type WirableControl = ReactElement<{
  * different slot again — it explains the SETTING, not the input, and it is what
  * `layout="row"` puts under the label to make a settings row.
  *
- * **What the wiring can and cannot reach.** `cloneElement` puts the id on the
- * single control child, so the label lands wherever that child forwards its
- * `id` — which is the focusable element for `Input`, `Textarea`,
- * `NativeSelect`, `Checkbox` and `Switch`, and therefore for every control a
- * settings row is normally built from. It is NOT the focusable element for the
- * composite controls whose widget lives deeper in their own tree —
- * `Slider`, `RadioGroup`, `ToggleGroup`, `Combobox`, `DatePicker` and `Select`
- * — where the id lands on a wrapper and the label points at something a screen
- * reader will not name. Each of those takes its own `label` prop for exactly
- * that reason; use it, and leave this one's `label` off.
+ * **How the wiring reaches the control.** `cloneElement` puts the four
+ * attributes on the single child, and each control forwards them to whatever
+ * element carries the role — which is the child itself for `Input`, `Textarea`,
+ * `NativeSelect`, `Checkbox`, `Switch` and any host element written by hand, and
+ * a trigger, a group or a thumb further down for `Select`, `Combobox`,
+ * `DatePicker`, `Slider`, `RadioGroup` and `ToggleGroup`. The composites used to
+ * drop them on the floor, which drew a hint under a control that never announced
+ * it; a wrapper that appears to wire things up and does not is worse than one
+ * that never claimed to.
+ *
+ * The label's own id travels separately, through context, because a name is the
+ * one thing a prop cannot carry: a trigger whose text is its VALUE is named by
+ * the label AND by itself, so `<Field label="Region"><Select/></Field>`
+ * announces "Region, Australia" rather than either half.
+ *
+ * Two things stay out of reach. A `<label for>` does not activate a
+ * `role="radiogroup"`, so `RadioGroup` and `ToggleGroup` are named by pointing
+ * back at the label and the words do not click through — exactly as a
+ * `<legend>` does not. And `required` reaches a control as `aria-required`,
+ * which `DatePicker`'s plain `<button>` trigger has nowhere to put; there the
+ * asterisk is the only marker.
  *
  * @example
  * <Field label="Email" required hint="We never share it."><Input type="email" /></Field>
@@ -111,6 +123,7 @@ export function Field({
   const message = error ?? hint
   const messageId = message != null ? `${controlId}-${error != null ? 'error' : 'hint'}` : undefined
   const descriptionId = description != null ? `${controlId}-description` : undefined
+  const labelId = label != null ? `${controlId}-label` : undefined
 
   let control = children
   if (isValidElement(children)) {
@@ -158,10 +171,14 @@ export function Field({
     }
   }
 
+  // The label's id, for the controls that have to name themselves from it —
+  // everything else the field decided is already on the cloned child.
+  const wired = <FieldControlProvider value={{ labelId }}>{control}</FieldControlProvider>
+
   const heading = (label != null || description != null) && (
     <div className="flex flex-col gap-1">
       {label != null && (
-        <Label htmlFor={controlId} className="text-sm text-(--ink)">
+        <Label id={labelId} htmlFor={controlId} className="text-sm text-(--ink)">
           {label}
           {required && (
             <span className="text-(--danger)" aria-hidden="true">
@@ -197,7 +214,7 @@ export function Field({
             different lines. */}
         <div className="flex items-start justify-between gap-6">
           <div className="min-w-0 flex-1">{heading}</div>
-          <div className="shrink-0">{control}</div>
+          <div className="shrink-0">{wired}</div>
         </div>
         {note}
       </div>
@@ -207,7 +224,7 @@ export function Field({
   return (
     <div className={cn('flex flex-col gap-1.5', className)} {...rest}>
       {heading}
-      {control}
+      {wired}
       {note}
     </div>
   )

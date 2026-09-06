@@ -202,10 +202,64 @@
   }
 }
 
-/* One place, not per-component. A user who has asked for less motion gets the
-   end state immediately rather than a faster version of the same move. */
+/* ─── Reduced motion ───
+   Two rules, and the argument behind them matters more than the CSS does.
+
+   This began as one opt-in rule: a surface that animated carried
+   `data-m22-animated`, and that attribute was what got cancelled. It was
+   forgotten four times — Accordion's panel, CollapsibleSection's panel,
+   SheetContent's slide, AppShell's drawer — by four authors across four
+   components. A mechanism four people independently fail to remember is not
+   being failed by its authors; it is failing them. The other half of the old
+   selector, `[class*='m22-anim']`, matched nothing whatsoever: Tailwind emits
+   `animate-[m22-collapsible-down_…]`, which contains no `m22-anim`, so half
+   the kill switch had never once fired and nothing anywhere said so.
+
+   So the GUARANTEE is now the universal rule below, deliberately the well-worn
+   one. It cannot be forgotten because there is nothing to remember: a new
+   component is covered before its author has heard of this file. It also
+   reaches `transition-duration`, which the old rule never did — and a panel
+   that slides is usually written as a transition, not a keyframe, which is how
+   two of the four escaped.
+
+   The cost, stated plainly: this is a `*` rule in a stylesheet consumers
+   import, so it reaches their components too. That is intended. It fires only
+   when the reader has asked their operating system for less motion, and this
+   package already asserts base styles on `*` (see index.css). A caller with
+   motion they consider essential can still keep it — `!important` on `*` is
+   the weakest `!important` there is, so any class-level
+   `animation-duration: … !important` outranks it. What changes is the default:
+   keeping motion under this preference becomes something you write down and
+   defend, instead of something you get by forgetting. That inversion is the
+   whole point of the change.
+
+   0.01ms rather than `none`, because JavaScript listens. Radix unmounts a
+   closing panel on `animationend`; consumer code may await `transitionend`. A
+   near-zero duration still fires both, where `none` fires neither. It is the
+   reset's least obvious detail and the reason it is written this way wherever
+   it appears.
+
+   `[data-m22-animated]` stays, and is no longer load-bearing. It is a
+   component asserting that its motion is decorative, and it goes further than
+   the floor above by removing the animation outright rather than running an
+   instant frame of it. Read it as documentation with teeth. Do NOT read it as
+   the thing that makes reduced motion work — believing that was the mistake
+   this replaced. `src/__tests__/reduced-motion.test.tsx` holds both ends: it
+   fails if this block stops being universal, if it stops naming transitions,
+   if it grows another selector that matches nothing, or if a component reaches
+   for a keyframe here without making the assertion. */
 @media (prefers-reduced-motion: reduce) {
-  [class*='m22-anim'],
+  *,
+  ::before,
+  ::after {
+    animation-delay: 0ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
   [data-m22-animated] {
     animation: none !important;
   }

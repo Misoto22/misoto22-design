@@ -105,14 +105,21 @@
      Law 2 — a box-shadow is never blurred. The system has no elevation ramp;
      depth is a hard offset in ink, applied per component. These three resolve
      to nothing on purpose, so a component ported from a shadowed system stays
-     flat instead of drawing a blur the White Reset does not have. Reach for
-     --lift instead, which is the offset idiom expressed once. */
+     flat instead of drawing a blur the White Reset does not have. --lift below
+     is the sanctioned offset idiom for anything that must read as raised. */
   --shadow-color: transparent;
   --shadow-sm: none;
   --shadow: none;
   --shadow-lg: none;
-  /* The one depth cue the system does have: a hard 3px ink offset, no blur.
-     Used by a plate that must read as sitting above the page. */
+  /* The one depth cue the system does have: a hard 3px ink offset, no blur,
+     in the accent rather than a grey because --shadow-offset points at --clay.
+
+     PUBLISHED, NOT CONSUMED. No component in this package sets either one —
+     there is not a single shadow-(--lift) in src/. What the library actually
+     separates with is a hairline, a change of ground, and the reversal that
+     Card variant="plate" reaches for. These two exist so a consumer building a
+     raised plate of their own has the system's answer instead of inventing a
+     blur; do not read them as describing what the library does. */
   --lift: 3px 3px 0 0 var(--shadow-offset);
   --lift-sm: 2px 2px 0 0 var(--shadow-offset);
 
@@ -126,8 +133,12 @@
   --overlay: var(--scrim);
   --disabled-opacity: 0.5;
 
-  /* ─── Stacking ─── five component-facing names onto the seven ranks. ───── */
-  --z-dropdown: var(--z-drawer);
+  /* ─── Stacking ─── two component-facing names onto the seven ranks. ──────
+     The other five ranks are read by their own names; only these two had a
+     component-facing spelling that outlived the rank it pointed at.
+     --z-dropdown pointed at --z-drawer, 100, which put every anchored panel
+     under the modal at 210 that opened it. */
+  --z-dropdown: var(--z-anchored);
   --z-overlay: var(--z-scrim);
 
   /* ─── Diagrams ───────────────────────────────────────────────────────────

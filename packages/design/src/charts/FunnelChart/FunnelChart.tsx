@@ -15,6 +15,7 @@ import {
 } from 'recharts'
 import { ChartContainer, colorStops, cssName, type ChartConfig } from '../lib/chart'
 import { ChartFigure } from '../lib/figure'
+import { type ChartEmptyProps } from '../lib/empty'
 import { ChartTooltip, ChartTooltipContent } from '../lib/tooltip'
 import { ColorStops } from '../lib/paint'
 import type { ChartTooltipSlotProps } from '../AreaChart/AreaChart'
@@ -69,6 +70,11 @@ export interface FunnelChartProps<TData extends Record<string, unknown>> {
   chartProps?: ComponentProps<typeof RechartsFunnelChart>
   /** Drops the hidden table view. Only correct when the page prints the data itself. */
   hideDataTable?: boolean
+  /**
+   * What the chart shows when it has nothing to draw. `false` keeps the empty
+   * plot, for a chart whose emptiness is itself the reading.
+   */
+  empty?: ChartEmptyProps | false
 }
 
 /**
@@ -103,6 +109,7 @@ export function FunnelChart<TData extends Record<string, unknown>>({
   className,
   chartProps,
   hideDataTable = false,
+  empty,
 }: FunnelChartProps<TData>) {
   const chartId = useId().replace(/:/g, '')
 
@@ -123,24 +130,16 @@ export function FunnelChart<TData extends Record<string, unknown>>({
             ? false
             : { rows: data, rowKey: nameKey, columns: [{ key: dataKey, label: 'Value' }] }
         }
+        isEmpty={data.length === 0}
+        empty={empty}
       >
         <ChartContainer config={config}>
+          {/* No `<defs>` here. `<Funnel>` scopes the stage gradients under its
+              OWN generated id and paints from those, so a second set under the
+              root's id was markup nothing referenced — one gradient definition
+              per stage, per chart, drawn and never used. */}
           <RechartsFunnelChart id={chartId} accessibilityLayer {...chartProps}>
             {children}
-            <defs>
-              {Object.entries(config).map(([key, series]) => (
-                <linearGradient
-                  key={key}
-                  id={`${chartId}-stage-${cssName(key)}`}
-                  x1="0"
-                  y1="0"
-                  x2="1"
-                  y2="0"
-                >
-                  <ColorStops dataKey={cssName(key)} stops={colorStops(series)} />
-                </linearGradient>
-              ))}
-            </defs>
           </RechartsFunnelChart>
         </ChartContainer>
       </ChartFigure>

@@ -149,7 +149,7 @@ export const ACTIONS = [
       },
       {
         kind: 'dont',
-        text: '--z-drawer is the same rank --z-dropdown resolves to, so this button and every anchored panel tie at 100 and are separated only by document order — correct under a modal, whose scrim is 200, and a coin toss against a menu opening into the same corner.',
+        text: 'It sits at --z-drawer, 100, and every rank that can appear over it is higher: a scrim is 200, a modal 210, an anchored panel 220 — --z-dropdown now resolves to --z-anchored, not to this rank. So a menu opening into the same corner covers the button outright rather than tying with it, and a dialog covers it too. Nothing here is settled by document order; move the button with className if it must stay reachable beside something else.',
       },
     ],
     accessibility: [

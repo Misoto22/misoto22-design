@@ -115,7 +115,7 @@ export const NAVIGATION = [
       {
         element: 'Panel',
         description:
-          'Radix’s Content — a role="region" labelled by its trigger, mounted only while open, overflow-hidden so its measured height can animate, with pb-4 pe-8 inside so the text stops short of the marker’s column.',
+          'Radix’s Content — a role="region" labelled by its trigger, mounted only while open, overflow-hidden so its measured height can animate, with pb-4 pe-8 inside so the text stops short of the marker’s column. It carries data-m22-animated, so the open and close are dropped outright for a reader who asked for less motion.',
       },
     ],
     practices: [
@@ -195,7 +195,7 @@ export const NAVIGATION = [
       },
       {
         kind: 'do',
-        text: 'Give every crumb but the last an href — one without renders as plain text in the same colour as the links beside it, with no destination and no aria-current, so it reads as the page the reader is on when it is not.',
+        text: 'Give every crumb but the last an href — one without renders as plain text in the same colour as the links beside it, with no destination and no aria-current, so it reads as the page the reader is on when it is not. Development names the crumb rather than leaving an omission that is invisible in the browser and in review.',
       },
       {
         kind: 'do',
@@ -213,6 +213,7 @@ export const NAVIGATION = [
     accessibility: [
       'The last crumb is text with aria-current="page", never a link to itself.',
       'Separators are aria-hidden, so the trail is not read as “home slash work slash”.',
+      'A middle crumb with no href takes no aria-current and no colour of its own, which is why the omission is reported in development instead of shipped as a crumb that impersonates the current page.',
     ],
     related: ['pagination'],
   },
@@ -231,13 +232,13 @@ export const NAVIGATION = [
         element: 'Step buttons',
         required: true,
         description:
-          'Previous and Next, pill-cornered at --control-h-sm, named “Previous page” and “Next page”. Each is disabled at its end of the range, which takes it out of the tab order rather than leaving a control that does nothing.',
+          'Previous and Next, pill-cornered at --control-h-sm, named by previousLabel and nextLabel — “Previous page” and “Next page” until a call site says otherwise. Each is disabled at its end of the range, which takes it out of the tab order rather than leaving a control that does nothing.',
       },
       {
         element: 'Page list',
         required: true,
         description:
-          'An <ol> of numbers, each a <button> named “Page N” and carrying aria-current on the one you are on.',
+          'An <ol> of numbers, each a <button> named by pageLabel — “Page N” by default — and carrying aria-current on the one you are on.',
       },
       {
         element: 'Travelling pill',
@@ -273,12 +274,13 @@ export const NAVIGATION = [
       },
       {
         kind: 'dont',
-        text: 'Do not expect it to translate: “Page 3”, “Previous page” and “Next page” are the controls’ accessible names and all three are hardcoded English — label names the nav and is the only string a call site can change.',
+        text: 'Do not expect pageLabel to change what is printed. It names the control for a screen reader and nothing else; the button still shows the Western digit it was handed, so a locale that writes its numerals differently has to format them at the call site as well.',
       },
     ],
     accessibility: [
       'The current page is a button with aria-current, not a styled span — a reader jumping by control needs to find it.',
       'Renders nothing at one page. A pager for a single page is furniture.',
+      'Every string a reader hears is a prop: the two chevrons by name, each numbered page through pageLabel — a function rather than a template, because “Page 3” is a phrase whose parts move around between languages.',
     ],
     keyboard: [
       { keys: ['Tab'], does: 'Reaches every control, including the current page.' },
@@ -368,7 +370,7 @@ export const NAVIGATION = [
       {
         element: 'Panel',
         description:
-          'Radix’s Content, unmounted while closed and animating on the measured --radix-collapsible-content-height, so a long group and a short one take the same time. A bare div: no region role and no name of its own, again unlike an accordion’s.',
+          'Radix’s Content, unmounted while closed and animating on the measured --radix-collapsible-content-height, so a long group and a short one take the same time. A bare div: no region role and no name of its own, again unlike an accordion’s. Both this and the loose CollapsibleContent carry data-m22-animated, so the two agree under prefers-reduced-motion rather than only one of them honouring it.',
       },
     ],
     practices: [

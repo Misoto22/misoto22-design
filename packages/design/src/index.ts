@@ -8,9 +8,15 @@
  * or, for an app that already compiles Tailwind itself, the portable layers on
  * their own:
  *
- *   import '@misoto22/design/tokens.css'    // primitives
+ *   import '@misoto22/design/tokens.css'    // primitives, plus data-mode and data-density
  *   import '@misoto22/design/semantic.css'  // roles
+ *   import '@misoto22/design/themes.css'    // the other six theming axes
  *   import '@misoto22/design/keyframes.css' // motion
+ *
+ * All four, or the theming attributes are attributes that do nothing: every
+ * axis but `data-mode` and `data-density` is declared only in `themes.css`, and
+ * an app that skips it writes `data-radius="sharp"` and gets no error, no
+ * warning and no corner.
  *
  * Everything below is a consumer contract. Adding an export is cheap; changing
  * or removing one is a breaking change (DESIGN-API-001).

@@ -391,13 +391,31 @@
   --mid: 0.22s;
   --slow: 0.34s;
 
-  /* ─── Stacking ─── seven ranks, named for what sits at each. */
+  /* ─── Stacking ─── seven ranks, named for what sits at each.
+     Every overlay in the package portals to document.body, so all of them are
+     siblings in the ROOT stacking context and the rank is the whole of the
+     decision — there is no ancestor left to nest one inside another.
+
+     Read it as a sentence: a sticky header clears the page, a drawer clears the
+     header, a scrim covers both, a modal sits on its scrim, an ANCHORED panel
+     clears the modal it was opened from, and a toast clears everything because
+     it is the only rank that has to survive a modal asking a question.
+
+     --z-anchored is the one that is not obvious, and it is the one that was
+     wrong. A popover, a menu or a select listbox is opened FROM something, and
+     the surface it is most often opened from is a modal — a select inside a
+     modal form is one of the most ordinary shapes in an application. Ranked
+     below the modal, as it was, the panel is painted behind the very dialog
+     that summoned it. The rank it replaced, --z-palette, was read by nothing:
+     a command palette is a Dialog, so it lands at --z-modal, and its order
+     against a second modal is settled by document order — which is the right
+     answer, because it moves a scrim and its panel together. */
   --z-rule: 1;
   --z-sticky: 10;
   --z-drawer: 100;
   --z-scrim: 200;
   --z-modal: 210;
-  --z-palette: 220;
+  --z-anchored: 220;
   --z-toast: 300;
 
   /* ─── Focus ─── */

@@ -21,7 +21,10 @@ import type { SectorProps } from 'recharts'
 import type { TypedDataKey } from 'recharts/types/util/typedDataKey'
 import { useReducedMotion } from 'motion/react'
 import { ChartContainer, colorStops, cssName, type ChartConfig } from '../lib/chart'
+import { findSlot } from '../lib/values'
 import { ChartFigure } from '../lib/figure'
+import { type ChartEmptyProps } from '../lib/empty'
+import { useChartSelection } from '../lib/selection'
 import { ChartBackground, type ChartBackgroundVariant } from '../lib/background'
 import { ChartLegend, ChartLegendContent } from '../lib/legend'
 import { ChartTooltip, ChartTooltipContent } from '../lib/tooltip'
@@ -59,6 +62,18 @@ interface RadialChartContextValue {
   isLoading: boolean
   selectedBar: string | null
   selectBar: (name: string | null, value?: number) => void
+}
+
+/**
+ * The row field holding each bar's number, however the call site said it.
+ *
+ * `valueKey` is the explicit answer; the arc's own `dataKey` is the one every
+ * call site already gives. Reading the slot means the legend reports the same
+ * number the arc does, and the table gets built for a chart that named neither
+ * — which used to render no table at all.
+ */
+function valueField(valueKey: string | undefined, children: ReactNode): string | null {
+  return valueKey ?? findSlot<RadialBarProps>(children, RadialBar)?.dataKey ?? null
 }
 
 const RadialChartContext = createContext<RadialChartContextValue | null>(null)
@@ -109,8 +124,15 @@ export interface RadialChartProps<TData extends Record<string, unknown>> {
   innerRadius?: number | string
   /** Where the arc ends. */
   outerRadius?: number | string
-  /** The bar lit on first render. */
+  /** The bar lit on first render, when the chart keeps its own selection. */
   defaultSelectedBar?: string | null
+  /**
+   * The selected bar, driven from outside.
+   *
+   * Give this and the chart follows it; leave it undefined and the chart keeps
+   * its own, starting from `defaultSelectedBar`.
+   */
+  selectedBar?: string | null
   /** Fires when the selection changes, and with null when it is cleared. */
   onSelectionChange?: (selection: { name: string; value: number } | null) => void
   /**
@@ -118,13 +140,24 @@ export interface RadialChartProps<TData extends Record<string, unknown>> {
    * the page does not jump when the data lands.
    */
   isLoading?: boolean
-  /** The row field holding each bar's number. Used by the table view. */
+  /**
+   * The row field holding each bar's number, for the table view and for the
+   * selection the legend reports.
+   *
+   * Falls back to the `dataKey` of the composed `<RadialChart.RadialBar>`, so
+   * the usual call site needs neither.
+   */
   valueKey?: keyof TData & string
   /**
    * Drops the hidden table view. Only correct when the page prints the data
    * itself.
    */
   hideDataTable?: boolean
+  /**
+   * What the chart shows when it has nothing to draw. `false` keeps the empty
+   * plot, for a chart whose emptiness is itself the reading.
+   */
+  empty?: ChartEmptyProps | false
 }
 
 /**
@@ -156,22 +189,41 @@ export function RadialChart<TData extends Record<string, unknown>>({
   innerRadius = '30%',
   outerRadius = '100%',
   defaultSelectedBar = null,
+  selectedBar: controlledBar,
   onSelectionChange,
   isLoading = false,
   valueKey,
   hideDataTable = false,
+  empty,
 }: RadialChartProps<TData>) {
   const chartId = useId().replace(/:/g, '')
-  const [selectedBar, setSelectedBar] = useState<string | null>(defaultSelectedBar)
   const loadingData = useLoadingBars(isLoading)
   const arc = ARC[variant]
+  const valueSource = valueField(valueKey, children)
+
+  const [selectedBar, setSelection] = useChartSelection(
+    controlledBar,
+    defaultSelectedBar,
+    undefined,
+  )
 
   const selectBar = useCallback(
     (name: string | null, value?: number) => {
-      setSelectedBar(name)
-      onSelectionChange?.(name === null ? null : { name, value: value ?? 0 })
+      setSelection(name)
+      if (!onSelectionChange) return
+      if (name === null) {
+        onSelectionChange(null)
+        return
+      }
+      // The arc hands its own number in; the legend has only a name, and used
+      // to be given a zero on its behalf — so one selection reported two
+      // different values depending on which control the reader used. The row is
+      // where the legend's number comes from now.
+      const row = valueSource ? data.find((entry) => String(entry[nameKey]) === name) : undefined
+      const resolved = value ?? (row && valueSource ? Number(row[valueSource]) : Number.NaN)
+      onSelectionChange({ name, value: Number.isFinite(resolved) ? resolved : 0 })
     },
-    [onSelectionChange],
+    [data, nameKey, onSelectionChange, setSelection, valueSource],
   )
 
   const painted = useMemo(
@@ -196,10 +248,12 @@ export function RadialChart<TData extends Record<string, unknown>>({
         description={description}
         className={className}
         table={
-          hideDataTable || !valueKey
+          hideDataTable || !valueSource
             ? false
-            : { rows: data, rowKey: nameKey, columns: [{ key: valueKey, label: 'Value' }] }
+            : { rows: data, rowKey: nameKey, columns: [{ key: valueSource, label: 'Value' }] }
         }
+        isEmpty={!isLoading && data.length === 0}
+        empty={empty}
       >
         <ChartContainer config={config}>
           <RechartsRadialBarChart

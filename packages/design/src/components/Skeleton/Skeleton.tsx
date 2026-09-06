@@ -4,18 +4,25 @@ import { cn } from '../../lib/cn'
 export type SkeletonProps = HTMLAttributes<HTMLDivElement>
 
 /**
- * The fill every skeleton part is drawn from: `--stone`, and nothing else.
+ * The fill every skeleton part is drawn from: `--stone`, at the height of one
+ * line until something says otherwise.
  *
  * Deliberately NOT a shimmer. A shimmer sweeps a highlight across the shape,
  * which implies a light source; the White Reset has none, so the sweep reads as
  * a bug rather than as loading. The whole page breathes together instead —
  * see `SkeletonPage`, which owns the single pulse.
  *
+ * `h-3` is a default rather than a design. A `<div>` is already full width, so
+ * height was the one dimension a caller could omit and get nothing for — a
+ * bare `<Skeleton />` was a zero-height box, which is not a small skeleton but
+ * an absent one. Twelve pixels is the height `SkeletonLine` already chose, and
+ * any class the caller passes replaces it.
+ *
  * @example
  * <Skeleton className="h-3 w-40 rounded-(--radius-pill)" />
  */
 export function Skeleton({ className, ...rest }: SkeletonProps) {
-  return <div aria-hidden="true" className={cn('bg-(--stone)', className)} {...rest} />
+  return <div aria-hidden="true" className={cn('h-3 bg-(--stone)', className)} {...rest} />
 }
 
 /** A line of type. Height is the line's; width is how far it runs. */

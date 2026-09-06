@@ -21,6 +21,17 @@ export interface CanvasView {
   scale: number
   x: number
   y: number
+  /**
+   * How big the frame was, in CSS pixels, when this view was reported.
+   *
+   * Carried on the view because everything that consumes a view needs it and
+   * nothing outside this component can measure it: a `DiagramMinimap`'s
+   * viewport rectangle is the frame's size over the zoom, and a caller who had
+   * to hand-declare that number was hand-declaring the one number that makes
+   * the map lie. Absent until the frame has been measured — the first render
+   * has no box yet — which is exactly when a map should draw nothing.
+   */
+  frame?: { width: number; height: number }
 }
 
 /** What a caller can do to the canvas from outside it. */
@@ -92,12 +103,19 @@ export function DiagramCanvas({
   const [view, setView] = useState<CanvasView>({ scale: 1, x: 0, y: 0 })
   const drag = useRef<{ pointer: number; x: number; y: number } | null>(null)
 
+  /** The frame's own size, or nothing when it has not been laid out yet. */
+  const measure = useCallback(() => {
+    const box = frame.current?.getBoundingClientRect()
+    return box && box.width > 0 ? { width: box.width, height: box.height } : undefined
+  }, [])
+
   const apply = useCallback(
     (next: CanvasView) => {
-      setView(next)
-      onViewChange?.(next)
+      const measured = { ...next, frame: measure() }
+      setView(measured)
+      onViewChange?.(measured)
     },
-    [onViewChange],
+    [measure, onViewChange],
   )
 
   /**
@@ -122,12 +140,13 @@ export function DiagramCanvas({
           scale,
           x: cx - (cx - current.x) * ratio,
           y: cy - (cy - current.y) * ratio,
+          frame: measure(),
         }
         onViewChange?.(next)
         return next
       })
     },
-    [onViewChange],
+    [measure, onViewChange],
   )
 
   useImperativeHandle(
@@ -144,6 +163,7 @@ export function DiagramCanvas({
             ...current,
             x: box.width / 2 - x * current.scale,
             y: box.height / 2 - y * current.scale,
+            frame: measure(),
           }
           onViewChange?.(next)
           return next
@@ -151,7 +171,7 @@ export function DiagramCanvas({
       },
       view,
     }),
-    [apply, onViewChange, view, zoomAbout],
+    [apply, measure, onViewChange, view, zoomAbout],
   )
 
   // Registered imperatively because React marks `wheel` passive, and a passive

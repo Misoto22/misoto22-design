@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { FOUNDATIONS, FOUNDATION_BY_SLUG } from '../foundations'
+import { foundationCopy } from '@/i18n/content'
 import { ROUTES } from '../routes'
 import snippetsJson from '@/generated/snippets.json'
 import tokensJson from '@/generated/tokens.json'
@@ -96,5 +97,104 @@ describe('foundations', () => {
       return new Set(ids).size === ids.length ? [] : [page.slug]
     })
     expect(collisions).toEqual([])
+  })
+})
+
+/**
+ * And the same pages, in Chinese.
+ *
+ * `FoundationPage` falls back field by field, so an untranslated page is not a
+ * blank page or a crash — it is a complete, well-formed English page served
+ * under /zh, which reads as a page rather than as a gap. Five of them shipped
+ * that way in one week (icons, elevation, shape, agents, getting-started) and
+ * nothing here looked, because nothing here knew the Chinese existed.
+ *
+ * The prose `sections` are checked the same way, keyed by section id and by
+ * row term. `snippets` and `commands` are not, and have no Chinese to check:
+ * an install line and an `npx` invocation are the same bytes in both languages.
+ */
+describe('the Chinese foundations copy', () => {
+  it('translates the title and summary of every page', () => {
+    // These two travel furthest: the rail, the footer, the command palette, the
+    // home page card and the <title> of the document all read them.
+    const missing = FOUNDATIONS.filter((page) => {
+      const zh = foundationCopy('zh', page.slug)
+      return !zh.title?.trim() || !zh.summary?.trim()
+    })
+    expect(missing.map((page) => page.slug)).toEqual([])
+  })
+
+  it('keeps the intro the same number of paragraphs', () => {
+    // `zh.intro` REPLACES the English array rather than merging into it, so a
+    // list one item short does not fall back for the item it is missing — it
+    // drops the paragraph, silently, off the end of the page.
+    const drifted = FOUNDATIONS.filter(
+      (page) => (foundationCopy('zh', page.slug).intro?.length ?? 0) !== page.intro.length,
+    )
+    expect(drifted.map((page) => page.slug)).toEqual([])
+  })
+
+  it('translates every token category heading and note, and invents none', () => {
+    // Keyed by the category key rather than positional, which fails in both
+    // directions: a key with no entry prints an English heading in the middle
+    // of a Chinese page, and a key no page names is a translation that will
+    // never be read by anything.
+    const gaps = FOUNDATIONS.flatMap((page) => {
+      const zh = foundationCopy('zh', page.slug).categories ?? {}
+      const named = new Set(page.categories.map((category) => category.key))
+      return [
+        ...page.categories
+          .filter((category) => !zh[category.key]?.title?.trim())
+          .map((category) => `${page.slug} → ${category.key}: no title`),
+        ...page.categories
+          .filter((category) => category.note && !zh[category.key]?.note?.trim())
+          .map((category) => `${page.slug} → ${category.key}: no note`),
+        ...Object.keys(zh)
+          .filter((key) => !named.has(key))
+          .map((key) => `${page.slug} → ${key}: not a category on this page`),
+      ]
+    })
+    expect(gaps).toEqual([])
+  })
+
+  it('translates every prose section — its heading, its paragraphs and its rows', () => {
+    // The two prose pages are the ones a reader arrives on: `getting-started`
+    // says what to install and `agents` says what to run. Keyed rather than
+    // positional, so it fails in both directions — a section or a row with no
+    // entry prints English inside a Chinese page, and a key naming neither is
+    // a translation nothing will ever read.
+    const gaps = FOUNDATIONS.flatMap((page) => {
+      const zh = foundationCopy('zh', page.slug).sections ?? {}
+      const sections = page.sections ?? []
+      const named = new Set(sections.map((section) => section.id))
+      return [
+        ...sections.flatMap((section) => {
+          const copy = zh[section.id]
+          const rows = copy?.rows ?? {}
+          const terms = new Set((section.rows ?? []).map((row) => row.term))
+          return [
+            ...(copy?.title?.trim() ? [] : [`${page.slug}/${section.id}: no title`]),
+            // `body` REPLACES the English array rather than merging into it,
+            // exactly as `intro` does, so a short list drops paragraphs off
+            // the end instead of falling back for the ones it is missing.
+            ...(copy?.body?.length === section.body.length
+              ? []
+              : [
+                  `${page.slug}/${section.id}: ${copy?.body?.length ?? 0} paragraphs, not ${section.body.length}`,
+                ]),
+            ...(section.rows ?? [])
+              .filter((row) => !rows[row.term]?.trim())
+              .map((row) => `${page.slug}/${section.id} → ${row.term}: no detail`),
+            ...Object.keys(rows)
+              .filter((term) => !terms.has(term))
+              .map((term) => `${page.slug}/${section.id} → ${term}: not a row in this section`),
+          ]
+        }),
+        ...Object.keys(zh)
+          .filter((id) => !named.has(id))
+          .map((id) => `${page.slug} → ${id}: not a section on this page`),
+      ]
+    })
+    expect(gaps).toEqual([])
   })
 })

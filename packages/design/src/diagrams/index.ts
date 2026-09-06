@@ -76,6 +76,24 @@ export * from './DiagramInspector/DiagramInspector'
 export * from './DiagramMinimap/DiagramMinimap'
 export * from './DiagramLegend/DiagramLegend'
 
+// ─── Taking a figure off the page ───
+/**
+ * The export pipeline the menu runs, for a caller who needs a different one.
+ *
+ * `DiagramExportMenu` is five decisions already made — a plate behind the
+ * artwork, 2× raster, a 1200 × 630 share card — and a caller who wants any of
+ * them differently had nothing to build on: the serialiser is where the hard
+ * half lives (resolving `var(--ink)` against the live element, so the file is
+ * not an invisible rectangle), and it was private.
+ */
+export {
+  downloadBlob,
+  exportFilename,
+  rasterize,
+  serializeSvg,
+} from '../lib/svg-export'
+export type { RasterFormat, RasterOptions, SerializeOptions } from '../lib/svg-export'
+
 // ─── Building a key ───
 export { kindLegend, resolveLegend, stateLegend, variantLegend } from './lib/legend'
 export type { LegendEntry } from './lib/legend'

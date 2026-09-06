@@ -1,7 +1,8 @@
 'use client'
 
 import { useId, useMemo } from 'react'
-import { DiagramFrame, type FigureChrome, type FigureModel } from '../lib/frame'
+import { liveEdges, useSpecIdentity, warnStageOutOfRange } from '../lib/dev'
+import { DiagramFrame, type FigureBand, type FigureChrome, type FigureModel } from '../lib/frame'
 import { inflate, round, TYPE, union, wrapText, type Box } from '../lib/geometry'
 import { kindLegend, resolveLegend } from '../lib/legend'
 import { NodePlate, PLATE, plateHeight } from '../lib/marks'
@@ -51,6 +52,7 @@ export function DataflowFigure({
   onSelectNode,
 }: DataflowFigureProps) {
   const uid = useId().replace(/:/g, '')
+  useSpecIdentity(spec, 'DataflowFigure')
   const model = useMemo(
     () => buildModel(spec, uid, activeIds, onSelectNode),
     [spec, uid, activeIds, onSelectNode],
@@ -83,6 +85,13 @@ function buildModel(
     const lines = wrapText(node.label, TYPE.label, w - PLATE.padX * 2, 2)
     const h = plateHeight(lines.length, Boolean(node.sublabel), true, node.height ?? 0)
 
+    // The stage is an INDEX into the headings, and the x is arithmetic on it
+    // rather than a lookup — so a stage nothing declares is drawn a full column
+    // past the last heading, under no heading at all.
+    if (node.stage < 0 || node.stage >= spec.stages.length) {
+      warnStageOutOfRange('DataflowFigure', node.id, node.stage, spec.stages.length)
+    }
+
     const x = GRID.originX + node.stage * (GRID.colW + GRID.gapX)
     const y = GRID.originY + node.row * (GRID.rowH + GRID.nodeH) + (node.yOffset ?? 0)
 
@@ -94,7 +103,8 @@ function buildModel(
   // Waypoints refer to the author's own grid, not this one — see
   // `Wire.keepWaypoints`. A data-flow specification always places by stage and
   // row, so there is never a case where honouring them would be correct.
-  const wires = wiresFor(spec.flows, boxes)
+  const flows = liveEdges('DataflowFigure', spec.flows, (id) => boxes.has(id))
+  const wires = wiresFor(flows, boxes)
   const { paths, labels } = renderWires(wires, uid)
 
   const extent = inflate(union([...boxes.values()]) ?? { x: 0, y: 0, w: 500, h: 240 }, 30)
@@ -144,6 +154,32 @@ function buildModel(
 
   const used = [...new Set(spec.nodes.map((node) => node.type))]
 
+  // The stages ARE the list's structure. "How far has this got" is the question
+  // the axis exists to answer, and it was printed only as headings inside
+  // artwork a screen reader is told to skip.
+  const inStage = (index: number) =>
+    spec.nodes
+      .filter((node) => node.stage === index)
+      .sort((a, b) => a.row - b.row)
+      .map((node) => node.id)
+
+  const stray = spec.nodes
+    .filter((node) => node.stage < 0 || node.stage >= spec.stages.length)
+    .map((node) => node.id)
+
+  const bands: FigureBand[] = [
+    ...spec.stages.map((stage, index) => ({
+      kind: 'Stage',
+      label: stage.label,
+      ids: inStage(index),
+    })),
+    // Drawn past the last heading, so said that way rather than folded in
+    // beside nodes the axis does label.
+    ...(stray.length > 0
+      ? [{ kind: 'Stage', label: 'outside the declared stages', ids: stray }]
+      : []),
+  ]
+
   return {
     extent: { ...extent, y: headerY - 22, h: extent.h + (extent.y - (headerY - 22)) },
     artwork,
@@ -153,11 +189,12 @@ function buildModel(
       sublabel: node.sublabel,
       kind: node.type,
     })),
-    edges: (spec.flows ?? []).map((flow) => ({
+    edges: flows.map((flow) => ({
       from: flow.from,
       to: flow.to,
       label: [flow.label, flow.classification].filter(Boolean).join(' — ') || undefined,
     })),
+    bands,
     legend: kindLegend(
       resolveLegend(used, spec.meta.legend?.mode, KINDS, spec.meta.legend?.entries),
       spec.meta.legend?.entries,

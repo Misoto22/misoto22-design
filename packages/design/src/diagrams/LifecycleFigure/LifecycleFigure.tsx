@@ -1,7 +1,9 @@
 'use client'
 
 import { useId, useMemo } from 'react'
-import { DiagramFrame, type FigureChrome, type FigureModel } from '../lib/frame'
+import { cn } from '../../lib/cn'
+import { liveEdges, useSpecIdentity, warnUnknownLane } from '../lib/dev'
+import { DiagramFrame, type FigureBand, type FigureChrome, type FigureModel } from '../lib/frame'
 import { inflate, round, TYPE, textWidth, union, wrapText, type Box } from '../lib/geometry'
 import { resolveLegend, stateLegend } from '../lib/legend'
 import { Chip, PLATE, plateHeight, StatePlate } from '../lib/marks'
@@ -72,6 +74,7 @@ export function LifecycleFigure({
   onSelectNode,
 }: LifecycleFigureProps) {
   const uid = useId().replace(/:/g, '')
+  useSpecIdentity(spec, 'LifecycleFigure')
   const model = useMemo(
     () => buildModel(spec, uid, activeIds, onSelectNode),
     [spec, uid, activeIds, onSelectNode],
@@ -101,6 +104,20 @@ function buildModel(
   const lanes = spec.lanes ?? [{ id: '', label: '' }]
   const laneIndex = new Map(lanes.map((lane, index) => [lane.id, index]))
 
+  // A state that names no lane belongs to the first one — that is the documented
+  // default. A state that names a lane NOTHING DECLARES is a different thing:
+  // it also lands in the first lane, and the first lane is the main rail, so a
+  // typo does not merely misplace a box, it enrols the state in the spine and
+  // invents a transition the machine does not have. Hence the flag, and hence
+  // being told.
+  const laneOf = (state: { id: string; lane?: string }) => {
+    if (!state.lane) return { index: 0, known: true }
+    const index = laneIndex.get(state.lane)
+    if (index !== undefined) return { index, known: true }
+    warnUnknownLane('LifecycleFigure', state.id, state.lane)
+    return { index: 0, known: false }
+  }
+
   const boxes = new Map<string, Box>()
   const placed = spec.states.map((state) => {
     // A diamond is only half as wide as its box where the label crosses it, so
@@ -110,21 +127,21 @@ function buildModel(
     const lines = wrapText(state.label, TYPE.label, textRoom(w, state.type), 2)
     const h = plateHeight(lines.length, Boolean(state.sublabel), true, state.height ?? GRID.stateH)
 
-    const lane = laneIndex.get(state.lane ?? '') ?? 0
+    const { index: lane, known } = laneOf(state)
     const col = state.col + (lane === 0 ? 0 : SECONDARY_LANE_OFFSET)
 
-    // `yOffset` is deliberately NOT applied. It is an absolute nudge measured in
-    // archify's own lane heights, and this renderer's lanes are a different
-    // depth — so a 78-unit push that cleared a neighbour there drops a state
-    // squarely on top of the lane below here. Two overlapping plates are worse
-    // than a state sitting on its lane's centre line, which is where the
-    // specification put it before the nudge.
+    // `yOffset` is applied, the way `WorkflowFigure` and `DataflowFigure` apply
+    // theirs. One field name meaning "nudge this off its row" in two figures
+    // and "nothing" in a third is not a safety measure — it is a specification
+    // that typechecks and draws something else, with nothing in the type to say
+    // which of the two it will be. A nudge that puts two plates on top of each
+    // other is visible; a nudge silently dropped is not.
     const x = GRID.originX + col * (GRID.colW + GRID.gapX)
-    const y = GRID.originY + lane * (GRID.stateH + GRID.laneGap)
+    const y = GRID.originY + lane * (GRID.stateH + GRID.laneGap) + (state.yOffset ?? 0)
 
     const box: Box = { x, y, w, h }
     boxes.set(state.id, box)
-    return { state, box, lane }
+    return { state, box, lane, known }
   })
 
   // The main rail is IMPLICIT, and has to be. archify's lifecycle contract
@@ -133,7 +150,7 @@ function buildModel(
   // those are the diagram's spine, not its exceptions. Without them drawn, the
   // top row reads as five unconnected boxes.
   const rail = placed
-    .filter((entry) => entry.lane === 0)
+    .filter((entry) => entry.lane === 0 && entry.known)
     .sort((a, b) => a.state.col - b.state.col)
   const declared = new Set((spec.transitions ?? []).map((t) => `${t.from}→${t.to}`))
   const implied = rail
@@ -141,9 +158,10 @@ function buildModel(
     .map((entry, index) => ({ from: entry.state.id, to: rail[index + 1]!.state.id }))
     .filter((edge) => !declared.has(`${edge.from}→${edge.to}`))
 
+  const transitions = liveEdges('LifecycleFigure', spec.transitions, (id) => boxes.has(id))
   const wires = [
     ...wiresFor(implied, boxes, () => ({ weight: 2.1 })),
-    ...wiresFor(spec.transitions, boxes),
+    ...wiresFor(transitions, boxes),
   ]
   const { paths, labels } = renderWires(wires, uid)
 
@@ -193,7 +211,13 @@ function buildModel(
             key={state.id}
             data-node={state.id}
             data-active={active?.has(state.id) ? '' : undefined}
-            className={active && !active.has(state.id) ? 'opacity-25' : undefined}
+            className={cn(
+              active && !active.has(state.id) && 'opacity-25',
+              // The one figure that builds its own group instead of using
+              // NodePlate, and so the one figure whose selectable plates showed
+              // a text caret over a control.
+              onSelectNode && 'cursor-pointer',
+            )}
             onClick={onSelectNode ? () => onSelectNode(state.id) : undefined}
           >
             <StatePlate box={box} kind={state.type}>
@@ -262,6 +286,21 @@ function buildModel(
   )
 
   const used = [...new Set(spec.states.map((state) => state.type))]
+
+  // Lanes group the list only when the specification actually has them: the
+  // single unnamed lane a laneless spec falls back to would publish a band
+  // called nothing, around every state in the figure.
+  const bands: FigureBand[] | undefined =
+    spec.lanes && spec.lanes.length > 0
+      ? lanes.map((lane, index) => ({
+          kind: 'Lane',
+          label: lane.label,
+          ids: placed
+            .filter((entry) => entry.lane === index)
+            .sort((a, b) => a.state.col - b.state.col)
+            .map((entry) => entry.state.id),
+        }))
+      : undefined
   const widest = Math.max(
     0,
     ...lanes.map((lane) => textWidth(lane.label, TYPE.band)),
@@ -280,12 +319,22 @@ function buildModel(
       label: state.label,
       sublabel: state.sublabel,
       kind: state.type,
+      // Printed in the plate's corner, inside artwork a screen reader is told
+      // to skip — and a step number is the reading order of the machine.
+      detail: state.step ? `step ${state.step}` : undefined,
     })),
-    edges: (spec.transitions ?? []).map((transition) => ({
-      from: transition.from,
-      to: transition.to,
-      label: [transition.label, transition.note].filter(Boolean).join(' — ') || undefined,
-    })),
+    // The implied rail is DRAWN, so it is published. Leaving it out gave the
+    // text equivalent the exceptions and none of the spine: a five-state
+    // machine reading as four disconnected states and one error path.
+    edges: [
+      ...implied.map((edge) => ({ from: edge.from, to: edge.to })),
+      ...transitions.map((transition) => ({
+        from: transition.from,
+        to: transition.to,
+        label: [transition.label, transition.note].filter(Boolean).join(' — ') || undefined,
+      })),
+    ],
+    bands,
     legend: stateLegend(
       resolveLegend(used, spec.meta.legend?.mode, KINDS, spec.meta.legend?.entries),
       spec.meta.legend?.entries,

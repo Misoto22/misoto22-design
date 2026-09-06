@@ -2,9 +2,40 @@
 
 import * as ContextMenuPrimitive from '@radix-ui/react-context-menu'
 import type { LucideIcon } from 'lucide-react'
-import type { ComponentProps } from 'react'
+import { isValidElement, useId, type ComponentProps, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 import { useOverlayContainer } from '../../lib/overlay-container'
+
+/**
+ * True for a component type — `icon={Copy}` — rather than a rendered element.
+ *
+ * Everything a `ReactNode` can be is an element, a primitive, an array, another
+ * iterable or a promise; a Lucide icon is none of those, it is a `forwardRef`
+ * object. So both spellings are tellable apart at runtime, which is what lets
+ * one prop take either — and it has to, because this prop meant the opposite
+ * thing one import away and the wrong spelling failed at render, not at the
+ * type.
+ */
+function isIconComponent(icon: LucideIcon | ReactNode): icon is LucideIcon {
+  if (isValidElement(icon)) return false
+  if (typeof icon === 'function') return true
+  if (typeof icon !== 'object' || icon === null) return false
+  return !Array.isArray(icon) && !(Symbol.iterator in icon) && !('then' in icon)
+}
+
+/** The leading glyph, sized by this component when it was handed a component. */
+function iconNode(icon: LucideIcon | ReactNode): ReactNode {
+  if (icon === undefined || icon === null || icon === false) return null
+  if (!isIconComponent(icon)) {
+    return (
+      <span aria-hidden className="grid size-4 shrink-0 place-items-center [&_svg]:size-4">
+        {icon}
+      </span>
+    )
+  }
+  const Icon = icon
+  return <Icon size={16} strokeWidth={1.5} className="shrink-0" aria-hidden />
+}
 
 /** Radix ContextMenu root and trigger, as typed passthroughs. */
 export const ContextMenu = ContextMenuPrimitive.Root
@@ -52,13 +83,19 @@ export function ContextMenuContent({
 
 export interface ContextMenuItemProps
   extends ComponentProps<typeof ContextMenuPrimitive.Item> {
-  icon?: LucideIcon
+  /**
+   * Optional leading icon. Either spelling — `icon={Copy}` passes the component
+   * and this sizes it, `icon={<Copy size={16} />}` passes the element and this
+   * places it.
+   */
+  icon?: LucideIcon | ReactNode
+  /** Paints the row as destructive. Use for delete, revoke, disconnect. */
   destructive?: boolean
 }
 
 /** A row. Highlight follows `data-highlighted`, which covers hover and keyboard. */
 export function ContextMenuItem({
-  icon: Icon,
+  icon,
   destructive = false,
   className,
   children,
@@ -73,7 +110,7 @@ export function ContextMenuItem({
       )}
       {...rest}
     >
-      {Icon && <Icon size={16} strokeWidth={1.5} className="shrink-0" aria-hidden />}
+      {iconNode(icon)}
       {children}
     </ContextMenuPrimitive.Item>
   )
@@ -89,7 +126,13 @@ export function ContextMenuSeparator({
   )
 }
 
-/** Mono eyebrow heading for a group. */
+/**
+ * Mono eyebrow heading, on its own.
+ *
+ * Visual only: Radix renders it as a bare `<div>` with no role. Reach for
+ * `ContextMenuGroup` when the eyebrow is a HEADING over rows; this is right for
+ * a line that heads nothing.
+ */
 export function ContextMenuLabel({
   className,
   ...rest
@@ -99,6 +142,34 @@ export function ContextMenuLabel({
       className={cn('px-2.5 py-1.5 eyebrow text-(--ink-3-aa)', className)}
       {...rest}
     />
+  )
+}
+
+export interface ContextMenuGroupProps
+  extends ComponentProps<typeof ContextMenuPrimitive.Group> {
+  /** The eyebrow over the rows, and the group's accessible name. */
+  label?: ReactNode
+}
+
+/**
+ * A named section of a menu.
+ *
+ * The eyebrow alone was a picture of a heading: Radix's `MenuLabel` carries no
+ * role and no `aria-labelledby` wiring, so a sighted reader saw sections and a
+ * screen-reader user got one undifferentiated list. This renders the group,
+ * renders the label inside it, and points the one at the other.
+ */
+export function ContextMenuGroup({ label, children, ...rest }: ContextMenuGroupProps) {
+  const id = useId()
+
+  return (
+    <ContextMenuPrimitive.Group
+      aria-labelledby={label === undefined ? undefined : id}
+      {...rest}
+    >
+      {label !== undefined && <ContextMenuLabel id={id}>{label}</ContextMenuLabel>}
+      {children}
+    </ContextMenuPrimitive.Group>
   )
 }
 

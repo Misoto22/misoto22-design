@@ -1,7 +1,16 @@
 'use client'
 
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react'
 import {
   DayPicker,
   useDayPicker,
@@ -10,7 +19,30 @@ import {
 } from 'react-day-picker'
 import { cn } from '../../lib/cn'
 
-export type CalendarProps = DayPickerProps
+/**
+ * The strings the month-and-year picker says, none of which react-day-picker
+ * knows about — its own `labels` prop covers its own chrome, and this panel is
+ * ours. English by default, and exposed for the same reason `AppShell` exposes
+ * `openLabel`: every one of these controls is an icon or a bare number, so the
+ * string IS the control as far as a screen reader is concerned.
+ *
+ * The month names already follow `locale`, which is what made the chrome around
+ * them read as an oversight rather than as a policy.
+ */
+export interface CalendarLabels {
+  /** Names the panel showing twelve months. */
+  monthPanelLabel?: string
+  /** Names the panel showing a page of years. */
+  yearPanelLabel?: string
+  /** The two chevrons that browse a year at a time, inside the month panel. */
+  previousYearLabel?: string
+  nextYearLabel?: string
+  /** The two chevrons that page the year grid, twenty-four at a time. */
+  earlierYearsLabel?: string
+  laterYearsLabel?: string
+}
+
+export type CalendarProps = DayPickerProps & CalendarLabels
 
 /** Ten years either side of now — see the note on `startMonth` below. */
 const DEFAULT_SPAN = 10
@@ -38,11 +70,24 @@ interface PickerOpen {
   year?: number
 }
 
+/** Every label resolved, so nothing downstream has to know the defaults. */
+type ResolvedLabels = Required<CalendarLabels>
+
+const DEFAULT_LABELS: ResolvedLabels = {
+  monthPanelLabel: 'Month and year',
+  yearPanelLabel: 'Year',
+  previousYearLabel: 'Previous year',
+  nextYearLabel: 'Next year',
+  earlierYearsLabel: 'Earlier years',
+  laterYearsLabel: 'Later years',
+}
+
 interface PickerState {
   open: PickerOpen | null
   setOpen: (next: PickerOpen | null) => void
   startMonth: Date
   endMonth: Date
+  labels: ResolvedLabels
 }
 
 const PickerContext = createContext<PickerState>({
@@ -50,6 +95,7 @@ const PickerContext = createContext<PickerState>({
   setOpen: () => {},
   startMonth: new Date(),
   endMonth: new Date(),
+  labels: DEFAULT_LABELS,
 })
 
 /** `Intl` beats the library's formatter here: it takes a plain BCP 47 tag. */
@@ -102,7 +148,7 @@ function MonthYearPanel({
   year?: number
   month: Date
 }) {
-  const { setOpen, startMonth, endMonth } = useContext(PickerContext)
+  const { setOpen, startMonth, endMonth, labels: names } = useContext(PickerContext)
   const { goToMonth } = useDayPicker()
   const labels = useLabels()
 
@@ -149,11 +195,11 @@ function MonthYearPanel({
       setOpen({ index, view: 'years', anchor: start + delta * YEAR_PAGE })
 
     return (
-      <Panel key="years" label="Year">
+      <Panel key="years" label={names.yearPanelLabel}>
         <div className="mb-1 flex items-center justify-between gap-1">
           <button
             type="button"
-            aria-label="Earlier years"
+            aria-label={names.earlierYearsLabel}
             disabled={!back}
             onClick={() => move(-1)}
             className={STEP}
@@ -165,7 +211,7 @@ function MonthYearPanel({
           </span>
           <button
             type="button"
-            aria-label="Later years"
+            aria-label={names.laterYearsLabel}
             disabled={!forward}
             onClick={() => move(1)}
             className={STEP}
@@ -191,11 +237,11 @@ function MonthYearPanel({
   }
 
   return (
-    <Panel key="months" label="Month and year">
+    <Panel key="months" label={names.monthPanelLabel}>
       <div className="mb-1 flex items-center justify-between gap-1">
         <button
           type="button"
-          aria-label="Previous year"
+          aria-label={names.previousYearLabel}
           disabled={year <= firstYear}
           onClick={() => setOpen({ index, view: 'months', year: year - 1 })}
           className={STEP}
@@ -211,7 +257,7 @@ function MonthYearPanel({
         </button>
         <button
           type="button"
-          aria-label="Next year"
+          aria-label={names.nextYearLabel}
           disabled={year >= lastYear}
           onClick={() => setOpen({ index, view: 'months', year: year + 1 })}
           className={STEP}
@@ -247,9 +293,16 @@ function MonthYearPanel({
  *
  * Focus moves in when it opens and the month showing is what receives it, so a
  * keyboard reader lands on the current value rather than at the top of a grid
- * they then have to traverse. It is a `group` rather than a `dialog`: nothing
- * here is modal, and announcing a dialog that Tab walks straight out of is
- * worse than announcing nothing.
+ * they then have to traverse. Tab then WRAPS inside the panel: it is drawn in
+ * `--paper` over a day grid that is still mounted and still focusable, so Tab
+ * used to leave the reader on a day they could not see, past the caption that
+ * owns the Escape handler and therefore with no way back.
+ *
+ * `dialog` follows from that rather than decorating it. The role was `group`
+ * for as long as Tab walked out — announcing a dialog nobody is held inside is
+ * worse than announcing nothing — and the same rule, read the other way, is
+ * what makes `dialog` correct now. No `aria-modal`: the panel covers this
+ * month's grid, not the page, and the rest of the document is still there.
  */
 function Panel({ label, children }: { label: string; children: ReactNode }) {
   const box = useRef<HTMLDivElement>(null)
@@ -270,11 +323,32 @@ function Panel({ label, children }: { label: string; children: ReactNode }) {
     target?.focus()
   }, [])
 
+  // Every stop in here is a button; there is nothing else to collect, and a
+  // general focusable-element query would be a guess about markup this file
+  // writes itself. Disabled months are out of range and out of the tab order.
+  const stops = () =>
+    Array.from(box.current?.querySelectorAll<HTMLButtonElement>('button:not([disabled])') ?? [])
+
+  const wrap = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== 'Tab') return
+    const buttons = stops()
+    const first = buttons[0]
+    const last = buttons[buttons.length - 1]
+    if (!first || !last) return
+
+    const [edge, opposite] = event.shiftKey ? [first, last] : [last, first]
+    if (document.activeElement !== edge) return
+
+    event.preventDefault()
+    opposite.focus()
+  }
+
   return (
     <div
       ref={box}
-      role="group"
+      role="dialog"
       aria-label={label}
+      onKeyDown={wrap}
       className="absolute inset-x-0 bottom-0 top-12 z-2 flex flex-col justify-center bg-(--paper)"
     >
       {children}
@@ -355,15 +429,41 @@ function CalendarCaption({ calendarMonth, displayIndex, className, ...rest }: Mo
  * library's OWN class is kept on each slot, because passing a class REPLACES it
  * and every `.rdp-*` selector downstream depends on those.
  *
+ * The month names follow `locale`. The picker's own chrome — the two panels and
+ * the four chevrons that browse them — follows `CalendarLabels`, because
+ * `locale` cannot supply strings this package invented.
+ *
  * @example
  * <Calendar mode="single" selected={date} onSelect={setDate} />
  * @example
  * // A birth date: widen the years, since the default span is deliberately short.
  * <Calendar mode="single" startMonth={new Date(1920, 0)} endMonth={new Date()} />
  */
-export function Calendar({ className, classNames, components, ...props }: CalendarProps) {
+export function Calendar({
+  className,
+  classNames,
+  components,
+  monthPanelLabel,
+  yearPanelLabel,
+  previousYearLabel,
+  nextYearLabel,
+  earlierYearsLabel,
+  laterYearsLabel,
+  ...props
+}: CalendarProps) {
   const now = new Date()
   const [open, setOpen] = useState<PickerState['open']>(null)
+
+  // Destructured out of `props` above rather than forwarded: everything left in
+  // `props` goes to DayPicker, and these six are this package's own.
+  const labels: ResolvedLabels = {
+    monthPanelLabel: monthPanelLabel ?? DEFAULT_LABELS.monthPanelLabel,
+    yearPanelLabel: yearPanelLabel ?? DEFAULT_LABELS.yearPanelLabel,
+    previousYearLabel: previousYearLabel ?? DEFAULT_LABELS.previousYearLabel,
+    nextYearLabel: nextYearLabel ?? DEFAULT_LABELS.nextYearLabel,
+    earlierYearsLabel: earlierYearsLabel ?? DEFAULT_LABELS.earlierYearsLabel,
+    laterYearsLabel: laterYearsLabel ?? DEFAULT_LABELS.laterYearsLabel,
+  }
 
   // Ten years either side, NOT a century. A hundred-and-eleven-row year list is
   // a scroll, not a choice — and the case that needs one (a birth date) is rare
@@ -387,7 +487,7 @@ export function Calendar({ className, classNames, components, ...props }: Calend
     '[&>button]:bg-(--accent) [&>button]:text-(--accent-foreground) [&>button:hover]:bg-(--accent) [&>button:hover]:text-(--accent-foreground)'
 
   return (
-    <PickerContext value={{ open, setOpen, startMonth, endMonth }}>
+    <PickerContext value={{ open, setOpen, startMonth, endMonth, labels }}>
       <DayPicker
         showOutsideDays
         // The caption is one control that swaps the grid for a month picker, so

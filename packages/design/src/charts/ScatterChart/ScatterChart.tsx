@@ -2,11 +2,9 @@
 
 import {
   createContext,
-  useCallback,
   useContext,
   useId,
   useMemo,
-  useState,
   type ComponentProps,
   type ReactNode,
 } from 'react'
@@ -20,9 +18,12 @@ import {
 } from 'recharts'
 import { ChartContainer, type ChartConfig } from '../lib/chart'
 import { ChartFigure } from '../lib/figure'
+import { type ChartEmptyProps } from '../lib/empty'
+import { useChartSelection } from '../lib/selection'
 import { ChartBackground, type ChartBackgroundVariant } from '../lib/background'
 import { ChartLegend, ChartLegendContent } from '../lib/legend'
 import { ChartTooltip, ChartTooltipContent } from '../lib/tooltip'
+import { LoadingIndicator } from '../lib/loading'
 import { GlowFilter, SeriesGradient } from '../lib/paint'
 import { Annotation, ReferenceBand, ReferenceLine } from '../lib/annotations'
 import { axisLabel } from '../lib/axis'
@@ -85,8 +86,15 @@ export interface ScatterChartProps {
   className?: string
   /** Escape hatch onto the raw Recharts chart element. */
   chartProps?: ComponentProps<typeof RechartsScatterChart>
-  /** The series lit on first render. Selection dims every other series. */
+  /** The series lit on first render, when the chart keeps its own selection. */
   defaultSelectedDataKey?: string | null
+  /**
+   * The selected series, driven from outside.
+   *
+   * Give this and the chart follows it; leave it undefined and the chart keeps
+   * its own, starting from `defaultSelectedDataKey`.
+   */
+  selectedDataKey?: string | null
   /** Fires when the selection changes, and with null when it is cleared. */
   onSelectionChange?: (selectedDataKey: string | null) => void
   /**
@@ -95,6 +103,20 @@ export interface ScatterChartProps {
    * other chart here the table cannot be inferred — it is declared.
    */
   table?: ScatterTable | false
+  /**
+   * Swaps the marks for an animated skeleton, keeping the measured height so
+   * the page does not jump when the data lands.
+   */
+  isLoading?: boolean
+  /**
+   * What the chart shows when it has nothing to draw. `false` keeps the empty
+   * plot, for a chart whose emptiness is itself the reading.
+   *
+   * Read from the declared `table` rows, for the same reason the table is
+   * declared: the observations live on each `<Scatter>`, and the root cannot
+   * see them.
+   */
+  empty?: ChartEmptyProps | false
 }
 
 /**
@@ -126,23 +148,22 @@ export function ScatterChart({
   className,
   chartProps,
   defaultSelectedDataKey = null,
+  selectedDataKey: controlledDataKey,
   onSelectionChange,
   table,
+  isLoading = false,
+  empty,
 }: ScatterChartProps) {
   const chartId = useId().replace(/:/g, '')
-  const [selectedDataKey, setSelectedDataKey] = useState<string | null>(defaultSelectedDataKey)
-
-  const selectDataKey = useCallback(
-    (next: string | null) => {
-      setSelectedDataKey(next)
-      onSelectionChange?.(next)
-    },
-    [onSelectionChange],
+  const [selectedDataKey, selectDataKey] = useChartSelection(
+    controlledDataKey,
+    defaultSelectedDataKey,
+    onSelectionChange,
   )
 
   const context = useMemo<ScatterChartContextValue>(
-    () => ({ config, isLoading: false, selectedDataKey, selectDataKey }),
-    [config, selectDataKey, selectedDataKey],
+    () => ({ config, isLoading, selectedDataKey, selectDataKey }),
+    [config, isLoading, selectDataKey, selectedDataKey],
   )
 
   return (
@@ -153,12 +174,19 @@ export function ScatterChart({
         description={description}
         className={className}
         table={table}
+        // An UNDECLARED table is not an empty one. The observations live on
+        // each `<Scatter>`, so a chart that never declared its rows is a chart
+        // this cannot speak for — swapping its plot for "no data" would be a
+        // worse lie than the one being fixed.
+        isEmpty={!isLoading && !!table && table.rows.length === 0}
+        empty={empty}
       >
         <ChartContainer config={config}>
           <RechartsScatterChart id={chartId} accessibilityLayer margin={CHART_MARGIN} {...chartProps}>
             {children}
           </RechartsScatterChart>
         </ChartContainer>
+        <LoadingIndicator isLoading={isLoading} />
       </ChartFigure>
     </ScatterChartContext.Provider>
   )
