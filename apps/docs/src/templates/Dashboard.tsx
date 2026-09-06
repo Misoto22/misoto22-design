@@ -9,10 +9,18 @@ import {
   CardHeader,
   CardTitle,
   FigureBand,
-  NavItem,
   Progress,
   Select,
   SelectItem,
+  Sidebar,
+  SidebarBranch,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarItem,
+  SidebarProvider,
+  SidebarTrigger,
   StatusPill,
   TBody,
   TD,
@@ -27,7 +35,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from '@misoto22/design'
-import { Activity, Boxes, Home, Settings } from 'lucide-react'
+import { Activity, Boxes, Cloud, Home, Settings } from 'lucide-react'
 import { useState } from 'react'
 
 const DEPLOYS = [
@@ -53,27 +61,59 @@ export function Dashboard() {
   const [range, setRange] = useState('30')
 
   return (
-    <div className="grid min-h-[36rem] grid-cols-1 @3xl:grid-cols-[13rem_minmax(0,1fr)]">
-      <aside className="hidden flex-col gap-1 border-e border-(--rule) p-3 @3xl:flex">
-        <div className="flex items-center gap-2 px-3 pb-3">
+    // `shortcut={null}`: this rail is a picture on somebody else's page, and a
+    // template that grabbed Cmd+B would toggle a sidebar the reader cannot see
+    // while they were trying to use the one they can.
+    <SidebarProvider collapsible="icon" shortcut={null}>
+    <div className="flex min-h-[36rem]">
+      <Sidebar label="Console" className="hidden @3xl:flex">
+        <SidebarHeader>
           <Avatar alt="" fallback="M" size="sm" />
-          <span className="font-heading text-[15px] text-(--ink)">Console</span>
-        </div>
-        <NavItem href="#overview" icon={Home} active>
-          Overview
-        </NavItem>
-        <NavItem href="#deploys" icon={Boxes}>
-          Deploys
-        </NavItem>
-        <NavItem href="#activity" icon={Activity}>
-          Activity
-        </NavItem>
-        <NavItem href="#settings" icon={Settings}>
-          Settings
-        </NavItem>
-      </aside>
+          <span className="truncate font-heading text-[15px] text-(--ink)">Console</span>
+          <SidebarTrigger className="ms-auto" />
+        </SidebarHeader>
 
-      <div className="flex min-w-0 flex-col">
+        <SidebarContent>
+          <SidebarGroup label="Monitor" count={3} collapsible={false}>
+            <SidebarItem href="#overview" icon={Home} active>
+              Overview
+            </SidebarItem>
+            <SidebarItem href="#deploys" icon={Boxes} trailing="4">
+              Deploys
+            </SidebarItem>
+            <SidebarItem href="#activity" icon={Activity}>
+              Activity
+            </SidebarItem>
+          </SidebarGroup>
+
+          {/* An environment CONTAINS services, so it is a branch and not a
+              heading: it is somewhere you can be, and it carries an icon and a
+              state the way its children do. */}
+          <SidebarGroup label="Environments" count={2}>
+            <SidebarBranch label="Production" icon={Cloud} defaultOpen>
+              <SidebarItem href="#prod-web" icon={Boxes}>
+                web
+              </SidebarItem>
+              <SidebarItem href="#prod-api" icon={Boxes}>
+                api
+              </SidebarItem>
+            </SidebarBranch>
+            <SidebarBranch label="Staging" icon={Cloud}>
+              <SidebarItem href="#staging-web" icon={Boxes}>
+                web
+              </SidebarItem>
+            </SidebarBranch>
+          </SidebarGroup>
+        </SidebarContent>
+
+        <SidebarFooter>
+          <SidebarItem href="#settings" icon={Settings}>
+            Settings
+          </SidebarItem>
+        </SidebarFooter>
+      </Sidebar>
+
+      <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex flex-wrap items-center justify-between gap-3 border-b border-(--rule) px-5 py-3">
           <StatusPill>All systems normal</StatusPill>
           <div className="flex items-center gap-2">
@@ -169,5 +209,6 @@ export function Dashboard() {
         </div>
       </div>
     </div>
+    </SidebarProvider>
   )
 }

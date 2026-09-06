@@ -5,7 +5,6 @@ import {
   Button,
   Kbd,
   LinkArrow,
-  NavItem,
   Separator,
   Steps,
   TBody,
@@ -15,6 +14,13 @@ import {
   TR,
   Table,
   Tag,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarItem,
+  SidebarProvider,
+  SidebarTrigger,
 } from '@misoto22/design'
 import { BookOpen, Layers, Package, Terminal } from 'lucide-react'
 
@@ -32,6 +38,27 @@ const CONTENTS = [
   { id: 'lifecycle', text: 'What happens after', level: 2 },
   { id: 'failure', text: 'When it throws', level: 2 },
 ]
+
+/**
+ * "1", "2" for sections and "1.1" beneath, computed once.
+ *
+ * Written out rather than derived inside the map: the same sum inside the JSX
+ * was a scan of the whole list per row, and a reader trying to follow the
+ * numbering had to read a filter inside a findLastIndex to see what it counted.
+ */
+const NUMBERS: string[] = (() => {
+  let major = 0
+  let minor = 0
+  return CONTENTS.map((item) => {
+    if (item.level === 2) {
+      major += 1
+      minor = 0
+      return String(major)
+    }
+    minor += 1
+    return `${major}.${minor}`
+  })
+})()
 
 const OPTIONS = [
   {
@@ -94,24 +121,30 @@ const OPTIONS = [
  */
 export function DocsShell() {
   return (
-    <div className="grid min-h-[38rem] grid-cols-1 @3xl:grid-cols-[13rem_minmax(0,1fr)] @5xl:grid-cols-[13rem_minmax(0,1fr)_12rem]">
-      <aside className="hidden flex-col gap-1 border-e border-(--rule) p-3 @3xl:flex">
-        <div className="flex items-baseline gap-2 px-3 pb-3 pt-2">
+    <SidebarProvider collapsible="icon" shortcut={null}>
+    <div className="flex min-h-[38rem]">
+      <Sidebar label="Reference" className="hidden @3xl:flex">
+        <SidebarHeader>
           <span className="font-heading text-[15px] text-(--ink)">Ferry</span>
           <span className="mono-meta text-(--ink-3-aa)">v2.4</span>
-        </div>
-        {SIDEBAR.map((item) => (
-          <NavItem key={item.href} href={item.href} icon={item.icon} active={item.active}>
-            {item.label}
-          </NavItem>
-        ))}
-        <Separator className="my-3" />
-        <p className="m-0 px-3 text-[13px] leading-relaxed text-(--ink-3-aa)">
-          Reference for 2.4. The 1.x pages are still published and marked as such.
-        </p>
-      </aside>
+          <SidebarTrigger className="ms-auto" />
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup label="Reference" count={SIDEBAR.length} collapsible={false}>
+            {SIDEBAR.map((item) => (
+              <SidebarItem key={item.href} href={item.href} icon={item.icon} active={item.active}>
+                {item.label}
+              </SidebarItem>
+            ))}
+          </SidebarGroup>
+          <Separator className="my-1" />
+          <p className="m-0 px-3 text-[13px] leading-relaxed text-(--ink-3-aa)">
+            Reference for 2.4. The 1.x pages are still published and marked as such.
+          </p>
+        </SidebarContent>
+      </Sidebar>
 
-      <article className="flex min-w-0 flex-col gap-7 px-6 py-8">
+      <article className="flex min-w-0 flex-1 flex-col gap-7 px-6 py-8">
         <div className="flex flex-col gap-3">
           {/* Named, not left on the default: the page this renders inside has
               a trail of its own, and two navigation landmarks both called
@@ -265,22 +298,36 @@ export function DocsShell() {
         </nav>
       </article>
 
-      <nav aria-label="On this page" className="max-@5xl:hidden border-s border-(--rule) p-6">
-        <div className="sticky top-6 flex flex-col gap-2">
-          <span className="eyebrow text-(--ink-3-aa)">On this page</span>
-          {CONTENTS.map((item) => (
-            <a
-              key={item.id}
-              href={`#${item.id}`}
-              className={`text-[13px] leading-snug text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:text-(--ink) ${
-                item.level === 3 ? 'ps-3' : ''
-              }`}
-            >
-              {item.text}
-            </a>
-          ))}
+      {/* Numbered, and at the size of a row rather than of a footnote — the
+          same shape the site's own contents rail settled on. An outline whose
+          entries are smaller than everything they point at reads as small
+          print beside the document rather than as a map of it. */}
+      <nav
+        aria-label="On this page"
+        className="w-48 shrink-0 border-s border-(--rule) p-6 max-@5xl:hidden"
+      >
+        <div className="sticky top-6 flex flex-col">
+          <p className="m-0 mb-3 eyebrow text-(--ink-3-aa)">On this page</p>
+          <ul className="m-0 flex list-none flex-col border-s border-(--rule) p-0">
+            {CONTENTS.map((item, index) => (
+              <li key={item.id}>
+                <a
+                  href={`#${item.id}`}
+                  className={`flex items-baseline gap-2.5 leading-snug text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:text-(--ink) ${
+                    item.level === 3 ? 'py-1.5 ps-8 text-[13px]' : 'py-2 ps-4 text-sm'
+                  }`}
+                >
+                  <span aria-hidden className="mono-meta shrink-0 text-[11px] tabular-nums">
+                    {NUMBERS[index]}
+                  </span>
+                  <span>{item.text}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
       </nav>
     </div>
+    </SidebarProvider>
   )
 }
