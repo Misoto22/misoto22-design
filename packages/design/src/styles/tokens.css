@@ -19,8 +19,22 @@
    holds the two in sync.
    ========================================================================== */
 
+/* `[data-surface='paper']` is the surface axis's own default, WRITTEN. Every
+   other axis value has a name; this one was "leave the attribute off", which
+   works exactly once — at the root. A subtree cannot say "the White Reset"
+   inside a page whose root is warm, so five theme specimens on one page each
+   inherited whichever surface the reader had applied to the site and every one
+   of them showed the same colours. Naming the default is what lets a subtree
+   opt out of an ancestor's theme rather than only into a different one.
+
+   It sits on the ROOT's own rule rather than restating the values, so there is
+   nothing here to drift. Specificity ties with `[data-surface='warm']` in
+   themes.css and loses on source order, which is correct: a wrapper that says
+   `warm` does not match this selector at all. */
 :root,
-[data-mode='light'] {
+[data-mode='light'],
+[data-surface='paper'],
+[data-rules='hairline'] {
   --paper: #ffffff;
   --paper-2: #f7f7f5;
   --bar: var(--stone);
@@ -132,7 +146,12 @@
   color-scheme: light;
 }
 
-[data-mode='dark'] {
+/* The dark half of the same reset. Without it, `paper` inside a dark page
+   would match the light rule above and light up one specimen in the middle of
+   a dark gallery. */
+[data-mode='dark'],
+[data-mode='dark'] [data-surface='paper'],
+[data-mode='dark'] [data-rules='hairline'] {
   --paper: #0d0d0d;
   --paper-2: #161616;
   --bar: var(--stone);
@@ -322,7 +341,11 @@
   --radius-frame: calc(var(--radius-lg) + 1rem * var(--radius-gate)); /* a frame 16px outside a panel */
 }
 
-:root {
+/* `comfortable` is the density axis's default, and it is named here for the
+   same reason `paper` is above: a subtree inside a compact page has no other
+   way to say "the normal size". */
+:root,
+[data-density='comfortable'] {
   /* ─── Density ────────────────────────────────────────────────────────────
      The second theming axis, and the only other one. Light/dark swaps colour;
      density swaps the size of anything a finger or a pointer has to hit.
