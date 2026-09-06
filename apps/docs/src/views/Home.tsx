@@ -7,7 +7,7 @@ import { COMPONENTS, groupedComponents } from '@/content/registry'
 import { foundationCopy, groupName, PAGE_ZH } from '@/i18n/content'
 import { localePath, type Locale } from '@/i18n/locales'
 import { fill, getMessages } from '@/i18n/messages'
-import { radiusSteps, snippet, tokenCount } from '@/lib/docs'
+import { radiusSteps, snippet, tokenCount, WARNING_CODES } from '@/lib/docs'
 
 const EN = {
   eyebrow: 'misoto22 design',
@@ -166,8 +166,11 @@ export function Home({ locale }: { locale: Locale }) {
               {t.agents.installedTitle}
             </h3>
             <CodeBlock {...snippet('agent')} label="agent" />
-            <p className="m-0 text-sm leading-relaxed text-(--ink-3-aa)">{t.agents.installed}</p>
+            <p className="m-0 text-sm leading-relaxed text-(--ink-3-aa)">
+              {fill(t.agents.installed, { count: COMPONENTS.length })}
+            </p>
             <p className="m-0 text-sm leading-relaxed text-(--ink-3-aa)">{t.agents.skill}</p>
+            <p className="m-0 text-sm leading-relaxed text-(--ink-3-aa)">{t.agents.skillsAdd}</p>
           </div>
 
           <div className="flex flex-col gap-3">
@@ -193,6 +196,25 @@ export function Home({ locale }: { locale: Locale }) {
               ))}
             </ul>
           </div>
+        </div>
+
+        {/* The codes are read from the package's own emitted catalog, not
+            listed here. A hand-kept copy of someone else's constants is how
+            this section came to be three features behind twice already. */}
+        <div className="flex flex-col gap-3 border-t border-(--rule) pt-5">
+          <h3 className="m-0 font-heading text-[length:var(--fs-item)] text-(--ink)">
+            {t.agents.warningsTitle}
+          </h3>
+          <p className="m-0 max-w-(--w-reading) text-sm leading-relaxed text-(--ink-3-aa)">
+            {t.agents.warnings}
+          </p>
+          <ul className="m-0 flex list-none flex-wrap gap-x-4 gap-y-1 p-0">
+            {WARNING_CODES.map((code) => (
+              <li key={code} className="font-mono text-[13px] text-(--ink-2)">
+                {code}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
     </div>
