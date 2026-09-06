@@ -86,3 +86,86 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm build
 New or changed behaviour needs a test that exercises the real boundary — see
 `Field.test.tsx` for the shape: it asserts what a screen reader receives, not
 which classes were emitted.
+
+## Charts
+
+Everything above holds. What a chart adds, and why:
+
+- **Its own directory tree and its own entry.** `packages/design/src/charts`, shipped
+  as `@misoto22/design/charts`. Charts need a rendering engine (`recharts`) and an
+  animation runtime (`motion`); both are optional peer dependencies, so an app that
+  renders a Badge does not pay for them. `check-size.mjs` measures the charts entry
+  separately, and the number appearing inside `everything` would mean charts have
+  leaked into the main barrel.
+- **`title` is required, like `Table.caption`.** It names the figure whether or not
+  it is printed. A plot with no name announces nothing.
+- **The rows ship twice.** Every chart also renders its data as a visually hidden
+  table, built from the same rows the marks are drawn from. `hideDataTable` opts
+  out, and is only correct when the page prints the data itself.
+- **Texture first, ramp second.** The default series palette is neutral (see the
+  `--series-*` block in `tokens.css`), so a chart with more than one series varies
+  its FILL VARIANT before anything else. That ordering is what survives greyscale
+  print, forced colours, and a colour-blind reader. `data-chart-palette="chroma"`
+  swaps in a validated hue palette for a consumer who needs one; a hand-picked
+  `colors` array is the last resort, not the first.
+- **A translucent mark reads `--chart-fill` / `--chart-texture`, never a
+  literal.** They are the only pair in the token layer that holds a different
+  number on each ground, and they have to: ink at 14% over paper is a legible
+  band, and paper-white at 14% over near-black is nothing. Every literal opacity
+  in a fill is a mark that will be invisible in one of the two modes.
+- **A background plate is bounded to the plot, not to the SVG.** Recharts puts
+  the axes inside the same `<svg>`, so a plate sized to the surface runs under
+  the tick labels. `usePlotArea()` is where that bound comes from.
+- **Not everything needs an engine.** `Heatmap` is a `<table>` with weighted
+  cells, `Sparkline` is one `<path>`, `BarList` is a two-column table,
+  `BulletChart` is a stack of tracks and `BigNumber` is text; all five work with
+  `recharts` absent, and all five sit under `Data` in the sidebar rather than
+  under `Charts` for exactly that reason. Reach for a rendering engine when the
+  form actually needs one.
+- **Optional chrome must not be a mandatory dependency.** A cartesian root
+  statically reaches its brush, its zoom surface, its toolbar and its export
+  path whether or not the page composes them, so a UI component added to one of
+  those is shipped by every consumer of every chart. The toolbar is capped at
+  five controls and has no overflow menu for that reason, and its hover hints
+  come off the native `title` rather than the system's `Tooltip`. `check-size`'s
+  `one cartesian chart` budget is what catches the next one — the leaf-chart
+  budget cannot, because `Sparkline` reaches none of it.
+- **Annotations stack in one fixed order**, and `ANNOTATION_LAYER` is where it
+  is written down: a band behind the grid, a line above the marks, a note above
+  both. A band over its own gridlines reads as a second surface; a reference
+  line behind a bar is a reference nobody can check.
+- **Say what the form HIDES, not only what it shows.** The statistical family
+  each carries one: a box plot cannot tell one hump from two and draws six
+  points like six thousand, a histogram's shape is a property of its bin width,
+  a bullet's bands are a judgement in the same ink as the measurement, and a
+  waterfall's connectors imply a sequence most breakdowns do not have. That
+  belongs in the component's own doc comment, where the person composing it
+  reads it, rather than in a footnote on the page.
+- **Small multiples share a domain by default.** On independent scales a group
+  peaking at 40 and one peaking at 4,000 draw the same shape, so the comparison
+  the reader came for is not merely lost but inverted. `Facet` makes the shared
+  domain the default and an independent one an explicit choice.
+- **A chart must have an empty state.** `data: []` renders `ChartEmpty`, not a
+  bare pair of axes — an empty plot is indistinguishable from a failed load, and
+  the reader's next move is to reload a page that was fine.
+- **Forced colours are handled in `tokens.css`, not per component.** Browsers
+  remap HTML colours automatically and do not reach inside SVG, so the chart
+  tokens are re-pointed at system keywords under
+  `@media (forced-colors: active)`. The eight-step ramp collapses to one colour
+  there, which the system survives only because texture is the primary encoding
+  — that block is where that decision gets cashed.
+- **A number a reader has to decode is a defect.** Axes carry `label`, values
+  carry `formatNumber`, and a series that needs its figures read carries
+  `<Chart.Values>` — selectively. A number on every point is the most common
+  way a chart is spoiled.
+- **Colour by entity, never by rank.** A series takes its ramp slot from its
+  position in the config, so hiding one never repaints the survivors.
+- **Consumer colours are a system boundary.** `ChartStyle` writes them into a
+  `<style>` element, so a value that is not a colour is rejected there rather than
+  injected. See `isSafeColor`.
+- **Motion is opted out of in JS, not only in CSS.** A reveal is an animated SVG
+  mask and a crawling dash is SMIL; `keyframes.css`'s reduced-motion rule reaches
+  neither, so every chart gates them on `useReducedMotion`.
+- **A chart directory needs a fixture in `src/charts/__tests__/surface.tsx`**, which
+  the axe and server-render suites iterate. `coverage.test.ts` beside it fails a
+  chart that has none, and `direction.test.ts` covers the chart sources too.

@@ -113,3 +113,53 @@
   --mid: 1ms;
   --slow: 1ms;
 }
+
+/* ─── Chart palette ────────────────────────────────────────────────────────
+   The one axis that adds hue back, and the only sanctioned way to do it.
+
+   The White Reset's default series ramp is neutral (see tokens.css): texture
+   carries identity, lightness supports it. That is right for a console whose
+   whole page is monochrome, and wrong for a chart that has to sit beside a
+   product whose users already read its categories by colour. So rather than
+   leave that consumer hand-picking hexes into a `colors` config — which is
+   where an unvalidated, colour-blind-hostile palette gets born — the system
+   ships one, as an attribute, on the same terms as every other theme here.
+
+   These eight hues are a validated categorical set: adjacent-pair separation
+   ΔE 9.1 light / 8.4 dark under simulated protanopia, ΔE 19.6 / 19.3 with
+   normal vision (OKLab ×100), every step inside its mode's lightness band and
+   above the chroma floor, and every dark step at or above 3:1 on the dark
+   ground. The ORDER is the safety mechanism, not decoration — re-ordering
+   these values re-opens every adjacency and invalidates the numbers above.
+
+   Three light steps (aqua, yellow, magenta) sit below 3:1 on paper. That is a
+   documented relief case rather than a defect: a chart using more than two
+   series must show its legend, and `Chart.Legend` is required above one
+   series for exactly this reason.
+
+   Scoped to any container, like every other axis:
+     <div data-chart-palette="chroma"> */
+
+[data-chart-palette='chroma'] {
+  --series-1: #2a78d6; /* blue */
+  --series-2: #eb6834; /* orange */
+  --series-3: #1baf7a; /* aqua */
+  --series-4: #eda100; /* yellow */
+  --series-5: #e87ba4; /* magenta */
+  --series-6: #008300; /* green */
+  --series-7: #4a3aa7; /* violet */
+  --series-8: #e34948; /* red */
+}
+[data-mode='dark'][data-chart-palette='chroma'],
+[data-mode='dark'] [data-chart-palette='chroma'] {
+  /* The same eight hues re-stepped for the dark ground — not an inversion and
+     not a second palette. Law 8 holds: the names swap, the roles do not. */
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #008300;
+  --series-7: #9085e9;
+  --series-8: #e66767;
+}

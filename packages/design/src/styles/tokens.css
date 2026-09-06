@@ -76,6 +76,59 @@
 
   --shadow-offset: var(--clay);
 
+  /* ─── Data ───────────────────────────────────────────────────────────────
+     The series ramp a chart paints with, and the one place the White Reset
+     has to answer a question a monochrome system would rather not be asked:
+     how do you tell six lines apart with no hue left to spend?
+
+     The answer is that hue was never the primary carrier here — TEXTURE is.
+     Every chart primitive ships a fill variant (hatched, dotted, lines,
+     stripped, duotone) and the series ramp below is the SECOND encoding, not
+     the first. That ordering is what makes the set legible to a colour-blind
+     reader, in greyscale print, and under forced-colours, none of which a
+     hue-first categorical palette survives.
+
+     The eight steps are interleaved rather than sequential — light, dark,
+     light, dark — so neighbouring series sit as far apart on the lightness
+     ramp as eight steps allow. Adjacent separation is ΔE 21.0 (OKLab ×100)
+     against a 15 floor, and every step clears 3:1 on its own ground.
+
+     Two checks a chromatic palette would pass fail here BY DESIGN, and are
+     stated rather than hidden: the chroma floor (these are greys) and the
+     lightness band (--series-1 is ink, and ink is the darkest mark the system
+     has). Texture plus a legend is the relief, and both are mandatory —
+     `Chart.Legend` is not optional above one series.
+
+     A consumer who genuinely needs hue does not hand-pick hexes: it sets
+     `data-chart-palette="chroma"` (see themes.css), which re-points these
+     eight names onto a categorical palette validated against both grounds. */
+  --series-1: #101010;
+  --series-2: #565656;
+  --series-3: #202020;
+  --series-4: #6a6a6a;
+  --series-5: #313131;
+  --series-6: #7e7e7e;
+  --series-7: #434343;
+  --series-8: #939393;
+  /* The empty ground a part-of-whole mark is drawn against — the unfilled
+     remainder of a radial bar, the track behind a gauge. Not --rule: a track
+     is a field, and a field that reads as a hairline disappears at radius. */
+  --series-track: #eeece7;
+
+  /* How solid a translucent mark is, and the one pair of tokens in the file
+     that is NOT the same number on both grounds.
+
+     A wash is `ink at N% over the page`. On paper, ink at 14% lands around
+     #e3e3e3 — a legible, recessive band. Run the same 14% the other way and
+     paper-white over near-black lands around #2c2c2c, which on a #0d0d0d
+     ground is not a band, it is nothing. Perceived lightness is not linear and
+     the two directions do not meet in the middle, so a single number cannot
+     serve both: the dark side needs roughly twice the alpha to read as the
+     same weight of mark. Every area fill, texture and flow band in the chart
+     package reads these rather than carrying its own literal. */
+  --chart-fill: 0.14;
+  --chart-texture: 0.42;
+
   color-scheme: light;
 }
 
@@ -116,6 +169,19 @@
   --on-red: var(--paper);
 
   --shadow-offset: var(--clay);
+
+  --series-1: #f4f4f2;
+  --series-2: #9b9b9b;
+  --series-3: #dddddd;
+  --series-4: #868686;
+  --series-5: #c7c7c7;
+  --series-6: #727272;
+  --series-7: #b0b0b0;
+  --series-8: #636363;
+  --series-track: #232323;
+
+  --chart-fill: 0.3;
+  --chart-texture: 0.72;
 
   color-scheme: dark;
 }
@@ -320,4 +386,56 @@
    compact — a dashboard often wants a dense grid inside comfortable chrome. */
 [data-table-density='compact'] {
   --table-pad-y: 0.5rem;
+}
+
+/* ==========================================================================
+   FORCED COLOURS
+   --------------------------------------------------------------------------
+   What a chart does when the reader has taken the palette away.
+
+   Windows High Contrast (and any forced-colours mode) remaps CSS colours to a
+   small set of system keywords. It does that for HTML automatically — a
+   tooltip's border and ground are handled without us — but it does NOT reach
+   inside SVG: Chrome and Edge ship `forced-color-adjust: none` on SVG by
+   default, and a gradient paint server is not something a browser can remap
+   even where it tries. So a chart that says nothing here keeps painting its
+   greys onto a black ground, and the reader's setting is quietly ignored.
+
+   The eight-step ramp collapses to one colour, because forced-colours has one
+   colour to give. That would be fatal to a system where hue carried identity,
+   and is survivable here for the reason the ramp is second in the first place:
+   TEXTURE is the primary encoding, and a hatch is still a hatch when every
+   series is CanvasText. This block is where that design decision gets cashed.
+
+   Scoped to the chart tokens on purpose. Restyling every component's rules and
+   surfaces from here would be a system-wide change wearing a chart fix.
+   ========================================================================== */
+
+@media (forced-colors: active) {
+  :root,
+  [data-mode='light'],
+  [data-mode='dark'] {
+    --series-1: CanvasText;
+    --series-2: CanvasText;
+    --series-3: CanvasText;
+    --series-4: CanvasText;
+    --series-5: CanvasText;
+    --series-6: CanvasText;
+    --series-7: CanvasText;
+    --series-8: CanvasText;
+    --series-track: Canvas;
+
+    --chart-surface: Canvas;
+    --chart-grid: GrayText;
+    --chart-cursor: CanvasText;
+    --chart-axis: CanvasText;
+    --chart-track: Canvas;
+    --chart-pattern: GrayText;
+
+    /* Textures go to full strength — they are now the only thing separating
+       one series from another. The wash stays under half so two overlapping
+       areas still read as two. */
+    --chart-fill: 0.45;
+    --chart-texture: 1;
+  }
 }

@@ -54,6 +54,7 @@ function parseBody(body) {
  * unrecognised one lands in `other`, visibly, rather than vanishing.
  */
 function classify(name, value) {
+  if (/^(series-|chart-)/.test(name)) return 'data'
   if (/^(control-|field-)/.test(name)) return 'density'
   if (/^(fs-|sans|serif|mono|cjk-|lh-|ls-)/.test(name)) return 'type'
   if (/^radius/.test(name)) return 'radius'

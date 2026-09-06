@@ -13,14 +13,28 @@
  * `registry.test.ts` rather than by a blank page.
  */
 
+/**
+ * The sidebar's order, and it is an argument rather than an alphabet: a reader
+ * arrives wanting to DO something, then to move, then to be interrupted, then
+ * to be told what happened — and only after all of that to arrange and to
+ * display. Alphabetical would put Actions beside Charts and call it a
+ * taxonomy.
+ *
+ * `Data` and `Charts` are two groups rather than one, and the line between
+ * them is not cosmetic: everything in `Charts` needs the `recharts` peer
+ * dependency, and nothing in `Data` does. A reader who cannot add a rendering
+ * engine can still use every entry in the first of the two.
+ */
 export const GROUPS = [
   'Actions',
-  'Display',
-  'Feedback',
   'Forms',
-  'Overlays',
   'Navigation',
+  'Overlays',
+  'Feedback',
+  'Display',
   'Surfaces',
+  'Data',
+  'Charts',
 ] as const
 
 export type ComponentGroup = (typeof GROUPS)[number]
@@ -28,7 +42,7 @@ export type ComponentGroup = (typeof GROUPS)[number]
 export interface ComponentEntry {
   /** URL segment. */
   slug: string
-  /** Directory under packages/design/src/components — the generated-data key. */
+  /** Directory under packages/design/src/components or src/charts — the generated-data key. */
   dir: string
   /** Display name. */
   name: string
@@ -541,7 +555,7 @@ export const COMPONENTS: ComponentEntry[] = [
     slug: 'table',
     dir: 'Table',
     name: 'Table',
-    group: 'Surfaces',
+    group: 'Data',
     summary: 'A ruled data table — alignment, sorting and rules all per column.',
     when: 'Alignment is per column and numbers belong at the end edge, so digits line up. Sorting is opt-in per column: a table where every header is a button invites sorting a column the data cannot be ordered by.',
     accessibility: [
@@ -792,6 +806,325 @@ export const COMPONENTS: ComponentEntry[] = [
       { keys: ['Tab'], does: 'Moves focus into the region, which is what makes it scrollable at all without a mouse.' },
       { keys: ['↑', '↓', 'Page Up', 'Page Down'], does: 'Scrolls it.' },
     ],
+  },
+
+  // ─── Charts ───
+  // Every entry below ships from `@misoto22/design/charts`, with recharts and
+  // motion as peer dependencies, and reads the series ramp in tokens.css rather
+  // than defining a colour of its own. Heatmap and Sparkline are the exceptions
+  // and sit under Data, because neither needs an engine.
+  {
+    slug: 'area-chart',
+    dir: 'AreaChart',
+    name: 'AreaChart',
+    group: 'Charts',
+    summary: 'A filled series over a continuous axis, where the area means something.',
+    when: 'Reading one magnitude over time. Comparing several series against each other is a LineChart — four translucent fills stacked on each other answer neither question.',
+    accessibility: [
+      'title is required and becomes the figure’s accessible name, printed or not.',
+      'The rows are rendered again as a visually hidden table, so the numbers are reachable rather than only drawn. hideDataTable opts out when the page already prints them.',
+      'Six fill variants exist because in the monochrome default TEXTURE is the primary carrier of identity and the grey ramp is the second — which is also what keeps two series apart in greyscale print and under forced colours.',
+      'The intro reveal is a per-frame SVG mask and is dropped entirely under prefers-reduced-motion, as is the crawling dash.',
+    ],
+    related: ['line-chart', 'bar-chart', 'composed-chart'],
+    keyboard: [
+      { keys: ['Tab'], does: 'Reaches the plot, which Recharts’ accessibility layer makes navigable.' },
+      { keys: ['←', '→'], does: 'Moves the cursor between points, announcing each.' },
+    ],
+    previewHeight: 'min-h-[22rem]',
+  },
+  {
+    slug: 'bar-chart',
+    dir: 'BarChart',
+    name: 'BarChart',
+    group: 'Charts',
+    summary: 'Discrete categories compared by length.',
+    when: 'The categories are buckets rather than a continuum. If the axis is time and the reader is following a trend, an AreaChart or LineChart reads it faster.',
+    accessibility: [
+      'title is required; the rows are also rendered as a visually hidden table.',
+      'Every bar carries an invisible full-height hit rectangle, so a 3px bar at the bottom of the scale is as easy to hit as a full-height one.',
+      'A clickable legend entry is a real button with aria-pressed, not a div with a click handler.',
+      'The staggered grow-in is anchored to the chart’s own start rather than to each bar’s mount, so a hover cannot replay it — and reduce-motion drops it entirely.',
+    ],
+    related: ['area-chart', 'composed-chart', 'radial-chart'],
+    previewHeight: 'min-h-[22rem]',
+  },
+  {
+    slug: 'line-chart',
+    dir: 'LineChart',
+    name: 'LineChart',
+    group: 'Charts',
+    summary: 'Several series compared over a continuous axis.',
+    when: 'The reader is comparing series against each other. When the area under one line is the point, fill it — that is an AreaChart.',
+    accessibility: [
+      'title is required; the rows are also rendered as a visually hidden table.',
+      'A clickable line gets a 15px transparent line underneath it, because a 1.6px stroke is not a pointer target.',
+      'buffer draws the last segment dashed by measuring the real path length, so a projection is visibly a different kind of fact at any curve type.',
+    ],
+    related: ['area-chart', 'composed-chart'],
+    previewHeight: 'min-h-[22rem]',
+  },
+  {
+    slug: 'composed-chart',
+    dir: 'ComposedChart',
+    name: 'ComposedChart',
+    group: 'Charts',
+    summary: 'Bars and lines over one axis — the volume, and the rate it moved at.',
+    when: 'Two measures that share a scale. Two that do NOT share one belong in two charts or indexed to a common base: there is no second y-axis here, on purpose.',
+    accessibility: [
+      'title is required; the rows are also rendered as a visually hidden table.',
+      'One value axis only. A dual-axis chart lets its author choose where the lines cross, which is the single most misleading thing a chart can do.',
+      'enableHoverHighlight dims every bar outside the hovered column, driven by the chart’s own tooltip index.',
+    ],
+    related: ['bar-chart', 'line-chart'],
+    previewHeight: 'min-h-[22rem]',
+  },
+  {
+    slug: 'pie-chart',
+    dir: 'PieChart',
+    name: 'PieChart',
+    group: 'Charts',
+    summary: 'Parts of one whole.',
+    when: 'Roughly what share, and nothing more precise. Ranking or comparing wedges — especially across two pies — is a BarChart’s job.',
+    accessibility: [
+      'title is required; the rows are also rendered as a visually hidden table.',
+      'The legend sits under the pie by default, because a pie has no category axis naming its sectors.',
+      'Compose a Label to print the numbers on the wedges: a pie’s weakness is that an angle is hard to read, and a printed number removes the guess.',
+      'One fill variant, deliberately. A wedge is small and awkwardly shaped, and a texture inside one reads as noise.',
+    ],
+    related: ['radial-chart', 'bar-chart'],
+    previewHeight: 'min-h-[24rem]',
+  },
+  {
+    slug: 'radar-chart',
+    dir: 'RadarChart',
+    name: 'RadarChart',
+    group: 'Charts',
+    summary: 'A profile across several named dimensions.',
+    when: 'Recognising a silhouette. The area a radar encloses depends on the order its spokes happen to be in, so it is the wrong chart for comparing magnitudes.',
+    accessibility: [
+      'title is required; the rows are also rendered as a visually hidden table.',
+      'Two or three series at most: filled polygons overlap, and judging areas through two layers of translucency is what a radar is worst at. Past that, variant="lines".',
+    ],
+    related: ['line-chart', 'pie-chart'],
+    previewHeight: 'min-h-[24rem]',
+  },
+  {
+    slug: 'radial-chart',
+    dir: 'RadialChart',
+    name: 'RadialChart',
+    group: 'Charts',
+    summary: 'Values on an arc — a gauge, or a few totals against one scale.',
+    when: 'A single value against a fixed total. Past about four bars a BarChart is the honest choice, because a radial bar’s radius is not its value.',
+    accessibility: [
+      'title is required; pass valueKey and the rows are also rendered as a visually hidden table.',
+      'Set max or the scale comes from the data and the largest bar always fills the arc — which makes 62% and 98% look identical.',
+      'showTrack draws the unfilled remainder, which is what makes a gauge readable at all.',
+    ],
+    related: ['pie-chart', 'bar-chart'],
+    previewHeight: 'min-h-[24rem]',
+  },
+  {
+    slug: 'sankey-chart',
+    dir: 'SankeyChart',
+    name: 'SankeyChart',
+    group: 'Charts',
+    summary: 'Where a quantity goes as it moves through stages.',
+    when: 'A funnel, a budget, an energy or traffic breakdown. The only chart here whose data is a graph rather than a table.',
+    accessibility: [
+      'title is required. The hidden table lists the FLOWS rather than the nodes — a table of node totals would lose every “from → to” the diagram exists to show.',
+      'Four link variants: gradient reads as flow, source and target attribute a band to one end, solid gives up colour and lets the nodes carry identity.',
+    ],
+    related: ['bar-chart'],
+    previewHeight: 'min-h-[24rem]',
+  },
+
+  // ─── Charts (continued) ───
+  {
+    slug: 'scatter-chart',
+    dir: 'ScatterChart',
+    name: 'ScatterChart',
+    group: 'Charts',
+    summary: 'Two measures against each other, one mark per observation.',
+    when: 'Correlation, clustering, outliers — the questions that do not survive being bucketed into a bar. The only chart here whose x axis is a number rather than a category.',
+    accessibility: [
+      'title is required. The table view is declared rather than inferred: scatter data lives on each series, so there is no single set of rows to read off the root.',
+      'Shape does the work hue does elsewhere. Two overlapping clouds separate far better by circle-versus-cross than by two steps of grey — and shape survives overprinting, which a lightness step does not.',
+      'A solid mark carries a surface-coloured ring, so two observations that land on top of each other stay countable.',
+      'ZAxis maps its measure to a mark’s AREA, not its radius: doubling a radius quadruples the ink, which is the most common way a bubble chart lies.',
+    ],
+    related: ['line-chart', 'heatmap'],
+    previewHeight: 'min-h-[22rem]',
+  },
+  {
+    slug: 'funnel-chart',
+    dir: 'FunnelChart',
+    name: 'FunnelChart',
+    group: 'Charts',
+    summary: 'Stages that only ever narrow.',
+    when: 'A signup flow, a hiring pipeline, a checkout. When the flow can SPLIT rather than only shrink, it is a SankeyChart — a funnel has one path through it by construction.',
+    accessibility: [
+      'title is required; the stages are also rendered as a visually hidden table.',
+      'The taper encodes a ratio between neighbouring stages and the eye reads the enclosed area, so a funnel exaggerates a shallow drop. Compose a Label to print the numbers — that is the relief.',
+      'The default variant holds one fill for every stage and lets the shape carry the drop. A ramp that also darkens each stage encodes the same fact twice.',
+    ],
+    related: ['sankey-chart', 'bar-chart'],
+    previewHeight: 'min-h-[24rem]',
+  },
+  {
+    slug: 'treemap-chart',
+    dir: 'TreemapChart',
+    name: 'TreemapChart',
+    group: 'Charts',
+    summary: 'Part of a whole, when the whole has too many parts for a pie — and the parts nest.',
+    when: 'Fifty items where a pie fails at six. Under a dozen items with a ranking to read, a BarChart’s length is the more precise encoding.',
+    accessibility: [
+      'title is required. The table view lists the LEAVES with the path that names them: a nested tree read row by row is not something anyone can follow.',
+      'Area is the encoding, so the data must be non-negative and must sum to something the reader recognises as the whole.',
+      'The gap between tiles is a surface-coloured stroke rather than a smaller rect — a treemap whose parts do not touch stops reading as a partition.',
+    ],
+    related: ['pie-chart', 'bar-chart'],
+    previewHeight: 'min-h-[24rem]',
+  },
+
+  {
+    slug: 'box-plot',
+    dir: 'BoxPlot',
+    name: 'BoxPlot',
+    group: 'Charts',
+    summary: 'The spread of a measurement, per category.',
+    when: 'How variable is this, across six things at once. When the shape of ONE distribution is the question it wants a Histogram; when there are few enough observations to draw them all, a ScatterChart.',
+    accessibility: [
+      'A box is five numbers, and five numbers cannot tell one hump from two. A bimodal distribution draws exactly the same box as a smooth one centred in the same place — the component says so in its own description rather than in a footnote.',
+      'It also hides sample size: a box over six points and a box over six thousand are drawn identically. Carry count, and turn on notched whenever medians are being compared.',
+      'Raw values are summarised with Tukey’s fences, which is stated on the page rather than assumed — a different fence rule draws different outliers from the same data.',
+      'The hidden data table carries all five numbers per category, so the figure is readable without seeing the glyph.',
+    ],
+    related: ['histogram', 'scatter-chart'],
+    previewHeight: 'min-h-[24rem]',
+  },
+  {
+    slug: 'histogram',
+    dir: 'Histogram',
+    name: 'Histogram',
+    group: 'Charts',
+    summary: 'The shape of one distribution.',
+    when: 'A single distribution has to be understood — two clusters, a hard floor, a pile-up at a timeout. Several distributions side by side want a BoxPlot.',
+    accessibility: [
+      'The shape is a property of the bin width, not only of the data: the same numbers cut into eight buckets and into eighty are two different pictures. The rule that drew it — Freedman–Diaconis by default — is named on the page.',
+      'The x axis is numeric and every bar is drawn from its own two edges, so an uneven bucket is as wide as it really is rather than flattened into an equal slot.',
+      'mode="density" corrects the trap uneven buckets create: under frequency a bucket twice as wide stands twice as tall at the same underlying rate.',
+      'The hidden data table prints each bucket’s two edges and its count, which is the only exact reading a binned chart can offer.',
+    ],
+    related: ['box-plot', 'bar-chart'],
+    previewHeight: 'min-h-[24rem]',
+  },
+  {
+    slug: 'waterfall-chart',
+    dir: 'WaterfallChart',
+    name: 'WaterfallChart',
+    group: 'Charts',
+    summary: 'How a total got from one figure to another.',
+    when: '“Why did this change”, where the contributions can be negative. A pie cannot hold a negative slice; a BarChart is right when the parts need not add up to the gap between two totals.',
+    accessibility: [
+      'The connectors draw the steps as a sequence, and most breakdowns are not sequential — churn and expansion in the same month are simultaneous, and a reader takes the leftmost bar as the first cause. Where the order is arbitrary, say so in description.',
+      'Intermediate bars are floating lengths read against no baseline, so a small step high up the cascade is hard to compare with a large one near zero. Total bars sit on the axis and are the only ones a reader can read absolutely.',
+      'Direction is carried by the label’s sign and the bar’s texture as well as its position, so the reading survives greyscale and forced colours.',
+      'A closing bar with no value is computed from the deltas, which keeps the arithmetic in the data rather than in the caller’s head.',
+    ],
+    related: ['bar-chart', 'funnel-chart'],
+    previewHeight: 'min-h-[24rem]',
+  },
+  {
+    slug: 'facet',
+    dir: 'Facet',
+    name: 'Facet',
+    group: 'Charts',
+    summary: 'The same chart once per group, on one shared scale.',
+    when: 'Eight series overplot into a hairball in one frame. Two or three series that genuinely need comparing point-for-point still belong in one chart.',
+    accessibility: [
+      'The shared domain is the default and the whole point: on independent scales a group peaking at 40 and one peaking at 4,000 draw the same shape, and the comparison the reader came for is not merely lost but inverted.',
+      'Every panel is a figure with its own accessible name, so a screen reader walks eight named charts rather than one unnamed grid.',
+      'Panels beyond max fold into a stated overflow rather than being dropped, and the count is printed — a grid silently missing four groups is not something a reader can detect.',
+      'Panel order is a choice the call site makes explicitly through sort, because reading order is what a reader takes as ranking.',
+    ],
+    related: ['line-chart', 'sparkline'],
+    previewHeight: 'min-h-[28rem]',
+  },
+
+  // ─── Data (continued) ───
+  {
+    slug: 'heatmap',
+    dir: 'Heatmap',
+    name: 'Heatmap',
+    group: 'Data',
+    summary: 'A grid of values read by weight.',
+    when: 'A calendar of activity, a confusion matrix, an hour-by-weekday load. The one form a monochrome system renders better than a chromatic one.',
+    accessibility: [
+      'A real <table>, not an SVG: the structure a screen reader walks is the structure the eye reads, and every cell announces its own row, column and value.',
+      'Lightness is the only channel that is unambiguously ordered, which is why the standing advice everywhere else is “one hue, light to dark”. Here there is no hue left to get wrong.',
+      'A null is drawn as a dashed outline, never as the palest cell — a missing reading is not a zero.',
+      'Pin domain whenever two grids are compared: on independent domains they look alike and mean different things, which is the one failure a shared legend cannot fix.',
+    ],
+    related: ['table', 'scatter-chart'],
+  },
+  {
+    slug: 'sparkline',
+    dir: 'Sparkline',
+    name: 'Sparkline',
+    group: 'Data',
+    summary: 'A run of numbers at the size of a word.',
+    when: 'In a table cell, beside a figure, at the end of a row. When the trend needs reading precisely it wants a LineChart and its own space.',
+    accessibility: [
+      'label is required and is the whole accessible name: a sparkline has no axes and no legend, so nothing else describes it.',
+      'Axis-less by design. Every piece of chrome that would let it answer “what value exactly” also makes it too big to sit inline, which was the only reason to reach for it.',
+      'Pin domain for a column of them: on independent domains every row peaks and troughs identically, which is how a table of sparklines becomes actively misleading.',
+      'One path, no rendering engine — so a hundred of them in a table cost nothing.',
+    ],
+    related: ['line-chart', 'table'],
+  },
+  {
+    slug: 'bar-list',
+    dir: 'BarList',
+    name: 'BarList',
+    group: 'Data',
+    summary: 'A ranked list, with the bar behind the name rather than beside it.',
+    when: 'Top referrers, slowest endpoints, biggest accounts. A horizontal BarChart spends a third of its width on an axis repeating labels the rows could simply contain.',
+    accessibility: [
+      'A real <table> with two columns and one row per thing, because that is what a ranked list is. The bar is a background on the name cell, so it is never a second element a screen reader has to walk past.',
+      'limit sums the tail into an “Other” row rather than dropping it — a top five that silently discards the other forty misstates the whole, and the reader has no way to tell.',
+      'Pin max to compare two lists side by side: on independent scales the leading row of each fills its track, and two very different numbers look identical.',
+    ],
+    related: ['bar-chart', 'table'],
+  },
+  {
+    slug: 'big-number',
+    dir: 'BigNumber',
+    name: 'BigNumber',
+    group: 'Data',
+    summary: 'One number, at the size of a headline.',
+    when: 'There is exactly one figure to report. A plot of a single value is a plot whose shape carries nothing, and the reader has to decode an axis to recover a number that could simply have been printed.',
+    accessibility: [
+      'The delta’s direction is stated by the call site through intent, never inferred from the sign: “errors down 12%” is good news and “revenue down 12%” is not, and no component can tell which it is holding.',
+      'The arrow and the words carry the direction; the status tint is the third signal, never the only one — so the reading survives greyscale, forced colours and colour blindness.',
+      'value is taken already formatted. The component does not guess a unit, a currency or a locale.',
+    ],
+    related: ['sparkline', 'figure-band'],
+  },
+  {
+    slug: 'bullet-chart',
+    dir: 'BulletChart',
+    name: 'BulletChart',
+    group: 'Data',
+    summary: 'A measure, its target, and the bands that say whether it is any good.',
+    when: 'A status page of ten tracked numbers. Stephen Few designed it to replace the dashboard gauge, which spends a whole card saying one number badly.',
+    accessibility: [
+      'Plain HTML with logical properties — no rendering engine, server-renderable, and correct in a right-to-left document. Usable with recharts absent.',
+      'The bands are a JUDGEMENT drawn in the same ink as the measurement, so the page has to say where they came from. Ranges that encode nothing but thirds make the chart look evaluated when it is not.',
+      'It shows one instant and no change over time; target is the only comparison it carries. “How did we get here” wants a LineChart.',
+      'Shared bands only mean something when the measures share a scale — a latency beside a conversion rate needs ranges and domain per measure.',
+    ],
+    related: ['bar-list', 'big-number'],
   },
 ]
 

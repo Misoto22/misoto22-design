@@ -3,12 +3,40 @@ import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const COMPONENTS = join(dirname(fileURLToPath(import.meta.url)), '..', 'components')
+const SRC = join(dirname(fileURLToPath(import.meta.url)), '..')
+
+/**
+ * Every source the rule applies to: one file per component directory, one per
+ * chart directory, and the charts' shared machinery — which draws the legend,
+ * the tooltip and the brush, and is therefore exactly where a physical utility
+ * would do the most damage.
+ */
+function paths(): { file: string; path: string }[] {
+  const found: { file: string; path: string }[] = []
+
+  const directories = (root: string) =>
+    readdirSync(root).filter((entry) => statSync(join(root, entry)).isDirectory())
+
+  for (const dir of directories(join(SRC, 'components'))) {
+    found.push({ file: `components/${dir}`, path: join(SRC, 'components', dir, `${dir}.tsx`) })
+  }
+
+  const charts = join(SRC, 'charts')
+  for (const dir of directories(charts).filter((entry) => entry !== '__tests__')) {
+    if (dir === 'lib') {
+      for (const file of readdirSync(join(charts, 'lib')).filter((name) => name.endsWith('.tsx'))) {
+        found.push({ file: `charts/lib/${file}`, path: join(charts, 'lib', file) })
+      }
+      continue
+    }
+    found.push({ file: `charts/${dir}`, path: join(charts, dir, `${dir}.tsx`) })
+  }
+
+  return found
+}
 
 function sources(): { file: string; text: string }[] {
-  return readdirSync(COMPONENTS)
-    .filter((entry) => statSync(join(COMPONENTS, entry)).isDirectory())
-    .map((dir) => ({ file: `${dir}/${dir}.tsx`, path: join(COMPONENTS, dir, `${dir}.tsx`) }))
+  return paths()
     .filter((entry) => {
       try {
         return statSync(entry.path).isFile()

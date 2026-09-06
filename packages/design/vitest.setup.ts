@@ -10,17 +10,40 @@ afterEach(() => {
 
 /**
  * jsdom implements no layout, so it ships none of the APIs that observe layout.
- * Radix's slider measures its thumb and cmdk measures its list; both reach for
- * `ResizeObserver` on mount and throw where it is missing.
+ * Radix's slider measures its thumb, cmdk measures its list, and Recharts'
+ * responsive container measures the box it is asked to fill; all three reach
+ * for `ResizeObserver` on mount and throw where it is missing.
  *
- * A stub that never fires is the right shape here rather than a real
- * implementation: these tests assert semantics — roles, names, keyboard
- * behaviour — and there is no layout to observe in this environment anyway.
- * Anything that genuinely depends on a measured size is checked in the browser
- * suite, where the real thing exists.
+ * The stub reports one fixed box, once, rather than never firing. That
+ * distinction is load-bearing for the chart suite: a container measured at
+ * zero renders NOTHING — no axes, no legend, no marks — so a suite running
+ * against a silent observer would have been asserting against an empty `<svg>`
+ * and passing. A fixed box is not real layout, and nothing here asserts
+ * geometry; it is the minimum that makes the markup exist to be checked.
  */
+const OBSERVED_BOX = { width: 640, height: 320 }
+
 class ResizeObserverStub implements ResizeObserver {
-  observe(): void {}
+  #callback: ResizeObserverCallback
+
+  constructor(callback: ResizeObserverCallback) {
+    this.#callback = callback
+  }
+
+  observe(target: Element): void {
+    const rect = { ...OBSERVED_BOX, top: 0, left: 0, bottom: OBSERVED_BOX.height, right: OBSERVED_BOX.width, x: 0, y: 0 }
+    const entry = {
+      target,
+      contentRect: rect as DOMRectReadOnly,
+      borderBoxSize: [{ inlineSize: OBSERVED_BOX.width, blockSize: OBSERVED_BOX.height }],
+      contentBoxSize: [{ inlineSize: OBSERVED_BOX.width, blockSize: OBSERVED_BOX.height }],
+      devicePixelContentBoxSize: [{ inlineSize: OBSERVED_BOX.width, blockSize: OBSERVED_BOX.height }],
+    } as unknown as ResizeObserverEntry
+    // Synchronously, because a chart's first paint depends on it and a test
+    // should not have to await a frame that jsdom never schedules.
+    this.#callback([entry], this)
+  }
+
   unobserve(): void {}
   disconnect(): void {}
 }
@@ -43,4 +66,21 @@ if (typeof Element !== 'undefined') {
   }
   Element.prototype.setPointerCapture ??= function setPointerCapture() {}
   Element.prototype.releasePointerCapture ??= function releasePointerCapture() {}
+}
+
+/**
+ * Recharts measures label widths through a 2D canvas context, and jsdom ships
+ * `<canvas>` without one — so every chart render printed a "not implemented"
+ * page of noise that buried whatever the suite was actually saying.
+ *
+ * Stubbed rather than installing `canvas`: the metric only decides where a tick
+ * label is placed, and there is no layout in this environment for it to be
+ * right about. A zero width is as true as any other number here, and the real
+ * measurement is exercised in the browser suite.
+ */
+if (typeof HTMLCanvasElement !== 'undefined') {
+  // Assigned, not `??=`: jsdom DOES define the method — it just throws.
+  HTMLCanvasElement.prototype.getContext = function getContext() {
+    return { measureText: () => ({ width: 0 }) } as unknown as CanvasRenderingContext2D
+  } as HTMLCanvasElement['getContext']
 }

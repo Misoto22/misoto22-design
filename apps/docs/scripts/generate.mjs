@@ -76,7 +76,14 @@ async function main() {
   )
 
   // ─── Props ───
-  const props = extractProps(join(DESIGN, 'src', 'components'))
+  // Two trees, one map. Charts live under their own directory and ship from
+  // their own entry point, but a reader does not care which barrel a thing
+  // came out of — and keying them together is what makes the registry test's
+  // "documents everything the package ships" cover charts as well.
+  const props = {
+    ...extractProps(join(DESIGN, 'src', 'components')),
+    ...extractProps(join(DESIGN, 'src', 'charts')),
+  }
   // Placed after the highlighter exists, below — see `highlightTypes`.
   writeFileSync(join(OUT, 'props.json'), JSON.stringify(props, null, 2))
 

@@ -118,6 +118,7 @@ const en = {
       type: 'Type',
       motion: 'Motion',
       density: 'Density',
+      chartPalette: 'Chart palette',
     },
     values: {
       paper: 'Paper', warm: 'Warm', cool: 'Cool',
@@ -126,6 +127,7 @@ const en = {
       editorial: 'Editorial', grotesk: 'Grotesk', bookish: 'Bookish',
       still: 'Still', calm: 'Calm', snappy: 'Snappy',
       comfortable: 'Comfortable', compact: 'Compact',
+      mono: 'Mono', chroma: 'Chroma',
     } as Record<string, string>,
     presets: {} as Record<string, { name: string; note: string }>,
     previewLabel: 'Theme preview',
@@ -253,6 +255,7 @@ const zh: Messages = {
       type: '字体',
       motion: '动效',
       density: '密度',
+      chartPalette: '图表色板',
     },
     values: {
       paper: '纸白', warm: '暖白', cool: '冷白',
@@ -261,6 +264,7 @@ const zh: Messages = {
       editorial: '书刊', grotesk: '无衬线', bookish: '通篇衬线',
       still: '静止', calm: '从容', snappy: '利落',
       comfortable: '宽松', compact: '紧凑',
+      mono: '单色', chroma: '彩色',
     },
     presets: {
       reset: { name: '白色重置', note: '系统出厂的样子。纸白底、细描边、衬线标题，强调色就是墨色。' },
