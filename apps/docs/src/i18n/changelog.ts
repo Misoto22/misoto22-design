@@ -32,6 +32,14 @@ import type { Locale } from './locales'
  * publish is what stops. See `docs/releasing.md`.
  */
 const ZH: Record<string, string> = {
+  // ─── 0.5.0 ───
+  [fingerprint('`AppShell` takes `sidebarLabel`, `navLabel`, `openLabel` and `closeLabel`.')]:
+    '`AppShell` 接受 `sidebarLabel`、`navLabel`、`openLabel` 和 `closeLabel`。',
+  [fingerprint(
+    'Both landmark names were hardcoded English. Two `complementary` landmarks with the same name cannot be told apart, which is exactly the pair a shell rendered inside another page makes — a preview, a screenshot harness — and it was the only part of the component a non-English app could not translate.',
+  )]:
+    '两个地标的名字之前都是写死的英文。两个同名的 `complementary` 地标是无法区分的，而一个渲染在另一个页面内部的外壳——一个预览、一套截图夹具——造出来的恰好就是这一对；这也是这个组件里唯一一处非英语应用翻译不了的地方。',
+
   // ─── 0.4.0 ───
   [fingerprint('One radius ladder driven by one factor, a calendar that picks a month in place of the grid, a reading surface for long-form content, and a numbered rail for the sequences a diagram should not be drawing.')]:
     '一条由单一系数驱动的圆角阶梯、一个用月份网格就地替换日期网格的日历、一个长文阅读版面，以及一条带编号的轨道——那些本来就不该用图去画的顺序。',
