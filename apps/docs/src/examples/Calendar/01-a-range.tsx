@@ -14,8 +14,8 @@ import { useState } from 'react'
  * arrows. Open it and the month and year picker is drawn in place of the grid,
  * at exactly its size, with Escape putting focus back on the caption.
  *
- * `labels.labelNav` names the month arrows' toolbar. Left alone every calendar
- * on a page is a `nav` called "Navigation bar" — react-day-picker's own string
+ * labels.labelNav names the month arrows' toolbar. Left alone every calendar
+ * on a page is a nav called "Navigation bar" — react-day-picker's own string
  * — and three examples on one page are three landmarks nobody can tell apart.
  */
 export function Example() {

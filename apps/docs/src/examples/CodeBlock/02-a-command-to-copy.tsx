@@ -7,7 +7,7 @@ import { CodeBlock } from '@misoto22/design'
  * least able to select a wrapped command by hand. What it copies is the code
  * string, so nothing about the rendering can end up on the clipboard.
  *
- * `label` rather than `title`, because the block stays bare: the name is for
+ * label rather than title, because the block stays bare: the name is for
  * the scroll region, not for a header strip. Two blocks side by side both fall
  * back to "Code" without it, and two regions sharing one name are two landmarks
  * a reader cannot tell apart.

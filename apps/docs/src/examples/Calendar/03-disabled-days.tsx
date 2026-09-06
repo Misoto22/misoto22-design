@@ -17,8 +17,8 @@ const MONTH = new Date(2026, 8, 1)
  * caption's picker will travel; the default is ten years either side, which is
  * one page of the year grid and no paging at all.
  *
- * `labels.labelNav` names the month arrows' toolbar. Left alone every calendar
- * on a page is a `nav` called "Navigation bar" — react-day-picker's own string
+ * labels.labelNav names the month arrows' toolbar. Left alone every calendar
+ * on a page is a nav called "Navigation bar" — react-day-picker's own string
  * — and three examples on one page are three landmarks nobody can tell apart.
  */
 export function Example() {

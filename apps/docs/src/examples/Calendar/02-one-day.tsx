@@ -16,8 +16,8 @@ const MONTH = new Date(2026, 8, 1)
  * only leaves the same grid sitting at the start edge of a wider box. For
  * choosing a date inside a form, this belongs in a DatePicker.
  *
- * `labels.labelNav` names the month arrows' toolbar. Left alone every calendar
- * on a page is a `nav` called "Navigation bar" — react-day-picker's own string
+ * labels.labelNav names the month arrows' toolbar. Left alone every calendar
+ * on a page is a nav called "Navigation bar" — react-day-picker's own string
  * — and three examples on one page are three landmarks nobody can tell apart.
  */
 export function Example() {
