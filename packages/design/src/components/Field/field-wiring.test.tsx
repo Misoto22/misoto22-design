@@ -119,4 +119,18 @@ describe('Field wiring for composite controls', () => {
     )
     expect(screen.getByRole('slider')).toHaveAttribute('aria-required', 'true')
   })
+
+  it('marks an invalid Slider on the thumb, where the role is', () => {
+    // The one attribute of the four that was not destructured, so it fell
+    // into the rest and landed on the roleless span the primitive renders as
+    // its root. A field drew the error and announced nothing — which is the
+    // failure this whole wiring exists to prevent, in the component that
+    // prompted it.
+    render(
+      <Field label="Quality" error="Pick a quality.">
+        <Slider label="Quality" defaultValue={[80]} />
+      </Field>,
+    )
+    expect(screen.getByRole('slider')).toHaveAttribute('aria-invalid', 'true')
+  })
 })

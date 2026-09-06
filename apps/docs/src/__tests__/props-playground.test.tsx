@@ -265,6 +265,30 @@ describe('PropsPlayground', () => {
     expect(screen.getByRole('checkbox', { name: 'Checkbox' })).toBeInTheDocument()
   })
 
+  it('names a required control whose naming prop is a union no control can steer', async () => {
+    // `Slider.label` is `string | [string, string]` — one name, or one per
+    // thumb. `prop-controls` refuses a union it cannot enumerate, and
+    // `placeholder` only reaches required ReactNode slots and empty text
+    // fields, so nothing seeds it: the panel mounted `<Slider />`, and the
+    // thumb it renders is the element carrying `role="slider"`.
+    render(
+      <PropsPlayground
+        name="Slider"
+        rows={[row({ name: 'label', type: 'string | [string, string]', required: true })]}
+        aliases={[]}
+        passthrough={[]}
+        fallback={<p>The read-only table</p>}
+      />,
+    )
+
+    expect(screen.getByRole('slider', { name: 'Slider' })).toBeInTheDocument()
+
+    fireEvent.click(copyButton())
+    await vi.waitFor(() => expect(written).toHaveLength(1))
+    // The frame's, not the reader's: there is no control to have moved.
+    expect(written[0]).toBe('<Slider />')
+  })
+
   it('pins AppShell out of the page\'s own landmarks, and keeps the pins off the snippet', async () => {
     render(
       <PropsPlayground

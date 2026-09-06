@@ -63,12 +63,23 @@ export interface PropsPlaygroundProps {
  * `complementary` landmarks that nesting makes. Every AppShell example on the
  * site already passes both. The panel was the one call site that did not.
  *
- * The five below document no props at all — `Checkbox` is
+ * The five `aria-label`s below document no props at all — `Checkbox` is
  * `ComponentProps<typeof CheckboxPrimitive.Root>` and nothing more — so there
  * is no row to seed and no control to offer. Their accessible name comes from
  * the call site, and here the panel IS the call site: a preview of a naked,
  * unnamed checkbox is not the component being honest, it is the panel handing
  * a screen reader a button with nothing to announce.
+ *
+ * `Slider.label` is the same defect arrived at from the other end. It is a
+ * REQUIRED, documented prop — but it types as `string | [string, string]`, one
+ * name or one per thumb, and `prop-controls.ts` rightly refuses a union it
+ * cannot enumerate. So the row exists, the control is `none`, and `placeholder`
+ * does not reach it either: it seeds required ReactNode slots and empty text
+ * fields, and this is neither. The panel therefore mounted `<Slider />` with no
+ * name at all, and the thumb it renders carries `role="slider"`. It is the only
+ * required naming prop in the package that lands this way — `Progress`,
+ * `Combobox`, `Select` and `FloatingIconButton` all take a plain `string` and
+ * are seeded by `placeholder`, and `Table.caption` likewise.
  *
  * Pinned values are the FRAME's, not the reader's, so they stay out of `Copy
  * JSX`. A documented prop keeps its row and its control, seated at the pinned
@@ -86,6 +97,7 @@ const PINNED: Record<string, Record<string, unknown>> = {
   Checkbox: { 'aria-label': 'Checkbox' },
   Input: { 'aria-label': 'Input' },
   NativeSelect: { 'aria-label': 'NativeSelect' },
+  Slider: { label: 'Slider' },
   Switch: { 'aria-label': 'Switch' },
   Textarea: { 'aria-label': 'Textarea' },
 }

@@ -3,6 +3,7 @@
 import * as SliderPrimitive from '@radix-ui/react-slider'
 import { useState, type ComponentProps } from 'react'
 import { cn } from '../../lib/cn'
+import { warnBlankName } from '../../lib/warn'
 
 export interface SliderProps extends ComponentProps<typeof SliderPrimitive.Root> {
   /**
@@ -59,9 +60,18 @@ export function Slider({
   onValueChange,
   'aria-describedby': describedBy,
   'aria-required': ariaRequired,
+  'aria-invalid': ariaInvalid,
   ...props
 }: SliderProps) {
   const names = Array.isArray(label) ? label : [label]
+
+  // The other five guarded naming props are plain strings; this one is a
+  // string or a pair, so the first name is what is checked — a range whose
+  // lower thumb has no name is the same silence as a single one with none.
+  // It catches a blank, not an absent: `label` is required, so a missing one
+  // is a type error everywhere except a caller that has already left the
+  // types behind.
+  warnBlankName('Slider', 'label', names[0], 'the thumb is announced with no name and its value describes nothing')
 
   // Tracked here, not read off the props. An uncontrolled slider's
   // `defaultValue` never changes, so the printed figure sat at its starting
@@ -125,6 +135,7 @@ export function Slider({
             // they sit on a <span> with no role, which announces nothing.
             aria-describedby={describedBy}
             aria-required={ariaRequired}
+            aria-invalid={ariaInvalid}
             // Only when a format was given: setting it otherwise would replace
             // the platform's own reading of the value with the same digits.
             aria-valuetext={format ? format(value) : undefined}
