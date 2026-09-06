@@ -43,6 +43,14 @@ export interface ComponentEntry {
   slug: string
   /** Directory under packages/design/src/components or src/charts — the generated-data key. */
   dir: string
+  /**
+   * The specifier this component is imported from.
+   *
+   * Emitted rather than authored: `@misoto22/design/charts` is a separate entry
+   * point with its own peer dependencies, and an import line naming the wrong
+   * one does not render a blank page — it throws.
+   */
+  entry: string
   /** Display name. */
   name: string
   group: ComponentGroup

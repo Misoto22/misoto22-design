@@ -67,6 +67,35 @@ export const GROUPS = [
 /** Every component's slug is its name in kebab-case. Derived, never authored. */
 export const slugOf = (name) => name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
 
+/**
+ * The package's entry points, and the source tree each one is built from.
+ *
+ * The one fact here that a path cannot state: `.` is built from `src/index.ts`,
+ * which re-exports `src/components/**`, so the specifier and the directory do
+ * not share a name the way `./charts` and `src/charts` do. Everything else is
+ * derived from it — which entry point a component belongs to is decided by the
+ * tree its directory sits in, never authored beside it, for the same reason the
+ * slug is not authored: a second copy of a fact is a copy that goes stale, and
+ * the emitted `Import:` line is one an agent pastes without checking.
+ *
+ * It is the line that most has to be right. A component named under the wrong
+ * specifier does not produce a blank page, it produces an import that throws —
+ * and `@misoto22/design/charts` exists precisely so an app that renders a Badge
+ * does not resolve `recharts`.
+ *
+ * @type {Record<string, string>} specifier → directory under `src/`
+ */
+export const ENTRY_POINTS = {
+  '@misoto22/design': 'components',
+  '@misoto22/design/charts': 'charts',
+}
+
+/** The specifier a consumer imports the root entry from. */
+export const DEFAULT_ENTRY = '@misoto22/design'
+
+/** The directory under `src/` an entry point is built from. */
+export const sourceDirOf = (specifier) => ENTRY_POINTS[specifier] ?? ENTRY_POINTS[DEFAULT_ENTRY]
+
 /** @type {CatalogEntry[]} */
 export const CATALOG = [
   // ─── Actions ───
