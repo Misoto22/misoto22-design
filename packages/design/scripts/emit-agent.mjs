@@ -27,6 +27,7 @@ import { fileURLToPath } from 'node:url'
 import { extractProps } from './extract-props.mjs'
 import { AXIS_DEFAULTS, CATALOG, DEFAULT_ENTRY, ENTRY_POINTS, GROUPS, slugOf } from '../agent/catalog.mjs'
 import { themeAxes } from './theme-axes.mjs'
+import { warningCodes } from './warning-codes.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = join(ROOT, 'dist', 'agent')
@@ -260,6 +261,10 @@ function main() {
           values,
           unset: AXIS_DEFAULTS[axis] ?? null,
         })),
+        // Part of the contract, not an implementation detail: an agent that
+        // reads one of these in a console has to be able to look it up, and the
+        // site renders this list rather than keeping its own.
+        warningCodes: warningCodes(),
       },
       null,
       2,

@@ -5,6 +5,7 @@ import { FOUNDATIONS } from '@/content/foundations'
 import { TEMPLATES } from '@/content/templates'
 import { LAWS } from '@/content/principles'
 import catalog from '@/generated/catalog'
+import { WARNING_CODES } from '@/lib/docs'
 
 /**
  * The site, written for a reader that does not render CSS.
@@ -189,6 +190,16 @@ export function indexText(): string {
     'An unset attribute is the default; nothing is anchored to `:root`, so an',
     'axis set on any element applies to the subtree below it. There is no',
     '`data-accent` attribute — `--accent` is a custom property, re-pointed in CSS.',
+    '',
+    '## When you get it wrong',
+    '',
+    'Some misuse fails silently — a `Field` whose child is a wrapper puts the',
+    'label on the box; an icon-only `Button` with no accessible name renders',
+    'perfectly and is invisible to a screen reader. The component says so in',
+    'development, with the field that caused it and an imperative fix. Each code',
+    'is stable, so it is safe to branch on:',
+    '',
+    ...WARNING_CODES.map((code) => `- \`${code}\``),
     '',
     '## Components',
     '',

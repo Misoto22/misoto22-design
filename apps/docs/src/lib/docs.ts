@@ -4,6 +4,18 @@ import snippetsJson from '@/generated/snippets.json'
 import tokensJson from '@/generated/tokens.json'
 import templatesJson from '@/generated/templates.json'
 import typesJson from '@/generated/types.json'
+import catalog from '@/generated/catalog'
+
+/**
+ * The development warnings the package can emit, as the package reports them.
+ *
+ * Derived there and read here rather than listed on this side. A hand-kept copy
+ * of another package's constants is a copy that goes stale the first time
+ * someone adds a warning without thinking about the website — which is exactly
+ * how this site came to describe a `data-accent` attribute that never existed,
+ * and how it spent two releases not mentioning these at all.
+ */
+export const WARNING_CODES: string[] = catalog.warningCodes
 
 /**
  * Typed access to what `scripts/generate.mjs` produced.
