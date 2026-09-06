@@ -32,6 +32,20 @@ import type { Locale } from './locales'
  * publish is what stops. See `docs/releasing.md`.
  */
 const ZH: Record<string, string> = {
+  // ─── 0.6.1 ───
+  [fingerprint(
+    'Fix the `Import:` line the offline documentation prints for a chart.',
+  )]: '修正离线文档给图表打印的 `Import:` 那一行。',
+  [fingerprint(
+    '`dist/agent/AreaChart.md` said `import { AreaChart } from \'@misoto22/design\'`, which throws. Charts ship from `@misoto22/design/charts` behind optional peers, and that separation is the whole reason an app rendering a Badge never resolves `recharts` — so the root barrel does not export them and never will. Twenty components carried the wrong line, in the tarball and in the site\'s `llms.txt` alike. It is the one line an agent pastes without checking.',
+  )]: '`dist/agent/AreaChart.md` 写的是 `import { AreaChart } from \'@misoto22/design\'`，而这句会 throw。图表从 `@misoto22/design/charts` 发出，后面挂着可选 peer，而这道分界线的全部意义就在于：一个只渲染 Badge 的应用永远不会去解析 `recharts`——所以根 barrel 不导出它们，将来也不会。二十个组件带着错的那一行，npm 包里和站点的 `llms.txt` 里都是。而这恰恰是 agent 会直接粘走、不会去核对的一行。',
+  [fingerprint(
+    'Which specifier a component is imported from is now derived from the tree its directory sits in — `ENTRY_POINTS` maps each specifier to one directory under `src/`, and nothing is authored per component. The alternative was a field on every entry, which is a second copy of something the filesystem already says. `catalog.test.ts` fails when a catalog entry names no entry point\'s tree.',
+  )]: '一个组件从哪个 specifier 导入，现在由它目录所在的那棵树推导出来——`ENTRY_POINTS` 把每个 specifier 映射到 `src/` 下的一个目录，没有任何东西是按组件手写的。另一条路是给每条记录加一个字段，那等于把文件系统已经说过的事再抄一遍。当一条 catalog 记录不属于任何入口的目录树时，`catalog.test.ts` 会红。',
+  [fingerprint(
+    'The skill was stale in the same direction and is corrected with it: it said 52 primitives when there are 72, never mentioned the charts entry or `@misoto22/design/tokens`, and still offered `data-accent` — an attribute that has never existed, in the same skill whose own `rules/tokens.md` says so. Two tests now hold that line: every specifier in `exports` has to appear in `SKILL.md`, and no skill file may offer `data-accent` as something to set.',
+  )]: 'skill 在同一个方向上也过期了，这次一并修正：它写着 52 个 primitive，实际有 72 个；从没提过 charts 入口和 `@misoto22/design/tokens`；还在把 `data-accent` 当成可设的轴列出来——而这个属性从来就不存在，同一个 skill 自己的 `rules/tokens.md` 里就是这么写的。现在有两条测试守着这一点：`exports` 里的每个 specifier 都必须出现在 `SKILL.md` 里，而且任何 skill 文件都不许把 `data-accent` 当作可设置项。',
+
   // ─── 0.6.0 ───
   [fingerprint('The package documents itself for agents, offline: a `misoto22-design` CLI, a skill, and a README.')]: '这个包现在离线为 agent 记录自己：一个 `misoto22-design` CLI、一个 skill，以及一个 README。',
   [fingerprint(
