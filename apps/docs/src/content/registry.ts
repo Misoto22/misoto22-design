@@ -1,4 +1,9 @@
-import catalog from '@/generated/catalog'
+// Relative, not the `@/` alias: this module is pulled in by the Playwright
+// specs as well as by the app, and Playwright resolves tsconfig paths only
+// when `baseUrl` is set — which Next does not need and this tsconfig does not
+// have. The alias resolved locally and did not on CI, which is the worst shape
+// that failure can take.
+import catalog from '../generated/catalog'
 
 /**
  * The component list, and where each one sits in the sidebar.
