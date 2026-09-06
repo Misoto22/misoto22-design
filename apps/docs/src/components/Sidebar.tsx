@@ -51,7 +51,6 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             key={group.group}
             title={groupName(locale, group.group)}
             count={group.entries.length}
-            collapsible
             defaultOpen={group.entries.some((entry) =>
               pathname.includes(`/components/${entry.slug}/`),
             )}
@@ -75,10 +74,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   if (section === 'templates') {
     return (
       <Nav label={t.nav.documentation}>
-        <div className="flex flex-col gap-1">
-          <Row href={localePath(locale, '/templates/')} pathname={pathname} onNavigate={onNavigate}>
-            {t.nav.allTemplates}
-          </Row>
+        <Section title={t.nav.templates} count={TEMPLATES.length} defaultOpen>
           {TEMPLATES.map((template) => (
             <Row
               key={template.slug}
@@ -89,52 +85,54 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
               {templateCopy(locale, template.slug).name ?? template.name}
             </Row>
           ))}
-        </div>
+        </Section>
       </Nav>
     )
   }
 
+  // Built as data rather than written as JSX, so the group can be counted and
+  // can know whether the page being read is inside it — the two things every
+  // other rail's groups already do, and the whole of what made this one look
+  // like a different component.
+  //
+  // "Getting started" and "Working with AI" live at /foundations/… like every
+  // other page in this file: they are foundations entries carrying prose
+  // instead of a token category. They belong in Guide rather than under
+  // Foundations, because a reader looking for the install command is not
+  // looking for a scale.
+  const guide = [
+    { href: localePath(locale, '/'), label: t.nav.overview },
+    ...foundationsInGroup('guide').map((page) => ({
+      href: localePath(locale, `/foundations/${page.slug}/`),
+      label: foundationCopy(locale, page.slug).title ?? page.title,
+    })),
+    { href: localePath(locale, '/principles/'), label: t.nav.principles },
+    { href: localePath(locale, '/changelog/'), label: t.nav.changelog },
+  ]
+  const foundations = foundationsInGroup('foundations').map((page) => ({
+    href: localePath(locale, `/foundations/${page.slug}/`),
+    label: foundationCopy(locale, page.slug).title ?? page.title,
+  }))
+
   return (
     <Nav label={t.nav.documentation}>
-      <Section title={t.nav.guide}>
-        <Row href={localePath(locale, '/')} pathname={pathname} onNavigate={onNavigate}>
-          {t.nav.overview}
-        </Row>
-        {/* "Getting started" and "Working with AI" live at /foundations/… like
-            every other page in this file — they are foundations entries that
-            carry prose instead of a token category. They belong in this group
-            rather than under Foundations, because a reader looking for the
-            install command is not looking for a scale. */}
-        {foundationsInGroup('guide').map((page) => (
-          <Row
-            key={page.slug}
-            href={localePath(locale, `/foundations/${page.slug}/`)}
-            pathname={pathname}
-            onNavigate={onNavigate}
-          >
-            {foundationCopy(locale, page.slug).title ?? page.title}
-          </Row>
-        ))}
-        <Row href={localePath(locale, '/principles/')} pathname={pathname} onNavigate={onNavigate}>
-          {t.nav.principles}
-        </Row>
-        <Row href={localePath(locale, '/changelog/')} pathname={pathname} onNavigate={onNavigate}>
-          {t.nav.changelog}
-        </Row>
-      </Section>
-
-      <Section title={t.nav.foundations}>
-        {foundationsInGroup('foundations').map((page) => (
-          <Row
-            key={page.slug}
-            href={localePath(locale, `/foundations/${page.slug}/`)}
-            pathname={pathname}
-            onNavigate={onNavigate}
-          >
-            {foundationCopy(locale, page.slug).title ?? page.title}
-          </Row>
-        ))}
-      </Section>
+      {[
+        { title: t.nav.guide, rows: guide },
+        { title: t.nav.foundations, rows: foundations },
+      ].map((group) => (
+        <Section
+          key={group.title}
+          title={group.title}
+          count={group.rows.length}
+          defaultOpen={group.rows.some((row) => row.href === pathname)}
+        >
+          {group.rows.map((row) => (
+            <Row key={row.href} href={row.href} pathname={pathname} onNavigate={onNavigate}>
+              {row.label}
+            </Row>
+          ))}
+        </Section>
+      ))}
     </Nav>
   )
 }
@@ -170,8 +168,16 @@ const HEADING =
 
 interface SectionProps {
   title: string
+  /** How many rows are inside, printed on the far side of the heading. */
   count?: number
-  collapsible?: boolean
+  /**
+   * Whether it starts open.
+   *
+   * Every rail passes the same answer: open when the page being read is inside
+   * this group. There is no longer a `collapsible` flag beside it — one rail
+   * folding its groups while the rail next to it did not was the whole of why
+   * two views of the same component looked like two components.
+   */
   defaultOpen?: boolean
   children: React.ReactNode
 }
@@ -190,17 +196,8 @@ interface SectionProps {
  */
 const GROUP_RULE = 'ms-[0.9rem] flex flex-col gap-1 border-s border-(--rule) ps-2'
 
-function Section({ title, count, collapsible = false, defaultOpen = true, children }: SectionProps) {
+function Section({ title, count, defaultOpen = false, children }: SectionProps) {
   const [open, setOpen] = useState(defaultOpen)
-
-  if (!collapsible) {
-    return (
-      <div className="flex flex-col gap-1">
-        <p className={HEADING}>{title}</p>
-        <div className={GROUP_RULE}>{children}</div>
-      </div>
-    )
-  }
 
   return (
     // Radix rather than `{open && …}`. A conditional render cannot animate —
