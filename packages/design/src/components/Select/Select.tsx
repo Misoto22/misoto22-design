@@ -153,7 +153,7 @@ export function Select({
           sideOffset={6}
           data-m22-animated
           className={cn(
-            'z-(--z-dropdown) max-h-72 min-w-(--radix-select-trigger-width) overflow-hidden rounded-(--radius-lg) border border-(--panel-border) bg-(--panel-bg) panel-blur',
+            'z-(--z-dropdown) max-h-72 min-w-(--radix-select-trigger-width) overflow-hidden rounded-(--radius-lg) border border-(--panel-border) bg-(--panel-bg) shadow-(--panel-lift) panel-blur',
             contentClassName,
             'data-[state=open]:animate-[m22-pop-in_var(--duration-fast)_var(--ease-out-expo)] data-[state=closed]:animate-[m22-pop-out_var(--duration-fast)_var(--ease)] origin-(--radix-popper-transform-origin)',
           )}

@@ -85,7 +85,12 @@ export function ThemeMenu() {
             value="presets"
             className="min-h-0 flex-1 overflow-y-auto p-2 pt-2 scroll-slim"
           >
-            <div className="flex flex-col gap-1">
+            {/* `group/presets`: the current preset is drawn filled and so is the
+                one under the pointer, which is two rows claiming to be the
+                answer. While the pointer is in this list the fill is the
+                pointer's; it goes back to the current preset when the pointer
+                leaves, and `aria-pressed` never moves. */}
+            <div className="group/presets flex flex-col gap-1">
               {PRESETS.map((preset) => {
                 const active = matching?.id === preset.id
                 return (
@@ -94,7 +99,7 @@ export function ThemeMenu() {
                     type="button"
                     aria-pressed={active}
                     onClick={() => apply(preset)}
-                    className="flex flex-col items-start gap-0.5 rounded-(--radius-row) px-2.5 py-2 text-start transition-colors duration-(--duration-fast) hover:bg-(--stone) aria-pressed:bg-(--accent-muted)"
+                    className="flex flex-col items-start gap-0.5 rounded-(--radius-row) px-2.5 py-2 text-start transition-colors duration-(--duration-fast) hover:bg-(--stone) aria-pressed:bg-(--accent-muted) group-hover/presets:not-hover:bg-transparent"
                   >
                     <span className="flex w-full items-center gap-2 text-sm text-(--ink)">
                       {t.themes.presets[preset.id]?.name ?? preset.name}

@@ -369,14 +369,14 @@ export function SidebarGroup({
   const [open, setOpen] = useState(defaultOpen)
   const labelId = useId()
 
-  const rows = <div className="flex flex-col gap-0.5">{children}</div>
+  const rows = <div className="group/rows flex flex-col gap-0.5">{children}</div>
 
   if (iconOnly) {
     // No heading, and no rule: both of them are words and an indent, and there
     // is room for neither. The rows keep their own group semantics from the
     // label, which is still announced even though it is not drawn.
     return (
-      <div role="group" aria-label={label} className={cn('flex flex-col gap-0.5', className)}>
+      <div role="group" aria-label={label} className={cn('group/rows flex flex-col gap-0.5', className)}>
         {children}
       </div>
     )
@@ -428,6 +428,23 @@ export function SidebarGroup({
     </Collapsible>
   )
 }
+
+/**
+ * One filled row at a time, and it follows the pointer.
+ *
+ * A rail draws the current page filled and fills a row under the pointer, and
+ * those are two different facts wearing the same paint — so a reader with the
+ * mouse in the list sees two rows claiming to be where they are. The fill is
+ * the POINTER'S while the pointer is in the list, and returns to the current
+ * page when it leaves; `aria-current` never moves, so nothing about what is
+ * true changes, only what is drawn.
+ *
+ * `not-hover` rather than an ordering trick: composed with `group-hover`, it
+ * says "the list is hovered and this row is not" in one selector, which does
+ * not depend on which of two equally specific rules Tailwind emitted last.
+ */
+const MOVING_HIGHLIGHT =
+  'group-hover/rows:not-hover:bg-transparent group-hover/rows:not-hover:font-normal group-hover/rows:not-hover:text-(--ink-3-aa)'
 
 export interface SidebarBranchProps {
   /** The row's own words, and the name of the group it opens. */
@@ -525,7 +542,7 @@ export function SidebarBranch({
         )}
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="ms-[1.35rem] flex flex-col gap-0.5 border-s border-(--rule) ps-2">
+        <div className="group/rows ms-[1.35rem] flex flex-col gap-0.5 border-s border-(--rule) ps-2">
           {children}
         </div>
       </CollapsibleContent>
@@ -572,14 +589,14 @@ export function SidebarItem({ trailing, children, className, ...rest }: SidebarI
   // reason, and says so.
   if (rest.asChild) {
     return (
-      <NavItem {...rest} className={className}>
+      <NavItem {...rest} className={cn(MOVING_HIGHLIGHT, className)}>
         {children}
       </NavItem>
     )
   }
 
   return (
-    <NavItem {...rest} className={className}>
+    <NavItem {...rest} className={cn(MOVING_HIGHLIGHT, className)}>
       {children}
       {trailing !== undefined && <span className="ms-auto shrink-0">{trailing}</span>}
     </NavItem>

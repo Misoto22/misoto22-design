@@ -127,7 +127,7 @@ export function DialogContent({
       <DialogPrimitive.Content
         data-m22-animated
         className={cn(
-          'fixed left-1/2 top-1/2 z-(--z-modal) max-h-[85vh] w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 overflow-auto rounded-(--radius-lg) border border-(--panel-border) bg-(--panel-bg) p-6 panel-blur scroll-slim',
+          'fixed left-1/2 top-1/2 z-(--z-modal) max-h-[85vh] w-[min(92vw,32rem)] -translate-x-1/2 -translate-y-1/2 overflow-auto rounded-(--radius-lg) border border-(--panel-border) bg-(--panel-bg) p-6 shadow-(--panel-lift) panel-blur scroll-slim',
           'data-[state=open]:animate-[m22-panel-in_var(--duration-base)_var(--ease)]',
           // Against the container's box rather than the viewport's, and capped
           // by it: 92vw inside a 400px frame is not a cap at all.
