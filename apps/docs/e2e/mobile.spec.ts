@@ -70,7 +70,7 @@ test('the copy control is reachable without a hover', async ({ page }) => {
   expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(44)
 })
 
-test('the drawer opens, closes, and carries the whole index', async ({ page }) => {
+test('the drawer opens, closes, and carries the index of the open section', async ({ page }) => {
   await page.goto('/components/button/')
   await expect(page.getByRole('button', { name: /Switch to the (light|dark) theme/ })).toBeVisible()
 
@@ -85,11 +85,13 @@ test('the drawer opens, closes, and carries the whole index', async ({ page }) =
 
   await page.getByRole('button', { name: 'Open the navigation' }).click()
   await expect(aside).not.toHaveAttribute('inert', '')
-  // Both halves of the index, because the drawer carries both: the four
-  // sections, which live in the masthead on a desktop and have nowhere to go on
-  // a phone, and the open section's own tree underneath them.
-  await expect(aside.getByRole('link', { name: 'Templates' })).toBeVisible()
+  // The open section's own tree, and only that. The four sections used to be
+  // repeated at the top of the drawer, because they live in the masthead on a
+  // desktop and had nowhere to go on a phone. They have their own strip under
+  // the masthead now, so opening the drawer gives the reader the index they
+  // asked for rather than four rows of something else in front of it.
   await expect(nav.getByRole('link', { name: 'All components' })).toBeVisible()
+  await expect(aside.getByRole('link', { name: 'Templates' })).toHaveCount(0)
 
   // Polled: the drawer slides in on --duration-slow, and reading the box once
   // catches it mid-travel.
@@ -100,6 +102,38 @@ test('the drawer opens, closes, and carries the whole index', async ({ page }) =
   // The scrim carries the same name, so this names the control inside the drawer.
   await aside.getByRole('button', { name: 'Close the navigation' }).click()
   await expect(aside).toHaveAttribute('inert', '')
+})
+
+test('the four sections are reachable without opening the drawer', async ({ page }) => {
+  await page.goto('/components/button/')
+  const strip = page.getByRole('navigation', { name: 'Sections' })
+
+  // Visible on arrival: the whole point is that a reader on a component page
+  // can SEE that templates and themes exist without going looking for them.
+  await expect(strip).toBeVisible()
+  for (const name of ['Docs', 'Components', 'Templates', 'Themes']) {
+    await expect(strip.getByRole('link', { name, exact: true })).toBeVisible()
+  }
+  await expect(strip.getByRole('link', { name: 'Components', exact: true })).toHaveAttribute(
+    'aria-current',
+    'page',
+  )
+
+  // Sticky, not scrolled away. A strip that leaves with the first screen, on a
+  // drawer that no longer carries the sections, would strand the middle of a
+  // long page with no way across the site.
+  await page.evaluate(() => window.scrollTo(0, 2000))
+  await expect.poll(async () => Math.round((await strip.boundingBox())!.y)).toBe(64)
+
+  // Whatever the labels measure in a given language, they overflow INTO the
+  // strip rather than dragging the document sideways. The sweep at the top of
+  // this file is what enforces the second half; this is the first.
+  await expect(strip).toHaveCSS('overflow-x', 'auto')
+  const box = (await strip.boundingBox())!
+  expect(box.x + box.width).toBeLessThanOrEqual(391)
+
+  await strip.getByRole('link', { name: 'Themes', exact: true }).click()
+  await expect(page).toHaveURL(/\/themes\/$/)
 })
 
 test('the overlays fit the screen they open on', async ({ page }) => {
