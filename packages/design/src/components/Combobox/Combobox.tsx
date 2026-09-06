@@ -170,7 +170,7 @@ export function Combobox(props: ComboboxProps) {
                 event.stopPropagation()
                 commit([])
               }}
-              className="grid size-5 cursor-pointer place-items-center rounded-full text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)"
+              className="grid size-5 cursor-pointer place-items-center rounded-(--radius-pill) text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)"
             >
               <X size={12} strokeWidth={2} aria-hidden />
             </span>

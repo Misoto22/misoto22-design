@@ -5,6 +5,7 @@ import {
   AccordionItem,
   Alert,
   AppShell,
+  Article,
   Avatar,
   Badge,
   Breadcrumb,
@@ -29,6 +30,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
   DatePicker,
+  Diagram,
   Dialog,
   DialogContent,
   DialogTrigger,
@@ -71,6 +73,7 @@ import {
   Spinner,
   StatusDot,
   StatusPill,
+  Steps,
   Switch,
   TBody,
   TD,
@@ -192,6 +195,25 @@ export const SURFACE: SurfaceEntry[] = [
       action={<a href="#/" className={ERROR_ACTION_CLASS}>Back home</a>}
     />
   ) },
+  { dir: 'Article', render: () => (
+    <Article>
+      <h1>The White Reset</h1>
+      <p className="lead">A monochrome system for software and writing.</p>
+      <p>A paragraph with <a href="#x">a link</a> and <code>some code</code>.</p>
+    </Article>
+  ) },
+  { dir: 'Diagram', render: () => (
+    <Diagram
+      spec={{
+        caption: 'One request, end to end.',
+        edges: [{ from: 'edge', to: 'app', label: 'HTTPS' }],
+        nodes: [
+          { id: 'edge', label: 'Edge', note: 'CDN' },
+          { id: 'app', label: 'Application', accent: true, children: [{ label: 'Router' }] },
+        ],
+      }}
+    />
+  ) },
   { dir: 'Field', render: () => (
     <Field label="Email" required hint="We never share it."><Input type="email" /></Field>
   ) },
@@ -249,6 +271,16 @@ export const SURFACE: SurfaceEntry[] = [
   { dir: 'Spinner', render: () => <Spinner label="Loading projects" /> },
   { dir: 'StatusDot', render: () => <span><StatusDot /> Available</span> },
   { dir: 'StatusPill', render: () => <StatusPill>Available for work</StatusPill> },
+  { dir: 'Steps', render: () => (
+    <Steps
+      label="How an answer is built"
+      steps={[
+        { title: 'Corpus', note: 'Blog MDX' },
+        { title: 'Retrieval', note: 'Top 5 by cosine' },
+        { title: 'Answer', note: 'Live citations', current: true },
+      ]}
+    />
+  ) },
   { dir: 'Switch', render: () => (
     <label><Switch defaultChecked /> Email notifications</label>
   ) },

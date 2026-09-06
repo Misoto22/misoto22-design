@@ -104,7 +104,7 @@ export function Select({
           sideOffset={6}
           data-m22-animated
           className={cn(
-            'z-(--z-dropdown) max-h-72 min-w-(--radix-select-trigger-width) overflow-hidden rounded-(--radius) border border-(--rule-2) bg-(--paper)',
+            'z-(--z-dropdown) max-h-72 min-w-(--radix-select-trigger-width) overflow-hidden rounded-(--radius-lg) border border-(--panel-border) bg-(--panel-bg) panel-blur',
             contentClassName,
             'data-[state=open]:animate-[m22-pop-in_var(--duration-fast)_var(--ease-out-expo)] data-[state=closed]:animate-[m22-pop-out_var(--duration-fast)_var(--ease)] origin-(--radix-popper-transform-origin)',
           )}
@@ -129,7 +129,7 @@ export function SelectItem({ className, children, ...props }: SelectItemProps) {
   return (
     <SelectPrimitive.Item
       className={cn(
-        'flex cursor-pointer select-none items-center gap-2.5 rounded-(--radius-sm) px-2.5 py-2 text-sm text-(--ink-2) outline-none transition-colors duration-(--duration-fast) data-[highlighted]:bg-(--stone) data-[highlighted]:text-(--ink) data-[disabled]:pointer-events-none data-[disabled]:opacity-(--disabled-opacity)',
+        'flex cursor-pointer select-none items-center gap-2.5 rounded-(--radius-row) px-2.5 py-2 text-sm text-(--ink-2) outline-none transition-colors duration-(--duration-fast) data-[highlighted]:bg-(--stone) data-[highlighted]:text-(--ink) data-[disabled]:pointer-events-none data-[disabled]:opacity-(--disabled-opacity)',
         className,
       )}
       {...props}

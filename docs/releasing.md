@@ -21,6 +21,80 @@ A change to the documentation site, to CI, or to a test needs no changeset;
 `@misoto22/design-docs` is in the `ignore` list because it is deployed, not
 versioned.
 
+The `changeset` job in `.github/workflows/pr.yml` enforces exactly that split: a
+pull request touching `packages/design/src` outside `__tests__` fails until it
+carries a changeset, and everything else passes untouched. A refactor there that
+no consumer can observe is waived with the `skip-changeset` label, so the
+exception is a visible act rather than an omission nobody noticed.
+
+Note what the gate is *not* protecting against. Two branches can never contest a
+version number, because neither one writes one — a changeset names a bump kind
+in a randomly named file, and `release.yml` computes the number afterwards, once,
+under a `concurrency` group of one. What parallel work actually loses is the
+sentence: a library change merged without a changeset still ships, folded into
+whatever version the next changeset produces, and the `CHANGELOG` then describes
+a release that quietly did more than it says.
+
+### What a publish is gated on
+
+`publish` is a job in `.github/workflows/release.yml` that `needs: [verify,
+browser]`, so the full pull-request gate — lint, typecheck, tests, both builds,
+the size and tree-shaking budget, and the axe, keyboard and RTL suite in a real
+browser — runs to green before anything reaches the registry.
+
+That ordering is the point. `publish` used to be its own workflow triggered by
+the same push, which meant it raced the checks rather than waiting for them: it
+finished in a minute and a quarter while the browser suite was still six minutes
+from done. A version that fails the a11y suite cannot be recalled, because npm
+does not let a version number be reused.
+
+> [!IMPORTANT]
+> The **Version Packages** pull request is opened by the workflow's own
+> `GITHUB_TOKEN`, and GitHub does not trigger workflows for events from that
+> token — so that pull request carries no checks and cannot. Under the `main`
+> ruleset below it therefore reads as `BLOCKED`, and is merged deliberately:
+>
+> ```bash
+> gh pr merge --squash --admin <number>
+> ```
+>
+> That is sound rather than a hole in the gate. The pull request touches four
+> files — `package.json`, `CHANGELOG.md`, and the changesets it consumes — none
+> of which the test suite could have an opinion about, and its tree is verified
+> in full after the merge by the `main` run that publishes it, because `publish`
+> `needs: [verify, browser]`. The gate has not been skipped; it has been moved to
+> the side of the merge where it can actually run.
+
+## What protects `main`
+
+A ruleset named `main` (repository → Settings → Rules), rather than the older
+branch-protection screen:
+
+| Rule | Why |
+|---|---|
+| Pull request required, squash only, zero approvals | A solo repository gains nothing from self-approval, but everything from the changes arriving as a reviewable unit with CI attached. |
+| `verify / verify`, `browser / browser`, `changeset` must pass | The two gates that read the tree, plus the one that reads the pull request's manners. |
+| Branch must be up to date before merging | See below — this is the load-bearing one. |
+| No force-push, no deletion | `main` is what the registry and the site are cut from. |
+| Repository admin may bypass | The escape hatch the Version Packages merge above depends on. It is a deliberate `--admin`, not a default path. |
+
+**Up-to-date is the one that earns its keep with parallel work.** Two branches
+can each be green against the `main` of an hour ago and still be broken
+together — one renames a token, the other starts using it, and neither pull
+request ever saw the other. Requiring the branch to be current forces the
+second one to rebase onto the first and re-run the suite against the tree that
+will actually exist. The cost is a rebase per collision; the alternative is
+discovering the collision on `main`, after publish.
+
+> [!NOTE]
+> A **merge queue** is the automated form of that rule — it builds the combined
+> tree and tests it for you, with no rebasing by hand. It is not available here:
+> merge queues require an organization-owned repository, and this one is owned
+> by a personal account, so the API rejects the rule outright. If the repository
+> ever moves to an organization, replace the up-to-date requirement with a merge
+> queue and add a `merge_group:` trigger to `pr.yml` — without that trigger the
+> required checks never report and the queue stalls until it times out.
+
 ## Consuming it
 
 Nothing to configure. The package is public on the default registry, so every

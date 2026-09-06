@@ -267,17 +267,62 @@
   --sec-tight: clamp(40px, calc(5 * var(--fluid)), 68px);
 }
 
-:root {
-  /* ─── Radius ─────────────────────────────────────────────────────────────
-     Four steps, and there is no fifth. The old law was "0 everywhere"; the
-     White Reset replaces that with a scale small enough to stay quiet on a
-     white page. A 50% circle is geometry rather than a corner and is not a
-     step here. */
-  --radius-sm: 6px; /* images, thumbnails, media frames */
-  --radius: 8px; /* inputs, buttons, small plates */
-  --radius-lg: 14px; /* feature panels, dark plates */
-  --radius-pill: 999px; /* tabs, chips, counters, circular controls */
+/* ─── Radius ───────────────────────────────────────────────────────────────
+   One ladder, and a single factor that moves the whole of it.
 
+   The four steps used to be four independent numbers, and a radius theme
+   re-typed all four. That is how the ladder went out of proportion with
+   itself: nothing held the steps in a fixed ratio, so a corner nested inside
+   another corner matched it at the one setting somebody checked and at no
+   other. Here the steps are derived, the factor is the only thing a theme
+   sets, and the proportions are the same at every setting by construction.
+
+   THE NESTING LAW. Two rounded edges separated by a gap of `p` are concentric
+   only when the inner radius is the outer minus `p`. Anything else pinches at
+   the corner — the gap narrows as it turns, which is the mismatch you see
+   before you can name it. Both directions are named below (`--radius-row`
+   subtracts, `--radius-frame` adds) so a surface never has to guess.
+
+   THE PILL IS ON THE LADDER, which is a change. It used to be exempt, on the
+   grounds that a pill is a shape rather than a corner. It is — but a square
+   theme that left every button a capsule was not a square theme, and that
+   exemption is what bought it. A true CIRCLE is still geometry and still
+   `rounded-full`: an avatar, a status dot, a spinner, a radio (which is round
+   so it cannot be mistaken for a checkbox).
+
+   Declared for `:root` AND for `[data-radius]`, rather than composed once and
+   inherited. A custom property substitutes `var()` where it is DECLARED, so a
+   ladder written only on `:root` bakes in the root's factor and a themed
+   subtree deeper in the page never reaches it — the same trap `--fluid` above
+   documents, and the reason five themes can share the themes page at all. */
+:root,
+[data-radius] {
+  --radius-factor: 1;
+  /* Clamps the factor at 1 for the ADDING direction only. A frame's air is a
+     fixed number of pixels, so `--radius-lg + 16px` would leave a rounded
+     frame around a square panel the moment the theme went square; gated, it
+     collapses to nothing along with everything else. */
+  --radius-gate: min(1, var(--radius-factor));
+
+  /* The numbers are the ones the rest of the industry settled on, and that is
+     the argument for them: 8px for a control, 12px for a panel, and 4/6 for the
+     small marks inside one. Tailwind's own scale, shadcn's `--radius` ± 2 and
+     ± 4, Radix Themes' steps 3 and 4, and Material's `xs`/`sm`/`md` all agree
+     within a pixel of this. The previous 2/4/6/10 was a step tighter than any
+     of them, which is what made a card read as a rectangle with the corners
+     shaved rather than as a rounded panel. */
+  --radius-xs: calc(4px * var(--radius-factor)); /* a mark inside a tight box */
+  --radius-sm: calc(6px * var(--radius-factor)); /* chips, keys, list rows */
+  --radius: calc(8px * var(--radius-factor)); /* inputs, code, small plates */
+  --radius-lg: calc(12px * var(--radius-factor)); /* cards, dialogs, menu panels */
+  --radius-pill: calc(999px * var(--radius-factor)); /* capsules and counters */
+
+  /* The nesting law, applied to the two insets this system actually uses. */
+  --radius-row: max(0px, calc(var(--radius-lg) - 0.375rem)); /* a row in a 6px-padded panel */
+  --radius-frame: calc(var(--radius-lg) + 1rem * var(--radius-gate)); /* a frame 16px outside a panel */
+}
+
+:root {
   /* ─── Density ────────────────────────────────────────────────────────────
      The second theming axis, and the only other one. Light/dark swaps colour;
      density swaps the size of anything a finger or a pointer has to hit.
@@ -319,6 +364,26 @@
      zero makes `calc(0 + 1.5rem)` invalid at computed-value time — the whole
      declaration is dropped and every column loses its gutter in silence. */
   --table-pad-x: 0px;
+
+  /* ─── Floating surfaces ──────────────────────────────────────────────────
+     What a panel that FLOATS fills with, and what it does to whatever is
+     behind it. A dialog, a menu, a popover, a palette — the surfaces that sit
+     OVER the page rather than in it, and therefore the only ones with anything
+     behind them to treat.
+
+     Both default to the plain surface and cost nothing. `--panel-filter: none`
+     matters more than it looks: a `backdrop-filter` of any value, `blur(0px)`
+     included, promotes its element to its own compositing layer and makes it a
+     containing block for fixed descendants. Paid on every menu in the system,
+     for a theme most readers will never turn on. `none` is not a blur of zero;
+     it is no filter at all.
+
+     A card is deliberately NOT on this list. It sits on the page ground, so
+     there is nothing behind it to see through, and a card that blurs its own
+     background is drawing an effect rather than an object. */
+  --panel-bg: var(--paper);
+  --panel-border: var(--rule-2);
+  --panel-filter: none;
 
   /* ─── Motion ─── */
   --ease: cubic-bezier(0.2, 0.7, 0.3, 1);

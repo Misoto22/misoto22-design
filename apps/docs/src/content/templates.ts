@@ -39,6 +39,24 @@ export const TEMPLATES: TemplateEntry[] = [
     tests: 'Air. Very few components, a great deal of space, and the type ladder carrying the page — the opposite failure mode to the console.',
     uses: ['StatusPill', 'Button', 'Tag', 'FigureBand', 'Card', 'Separator', 'Field', 'Input', 'Accordion', 'Badge', 'LinkArrow'],
   },
+  {
+    slug: 'blog',
+    id: 'Blog',
+    name: 'Blog index',
+    summary: 'A publication index: a filter strip, a lead story, and a ruled list of records.',
+    tests:
+      'Uneven records. A card grid hides them behind equal boxes; a ruled list does not, so a summary that runs three lines on one row and one on the next shows immediately.',
+    uses: ['ToggleGroup', 'Input', 'Badge', 'Tag', 'Avatar', 'LinkArrow', 'Pagination', 'Separator', 'StatusPill', 'Button'],
+  },
+  {
+    slug: 'post',
+    id: 'Post',
+    name: 'Article',
+    summary: 'One post, rendered from a real Markdown file through the site’s own pipeline.',
+    tests:
+      'The reading surface, against markup nobody in this repository authored: headings, tables, footnotes, LaTeX as MathML, task lists, fenced code, a flow diagram and a numbered pipeline, all out of one .md file.',
+    uses: ['Article', 'Diagram', 'Steps', 'Avatar', 'Badge', 'Tag', 'Separator', 'Button'],
+  },
 ]
 
 export const TEMPLATE_BY_SLUG = new Map(TEMPLATES.map((entry) => [entry.slug, entry]))

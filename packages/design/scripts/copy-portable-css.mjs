@@ -19,7 +19,14 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = join(ROOT, 'src', 'styles')
 const DIST = join(ROOT, 'dist')
 
-const PORTABLE = ['tokens.css', 'semantic.css', 'themes.css', 'keyframes.css', 'fonts.css']
+const PORTABLE = [
+  'tokens.css',
+  'semantic.css',
+  'themes.css',
+  'article.css',
+  'keyframes.css',
+  'fonts.css',
+]
 
 for (const file of PORTABLE) {
   await cp(join(SRC, file), join(DIST, file))

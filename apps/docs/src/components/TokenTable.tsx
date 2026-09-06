@@ -42,9 +42,12 @@ export function TokenTable({ title, note, rows, dark, locale = 'en' }: TokenTabl
   return (
     <section className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <h3 className="m-0 font-heading text-[length:var(--fs-item)] font-normal text-(--ink)">
+        {/* h2: this sits directly under the page title, and a heading order
+            that jumps a level is a jump a screen reader has to explain to
+            itself. */}
+        <h2 className="m-0 font-heading text-[length:var(--fs-item)] font-normal text-(--ink)">
           {title}
-        </h3>
+        </h2>
         {note && (
           <p className="m-0 max-w-(--measure-record) text-[13px] leading-relaxed text-(--ink-3-aa)">
             {note}
@@ -55,7 +58,11 @@ export function TokenTable({ title, note, rows, dark, locale = 'en' }: TokenTabl
       <Table caption={`${title} tokens`}>
         <THead>
           <TR>
-            <TH className="w-10" />
+            {/* Named, not empty: a column header with no text is announced as
+                nothing at all, once per row. */}
+              <TH className="w-10">
+                <span className="sr-only">{t.table.swatch}</span>
+              </TH>
             <TH>{t.table.token}</TH>
             <TH>{t.table.value}</TH>
             {dark && <TH>{t.table.dark}</TH>}

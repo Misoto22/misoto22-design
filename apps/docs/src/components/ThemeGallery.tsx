@@ -76,7 +76,7 @@ export function ThemeGallery({ locale }: { locale: Locale }) {
                 inert
                 // The overflow clip is what makes the corner radius visible at
                 // the frame's own edge rather than only on the pieces inside.
-                className="overflow-hidden rounded-(--radius-lg) border border-(--rule-2)"
+                className="overflow-hidden rounded-(--radius-frame) border border-(--rule-2)"
               >
                 <ThemeSpecimen />
               </div>

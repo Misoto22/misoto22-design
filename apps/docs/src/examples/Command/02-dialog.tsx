@@ -17,6 +17,10 @@ export function Example() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      // Somebody else already claimed it — a host application's own palette, or
+      // this documentation site's. Two palettes on one ⌘K is two dialogs
+      // stacked, and the reader has to dismiss one to find the other.
+      if (event.defaultPrevented) return
       if (event.key === 'k' && (event.metaKey || event.ctrlKey)) {
         event.preventDefault()
         setOpen((previous) => !previous)

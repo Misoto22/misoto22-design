@@ -34,7 +34,7 @@ export function Switch({ className, ...props }: SwitchProps) {
           lands, which is what makes a 16px slide read as a deliberate flip
           rather than a jump. `transition-[transform,width]` and not `all`, so
           the track's own colour change keeps its shorter duration. */}
-      <SwitchPrimitive.Thumb className="block size-3.5 translate-x-0 rounded-full bg-(--paper) transition-[transform,width] duration-(--duration-base) ease-(--ease-out-expo) group-active:w-5 data-[state=checked]:translate-x-4 rtl:data-[state=checked]:-translate-x-4 motion-reduce:transition-none" />
+      <SwitchPrimitive.Thumb className="block size-3.5 translate-x-0 rounded-(--radius-pill) bg-(--paper) transition-[transform,width] duration-(--duration-base) ease-(--ease-out-expo) group-active:w-5 data-[state=checked]:translate-x-4 rtl:data-[state=checked]:-translate-x-4 motion-reduce:transition-none" />
     </SwitchPrimitive.Root>
   )
 }

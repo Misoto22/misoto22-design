@@ -14,6 +14,7 @@
 @import './tokens.css';
 @import './semantic.css';
 @import './themes.css';
+@import './article.css';
 @import './keyframes.css';
 
 /* Matches the site: the mode is an attribute on <html>, not a class, so the
@@ -114,6 +115,14 @@
     background: var(--rule-2);
     border-radius: var(--radius-pill);
   }
+}
+
+/* The one place a blur is allowed, and only ever behind a surface that floats.
+   Two properties because Safari still wants the prefix, and a design system
+   that ships the effect on Chrome only has shipped half a theme. */
+@utility panel-blur {
+  -webkit-backdrop-filter: var(--panel-filter);
+  backdrop-filter: var(--panel-filter);
 }
 
 @utility scroll-fade {

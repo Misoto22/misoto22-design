@@ -27,7 +27,22 @@ import {
  */
 export function ThemeSpecimen() {
   return (
-    <div className="flex flex-col gap-4 bg-(--paper) p-4">
+    <div className="relative flex flex-col gap-4 bg-(--paper) p-4">
+      {/* A panel resting OVER the card, drawn from the floating-surface tokens.
+          It is here because one theme is about what happens behind a surface
+          that floats, and a specimen made only of things sitting IN the page
+          would show that theme as identical to the one beside it. Static, not a
+          real menu: the specimen is inert, and a popover nobody can open is a
+          picture of one. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute end-3 bottom-12 z-1 flex w-32 flex-col gap-1 rounded-(--radius-lg) border border-(--panel-border) bg-(--panel-bg) p-1.5 panel-blur"
+      >
+        <span className="rounded-(--radius-row) bg-(--stone) px-2.5 py-1.5 text-[12px] text-(--ink)">
+          Re-run
+        </span>
+        <span className="px-2.5 py-1.5 text-[12px] text-(--ink-2)">Roll back</span>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle>Deploys</CardTitle>

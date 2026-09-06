@@ -71,7 +71,7 @@ export function SheetContent({
       />
       <DialogPrimitive.Content
         className={cn(
-          'fixed z-(--z-modal) flex flex-col overflow-y-auto border-(--rule-2) bg-(--paper) p-6 transition-transform duration-(--duration-slow) ease-(--ease-out-expo) scroll-slim',
+          'fixed z-(--z-modal) flex flex-col overflow-y-auto border-(--panel-border) bg-(--panel-bg) p-6 panel-blur transition-transform duration-(--duration-slow) ease-(--ease-out-expo) scroll-slim',
           SIDE[side],
           className,
         )}

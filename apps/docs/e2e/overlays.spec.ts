@@ -17,10 +17,14 @@ const ANCHORED = [
   'date-picker',
   'popover',
   'searchable-menu',
-  'calendar',
 ]
 
-/** `command` is left out: its palette renders inline, with nothing to escape. */
+/**
+ * `command` is left out: its palette renders inline, with nothing to escape.
+ * So is `calendar` — its month and year picker draws IN PLACE of the day grid
+ * rather than portalling a panel over it, which is the point of that redesign
+ * and is covered by `interactions.spec.ts` instead.
+ */
 
 for (const slug of ANCHORED) {
   test(`${slug}: the open panel stays inside the example card`, async ({ page }) => {

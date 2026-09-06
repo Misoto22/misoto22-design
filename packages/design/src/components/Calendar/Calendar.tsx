@@ -1,50 +1,344 @@
 'use client'
 
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { DayPicker, type DayPickerProps, type DropdownProps } from 'react-day-picker'
+import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import {
+  DayPicker,
+  useDayPicker,
+  type DayPickerProps,
+  type MonthCaptionProps,
+} from 'react-day-picker'
 import { cn } from '../../lib/cn'
-import { Select, SelectItem } from '../Select/Select'
 
 export type CalendarProps = DayPickerProps
 
-/**
- * Month and year, as the system's own `Select`.
- *
- * The library renders a native `<select>` here. Two problems with that: the
- * option list is drawn by the operating system, so it carries none of these
- * tokens and looks like a different product the moment it opens; and with a
- * wide year range it becomes a hundred-row list the platform renders as one
- * enormous column.
- *
- * The adapter is the small awkward part — the library hands back a native
- * change event, so a value from our Select is wrapped to look like one. That is
- * contained here rather than leaking into every call site.
- */
-function CalendarDropdown({ options, value, onChange, 'aria-label': label }: DropdownProps) {
-  return (
-    <Select
-      label={label ?? 'Select'}
-      value={value === undefined ? undefined : String(value)}
-      onValueChange={(next) =>
-        onChange?.({ target: { value: next } } as React.ChangeEvent<HTMLSelectElement>)
-      }
-      // A third of the calendar's height. The default list is as tall as the
-      // month grid, so opening the year picker blotted out the thing the reader
-      // opened it in order to change.
-      contentClassName="max-h-[10rem]"
-      className="h-8 w-auto min-w-24 gap-1.5 border-transparent px-2 py-1 font-heading text-[length:var(--fs-item)] hover:border-(--rule-2)"
-    >
-      {(options ?? []).map((option) => (
-        <SelectItem key={option.value} value={String(option.value)} disabled={option.disabled}>
-          {option.label}
-        </SelectItem>
-      ))}
-    </Select>
+/** Ten years either side of now — see the note on `startMonth` below. */
+const DEFAULT_SPAN = 10
+
+/** How many years one page of the year grid holds: four columns, six rows. */
+const YEAR_PAGE = 24
+
+type View = 'months' | 'years'
+
+interface PickerOpen {
+  /** Which displayed month has its picker open. */
+  index: number
+  view: View
+  /** The first year of the page the year grid is showing, when it is showing. */
+  anchor?: number
+  /**
+   * The year the MONTH grid is showing, when it is not the displayed month's.
+   *
+   * The picker browses; it does not navigate. Stepping the year used to call
+   * `goToMonth` and close the panel, so `‹` on "2026" left the reader looking
+   * at a different month with the picker gone — one click that did two things,
+   * neither of them the one asked for. Now the arrows move this, the grid
+   * re-renders under them, and the calendar moves only when a month is chosen.
+   */
+  year?: number
+}
+
+interface PickerState {
+  open: PickerOpen | null
+  setOpen: (next: PickerOpen | null) => void
+  startMonth: Date
+  endMonth: Date
+}
+
+const PickerContext = createContext<PickerState>({
+  open: null,
+  setOpen: () => {},
+  startMonth: new Date(),
+  endMonth: new Date(),
+})
+
+/** `Intl` beats the library's formatter here: it takes a plain BCP 47 tag. */
+function useLabels() {
+  const { dayPickerProps } = useDayPicker()
+  const code = dayPickerProps.locale?.code ?? 'en-US'
+  return useMemo(
+    () => ({
+      caption: new Intl.DateTimeFormat(code, { month: 'long', year: 'numeric' }),
+      month: new Intl.DateTimeFormat(code, { month: 'short' }),
+    }),
+    [code],
   )
 }
 
-/** Ten years either side of now — see the note on `startMonth` below. */
-const DEFAULT_SPAN = 10
+/** The calendar's chrome buttons: the same corner every other control draws. */
+const STEP =
+  'grid size-8 shrink-0 place-items-center rounded-(--radius) text-(--ink-2) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none'
+
+const CELL =
+  'rounded-(--radius-row) py-2 text-sm transition-colors duration-(--duration-fast) disabled:opacity-(--disabled-opacity) disabled:pointer-events-none'
+/** The one that is showing, marked the way a chosen day is marked. */
+const CELL_ON = 'bg-(--accent) text-(--accent-foreground)'
+const CELL_OFF = 'text-(--ink-2) hover:bg-(--stone) hover:text-(--ink)'
+
+/**
+ * The month and year picker, drawn IN PLACE of the day grid.
+ *
+ * The previous arrangement was two `Select`s in the caption, which portalled
+ * their option lists over the grid — a ten-rem box showing three months at a
+ * time with a scroll arrow at each end, floating on top of the calendar the
+ * reader opened it to change. Three visible options out of twelve is not a
+ * picker, and it covered the thing being picked for.
+ *
+ * Twelve months fit in a 3×4 grid at the exact size of the grid they replace,
+ * so nothing overlaps, nothing scrolls, and the panel is the same shape as the
+ * surface underneath it. Twenty years fit the same box in 4×5, which is why the
+ * default span is ten years either side: one page, no paging.
+ */
+function MonthYearPanel({
+  index,
+  view,
+  anchor,
+  year: browsing,
+  month,
+}: {
+  index: number
+  view: View
+  anchor?: number
+  year?: number
+  month: Date
+}) {
+  const { setOpen, startMonth, endMonth } = useContext(PickerContext)
+  const { goToMonth } = useDayPicker()
+  const labels = useLabels()
+
+  /** The year being browsed, which is the displayed one until an arrow moves it. */
+  const year = browsing ?? month.getFullYear()
+  /** The month marked as current — only when the browsed year IS the shown one. */
+  const showing = year === month.getFullYear() ? month.getMonth() : -1
+  const firstYear = startMonth.getFullYear()
+  const lastYear = endMonth.getFullYear()
+
+  /**
+   * The offset is what makes this work in a two-month range picker: `goToMonth`
+   * always sets the FIRST displayed month, so picking September in the
+   * right-hand pane has to ask for August.
+   */
+  const go = (nextYear: number, nextMonth: number) => {
+    goToMonth(new Date(nextYear, nextMonth - index, 1))
+    setOpen(null)
+  }
+
+  const inRange = (nextYear: number, nextMonth: number) => {
+    const value = nextYear * 12 + nextMonth
+    const low = startMonth.getFullYear() * 12 + startMonth.getMonth()
+    const high = endMonth.getFullYear() * 12 + endMonth.getMonth()
+    return value >= low && value <= high
+  }
+
+  if (view === 'years') {
+    /**
+     * Pages TILE the range from its first year, rather than being centred on
+     * whichever year is showing. Centring left the first year of a range on no
+     * page at all when the range was not a whole number of pages long — the
+     * calendar offered a year it could never reach, and nothing said so.
+     */
+    const page = (candidate: number) =>
+      Math.floor((candidate - firstYear) / YEAR_PAGE) * YEAR_PAGE + firstYear
+    const start = anchor ?? page(year)
+    const years = Array.from({ length: YEAR_PAGE }, (_, offset) => start + offset).filter(
+      (candidate) => candidate >= firstYear && candidate <= lastYear,
+    )
+    const back = start - YEAR_PAGE >= firstYear
+    const forward = start + YEAR_PAGE <= lastYear
+    const move = (delta: number) =>
+      setOpen({ index, view: 'years', anchor: start + delta * YEAR_PAGE })
+
+    return (
+      <Panel key="years" label="Year">
+        <div className="mb-1 flex items-center justify-between gap-1">
+          <button
+            type="button"
+            aria-label="Earlier years"
+            disabled={!back}
+            onClick={() => move(-1)}
+            className={STEP}
+          >
+            <ChevronLeft size={16} strokeWidth={1.5} aria-hidden />
+          </button>
+          <span className="mono-meta tabular-nums text-(--ink-3-aa)">
+            {years[0]} – {years.at(-1)}
+          </span>
+          <button
+            type="button"
+            aria-label="Later years"
+            disabled={!forward}
+            onClick={() => move(1)}
+            className={STEP}
+          >
+            <ChevronRight size={16} strokeWidth={1.5} aria-hidden />
+          </button>
+        </div>
+        <div data-picker-grid className="grid grid-cols-4 gap-1">
+          {years.map((candidate) => (
+            <button
+              key={candidate}
+              type="button"
+              aria-current={candidate === year ? 'true' : undefined}
+              onClick={() => setOpen({ index, view: 'months', year: candidate })}
+              className={cn(CELL, 'tabular-nums', candidate === year ? CELL_ON : CELL_OFF)}
+            >
+              {candidate}
+            </button>
+          ))}
+        </div>
+      </Panel>
+    )
+  }
+
+  return (
+    <Panel key="months" label="Month and year">
+      <div className="mb-1 flex items-center justify-between gap-1">
+        <button
+          type="button"
+          aria-label="Previous year"
+          disabled={year <= firstYear}
+          onClick={() => setOpen({ index, view: 'months', year: year - 1 })}
+          className={STEP}
+        >
+          <ChevronLeft size={16} strokeWidth={1.5} aria-hidden />
+        </button>
+        <button
+          type="button"
+          onClick={() => setOpen({ index, view: 'years', anchor })}
+          className="rounded-(--radius-row) px-3 py-1 font-heading text-[length:var(--fs-item)] tabular-nums text-(--ink) transition-colors duration-(--duration-fast) hover:bg-(--stone)"
+        >
+          {year}
+        </button>
+        <button
+          type="button"
+          aria-label="Next year"
+          disabled={year >= lastYear}
+          onClick={() => setOpen({ index, view: 'months', year: year + 1 })}
+          className={STEP}
+        >
+          <ChevronRight size={16} strokeWidth={1.5} aria-hidden />
+        </button>
+      </div>
+      <div data-picker-grid className="grid grid-cols-3 gap-1">
+        {Array.from({ length: 12 }, (_, monthIndex) => (
+          <button
+            key={monthIndex}
+            type="button"
+            aria-current={monthIndex === showing ? 'true' : undefined}
+            disabled={!inRange(year, monthIndex)}
+            onClick={() => go(year, monthIndex)}
+            className={cn(CELL, monthIndex === showing ? CELL_ON : CELL_OFF)}
+          >
+            {labels.month.format(new Date(year, monthIndex, 1))}
+          </button>
+        ))}
+      </div>
+    </Panel>
+  )
+}
+
+/**
+ * The panel's box.
+ *
+ * `top-12` is the caption's own height plus the gap under it, so the panel
+ * starts exactly where the weekday row does and ends where the last week does.
+ * Sized against the grid rather than given a height of its own, because a fixed
+ * height would be wrong in the month that needs a sixth week.
+ *
+ * Focus moves in when it opens and the month showing is what receives it, so a
+ * keyboard reader lands on the current value rather than at the top of a grid
+ * they then have to traverse. It is a `group` rather than a `dialog`: nothing
+ * here is modal, and announcing a dialog that Tab walks straight out of is
+ * worse than announcing nothing.
+ */
+function Panel({ label, children }: { label: string; children: ReactNode }) {
+  const box = useRef<HTMLDivElement>(null)
+
+  // Keyed by view at the call site, so switching from months to years remounts
+  // this and the effect runs again. Without that the year grid replaced the
+  // button that had just been clicked, focus fell back to `<body>`, and Escape
+  // no longer reached the handler that closes the panel.
+  useEffect(() => {
+    // The current value if the panel is showing it, and otherwise the first
+    // cell in the grid. Browsing to another year leaves nothing marked current,
+    // and a panel that focuses nothing drops focus to `<body>` — where Escape
+    // no longer reaches the handler that closes it.
+    const grid = box.current?.querySelector('[data-picker-grid]')
+    const target =
+      box.current?.querySelector<HTMLButtonElement>('[aria-current]') ??
+      grid?.querySelector<HTMLButtonElement>('button:not(:disabled)')
+    target?.focus()
+  }, [])
+
+  return (
+    <div
+      ref={box}
+      role="group"
+      aria-label={label}
+      className="absolute inset-x-0 bottom-0 top-12 z-2 flex flex-col justify-center bg-(--paper)"
+    >
+      {children}
+    </div>
+  )
+}
+
+/**
+ * The caption: the month and year, as one control that opens the picker.
+ *
+ * One button rather than two dropdowns. "September 2026" is how the date is
+ * said, and splitting it into two controls with a chevron each put four
+ * interactive things in a 250px caption that also has to hold two arrows.
+ */
+function CalendarCaption({ calendarMonth, displayIndex, className, ...rest }: MonthCaptionProps) {
+  const { open, setOpen } = useContext(PickerContext)
+  const labels = useLabels()
+  const trigger = useRef<HTMLButtonElement>(null)
+  const mine = open !== null && open.index === displayIndex
+
+  return (
+    <div
+      className={className}
+      // Escape closes the picker and puts focus back where it came from. A
+      // panel that covers the grid and cannot be dismissed from the keyboard is
+      // a trap, however briefly.
+      onKeyDown={(event) => {
+        if (event.key !== 'Escape' || !mine) return
+        event.stopPropagation()
+        setOpen(null)
+        trigger.current?.focus()
+      }}
+      {...rest}
+    >
+      <button
+        ref={trigger}
+        type="button"
+        aria-expanded={mine}
+        onClick={() => setOpen(mine ? null : { index: displayIndex, view: 'months' })}
+        className="group flex items-center gap-1.5 rounded-(--radius-row) px-2 py-1 font-heading text-[length:var(--fs-item)] text-(--ink) transition-colors duration-(--duration-fast) hover:bg-(--stone)"
+      >
+        {labels.caption.format(calendarMonth.date)}
+        <ChevronDown
+          size={16}
+          strokeWidth={1.5}
+          aria-hidden
+          className={cn(
+            'shrink-0 text-(--ink-3-aa) transition-transform duration-(--duration-fast)',
+            mine && 'rotate-180',
+          )}
+        />
+      </button>
+      {mine && open !== null && (
+        <MonthYearPanel
+          index={displayIndex}
+          view={open.view}
+          anchor={open.anchor}
+          year={open.year}
+          month={calendarMonth.date}
+        />
+      )}
+    </div>
+  )
+}
 
 /**
  * A month, as a grid of days.
@@ -67,8 +361,16 @@ const DEFAULT_SPAN = 10
  * // A birth date: widen the years, since the default span is deliberately short.
  * <Calendar mode="single" startMonth={new Date(1920, 0)} endMonth={new Date()} />
  */
-export function Calendar({ className, classNames, captionLayout, components, ...props }: CalendarProps) {
+export function Calendar({ className, classNames, components, ...props }: CalendarProps) {
   const now = new Date()
+  const [open, setOpen] = useState<PickerState['open']>(null)
+
+  // Ten years either side, NOT a century. A hundred-and-eleven-row year list is
+  // a scroll, not a choice — and the case that needs one (a birth date) is rare
+  // enough to ask for it explicitly. Both ends are props, so widening is one
+  // line at the call site.
+  const startMonth = props.startMonth ?? new Date(now.getFullYear() - DEFAULT_SPAN, 0)
+  const endMonth = props.endMonth ?? new Date(now.getFullYear() + DEFAULT_SPAN, 11)
 
   /**
    * A one-day range is marked start AND end AND middle, all three.
@@ -85,71 +387,90 @@ export function Calendar({ className, classNames, captionLayout, components, ...
     '[&>button]:bg-(--accent) [&>button]:text-(--accent-foreground) [&>button:hover]:bg-(--accent) [&>button:hover]:text-(--accent-foreground)'
 
   return (
-    <DayPicker
-      showOutsideDays
-      // Month and year as dropdowns, not two arrows. Stepping a month at a time
-      // is fine for "next Tuesday" and useless for a date two years back.
-      captionLayout={captionLayout ?? 'dropdown'}
-      // Ten years either side, NOT a century. A hundred-and-eleven-row year
-      // list is a scroll, not a choice — and the case that needs one (a birth
-      // date) is rare enough to ask for it explicitly. Both ends are props, so
-      // widening is one line at the call site.
-      startMonth={props.startMonth ?? new Date(now.getFullYear() - DEFAULT_SPAN, 0)}
-      endMonth={props.endMonth ?? new Date(now.getFullYear() + DEFAULT_SPAN, 11)}
-      className={cn('w-fit p-3', className)}
-      components={{
-        Chevron: ({ orientation, ...rest }) =>
-          orientation === 'left' ? (
-            <ChevronLeft size={16} strokeWidth={1.5} aria-hidden {...rest} />
-          ) : (
-            <ChevronRight size={16} strokeWidth={1.5} aria-hidden {...rest} />
+    <PickerContext value={{ open, setOpen, startMonth, endMonth }}>
+      <DayPicker
+        showOutsideDays
+        // The caption is one control that swaps the grid for a month picker, so
+        // the library's own dropdown layout is not wanted.
+        captionLayout="label"
+        startMonth={startMonth}
+        endMonth={endMonth}
+        className={cn('w-fit p-3', className)}
+        components={{
+          Chevron: ({ orientation, ...rest }) =>
+            orientation === 'left' ? (
+              <ChevronLeft size={16} strokeWidth={1.5} aria-hidden {...rest} />
+            ) : (
+              <ChevronRight size={16} strokeWidth={1.5} aria-hidden {...rest} />
+            ),
+          MonthCaption: CalendarCaption,
+          ...components,
+        }}
+        classNames={{
+          // `rdp-root` is kept deliberately. Passing a class for a slot REPLACES
+          // the library's own, so overriding `root` silently removed the hook
+          // that every `.rdp-*` selector — ours and a consumer's — depends on.
+          root: 'rdp-root relative',
+          // The nav renders BEFORE the months in the DOM, so left in the flow it
+          // stacks its two arrows above the grid. Taking it out of the flow puts
+          // them where they belong — one at each end of the caption.
+          //
+          // `h-9` is what makes them line up. The caption is a 36px row and the
+          // nav was a 16px glyph pinned at the same top edge, so the arrows sat
+          // ten pixels above the month they belong to — close enough to read as
+          // a mistake and not close enough to read as a decision. Same height,
+          // same centre line.
+          //
+          // It steps away while the picker is open: two ways to change the
+          // month, one of them behind a panel, is one too many.
+          //
+          // `pointer-events-none` on the STRIP and back on for the two buttons:
+          // at the caption's full height it lies across the caption, and a bar
+          // with nothing in the middle of it was still eating the click on the
+          // month label underneath.
+          nav: cn(
+            'pointer-events-none absolute inset-x-3 top-3 z-1 flex h-9 items-center justify-between transition-opacity duration-(--duration-fast)',
+            open && 'opacity-0',
           ),
-        Dropdown: CalendarDropdown,
-        ...components,
-      }}
-      classNames={{
-        // `rdp-root` is kept deliberately. Passing a class for a slot REPLACES
-        // the library's own, so overriding `root` silently removed the hook
-        // that every `.rdp-*` selector — ours and a consumer's — depends on.
-        root: 'rdp-root relative',
-        // The nav renders BEFORE the months in the DOM, so left in the flow it
-        // stacks its two arrows above the grid. Taking it out of the flow puts
-        // them where they belong — one at each end of the caption.
-        nav: 'absolute inset-x-3 top-3 z-1 flex items-center justify-between',
-        months: 'flex flex-col gap-4 sm:flex-row',
-        month: 'flex flex-col gap-3',
-        month_caption: 'flex h-9 items-center justify-center',
-        dropdowns: 'flex items-center gap-1',
-        dropdown_root: 'relative inline-flex items-center',
-        month_grid: 'w-full border-collapse',
-        weekdays: 'flex',
-        weekday: 'w-9 mono-meta font-normal text-(--ink-3-aa)',
-        week: 'mt-1 flex w-full',
-        // The band lives on the CELL and the mark lives on the BUTTON. Keeping
-        // them apart is what lets a range be one continuous wash while both of
-        // its ends stay round — the previous arrangement flattened the corners
-        // of whichever day was an end, and a one-day range is BOTH ends, so it
-        // came out as a square.
-        day: 'relative p-0 text-center',
-        day_button:
-          'relative z-1 inline-flex size-9 items-center justify-center rounded-(--radius-pill) text-sm text-(--ink-2) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)',
-        selected: isRange ? '' : FILL,
-        // Today is an outline, not a fill — it is a fact about the calendar,
-        // not a choice the reader made, and the two must not look alike.
-        today: '[&>button]:ring-1 [&>button]:ring-(--rule-hard) [&>button]:ring-inset',
-        outside: '[&>button]:text-(--ink-3-aa)',
-        disabled: '[&>button]:opacity-(--disabled-opacity) [&>button]:pointer-events-none',
-        // The wash lives on the CELL and the mark on the BUTTON, which is what
-        // lets a range read as one continuous band while both of its ends stay
-        // round. A middle day gets the wash and no fill; the ends get both.
-        range_middle: 'bg-(--accent-muted) [&>button]:text-(--ink) [&>button:hover]:bg-(--stone)',
-        range_start: cn('bg-(--accent-muted) rounded-s-(--radius-pill)', FILL),
-        range_end: cn('bg-(--accent-muted) rounded-e-(--radius-pill)', FILL),
-        hidden: 'invisible',
-        ...classNames,
-      }}
-      {...props}
-    />
+          // The arrows are pointer targets, not glyphs: a 16px chevron with no
+          // box is a 16px hit area, which is under every guideline there is.
+          button_previous: cn(STEP, open ? 'pointer-events-none' : 'pointer-events-auto'),
+          button_next: cn(STEP, open ? 'pointer-events-none' : 'pointer-events-auto'),
+          months: 'flex flex-col gap-4 sm:flex-row',
+          // Positioned, because the month picker covers this month's grid and
+          // nothing else — in a two-month range picker each pane opens its own.
+          month: 'relative flex flex-col gap-3',
+          month_caption: 'flex h-9 items-center justify-center',
+          month_grid: 'w-full border-collapse',
+          weekdays: 'flex',
+          weekday: 'w-9 mono-meta font-normal text-(--ink-3-aa)',
+          week: 'mt-1 flex w-full',
+          // The band lives on the CELL and the mark lives on the BUTTON. Keeping
+          // them apart is what lets a range be one continuous wash while both of
+          // its ends stay round — the previous arrangement flattened the corners
+          // of whichever day was an end, and a one-day range is BOTH ends, so it
+          // came out as a square.
+          day: 'relative p-0 text-center',
+          day_button:
+            'relative z-1 inline-flex size-9 items-center justify-center rounded-(--radius-pill) text-sm text-(--ink-2) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)',
+          selected: isRange ? '' : FILL,
+          // Today is an outline, not a fill — it is a fact about the calendar,
+          // not a choice the reader made, and the two must not look alike.
+          today: '[&>button]:ring-1 [&>button]:ring-(--rule-hard) [&>button]:ring-inset',
+          outside: '[&>button]:text-(--ink-3-aa)',
+          disabled: '[&>button]:opacity-(--disabled-opacity) [&>button]:pointer-events-none',
+          // The wash lives on the CELL and the mark on the BUTTON, which is what
+          // lets a range read as one continuous band while both of its ends stay
+          // round. A middle day gets the wash and no fill; the ends get both.
+          range_middle: 'bg-(--accent-muted) [&>button]:text-(--ink) [&>button:hover]:bg-(--stone)',
+          range_start: cn('bg-(--accent-muted) rounded-s-(--radius-pill)', FILL),
+          range_end: cn('bg-(--accent-muted) rounded-e-(--radius-pill)', FILL),
+          hidden: 'invisible',
+          ...classNames,
+        }}
+        {...props}
+      />
+    </PickerContext>
   )
 }
 

@@ -86,7 +86,7 @@ export const COMPONENTS: ComponentEntry[] = [
     dir: 'Button',
     name: 'Button',
     group: 'Actions',
-    summary: 'The system’s action, as a pill that does not move on hover.',
+    summary: 'The system’s action, on the same corner as the field beside it.',
     when: 'Anything that DOES something. If it navigates and looks like text, it is a link, not a ghost button.',
     accessibility: [
       'A native <button> by default, so Enter and Space both fire it.',
@@ -173,6 +173,21 @@ export const COMPONENTS: ComponentEntry[] = [
     related: ['status-pill'],
   },
   {
+    slug: 'steps',
+    dir: 'Steps',
+    name: 'Steps',
+    group: 'Display',
+    summary: 'A numbered sequence, as a rail — one thing after another, with a rule through them.',
+    when: 'A pipeline, a migration, a recipe: an order with no branches. The moment something forks or points at something else it is a Diagram, and drawing a fork as a list hides it.',
+    accessibility: [
+      'An <ol>, because the order IS the content — a stack of divs says nothing about sequence.',
+      'aria-current="step" marks the filled one, which is the only thing here a reader could not infer from the reading order.',
+      'The markers and the connector are aria-hidden: the number is the list position, and screen readers already announce that.',
+    ],
+    related: ['diagram', 'article'],
+  },
+
+  {
     slug: 'status-pill',
     dir: 'StatusPill',
     name: 'StatusPill',
@@ -202,6 +217,21 @@ export const COMPONENTS: ComponentEntry[] = [
       'role="none" by default. A rule that only groups things visually must not be announced.',
     ],
   },
+  {
+    slug: 'diagram',
+    dir: 'Diagram',
+    name: 'Diagram',
+    group: 'Display',
+    summary: 'A flow or architecture figure, drawn out of the system’s own parts.',
+    when: 'A picture of structure, in a page rather than in a terminal. Nesting is containment and an edge is a step between siblings — a diagram that needs arbitrary wiring wants a drawing, not this.',
+    accessibility: [
+      'A <figure> with role="group", named by its caption, so the whole picture is one thing a reader can skip.',
+      'Arrows are aria-hidden: assistive tech reads the nodes in document order and has no use for a glyph pointing at the next one.',
+      'Server-rendered markup, not a canvas — every label is real text a screen reader and a search engine can read.',
+    ],
+    related: ['card', 'figure-band'],
+  },
+
   {
     slug: 'figure-band',
     dir: 'FigureBand',
@@ -543,6 +573,21 @@ export const COMPONENTS: ComponentEntry[] = [
 
   // ─── Surfaces ───
   {
+    slug: 'article',
+    dir: 'Article',
+    name: 'Article',
+    group: 'Surfaces',
+    summary: 'The long-form reading surface — everything a Markdown pipeline emits, in this system’s type.',
+    when: 'A post, a changelog entry, a document. Not for interface copy: a paragraph inside a card is a paragraph, and this is a whole reading column with its own rhythm.',
+    accessibility: [
+      'An <article> by default, so the piece is a landmark a reader can jump to.',
+      'Every heading carries scroll-margin, so an anchored link does not park the heading under a fixed masthead.',
+      'The styles are element selectors at low specificity, so a component dropped inside keeps its own.',
+    ],
+    related: ['diagram', 'card'],
+  },
+
+  {
     slug: 'card',
     dir: 'Card',
     name: 'Card',
@@ -602,7 +647,7 @@ export const COMPONENTS: ComponentEntry[] = [
       { keys: ['Enter'], does: 'Chooses the highlighted option; choosing the current one clears it.' },
       { keys: ['Escape'], does: 'Closes without choosing.' },
     ],
-    previewHeight: 'min-h-[28rem]',
+    previewHeight: 'min-h-[29rem]',
   },
   {
     slug: 'date-picker',
@@ -731,7 +776,7 @@ export const COMPONENTS: ComponentEntry[] = [
       { keys: ['Enter'], does: 'Runs the highlighted action.' },
       { keys: ['Escape'], does: 'Closes without running anything.' },
     ],
-    previewHeight: 'min-h-[26rem]',
+    previewHeight: 'min-h-[27rem]',
     related: ['dropdown-menu', 'command', 'combobox'],
   },
   {

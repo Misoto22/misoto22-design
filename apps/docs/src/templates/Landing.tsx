@@ -104,7 +104,10 @@ export function Landing() {
               <span className="grid size-10 place-items-center rounded-(--radius-pill) bg-(--stone) text-(--ink-2)">
                 <pillar.icon size={18} strokeWidth={1.5} aria-hidden />
               </span>
-              <CardTitle>{pillar.title}</CardTitle>
+              {/* h2: these are the top-level sections under the hero. As h3 they
+                  skipped a level, which is a jump a screen reader has to
+                  announce and a reader has to reconstruct. */}
+              <CardTitle as="h2">{pillar.title}</CardTitle>
               <p className="m-0 text-[13px] leading-relaxed text-(--ink-3-aa)">{pillar.body}</p>
             </CardBody>
           </Card>

@@ -6,10 +6,14 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState, type ReactNode } from 'react'
 import { ThemeMenu } from './ThemeMenu'
+import { BrandMark } from './BrandMark'
 import { CommandPalette } from './CommandPalette'
+import { DocsFooter } from './DocsFooter'
+import { GithubMark } from './GithubMark'
 import { LocaleMenu } from './LocaleMenu'
 import { Sidebar } from './Sidebar'
 import { ThemeToggle } from './ThemeToggle'
+import { HAS_SIDEBAR, SECTIONS, SECTION_ROOT, sectionFor, type SectionId } from '@/content/sections'
 import { localePath } from '@/i18n/locales'
 import { useLocale, useMessages } from '@/i18n/useLocale'
 
@@ -30,6 +34,19 @@ export function DocsShell({ children }: { children: ReactNode }) {
   // reader who put the sidebar away did not mean "until the next page".
   const [docked, setDocked] = useState(true)
 
+  // Whether the sidebar is a column or a drawer. A closed drawer is only
+  // translated off-screen, so without knowing which it is there is no way to
+  // say when its sixty links should leave the tab order.
+  const [isDrawer, setIsDrawer] = useState(false)
+
+  useEffect(() => {
+    const query = matchMedia('(max-width: 1023px)')
+    const sync = () => setIsDrawer(query.matches)
+    sync()
+    query.addEventListener('change', sync)
+    return () => query.removeEventListener('change', sync)
+  }, [])
+
   useEffect(() => {
     try {
       setDocked(localStorage.getItem('m22-sidebar') !== 'closed')
@@ -48,6 +65,14 @@ export function DocsShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const locale = useLocale()
   const t = useMessages()
+  const section = sectionFor(pathname)
+  const sidebar = HAS_SIDEBAR[section]
+  const SECTION_LABEL: Record<SectionId, string> = {
+    docs: t.nav.docs,
+    components: t.section.components,
+    templates: t.nav.templates,
+    themes: t.themes.title,
+  }
 
   // Close on navigation: a drawer left open over the page the reader just asked
   // for is the most common mobile-nav bug.
@@ -63,7 +88,15 @@ export function DocsShell({ children }: { children: ReactNode }) {
   return (
     <TooltipProvider>
       <CommandPalette />
-    <div className="min-h-svh lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
+    {/* The column list has to follow the sidebar. `lg:hidden` takes the aside
+        out of the grid, and with a fixed 17rem first track the CONTENT then
+        landed in it — a 272px column on a 1440px screen, which is why
+        collapsing the sidebar crushed the page instead of widening it. */}
+    <div
+      className={`min-h-svh lg:grid ${
+        sidebar && docked ? 'lg:grid-cols-[17rem_minmax(0,1fr)]' : 'lg:grid-cols-[minmax(0,1fr)]'
+      }`}
+    >
       <a
         href="#content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-(--z-toast) focus:rounded-(--radius) focus:bg-(--ink) focus:px-4 focus:py-2 focus:text-sm focus:text-(--paper)"
@@ -83,20 +116,43 @@ export function DocsShell({ children }: { children: ReactNode }) {
       <aside
         id="docs-sidebar"
         aria-label={t.nav.sidebar}
+        // A drawer that is merely translated off-screen still holds focus and
+        // is still read aloud: closed, it put sixty links between the reader
+        // and the page they were on.
+        inert={isDrawer && !open}
         className={`fixed inset-y-0 start-0 z-(--z-modal) flex w-[17rem] flex-col border-e border-(--rule) bg-(--paper) transition-transform duration-(--duration-slow) ease-(--ease-out-expo) ${
           open ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full'
-        } lg:sticky lg:top-0 lg:z-auto lg:h-svh lg:translate-x-0 ${docked ? '' : 'lg:hidden'}`}
+        } lg:sticky lg:top-0 lg:z-auto lg:h-svh lg:translate-x-0 ${
+          sidebar && docked ? '' : 'lg:hidden'
+        }`}
       >
-        {/* The same 3.5rem as the header beside it, and its own bottom rule, so
+        {/* The same 4rem as the header beside it, and its own bottom rule, so
             the two run as one line across the page. They used to be a
             content-height block against a fixed-height bar, and the rules did
-            not meet. */}
-        <div className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-(--rule) px-4">
-          <Link href={localePath(locale, '/')} className="flex flex-col leading-none">
-            <span className="font-heading text-[17px] leading-tight text-(--ink)">
-              misoto22 design
+            not meet.
+
+            4rem rather than 3.5: the lockup is two lines of type beside a
+            26px mark, and at 56px that stack had no air above or below it —
+            the band read as thin because it was being asked to hold more than
+            it had room for. The rule under it is the EDGE weight, not the
+            hairline, which is this system's own way of saying "this is a band,
+            not a row". */}
+        {/* The wordmark, and on a phone the drawer's close button. The DESKTOP
+            collapse control is not here: it used to sit beside the wordmark and
+            move to the masthead once the sidebar was away, so the same action
+            was in two places depending on the state it was in — which is why
+            neither was findable. It is one button in the masthead now, and it
+            stays put. */}
+        <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-(--rule-2) px-4">
+          <Link
+            href={localePath(locale, '/')}
+            className="flex items-center gap-2.5 text-(--ink) transition-opacity duration-(--duration-fast) hover:opacity-70"
+          >
+            <BrandMark size={26} className="shrink-0" />
+            <span className="flex flex-col leading-none">
+              <span className="font-heading text-[17px] leading-tight">misoto22 design</span>
+              <span className="mono-meta text-(--ink-3-aa)">{t.tagline}</span>
             </span>
-            <span className="mono-meta text-(--ink-3-aa)">{t.tagline}</span>
           </Link>
           <Button
             iconOnly
@@ -108,16 +164,22 @@ export function DocsShell({ children }: { children: ReactNode }) {
           >
             <X size={16} strokeWidth={1.5} aria-hidden />
           </Button>
-          <Button
-            iconOnly
-            size="sm"
-            variant="ghost"
-            className="max-lg:hidden"
-            aria-label={t.nav.collapseNav}
-            onClick={() => setDocked(false)}
-          >
-            <PanelLeftClose size={16} strokeWidth={1.5} aria-hidden />
-          </Button>
+        </div>
+        <div className="flex flex-col gap-1 border-b border-(--rule) px-2 py-2 nav:hidden">
+          {SECTIONS.map((id) => {
+            const href = localePath(locale, SECTION_ROOT[id])
+            return (
+              <Link
+                key={id}
+                href={href}
+                aria-current={section === id ? 'page' : undefined}
+                onClick={() => setOpen(false)}
+                className="rounded-(--radius-row) px-3 py-1.5 text-sm text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink) aria-[current=page]:bg-(--stone) aria-[current=page]:text-(--ink)"
+              >
+                {SECTION_LABEL[id]}
+              </Link>
+            )
+          })}
         </div>
         <div className="min-h-0 flex-1 px-4 pt-4">
           <Sidebar onNavigate={() => setOpen(false)} />
@@ -125,12 +187,16 @@ export function DocsShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-col">
-        <header className="sticky top-0 z-(--z-sticky) flex h-14 items-center justify-between gap-3 border-b border-(--rule) bg-(--paper)/85 px-5 backdrop-blur">
+        {/* `size="sm"` is 36px, which the Button docs are explicit about being
+            below the pointer-target floor — a deliberate density for a mouse.
+            A finger is not a mouse, so every control in this bar gets 44px on a
+            coarse pointer. */}
+        <header className="sticky top-0 z-(--z-sticky) flex h-16 items-center justify-between gap-3 border-b border-(--rule-2) bg-(--paper)/85 px-5 backdrop-blur pointer-coarse:[&_a]:min-h-11 pointer-coarse:[&_button]:min-h-11">
           <Button
             iconOnly
             size="sm"
             variant="ghost"
-            className="lg:hidden"
+            className="-ms-2 lg:hidden"
             aria-label={t.nav.openNav}
             aria-expanded={open}
             aria-controls="docs-sidebar"
@@ -138,41 +204,100 @@ export function DocsShell({ children }: { children: ReactNode }) {
           >
             <Menu size={18} strokeWidth={1.5} aria-hidden />
           </Button>
-          <Button
-            iconOnly
-            size="sm"
-            variant="ghost"
-            className={docked ? 'hidden' : 'max-lg:hidden'}
-            aria-label={t.nav.expandNav}
-            onClick={() => setDocked(true)}
+
+          {/* The brand, wherever the sidebar's own head is not on screen.
+              That is not only the phone: collapsing the sidebar on a desktop
+              took the aside away with `lg:hidden`, and the site's name went
+              with it — the one state where a reader could not tell what they
+              were reading. The tagline is dropped here; below `sm` even the
+              wordmark goes, because at 390px the bar has a hamburger and four
+              controls to seat first and the mark alone still says whose site
+              this is. */}
+          <Link
+            href={localePath(locale, '/')}
+            className={`flex items-center gap-2 text-(--ink) transition-opacity duration-(--duration-fast) hover:opacity-70 ${
+              sidebar && docked ? 'lg:hidden' : ''
+            }`}
           >
-            <PanelLeftOpen size={16} strokeWidth={1.5} aria-hidden />
-          </Button>
+            <BrandMark size={24} className="shrink-0" />
+            <span className="font-heading text-[16px] leading-none max-sm:sr-only">
+              misoto22 design
+            </span>
+          </Link>
+          {sidebar && (
+            <Button
+              iconOnly
+              size="sm"
+              variant="ghost"
+              className="max-lg:hidden"
+              aria-label={docked ? t.nav.collapseNav : t.nav.expandNav}
+              aria-expanded={docked}
+              onClick={() => setDocked((previous) => !previous)}
+            >
+              {docked ? (
+                <PanelLeftClose size={16} strokeWidth={1.5} aria-hidden />
+              ) : (
+                <PanelLeftOpen size={16} strokeWidth={1.5} aria-hidden />
+              )}
+            </Button>
+          )}
+
+          {/* The four sections, in the masthead rather than as four rows among
+              sixteen in the sidebar. A reader arriving on a component page had
+              no way to see that templates and themes existed at all. */}
+          {/* Full-height items, so the current section's underline lands ON
+              the masthead's bottom rule rather than floating above it. Colour
+              alone was carrying the state before, and one step of grey is not
+              a state anyone can see. */}
+          <nav
+            aria-label={t.nav.sections}
+            className="-mb-px flex h-16 items-stretch gap-1 self-stretch max-nav:hidden"
+          >
+            {SECTIONS.map((id) => {
+              const href = localePath(locale, SECTION_ROOT[id])
+              return (
+                <Link
+                  key={id}
+                  href={href}
+                  aria-current={section === id ? 'page' : undefined}
+                  className="flex items-center border-b-2 border-transparent px-3 text-sm text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:text-(--ink) aria-[current=page]:border-(--ink) aria-[current=page]:text-(--ink)"
+                >
+                  {SECTION_LABEL[id]}
+                </Link>
+              )
+            })}
+          </nav>
+
           <div className="flex-1" />
           <div className="flex items-center gap-1">
             {/* A visible way in, because a shortcut nobody is told about is a
                 shortcut for the person who built it. */}
+            {/* `secondary`, so it reads as the FIELD it opens rather than as a
+                third ghost link in a row of ghost links. Same bordered box the
+                system gives an input, at the toolbar's own height. */}
             <Button
               size="sm"
-              variant="ghost"
-              onClick={() => document.dispatchEvent(
-                new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }),
-              )}
-              className="gap-2 text-(--ink-3-aa)"
+              variant="secondary"
+              onClick={() => document.dispatchEvent(new CustomEvent('m22:palette'))}
+              className="gap-2 text-(--ink-3-aa) max-sm:border-transparent max-sm:px-2"
             >
               <Search size={14} strokeWidth={1.5} aria-hidden />
               <span className="max-sm:sr-only">{t.search}</span>
               <Kbd className="max-sm:hidden">⌘K</Kbd>
             </Button>
+            {/* The mark, not the word. Four of the five controls beside it are
+                icons, and spelling this one out made the row read as a link
+                that had wandered in from the page. */}
             <Button
+              iconOnly
               size="sm"
               variant="ghost"
               href="https://github.com/Misoto22/misoto22-design"
               target="_blank"
               rel="noreferrer noopener"
-              className="font-mono text-[11px] tracking-wide"
+              aria-label="GitHub"
             >
-              GitHub
+              <GithubMark size={17} />
             </Button>
             <LocaleMenu />
             <ThemeMenu />
@@ -180,9 +305,16 @@ export function DocsShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main id="content" className="min-w-0 flex-1 px-5 pb-24 pt-8 sm:px-8 lg:px-12">
+        {/* `flex-1` on the MAIN and `mt-auto` on the footer, so a short page
+            pushes the footer to the bottom of the viewport instead of leaving
+            it stranded halfway up. The bottom padding drops from 24 to 16:
+            the footer's own top rule is the ending now, and 96px of nothing
+            in front of it just reads as the same void with a line under it. */}
+        <main id="content" className="min-w-0 flex-1 px-5 pb-16 pt-8 sm:px-8 lg:px-12">
           {children}
         </main>
+
+        <DocsFooter />
       </div>
     </div>
     </TooltipProvider>

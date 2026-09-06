@@ -207,10 +207,25 @@ removed export, a changed default, or a token that no longer resolves is a
 
 ### Deployment
 
-Pushing to `main` runs lint, typecheck, tests, both builds and the browser
-suite, then publishes the static export to the `misoto22-ui` Cloudflare Pages
-project and smoke-tests the deployed routes. `ui.misoto22.com` is a proxied
-CNAME onto that project.
+Two entry points, named after what triggers them, over two shared definitions:
+
+```
+pr.yml       on: pull_request   →  verify → browser
+release.yml  on: push to main   →  verify → browser → deploy · publish
+                                              ↑         ↑        ↑
+                        verify.yml · browser.yml   Cloudflare   npmjs
+```
+
+`verify.yml` is lint, typecheck, tests, both builds and the size and
+tree-shaking budget; `browser.yml` is the axe, keyboard and RTL suite against
+the built export. Both are `workflow_call` definitions, so a pull request and a
+release are gated by the same file rather than by two that drift — and nothing
+deploys or publishes that they have not both passed.
+
+`deploy` uploads the exact directory `verify` built to the `misoto22-ui`
+Cloudflare Pages project and smoke-tests the deployed routes;
+`ui.misoto22.com` is a proxied CNAME onto it. `publish` is the npm half — see
+[docs/releasing.md](docs/releasing.md).
 
 ---
 

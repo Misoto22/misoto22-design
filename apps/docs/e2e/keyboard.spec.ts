@@ -82,7 +82,9 @@ test('the theme toggle is reachable and flips the document', async ({ page }) =>
 })
 
 test('the sidebar groups collapse, so the index is not one long column', async ({ page }) => {
-  await page.goto('/')
+  // The component groups live under the Components section: the masthead names
+  // the four sections, and the sidebar indexes whichever one is open.
+  await page.goto('/components/')
   await expect(page.getByRole('button', { name: /Switch to the (light|dark) theme/ })).toBeVisible()
 
   const nav = page.getByRole('navigation', { name: 'Documentation' })

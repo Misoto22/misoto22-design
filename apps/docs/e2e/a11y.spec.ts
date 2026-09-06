@@ -44,7 +44,12 @@ for (const theme of THEMES) {
         await expect(page.locator('html')).toHaveAttribute('data-mode', theme)
 
         const results = await new AxeBuilder({ page })
-          .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+          // `best-practice` as well as the WCAG sets. It is the same axe run —
+          // no extra time — and it is the half that catches a heading order
+          // that jumps a level, two landmarks sharing a name, and a column
+          // header with no text. None of those fail a WCAG success criterion
+          // and all of them make a page harder to navigate by ear.
+          .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'])
           .analyze()
 
         const summary = results.violations

@@ -103,6 +103,9 @@ test.describe('theme', () => {
     const inkFill = await primary.evaluate((element) => getComputedStyle(element).backgroundColor)
 
     await page.getByRole('button', { name: 'Theme', exact: true }).click()
+    // Presets open first; the axes and the accent are one click away, named in
+    // the tab strip rather than found by scrolling past four presets.
+    await page.getByRole('tab', { name: 'Customise' }).click()
     await page.getByRole('button', { name: 'Cobalt', exact: true }).click()
 
     await expect(page.locator('html')).toHaveAttribute('data-accent', 'cobalt')
@@ -122,6 +125,7 @@ test.describe('theme', () => {
     const soft = await radius()
 
     await page.getByRole('button', { name: 'Theme', exact: true }).click()
+    await page.getByRole('tab', { name: 'Customise' }).click()
     // Six axes, not one. A "theme" that only moved the accent was the
     // complaint this answers.
     await page.getByRole('radiogroup', { name: 'Corners' }).getByRole('radio', { name: 'Sharp' }).click()
@@ -135,7 +139,9 @@ test.describe('theme', () => {
     await ready(page)
 
     await page.getByRole('button', { name: 'Theme', exact: true }).first().click()
-    await page.getByRole('button', { name: /Console/ }).click()
+    // Scoped to the popover: the themes page's own rail carries the same seven
+    // names, and an unscoped match is now two buttons.
+    await page.getByRole('dialog').getByRole('button', { name: /Console/ }).click()
 
     const html = page.locator('html')
     await expect(html).toHaveAttribute('data-surface', 'cool')
@@ -143,7 +149,7 @@ test.describe('theme', () => {
     await expect(html).toHaveAttribute('data-type', 'grotesk')
     await expect(html).toHaveAttribute('data-density', 'compact')
 
-    await page.getByRole('button', { name: 'Reset', exact: true }).click()
+    await page.getByRole('dialog').getByRole('button', { name: 'Reset', exact: true }).click()
     // The default is the ABSENCE of an attribute, so a reset that merely wrote
     // "paper" back would leave the document claiming a theme it does not have.
     await expect(html).not.toHaveAttribute('data-surface', /.*/)
@@ -154,6 +160,7 @@ test.describe('theme', () => {
     await page.goto('/')
     await ready(page)
     await page.getByRole('button', { name: 'Theme', exact: true }).click()
+    await page.getByRole('tab', { name: 'Customise' }).click()
     await page.getByRole('button', { name: 'Forest', exact: true }).click()
     await page.getByRole('radiogroup', { name: 'Surface' }).getByRole('radio', { name: 'Warm' }).click()
     await expect(page.locator('html')).toHaveAttribute('data-accent', 'forest')
@@ -165,16 +172,31 @@ test.describe('theme', () => {
     await expect(page.locator('html')).toHaveAttribute('data-surface', 'warm')
   })
 
-  test('the themes page draws five looks at once', async ({ page }) => {
+  test('the themes page draws every look at once', async ({ page }) => {
     await page.goto('/themes/')
     await ready(page)
 
-    // Nothing in themes.css is anchored to :root, which is what lets five
+    // Nothing in themes.css is anchored to :root, which is what lets seven
     // themes share one document — and is the argument the page is making.
     const radii = await page
       .locator('main [data-radius], main section > div.overflow-hidden')
       .evaluateAll((els) => els.map((el) => getComputedStyle(el).borderTopLeftRadius))
     expect(new Set(radii).size).toBeGreaterThan(1)
+  })
+
+  test('the themes rail applies a whole look to the site', async ({ page }) => {
+    await page.goto('/themes/')
+    await ready(page)
+
+    // The one section whose sidebar is a control rather than an index: the page
+    // has a single destination, and what a reader wants there is the switch.
+    const rail = page.getByRole('navigation', { name: 'Themes' })
+    await rail.getByRole('button', { name: /Console/ }).click()
+
+    const html = page.locator('html')
+    await expect(html).toHaveAttribute('data-surface', 'cool')
+    await expect(html).toHaveAttribute('data-radius', 'sharp')
+    await expect(html).toHaveAttribute('data-density', 'compact')
   })
 })
 

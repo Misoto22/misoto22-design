@@ -59,7 +59,7 @@ describe('Button', () => {
     )
     const link = screen.getByRole('link', { name: 'Work' })
     expect(link.tagName).toBe('A')
-    expect(link.className).toContain('rounded-(--radius-pill)')
+    expect(link.className).toContain('rounded-(--radius)')
   })
 
   it('lets a caller override a base utility rather than emitting both', () => {
