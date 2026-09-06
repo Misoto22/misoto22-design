@@ -148,28 +148,51 @@ export function Home({ locale }: { locale: Locale }) {
         </div>
       </section>
 
+      {/* Two audiences, and by now two SOURCES for the second one. The files
+          under this site answer a reader that arrived at it; the package
+          answers one working in a project that installed it, which is the
+          commoner case and the only one that is version-locked. Listing only
+          the URLs — which is all this section did until the CLI shipped —
+          pointed every agent at the copy that goes stale. */}
       <section className="flex flex-col gap-5">
         <SectionHeading id="agents">{t.section.agents}</SectionHeading>
         <p className="m-0 max-w-(--w-reading) text-sm leading-relaxed text-(--ink-2)">
           {t.agents.note}
         </p>
-        <ul className="m-0 flex list-none flex-col gap-2 p-0">
-          {[
-            { href: '/llms.txt', note: t.agents.index },
-            { href: '/llms-full.txt', note: t.agents.full },
-            { href: '/components/button/llms.txt', note: t.agents.perComponent },
-          ].map((row) => (
-            <li key={row.href} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
-              <a
-                href={row.href}
-                className="font-mono text-[13px] text-(--ink) underline decoration-(--rule-2) underline-offset-4 hover:decoration-(--ink)"
-              >
-                {row.href}
-              </a>
-              <span className="text-[13px] text-(--ink-3-aa)">{row.note}</span>
-            </li>
-          ))}
-        </ul>
+
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+          <div className="flex flex-col gap-3">
+            <h3 className="m-0 font-heading text-[length:var(--fs-item)] text-(--ink)">
+              {t.agents.installedTitle}
+            </h3>
+            <CodeBlock {...snippet('agent')} label="agent" />
+            <p className="m-0 text-sm leading-relaxed text-(--ink-3-aa)">{t.agents.installed}</p>
+            <p className="m-0 text-sm leading-relaxed text-(--ink-3-aa)">{t.agents.skill}</p>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <h3 className="m-0 font-heading text-[length:var(--fs-item)] text-(--ink)">
+              {t.agents.siteTitle}
+            </h3>
+            <ul className="m-0 flex list-none flex-col gap-2 p-0">
+              {[
+                { href: '/llms.txt', note: t.agents.index },
+                { href: '/llms-full.txt', note: t.agents.full },
+                { href: '/components/button/llms.txt', note: t.agents.perComponent },
+              ].map((row) => (
+                <li key={row.href} className="flex flex-col gap-0.5">
+                  <a
+                    href={row.href}
+                    className="font-mono text-[13px] text-(--ink) underline decoration-(--rule-2) underline-offset-4 hover:decoration-(--ink)"
+                  >
+                    {row.href}
+                  </a>
+                  <span className="text-[13px] text-(--ink-3-aa)">{row.note}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </section>
     </div>
   )

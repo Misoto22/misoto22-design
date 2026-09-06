@@ -11,7 +11,7 @@
  *
  * Three outputs, one input each, no hand-maintained duplicates:
  *
- *   agent/catalog.mjs + src/components/**  → dist/agent/<Component>.md
+ *   agent/catalog.mjs + every entry point's tree   → dist/agent/<Component>.md
  *   agent/catalog.mjs                      → dist/agent/catalog.json
  *   agent/catalog.mjs                      → dist/agent/index.md
  *
@@ -25,7 +25,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { extractProps } from './extract-props.mjs'
-import { AXIS_DEFAULTS, CATALOG, GROUPS, slugOf } from '../agent/catalog.mjs'
+import { AXIS_DEFAULTS, CATALOG, DEFAULT_ENTRY, ENTRY_POINTS, GROUPS, slugOf } from '../agent/catalog.mjs'
 import { themeAxes } from './theme-axes.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -53,7 +53,7 @@ function propLines(rows) {
 }
 
 /** One component, as the whole of what the package knows about it. */
-function componentText(entry, source) {
+function componentText(entry, source, specifier) {
   const slug = slugOf(entry.name)
   const out = [
     `# ${entry.name}`,
@@ -61,7 +61,7 @@ function componentText(entry, source) {
     entry.summary,
     '',
     `- Group: ${entry.group}`,
-    `- Import: \`import { ${entry.name} } from '@misoto22/design'\``,
+    `- Import: \`import { ${entry.name} } from '${specifier}'\``,
     `- Version: ${version}`,
     `- Docs: ${SITE}/components/${slug}/`,
   ]
@@ -202,7 +202,22 @@ function indexText() {
 }
 
 function main() {
-  const props = extractProps(join(ROOT, 'src', 'components'))
+  // Every entry point, because an agent asking what `AreaChart` takes is asking
+  // the same question as one asking about `Button`, and a documentation set
+  // that answers only half of the package is one an agent cannot rely on.
+  //
+  // Which specifier each component is imported from falls out of the tree its
+  // directory sits in. Authoring it per component would be a second copy of
+  // something the filesystem already says, and the `Import:` line is the one an
+  // agent pastes without checking.
+  const props = {}
+  const entryOf = {}
+  for (const [specifier, dir] of Object.entries(ENTRY_POINTS)) {
+    for (const [name, source] of Object.entries(extractProps(join(ROOT, 'src', dir)))) {
+      props[name] = source
+      entryOf[name] = specifier
+    }
+  }
 
   const missing = CATALOG.filter((entry) => !props[entry.name])
   if (missing.length > 0) {
@@ -219,7 +234,10 @@ function main() {
   mkdirSync(OUT, { recursive: true })
 
   for (const entry of CATALOG) {
-    writeFileSync(join(OUT, `${entry.name}.md`), componentText(entry, props[entry.name]))
+    writeFileSync(
+      join(OUT, `${entry.name}.md`),
+      componentText(entry, props[entry.name], entryOf[entry.name] ?? DEFAULT_ENTRY),
+    )
   }
   writeFileSync(join(OUT, 'index.md'), indexText())
 
@@ -231,7 +249,11 @@ function main() {
       {
         version,
         groups: GROUPS,
-        components: CATALOG.map((entry) => ({ slug: slugOf(entry.name), ...entry })),
+        components: CATALOG.map((entry) => ({
+          slug: slugOf(entry.name),
+          entry: entryOf[entry.name] ?? DEFAULT_ENTRY,
+          ...entry,
+        })),
         exports: exportIndex(props),
         themeAxes: Object.entries(themeAxes()).map(([axis, values]) => ({
           axis,

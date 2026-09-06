@@ -30,9 +30,11 @@ Monochrome design system — CSS tokens and accessible React primitives
 
 ### Features
 
-- **49 React primitives** — Radix underneath wherever behaviour is involved, `cmdk` for the command palette, `react-day-picker` for the calendar. No router, no state library, no CSS-in-JS.
+- **52 React primitives** — Radix underneath wherever behaviour is involved, `cmdk` for the command palette, `react-day-picker` for the calendar. No router, no state library, no CSS-in-JS.
+- **15 data-visualisation primitives**, from a separate entry (`@misoto22/design/charts`) so an app that renders a Badge does not pay for a rendering engine — and four of them (`Heatmap`, `Sparkline`, `BarList`, `BigNumber`) need no engine at all. Texture carries series identity and the grey ramp supports it, which is what keeps two series apart in greyscale print, under forced colours and for a colour-blind reader. Every chart is announced, has an empty state, and puts its rows in a table.
+- **11 diagram components**, from a third entry (`@misoto22/design/diagrams`) — five server-rendered figures for architecture, workflow, sequence, data-flow and lifecycle, plus the chrome to explore one. They read [archify](https://github.com/tt-a1i/archify)'s JSON schemas, so a specification authored for that tool renders here in this system's own monochrome terms. The kind of a node is carried by a drawn sigil AND a word, so it survives greyscale.
 - **Two axes, both attributes** (`data-mode`, `data-density`) — light and dark, comfortable and compact. Set either on any container and everything below it follows.
-- **137 tokens, machine-readable** (`@misoto22/design/tokens`) — every token with its light value, dark value, category and comment, as JSON and as a typed module.
+- **178 tokens, machine-readable** (`@misoto22/design/tokens`) — every token with its light value, dark value, category and comment, as JSON and as a typed module.
 - **RTL with no second stylesheet** — every component is written in logical properties, so `dir="rtl"` mirrors the system. A test fails the build on a physical one.
 - **Accessibility the build enforces** — `coverage.test.ts` fails when a component has no fixture, so "every component is checked" is a property rather than a claim.
 
@@ -78,10 +80,12 @@ flowchart LR
 ```
 packages/design/
 ├── src/
-│   ├── components/         49 primitives, one directory each
+│   ├── components/         52 primitives, one directory each
+│   ├── charts/             20 primitives + their shared lib/
+│   ├── diagrams/           11 more + their shared lib/
 │   ├── styles/             tokens.css · semantic.css · keyframes.css
 │   ├── tokens/             brand.ts — hex mirrors for non-CSS surfaces
-│   └── lib/                cn, control base, overlay container
+│   └── lib/                cn, control base, overlay container, svg export
 └── scripts/                font vendoring, portable CSS, token emit, size budget
 apps/docs/
 ├── src/content/            the hand-written part: grouping and summaries

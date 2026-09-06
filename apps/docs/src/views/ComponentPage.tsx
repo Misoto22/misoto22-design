@@ -51,7 +51,11 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
   const related = (entry.related ?? []).map((s) => BY_SLUG.get(s)).filter(Boolean)
 
   const subject = primary?.name ?? entry.name
-  const importLine = `import { ${subject} } from '@misoto22/design'`
+  // The specifier, not the root: `@misoto22/design/charts` and
+  // `@misoto22/design/diagrams` are separate entry points, and a root import of
+  // AreaChart does not render a blank page — it throws. `entry.entry` is
+  // emitted from the tree the directory sits in, never authored beside it.
+  const importLine = `import { ${subject} } from '${entry.entry}'`
 
   // Every alias the package exports, not this directory's. `StatusTone` is
   // declared by StatusDot and used by StatusPill, so a per-directory list is
@@ -74,6 +78,18 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
           <Alert title={t.section.whenToReach} hideIcon>
             {zh.when ?? entry.when}
           </Alert>
+        )}
+        {/* Which specifier this ships from, printed only when it is not the
+            root. The import line below already names it, but a split entry is
+            invisible until it bites, and a reader who reaches for the root out
+            of habit gets a module-not-found error with nothing on the page to
+            explain it. Every component carries the field, so this compares
+            rather than tests for its presence. */}
+        {entry.entry !== '@misoto22/design' && (
+          <p className="m-0 flex flex-wrap items-baseline gap-2">
+            <span className="eyebrow text-(--ink-3-aa)">{t.section.shipsFrom}</span>
+            <code className="font-mono text-[13px] text-(--ink)">{entry.entry}</code>
+          </p>
         )}
         <CodeBlock
           html={plainBlock(importLine)}

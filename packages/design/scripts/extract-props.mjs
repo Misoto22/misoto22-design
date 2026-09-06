@@ -259,7 +259,17 @@ function resolveType(typeNode, declarations, source, seen = new Set()) {
 }
 
 /** Resolves a props type BY NAME, which is how a component's parameter is written. */
-function resolveNamed(name, declarations, source) {
+/**
+ * The declaration behind a props type, generic or not.
+ *
+ * The name arrives as written at the call site — `AreaChartProps<TData,
+ * TConfig>` for a generic component — and the declaration map is keyed by the
+ * bare name. Without the strip, every generic component resolved to nothing and
+ * published an empty prop table: no error, no warning, just a documentation
+ * page that says a component takes no props.
+ */
+function resolveNamed(rawName, declarations, source) {
+  const name = rawName.replace(/<.*$/s, '').trim()
   const declaration = declarations.get(name)
   if (!declaration) return { members: [], passthrough: [], union: false }
   if (declaration.kind === 'interface') {

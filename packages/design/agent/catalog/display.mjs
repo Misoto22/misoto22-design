@@ -6,7 +6,7 @@
  * files in `GROUPS` order. Nothing imports this one directly.
  *
  * A group is the unit because an entry is prose, not a row — several paragraphs
- * per component — and fifty-two of them in one file is a file only one person can
+ * per component — and ninety-two of them in one file is a file only one person can
  * be writing at a time.
  */
 

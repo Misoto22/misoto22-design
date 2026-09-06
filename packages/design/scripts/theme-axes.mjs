@@ -23,8 +23,15 @@ const STYLES = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'style
 /** The stylesheets that carry an axis selector. Both, because both do. */
 const SOURCES = ['tokens.css', 'themes.css']
 
-/** `[data-surface='warm']` and `[data-mode="dark"]` — either quote style. */
-const AXIS_SELECTOR = /\[data-([a-z]+)=['"]([a-z]+)['"]\]/g
+/**
+ * `[data-surface='warm']` and `[data-mode="dark"]` — either quote style.
+ *
+ * The axis name may be hyphenated. It was `[a-z]+` while every axis happened to
+ * be one word, and `data-chart-palette` then arrived in `themes.css` and was
+ * silently not an axis as far as this file was concerned — which is the same
+ * failure mode the hand-written list had, arrived at by a different route.
+ */
+const AXIS_SELECTOR = /\[data-([a-z]+(?:-[a-z]+)*)=['"]([a-z]+)['"]\]/g
 
 /**
  * @returns {Record<string, string[]>} axis attribute → its values, sorted.

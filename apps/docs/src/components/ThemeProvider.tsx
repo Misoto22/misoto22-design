@@ -18,6 +18,10 @@ export const AXES = {
   type: ['editorial', 'grotesk', 'bookish'],
   motion: ['still', 'calm', 'snappy'],
   density: ['comfortable', 'compact'],
+  // The one axis that adds hue back, and the only sanctioned way to do it. It
+  // is documented with the others but left out of the presets: a preset is a
+  // page's look, and this one only changes what a chart is painted with.
+  chartPalette: ['mono', 'chroma'],
 } as const
 
 export type Axis = keyof typeof AXES
@@ -31,6 +35,7 @@ export const DEFAULTS: Record<Axis, string> = {
   type: 'editorial',
   motion: 'calm',
   density: 'comfortable',
+  chartPalette: 'mono',
 }
 
 export type ThemeState = Record<Axis, string> & { accent: string }

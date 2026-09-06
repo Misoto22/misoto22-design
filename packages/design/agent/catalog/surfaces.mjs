@@ -6,7 +6,7 @@
  * files in `GROUPS` order. Nothing imports this one directly.
  *
  * A group is the unit because an entry is prose, not a row — several paragraphs
- * per component — and fifty-two of them in one file is a file only one person can
+ * per component — and ninety-two of them in one file is a file only one person can
  * be writing at a time.
  */
 
@@ -142,81 +142,6 @@ export const SURFACES = [
       },
     ],
     related: ['table', 'figure-band'],
-  },
-  {
-    name: 'Table',
-    group: 'Surfaces',
-    summary: 'A ruled data table — alignment, sorting and rules all per column.',
-    when: 'Alignment is per column and numbers belong at the end edge, so digits line up. Sorting is opt-in per column: a table where every header is a button invites sorting a column the data cannot be ordered by.',
-    anatomy: [
-      {
-        element: 'Scroll region',
-        required: true,
-        description:
-          'The focusable <div role="region"> around the table, named by caption. It carries the border setting and the density attribute, and it is what scrolls sideways — so the table exceeds the measure and the page does not.',
-      },
-      {
-        element: 'Caption',
-        required: true,
-        description:
-          'A real <caption>, visually hidden unless showCaption prints it as an eyebrow above the table. The same string is the scroll region’s accessible name, so it is heard on the way in and again from the table.',
-      },
-      {
-        element: 'Column label',
-        required: true,
-        description:
-          'TH — mono and uppercase so it never reads as data, aligned per column, and always emitting scope="col" unless a call site overrides it.',
-      },
-      {
-        element: 'Sort control',
-        description:
-          'On a sortable header only: a <button> INSIDE the th, with ArrowUp, ArrowDown or a dimmed ChevronsUpDown beside the label, and aria-sort on the th set from sortDirection.',
-      },
-      {
-        element: 'Cells',
-        required: true,
-        description:
-          'TD — top-aligned at --ink-2, sharing --table-pad-x with the header so the columns line up, and taking their row height from --table-pad-y, which density halves from 14px to 8px.',
-      },
-    ],
-    practices: [
-      {
-        kind: 'do',
-        text: 'Bound the height from outside for stickyHeader: className and every other prop land on the <table>, not on the scrolling div around it, so only a constraining parent — a flex column with a height — gives that div something to stick within. A max-height on a plain wrapper does not, and the header simply travels with the page.',
-      },
-      {
-        kind: 'do',
-        text: 'Pass scope="row" on a row’s first cell — TH writes scope="col" and your props are spread after it, so the override lands; without it every row header claims to head a column and a cell traced back reaches the wrong label.',
-      },
-      {
-        kind: 'do',
-        text: 'Reset the other columns to sortDirection="none" when the sort moves: each header carries its own aria-sort and nothing coordinates them, so a table can end up announcing two columns as sorted at once.',
-      },
-      {
-        kind: 'do',
-        text: 'Give TD the same align as its TH — alignment is per cell, not inherited down the column, and end-aligned numbers under a start-aligned label is a column whose digits stop lining up with their own heading.',
-      },
-      {
-        kind: 'dont',
-        text: 'aria-sort tells a reader how the table is ordered once they reach the header; it announces nothing at the moment the button is pressed. A table that re-orders under a screen reader has to say so somewhere the reader already is, or every row silently changes and nothing is said.',
-      },
-      {
-        kind: 'dont',
-        text: 'Do not expect it to reflow on a phone: nothing stacks, the region scrolls sideways behind a hairline scrollbar, and a column past the fold is reachable only by a reader who works out that it scrolls. Eight columns at 375px wants a different presentation, not a smaller font.',
-      },
-    ],
-    accessibility: [
-      'caption is required: an unnamed table on a page with three tables is unnavigable.',
-      'Column labels are <th scope="col">, so a cell can be traced back to its heading.',
-      'A sortable header is a button INSIDE the th, not a click handler on the cell — a cell with an onClick is not focusable and not announced, so the sort would exist only for a mouse.',
-      'aria-sort is set from sortDirection, which is the only way a screen reader learns the table is ordered at all.',
-      'No zebra striping at any border setting: in a monochrome system a striped row is a second surface competing with the page ground.',
-    ],
-    keyboard: [
-      { keys: ['Tab'], does: 'Reaches the scroll region, and each sortable column header.' },
-      { keys: ['←', '→'], does: 'Scrolls the table sideways once the region has focus.' },
-    ],
-    related: ['card', 'figure-band'],
   },
   {
     name: 'AppShell',

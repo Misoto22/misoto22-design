@@ -34,11 +34,80 @@ const BUDGET = {
    * paying for the whole set.
    */
   singleComponent: 30,
+  /**
+   * The charts entry, with its two peers left external.
+   *
+   * Measured separately because that separation is the point: charts need a
+   * rendering engine and an animation runtime, and neither belongs in a bundle
+   * that renders a Badge. If this number ever appears inside `everything`, the
+   * charts have leaked into the main barrel.
+   *
+   * Loose, like the others, and for the same reason: it exists to catch a step
+   * change rather than a kilobyte. Twenty primitives, the annotation layer, and
+   * the sonification, zoom and export subsystems are what this covers — about
+   * 143 kB of the package's own code over a 27 kB `tailwind-merge` floor that a
+   * consumer of the main entry has already paid for.
+   */
+  charts: 200,
+  /**
+   * ONE cartesian chart, bundled alone.
+   *
+   * The leaf-chart check below cannot see the failure this one exists for.
+   * Sparkline needs no rendering engine and composes no chrome, so it stays
+   * small however heavy the rest of the entry becomes; a cartesian root
+   * statically reaches the brush, the zoom surface, the toolbar and the export
+   * path whether or not the page composes them. That is where a UI dependency
+   * pulled into optional chrome quietly becomes mandatory for every consumer —
+   * it happened once, with Radix Menu and Radix Tooltip behind a five-button
+   * toolbar row, and cost 90 kB before anything measured it.
+   */
+  cartesianChart: 110,
+  /**
+   * ONE chart, bundled alone.
+   *
+   * The number that actually matters for this entry, and the one an absolute
+   * ceiling cannot express: a page that draws a single sparkline must not ship
+   * the sankey layout, the brush and the eleven background patterns. If this
+   * approaches `charts`, the entry has stopped being tree-shakeable and every
+   * consumer is paying for the whole set.
+   *
+   * Read it against a floor of about 27 kB, not against zero — that is
+   * `tailwind-merge` arriving with `cn`, which every component in the package
+   * already pays for and a consumer of the main entry already has. Sparkline's
+   * own contribution over that floor is under two kilobytes. Chasing the
+   * absolute number here leads to auditing a dependency that is not the
+   * charts' to begin with.
+   */
+  singleChart: 40,
+  /**
+   * The diagrams entry, which ships from `@misoto22/design/diagrams`.
+   *
+   * Measured separately because that separation is the point: five renderers,
+   * an orthogonal routing engine and a pan-zoom canvas have no business in a
+   * bundle that renders a Badge. If this number ever appears inside
+   * `everything`, the figures have leaked into the main barrel.
+   *
+   * Loose, like the others, and for the same reason — it exists to catch a step
+   * change rather than a kilobyte. Most of it is the chrome: the export menu
+   * pulls in the dropdown, which pulls in Radix.
+   */
+  diagrams: 190,
+  /**
+   * ONE figure, bundled alone.
+   *
+   * The number that actually matters for this entry: a page that draws one
+   * sequence diagram must not ship the workflow lane solver, the minimap and
+   * the export pipeline. Read it against a floor of about 27 kB rather than
+   * against zero — that is `tailwind-merge` arriving with `cn`, which every
+   * component in the package already pays for and a consumer of the main entry
+   * already has.
+   */
+  singleFigure: 55,
 }
 
 const kb = (bytes) => Math.round((bytes / 1024) * 10) / 10
 
-async function bundleSize(contents) {
+async function bundleSize(contents, external = []) {
   const result = await build({
     stdin: { contents, resolveDir: ROOT, loader: 'js' },
     bundle: true,
@@ -46,7 +115,7 @@ async function bundleSize(contents) {
     format: 'esm',
     platform: 'browser',
     write: false,
-    external: ['react', 'react-dom', 'react/jsx-runtime'],
+    external: ['react', 'react-dom', 'react/jsx-runtime', ...external],
     logLevel: 'silent',
   })
   return result.outputFiles[0].contents.byteLength
@@ -74,9 +143,51 @@ async function main() {
   report.push(['one component', kb(single), BUDGET.singleComponent])
   if (kb(single) > BUDGET.singleComponent) failures.push('one component')
 
+  // Recharts and motion are peer dependencies, so a consumer's bundler resolves
+  // them once for the whole app. Counting them here would measure their size
+  // rather than ours.
+  const charts = await bundleSize(
+    `export * from './dist/charts/index.js'`,
+    ['recharts', 'motion', 'motion/react'],
+  )
+  report.push(['charts entry', kb(charts), BUDGET.charts])
+  if (kb(charts) > BUDGET.charts) failures.push('charts entry')
+
+  // Sparkline is the leaf case on purpose: it needs no rendering engine at
+  // all, so anything recharts-shaped showing up in this number means the entry
+  // is pulling in siblings a consumer did not ask for.
+  const singleChart = await bundleSize(
+    `import { Sparkline } from './dist/charts/index.js'\nconsole.log(Sparkline)`,
+    ['recharts', 'motion', 'motion/react'],
+  )
+  report.push(['one chart', kb(singleChart), BUDGET.singleChart])
+  if (kb(singleChart) > BUDGET.singleChart) failures.push('one chart')
+
+  // AreaChart rather than Sparkline: this is the entry's heaviest single import
+  // and the one that reaches the shared chrome, so it is what a dependency
+  // added to an optional feature actually costs a consumer.
+  const cartesianChart = await bundleSize(
+    `import { AreaChart } from './dist/charts/index.js'\nconsole.log(AreaChart)`,
+    ['recharts', 'motion', 'motion/react'],
+  )
+  report.push(['one cartesian chart', kb(cartesianChart), BUDGET.cartesianChart])
+  if (kb(cartesianChart) > BUDGET.cartesianChart) failures.push('one cartesian chart')
+  const diagrams = await bundleSize(`export * from './dist/diagrams/index.js'`)
+  report.push(['diagrams entry', kb(diagrams), BUDGET.diagrams])
+  if (kb(diagrams) > BUDGET.diagrams) failures.push('diagrams entry')
+
+  // Sequence is the leaf case on purpose: it needs no boundary frames and no
+  // routing engine, so anything router-shaped in this number means the entry is
+  // pulling in siblings a consumer did not ask for.
+  const singleFigure = await bundleSize(
+    `import { SequenceFigure } from './dist/diagrams/index.js'\nconsole.log(SequenceFigure)`,
+  )
+  report.push(['one figure', kb(singleFigure), BUDGET.singleFigure])
+  if (kb(singleFigure) > BUDGET.singleFigure) failures.push('one figure')
+
   const share = Math.round((single / everything) * 100)
   for (const [name, size, budget] of report) {
-    console.log(`  ${name.padEnd(16)} ${String(size).padStart(6)} kB   budget ${budget} kB`)
+    console.log(`  ${name.padEnd(20)} ${String(size).padStart(6)} kB   budget ${budget} kB`)
   }
   console.log(`  one component is ${share}% of the whole package`)
 

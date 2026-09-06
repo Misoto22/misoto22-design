@@ -1,5 +1,7 @@
 import { AspectRatio, Text } from '@misoto22/design'
 
+const RATIOS = ['16 / 9', '4 / 3', '1 / 1']
+
 /**
  * Three boxes that know their height before anything is inside them. Each child
  * here has no intrinsic size at all — it is an empty div — and the box holds
@@ -7,8 +9,6 @@ import { AspectRatio, Text } from '@misoto22/design'
  * fill it. That is the whole mechanism: nothing inside can contribute a height,
  * so nothing inside can break the ratio.
  */
-const RATIOS = ['16 / 9', '4 / 3', '1 / 1']
-
 export function Example() {
   return (
     <div className="grid gap-4 sm:grid-cols-3">

@@ -4,6 +4,8 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 // @ts-expect-error — a build script, run here for the surface it extracts.
 import { extractProps } from '../../scripts/extract-props.mjs'
+// @ts-expect-error — plain ESM data, typed by JSDoc rather than by a declaration.
+import { ENTRY_POINTS } from '../../agent/catalog.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
 const SKILL = join(ROOT, 'skills', 'misoto22-design')
@@ -21,7 +23,15 @@ interface Source {
   exportedTypes?: { name: string }[]
 }
 
-const props = extractProps(join(ROOT, 'src', 'components')) as Record<string, Source>
+// Every tree the skill sends agents to. A rule naming an identifier from a
+// split entry would otherwise be unguarded, which is the exact failure this
+// file exists to prevent.
+const props = Object.assign(
+  {},
+  ...Object.values(ENTRY_POINTS as Record<string, string>).map((dir) =>
+    extractProps(join(ROOT, 'src', dir)),
+  ),
+) as Record<string, Source>
 
 const claims = JSON.parse(readFileSync(join(SKILL, 'evals', 'claims.json'), 'utf8')) as {
   naming: { use: string; avoid: string }[]
@@ -37,13 +47,19 @@ for (const source of Object.values(props)) {
   for (const type of source.exportedTypes ?? []) EXPORTED.add(type.name)
 }
 // The lib and token exports are re-exported by name rather than parsed out of a
-// component directory, so they are read off the entry point itself.
-for (const match of readFileSync(join(ROOT, 'src', 'index.ts'), 'utf8').matchAll(
-  /export\s+(?:type\s+)?\{([^}]+)\}/g,
-)) {
-  for (const name of match[1].split(',')) {
-    const cleaned = name.trim().replace(/^type\s+/, '').split(/\s+as\s+/).pop()?.trim()
-    if (cleaned) EXPORTED.add(cleaned)
+// component directory, so they are read off each entry point's own barrel. The
+// root's barrel is `src/index.ts`; a split entry's is `src/<dir>/index.ts`.
+const BARRELS = Object.values(ENTRY_POINTS as Record<string, string>).map((dir) =>
+  dir === 'components' ? 'index.ts' : join(dir, 'index.ts'),
+)
+for (const barrel of BARRELS) {
+  for (const match of readFileSync(join(ROOT, 'src', barrel), 'utf8').matchAll(
+    /export\s+(?:type\s+)?\{([^}]+)\}/g,
+  )) {
+    for (const name of match[1].split(',')) {
+      const cleaned = name.trim().replace(/^type\s+/, '').split(/\s+as\s+/).pop()?.trim()
+      if (cleaned) EXPORTED.add(cleaned)
+    }
   }
 }
 // `toast` is re-exported from the Toast module rather than from the entry point.
@@ -133,6 +149,31 @@ describe('skill structure', () => {
     const linked = [...skill.matchAll(/\]\(\.\/rules\/([\w-]+\.md)\)/g)].map((m) => m[1])
     expect(linked.length).toBeGreaterThan(0)
     expect(linked.filter((file) => !present.has(file))).toEqual([])
+  })
+
+  it('names every entry point a consumer has to import from', () => {
+    // The skill is what a session carries before it has run anything, so a
+    // specifier missing here is one an agent never learns exists — and every
+    // chart it then writes imports from a barrel that does not export it.
+    const skill = readFileSync(join(SKILL, 'SKILL.md'), 'utf8')
+    const exports = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).exports
+    const specifiers = Object.keys(exports)
+      .filter((key) => !key.endsWith('.css') && !key.endsWith('.json'))
+      .map((key) => (key === '.' ? '@misoto22/design' : `@misoto22/design${key.slice(1)}`))
+    expect(specifiers.filter((specifier) => !skill.includes(specifier))).toEqual([])
+  })
+
+  it('does not describe an attribute the stylesheets have never had', () => {
+    // `data-accent` was documented for months and has never existed. It was
+    // still here, in the same skill whose own rules/tokens.md says it is not.
+    const files = ['SKILL.md', ...readdirSync(join(SKILL, 'rules')).map((f) => `rules/${f}`)]
+    const claims = files.filter((file) => {
+      const text = readFileSync(join(SKILL, file), 'utf8')
+      // A line saying it does NOT exist is the point, so only count the ones
+      // that offer it as something to set.
+      return /(?:set|use|plus|,)\s*`?data-accent/.test(text)
+    })
+    expect(claims).toEqual([])
   })
 
   it('leaves no rule file unreferenced', () => {

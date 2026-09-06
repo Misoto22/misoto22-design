@@ -137,6 +137,11 @@ export const FOUNDATIONS: FoundationPage[] = [
     categories: [
       { key: 'colour', title: 'Colour tokens' },
       {
+        key: 'data',
+        title: 'Data',
+        note: 'The one place the system had to answer a question monochrome would rather not be asked: how do you tell six series apart with no hue to spend? Texture answers it — every chart ships fill variants, and this ramp is the SECOND encoding rather than the first. The eight steps are interleaved, so neighbouring series sit as far apart on the lightness ramp as eight steps allow (ΔE 21, against a floor of 15) and each one clears 3:1 on its own ground. Two of the six checks a chromatic palette would pass fail here by design and are stated rather than hidden: the chroma floor (these are greys) and the lightness band (--series-1 is ink). A consumer who needs hue sets data-chart-palette="chroma" rather than hand-picking hexes. --chart-fill and --chart-texture are the only pair in the system that is not the same number on both grounds: ink at 14% over paper is a legible band, and paper-white at 14% over near-black is nothing.',
+      },
+      {
         key: 'depth',
         title: 'Depth',
         note: 'Three of these resolve to nothing on purpose. A box-shadow in this system is never blurred; --lift is the hard ink offset that replaces the elevation ramp.',

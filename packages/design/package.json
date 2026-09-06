@@ -1,8 +1,8 @@
 {
   "name": "@misoto22/design",
-  "version": "0.5.0",
+  "version": "0.7.0",
   "private": false,
-  "description": "Monochrome design system \u2014 CSS tokens and accessible React primitives",
+  "description": "Monochrome design system — CSS tokens and accessible React primitives",
   "license": "MIT",
   "author": "Henry Chen",
   "type": "module",
@@ -24,6 +24,14 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./charts": {
+      "types": "./dist/charts/index.d.ts",
+      "import": "./dist/charts/index.js"
+    },
+    "./diagrams": {
+      "types": "./dist/diagrams/index.d.ts",
+      "import": "./dist/diagrams/index.js"
+    },
     "./styles.css": "./dist/styles.css",
     "./tokens.css": "./dist/tokens.css",
     "./semantic.css": "./dist/semantic.css",
@@ -41,7 +49,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build:fonts": "node scripts/vendor-fonts.mjs",
-    "build:js": "NODE_OPTIONS=--max-old-space-size=6144 tsup",
+    "build:js": "NODE_OPTIONS=--max-old-space-size=8192 tsup",
     "build:css": "tailwindcss -i ./src/styles/index.css -o ./dist/styles.css --minify && node scripts/copy-portable-css.mjs && node scripts/emit-tokens.mjs",
     "build:agent": "node scripts/emit-agent.mjs",
     "build": "pnpm run build:fonts && pnpm run build:js && pnpm run build:css && pnpm run build:agent",
@@ -55,8 +63,10 @@
     "check:publish": "node scripts/check-publish.mjs"
   },
   "peerDependencies": {
+    "motion": "^12.23.26",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "recharts": "^3.8.0"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.14",
@@ -103,9 +113,11 @@
     "esbuild": "^0.28.2",
     "esbuild-fix-imports-plugin": "^1.0.23",
     "jsdom": "^29.1.1",
+    "motion": "^12.43.0",
     "publint": "^0.3.24",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "recharts": "3.8.0",
     "tailwindcss": "4.3.3",
     "tsup": "^8.5.0",
     "typescript": "^6.0.3",
@@ -136,5 +148,13 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependenciesMeta": {
+    "motion": {
+      "optional": true
+    },
+    "recharts": {
+      "optional": true
+    }
   }
 }

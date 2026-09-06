@@ -5,15 +5,20 @@
  * question after it — which components a real screen needs TOGETHER, and how
  * they space against each other once there are twelve of them rather than one.
  *
- * There are two lines here, and they are not the same exercise.
+ * There are three lines here, and they are not the same exercise.
  *
- * The first four are a DENSITY TEST, and that is all they were ever meant to
- * be. A console is many components, close together, in a bounded column; a
- * landing page is very few, with a great deal of space and type doing most of
- * the work; a blog index is neither, and is a list of records that differ in
- * length; an article is the reading surface, against markup nobody here
- * authored. A system that only looks right at one of those has one screen in
- * it. They are not paste-ready pages and should not be read as any.
+ * Dashboard, Landing, Blog and Post are a DENSITY TEST, and that is all they
+ * were ever meant to be. A console is many components, close together, in a
+ * bounded column; a landing page is very few, with a great deal of space and
+ * type doing most of the work; a blog index is neither, and is a list of
+ * records that differ in length; an article is the reading surface, against
+ * markup nobody here authored. A system that only looks right at one of those
+ * has one screen in it. They are not paste-ready pages and should not be read
+ * as any.
+ *
+ * The architecture explorer answers a question none of the others reaches: what
+ * happens when ONE OBJECT owns the viewport and everything else is chrome
+ * arranged over, beside and under it, rather than stacked in a column with it.
  *
  * The eight after them are the opposite purpose: the SCREENS PEOPLE ACTUALLY
  * SHIP. Settings, sign-in, a data table, a wizard, a record, the three states,
@@ -23,7 +28,7 @@
  * answers is "what does this screen look like when it is built out of this
  * system", not "where does the spacing ramp break".
  *
- * Both lines earn their place the same way: each entry's `tests` names a
+ * All three lines earn their place the same way: each entry's `tests` names a
  * failure mode no other entry would have caught.
  */
 
@@ -89,6 +94,17 @@ export const TEMPLATES: TemplateEntry[] = [
     tests:
       'Uneven records. A card grid hides them behind equal boxes; a ruled list does not, so a summary that runs three lines on one row and one on the next shows immediately.',
     uses: ['ToggleGroup', 'Input', 'Badge', 'Tag', 'Avatar', 'LinkArrow', 'Pagination', 'Separator', 'StatusPill', 'Button'],
+  },
+  {
+    slug: 'architecture',
+    id: 'Architecture',
+    name: 'Architecture explorer',
+    category: 'Console',
+    summary:
+      'One diagram given the screen: a floating toolbar, a pannable canvas, an inspector, a minimap, a key and the conclusions under it.',
+    tests:
+      'Chrome arranged AROUND a surface rather than stacked with it. A floating bar over a canvas, a panel that appears where the reader is already looking, a minimap in the far corner — spacing decisions only ever checked in a column do not survive that.',
+    uses: ['ArchitectureFigure', 'DiagramCanvas', 'DiagramToolbar', 'DiagramExportMenu', 'DiagramInspector', 'DiagramMinimap', 'DiagramLegend', 'Button', 'Badge', 'StatusPill', 'Tag', 'Toast'],
   },
   {
     slug: 'post',

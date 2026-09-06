@@ -32,6 +32,132 @@ import type { Locale } from './locales'
  * publish is what stops. See `docs/releasing.md`.
  */
 const ZH: Record<string, string> = {
+  // ─── 0.7.0 ───
+  [fingerprint(
+    'Add `@misoto22/design/diagrams`: five diagram figures and the chrome to explore one.',
+  )]: '新增 `@misoto22/design/diagrams`：五种图示，以及把其中一张读下去所需的那套外围界面。',
+  [fingerprint(
+    '`ArchitectureFigure`, `WorkflowFigure`, `SequenceFigure`, `DataflowFigure` and `LifecycleFigure` render the JSON schemas published by [archify](https://github.com/tt-a1i/archify), so a specification authored for that tool renders here with no translation step — in this system\'s own terms rather than in archify\'s palette. Where archify separates seven kinds of node by hue, these carry the kind twice, as a drawn sigil and as a word on the plate\'s eyebrow, so the distinction survives a greyscale print and a colour-blind reader. The only colour any of them spends is `--success` and `--danger` on a terminal lifecycle state, which is what those two tokens were reserved for.',
+  )]: '`ArchitectureFigure`、`WorkflowFigure`、`SequenceFigure`、`DataflowFigure` 和 `LifecycleFigure` 渲染的是 [archify](https://github.com/tt-a1i/archify) 公布的那几份 JSON schema，所以一份为那个工具写的规格，不经任何转换步骤就能在这里画出来——而且用的是这套系统自己的语汇，而不是 archify 的配色。archify 靠七种色相把七类节点分开；这里则把类别说两遍——一个画出来的记号，加上底板引题上的一个词——于是这个区分挺得过一次灰度打印，也挺得住一位色盲读者。它们唯一花掉的颜色，是终态生命周期状态上的 `--success` 和 `--danger`，而这两个 token 当初留出来就是为了这个。',
+  [fingerprint(
+    'Every position comes out of the specification, so the figures render on a server and produce identical markup twice — there is no layout to do and therefore no shift on hydration. The `<svg>` is `role="img"` with a name, and each figure publishes its nodes and relationships beside it as an ordinary list; passing `onSelectNode` turns that list into the keyboard\'s route to a selection.',
+  )]: '每一个位置都出自那份规格，所以这些图能在服务端渲染，两次产出的标记完全一致——压根没有布局要做，因此水合时也不会有任何抖动。`<svg>` 是带名字的 `role="img"`，而每张图都会把自己的节点和关系当成一份普通列表，一并陈列在它旁边；传入 `onSelectNode`，这份列表就变成键盘通往一次选中的那条路。',
+  [fingerprint(
+    '`DiagramCanvas`, `DiagramToolbar`, `DiagramExportMenu`, `DiagramInspector`, `DiagramMinimap` and `DiagramLegend` are the reader-facing half: pan and zoom, a grouped action bar, PNG / JPEG / WebP / SVG / share-card export with the theme\'s custom properties baked into real colours, a detail panel and an overview map.',
+  )]: '`DiagramCanvas`、`DiagramToolbar`、`DiagramExportMenu`、`DiagramInspector`、`DiagramMinimap` 和 `DiagramLegend` 是面向读者的那一半：平移与缩放、一条分了组的动作栏、把主题的自定义属性烘成真实颜色的 PNG / JPEG / WebP / SVG / 分享卡导出、一块详情面板，以及一张总览地图。',
+  [fingerprint(
+    'They ship from their own entry point so a page rendering a `Badge` does not pay for a routing engine; `check-size` fails if they ever leak into the main barrel. The shared SVG export helpers now live in `src/lib/svg-export.ts`.',
+  )]: '它们从自己的入口点发出，这样一个只渲染 `Badge` 的页面就不会为一台布线引擎付钱；一旦它们漏进主 barrel，`check-size` 就会红。共享的 SVG 导出辅助函数现在住在 `src/lib/svg-export.ts` 里。',
+  [fingerprint(
+    'Fold the chart PNG export onto the shared SVG export.',
+  )]: '把图表的 PNG 导出并到共享的 SVG 导出上。',
+  [fingerprint(
+    '`charts/lib/export.ts` and `lib/svg-export.ts` each carried the same computed- style walker, the same standalone-document builder and the same canvas rasteriser — arrived at independently, for charts and for diagrams, and already diverging: the shared copy had picked up `marker-start`/`mid`/`end`, without which an exported arrow comes out headless. Two copies of a paint walker means the next fix lands in one of them.',
+  )]: '`charts/lib/export.ts` 和 `lib/svg-export.ts` 各自带着同一个计算样式遍历器、同一个独立文档构造器，以及同一个 canvas 栅格化器——一个为图表、一个为图示，各自独立地走到了这里，而且已经开始分岔：共享的那一份已经补上了 `marker-start`/`mid`/`end`，少了它，导出来的箭头是没有头的。一个上色遍历器存着两份拷贝，意思就是下一次修复只会落进其中一份里。',
+  [fingerprint(
+    'The chart module keeps only what a Recharts chart knows and a diagram does not: which `<svg>` in the subtree is the plot, what a row of chart data looks like as a CSV record, and that the ground behind an exported plot is `--chart-surface`. It is 387 lines down to 182, and `chartToPng`\'s signature is unchanged.',
+  )]: '图表模块只留下「Recharts 图表知道、而图示不知道」的那些事：子树里哪一个 `<svg>` 才是绘图区、一行图表数据写成 CSV 记录长什么样，以及导出的绘图区背后那层底是 `--chart-surface`。387 行降到 182 行，而 `chartToPng` 的签名没有变。',
+  [fingerprint(
+    '`findPlotSvg` now has a test, which it did not before. Both of its narrowings are load-bearing and each fails the same silent way — the toolbar sits outside the plot wrapper and every control in it is an `<svg>`, the legend draws its swatches inside it — so an export that skipped either one would be a picture of an icon, which looks like a working download until somebody opens the file.',
+  )]: '`findPlotSvg` 现在有测试了，之前没有。它的两处收窄都是承重的，而且各自都以同样一种无声的方式失败——工具栏坐在绘图区包装层外面，而它里面每一个控件都是一个 `<svg>`；图例则把自己的色块画在包装层里面——所以一次跳过其中任何一处的导出，出来会是一张图标的图片，而它看上去和一次正常的下载没有区别，直到有人真的打开那个文件。',
+  [fingerprint(
+    'Two visible differences, both from the shared serialiser: the exported title band is 34px at 15px rather than 30px at 13px, and a chart exported before it has been measured now says `serializeSvg:` rather than `chartToPng:` in the error it throws.',
+  )]: '两处看得见的差别，都来自那个共享的序列化器：导出的标题带从 30px 高、13px 字号变成 34px 高、15px 字号；而一张还没被测量就被导出的图表，现在抛出的错误里写的是 `serializeSvg:` 而不是 `chartToPng:`。',
+
+  // ─── 0.6.1 ───
+  [fingerprint(
+    'Fix the `Import:` line the offline documentation prints for a chart.',
+  )]: '修正离线文档给图表打印的 `Import:` 那一行。',
+  [fingerprint(
+    '`dist/agent/AreaChart.md` said `import { AreaChart } from \'@misoto22/design\'`, which throws. Charts ship from `@misoto22/design/charts` behind optional peers, and that separation is the whole reason an app rendering a Badge never resolves `recharts` — so the root barrel does not export them and never will. Twenty components carried the wrong line, in the tarball and in the site\'s `llms.txt` alike. It is the one line an agent pastes without checking.',
+  )]: '`dist/agent/AreaChart.md` 写的是 `import { AreaChart } from \'@misoto22/design\'`，而这句会 throw。图表从 `@misoto22/design/charts` 发出，后面挂着可选 peer，而这道分界线的全部意义就在于：一个只渲染 Badge 的应用永远不会去解析 `recharts`——所以根 barrel 不导出它们，将来也不会。二十个组件带着错的那一行，npm 包里和站点的 `llms.txt` 里都是。而这恰恰是 agent 会直接粘走、不会去核对的一行。',
+  [fingerprint(
+    'Which specifier a component is imported from is now derived from the tree its directory sits in — `ENTRY_POINTS` maps each specifier to one directory under `src/`, and nothing is authored per component. The alternative was a field on every entry, which is a second copy of something the filesystem already says. `catalog.test.ts` fails when a catalog entry names no entry point\'s tree.',
+  )]: '一个组件从哪个 specifier 导入，现在由它目录所在的那棵树推导出来——`ENTRY_POINTS` 把每个 specifier 映射到 `src/` 下的一个目录，没有任何东西是按组件手写的。另一条路是给每条记录加一个字段，那等于把文件系统已经说过的事再抄一遍。当一条 catalog 记录不属于任何入口的目录树时，`catalog.test.ts` 会红。',
+  [fingerprint(
+    'The skill was stale in the same direction and is corrected with it: it said 52 primitives when there are 72, never mentioned the charts entry or `@misoto22/design/tokens`, and still offered `data-accent` — an attribute that has never existed, in the same skill whose own `rules/tokens.md` says so. Two tests now hold that line: every specifier in `exports` has to appear in `SKILL.md`, and no skill file may offer `data-accent` as something to set.',
+  )]: 'skill 在同一个方向上也过期了，这次一并修正：它写着 52 个 primitive，实际有 72 个；从没提过 charts 入口和 `@misoto22/design/tokens`；还在把 `data-accent` 当成可设的轴列出来——而这个属性从来就不存在，同一个 skill 自己的 `rules/tokens.md` 里就是这么写的。现在有两条测试守着这一点：`exports` 里的每个 specifier 都必须出现在 `SKILL.md` 里，而且任何 skill 文件都不许把 `data-accent` 当作可设置项。',
+
+  // ─── 0.6.0 ───
+  [fingerprint('The package documents itself for agents, offline: a `misoto22-design` CLI, a skill, and a README.')]: '这个包现在离线为 agent 记录自己：一个 `misoto22-design` CLI、一个 skill，以及一个 README。',
+  [fingerprint(
+    'The docs were on a website while the version being written against was in `node_modules`, and neither side could see the disagreement. Everything an agent needs now ships in the same tarball as the source it was generated from.',
+  )]:
+    '文档在一个网站上，而真正被写代码所针对的那个版本躺在 `node_modules` 里，两边谁也看不见这处分歧。现在 agent 需要的一切，都和生成它的那份源码装在同一个 tarball 里发出去。',
+  [fingerprint(
+    '`npx misoto22-design docs <Component>` prints one component in full — every prop with its type and default, the exported unions, the keyboard contract, the accessibility promises, the `@example` blocks. The median component is about 500 tokens, against roughly 28,000 for all fifty-two. It resolves parts and types too, so `docs CardBody`, `docs TH` and `docs ButtonVariant` all land on the right file — which is what you have when an import just failed.',
+  )]:
+    '`npx misoto22-design docs <Component>` 会把一个组件完整打印出来——每个 prop 连同它的类型和默认值、导出的联合类型、键盘契约、无障碍承诺，以及 `@example` 代码块。组件的中位数大约是 500 token，而全部 52 个加起来约 28,000。它同样能解析部件和类型，所以 `docs CardBody`、`docs TH` 和 `docs ButtonVariant` 都会落到正确的那个文件上——而一次 import 刚刚失败时，你手上有的正是这样一个名字。',
+  [fingerprint(
+    '`npx misoto22-design docs --installed` is the cheap half: the resolved version and every component name, a few hundred tokens.',
+  )]:
+    '`npx misoto22-design docs --installed` 是便宜的那一半：解析出来的版本号和每一个组件名，几百个 token。',
+  [fingerprint(
+    '`npx misoto22-design init --agents-md` installs the skill under `.claude/skills/` and points `AGENTS.md` at it. Its name and description are about 110 tokens and are all a session carries until something touches the package; the body and the five rule files load from there.',
+  )]:
+    '`npx misoto22-design init --agents-md` 会把这个 skill 装到 `.claude/skills/` 下，并让 `AGENTS.md` 指向它。它的名字和描述加起来约 110 token，在有东西真的碰到这个包之前，一个会话随身带的就只有这些；正文和那五个规则文件从那里再往下加载。',
+  [fingerprint('`README.md` was listed in `files` and did not exist, so the npm page has been blank. It exists now.')]: '`README.md` 列在 `files` 里，却并不存在，所以 npm 页面一直是空白的。现在它存在了。',
+  [fingerprint(
+    'Two things the old documentation said were not true. There has never been a `data-accent` attribute — `--accent` is a custom property — and `data-surface="glass"` was never listed, so nothing pointed at an axis value that does work. The axes are now read out of the stylesheets that define them rather than described by hand, and a test fails when the authored half stops matching.',
+  )]:
+    '旧文档说的有两件事不是真的。从来就没有过 `data-accent` 属性——`--accent` 是一个自定义属性——而 `data-surface="glass"` 从来没被列出来，于是没有任何地方指向一个确实生效的轴值。这些轴现在是从定义它们的样式表里读出来的，而不是靠手写描述；当手写的那一半不再对得上时，会有一个测试失败。',
+  [fingerprint('Nothing about the runtime changed: same exports, same CSS, same bundle.')]: '运行时没有任何变化：一样的导出、一样的 CSS、一样的打包产物。',
+  [fingerprint('Add twenty data-visualisation primitives.')]: '新增二十个数据可视化原语。',
+  [fingerprint(
+    'Sixteen ship from a new `@misoto22/design/charts` entry with `recharts` and `motion` as OPTIONAL peer dependencies — `AreaChart`, `BarChart`, `LineChart`, `ComposedChart`, `ScatterChart`, `PieChart`, `RadarChart`, `RadialChart`, `FunnelChart`, `TreemapChart`, `SankeyChart`, `BoxPlot`, `Histogram`, `WaterfallChart`, `Facet` and the toolbar-driven zoom — each a compound component composed from axes, grid, tooltip, legend, dots, a background plate and a keyboard-driven zoom brush. The main entry and its size budget are unchanged: an app that renders a Badge does not pay for a rendering engine.',
+  )]: '其中十六个来自新的 `@misoto22/design/charts` 入口，`recharts` 和 `motion` 是**可选**的 peer 依赖——`AreaChart`、`BarChart`、`LineChart`、`ComposedChart`、`ScatterChart`、`PieChart`、`RadarChart`、`RadialChart`、`FunnelChart`、`TreemapChart`、`SankeyChart`、`BoxPlot`、`Histogram`、`WaterfallChart`、`Facet`，以及由工具栏驱动的缩放——每一个都是一个复合组件，由坐标轴、网格、tooltip、图例、点、一块背景板和一把键盘驱动的缩放刷子组合出来。主入口和它的体积预算没有变：一个只渲染 Badge 的应用，不会为一台渲染引擎付钱。',
+  [fingerprint(
+    '`Heatmap`, `Sparkline`, `BarList`, `BigNumber` and `BulletChart` ship from the same entry and need NO engine at all. The heatmap is a real `<table>` with weighted cells, so the structure a screen reader walks is the structure the eye reads; the sparkline is one `<path>`, so a hundred of them in a table cost nothing.',
+  )]: '`Heatmap`、`Sparkline`、`BarList`、`BigNumber` 和 `BulletChart` 从同一个入口发出，而且**完全不**需要引擎。热力图是一张真正的 `<table>`，格子按轻重着色，所以读屏软件走过的结构就是眼睛读的结构；迷你折线就是一条 `<path>`，所以在一张表格里放一百条也不花什么代价。',
+  [fingerprint(
+    'The token layer gains a data block: `--series-1` … `--series-8` (a neutral ramp whose adjacent steps clear ΔE 21 and 3:1 on their own ground), the `--chart-*` roles, and `--chart-fill` / `--chart-texture` — the only tokens in the system that hold different numbers on the two grounds, because ink at 14% over paper is a legible band and paper-white at 14% over near-black is nothing. Texture is the primary carrier of series identity; the ramp supports it. `data-chart-palette` is a seventh theme axis that swaps the ramp for a validated categorical palette.',
+  )]: 'token 层多了一块数据部分：`--series-1` … `--series-8`（一条中性色阶，相邻两级之间过 ΔE 21，而且每一级在自己的底色上都过 3:1）、`--chart-*` 这组角色，以及 `--chart-fill` / `--chart-texture`——它们是整套系统里唯一在两种底色上取不同数值的 token，因为墨色以 14% 压在纸白上是一条读得出的带，而纸白以 14% 压在近黑上什么都不是。纹理才是序列身份的第一载体，色阶是给它托底的。`data-chart-palette` 是第七条主题轴，把这条色阶换成一套验证过的分类色板。',
+  [fingerprint(
+    'Every chart requires a `title`, renders its rows again as a visually hidden table, and drops its intro animation under `prefers-reduced-motion`.',
+  )]: '每一张图都必须有 `title`，都会把自己的数据行再渲染一遍成一张视觉上隐藏的表格，并且在 `prefers-reduced-motion` 下丢掉入场动画。',
+  [fingerprint(
+    'Borrowed from a survey of the field, and each one fixing something that was missing rather than adding a variant:',
+  )]: '以下这些借自对这个领域的一轮普查，而且每一项补的都是一处缺失，而不是多加一个变体：',
+  [fingerprint(
+    '**An annotation layer** — `ReferenceLine`, `ReferenceBand` and `Annotation` on every cartesian chart, stacked in the order editorial charting settled on (band behind the grid, line above the marks, note above both). Most charts that look like they need a second series need a target line instead.',
+  )]: '**一层注记**——每一张笛卡尔图表上都有 `ReferenceLine`、`ReferenceBand` 和 `Annotation`，按编辑类制图最后定下来的顺序叠放（带在网格后面，线在标记上面，注解在两者之上）。大多数看起来需要第二条序列的图，需要的其实是一条目标线。',
+  [fingerprint(
+    '**Axis titles** (`<Chart.XAxis label>`), because an axis reading 0 · 100 · 200 says nothing about whether those are people, milliseconds or dollars.',
+  )]: '**坐标轴标题**（`<Chart.XAxis label>`），因为一根读作 0 · 100 · 200 的坐标轴，完全没说这些到底是人数、毫秒还是美元。',
+  [fingerprint(
+    '**Selective value labels** — `<Chart.Values show="last | first-last | extremes | all">`. The default prints one number, not one per point.',
+  )]: '**有选择的数值标签**——`<Chart.Values show="last | first-last | extremes | all">`。默认只印一个数字，而不是每个点印一个。',
+  [fingerprint(
+    '**`formatNumber`** with compact, percent, currency, duration and byte styles, and a compact default on every value axis above four digits.',
+  )]: '**`formatNumber`**，带紧凑、百分比、货币、时长和字节几种写法，并且在每一根超过四位数的数值轴上默认走紧凑写法。',
+  [fingerprint(
+    '**An empty state.** `data: []` now renders `ChartEmpty` rather than a bare pair of axes, which is indistinguishable from a failed load.',
+  )]: '**一个空状态。** `data: []` 现在渲染的是 `ChartEmpty`，而不是光秃秃的一对坐标轴——后者和一次加载失败根本分不出来。',
+  [fingerprint(
+    '**Forced-colours support** in `tokens.css`. Browsers do not remap SVG, so the chart tokens re-point onto system colours there and texture carries the series apart; `Heatmap` reveals its numbers, since its wash is gone.',
+  )]: '**强制颜色模式的支持**，写在 `tokens.css` 里。浏览器不会重新映射 SVG，所以图表 token 在那里改指向系统颜色，由纹理把各条序列分开；`Heatmap` 则把自己的数字亮出来，因为它那层色底已经没了。',
+  [fingerprint(
+    '**`BarList`** — a ranked list with the bar behind the name, which a horizontal bar chart cannot do.',
+  )]: '**`BarList`**——一个排行榜，条形在名字后面，而这是横向柱状图做不到的。',
+  [fingerprint(
+    '**`BigNumber`** — one figure at headline size with a delta whose direction is stated by the call site, never inferred from the sign.',
+  )]: '**`BigNumber`**——一个用标题字号印出来的数字，配一个变化量，它的方向由调用处说明，绝不从正负号推断。',
+  [fingerprint(
+    '**`BulletChart`** — Stephen Few\'s replacement for the dashboard gauge: a measure, its target and its qualitative bands in the height of a line of text. Plain HTML, so ten of them stack into a status page for free.',
+  )]: '**`BulletChart`**——Stephen Few 用来取代仪表盘表盘的那个东西：一个度量、它的目标值，以及它的定性区间带，都装在一行文字的高度里。纯 HTML，所以十个叠起来就白得一页状态页。',
+  [fingerprint(
+    '**The statistical family** — `BoxPlot`, `Histogram` and `WaterfallChart`. Each documents what it HIDES rather than only what it shows: a box cannot tell one hump from two, a histogram\'s shape is a property of its bin width, and a waterfall\'s connectors imply a sequence most breakdowns do not have.',
+  )]: '**统计那一族**——`BoxPlot`、`Histogram` 和 `WaterfallChart`。每一个都把自己**藏起来**的东西写进文档，而不只写它展示了什么：一个箱子分不出一个峰和两个峰，一张直方图的形状是它分箱宽度的属性，而一张瀑布图的连接线，暗示着大多数拆解压根没有的先后顺序。',
+  [fingerprint(
+    '**`Facet`** — the same chart once per group on one shared scale, which is the answer to eight series overplotted into a hairball. The shared domain is the default: on independent scales a group peaking at 40 and one peaking at 4,000 draw the same shape, and the comparison is not merely lost but inverted.',
+  )]: '**`Facet`**——同一张图每组重复一次，共用同一把刻度，这就是八条序列叠画成一团乱麻的答案。共享 domain 是默认：刻度各自独立时，一组峰值 40 和一组峰值 4,000 画出来是同一个形状，而比较不只是丢了，是反过来了。',
+  [fingerprint(
+    '**Sonification** — `<Chart.Sonify>` plays a series as pitch over time for a reader who cannot see the plot. Never autoplays; sound only ever starts from an explicit user action, which is a different question from `prefers-reduced-motion`.',
+  )]: '**声音化**——`<Chart.Sonify>` 把一条序列播成随时间变化的音高，给看不见这张图的读者。从不自动播放；声音永远只从一次明确的用户操作开始，而这和 `prefers-reduced-motion` 是两个不同的问题。',
+  [fingerprint(
+    '**A chart toolbar** — step zoom, reset, and taking the figure away as a PNG or a CSV. Capped at five controls with no overflow menu, so a cartesian chart does not statically reach a menu component every consumer would then ship. Zoom and the brush drive ONE window, so they cannot disagree.',
+  )]: '**一条图表工具栏**——步进缩放、重置，以及把这张图作为 PNG 或 CSV 带走。上限五个控件，不带溢出菜单，这样一张笛卡尔图表就不会静态地依赖到一个菜单组件、逼得每个使用者都把它打包进去。缩放和刷子驱动的是**同一个**窗口，所以它们不可能互相矛盾。',
+
   // ─── 0.5.0 ───
   [fingerprint('`AppShell` takes `sidebarLabel`, `navLabel`, `openLabel` and `closeLabel`.')]:
     '`AppShell` 接受 `sidebarLabel`、`navLabel`、`openLabel` 和 `closeLabel`。',

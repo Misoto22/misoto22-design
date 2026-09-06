@@ -3,7 +3,7 @@ import { readdirSync, statSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 // @ts-expect-error — plain ESM data, typed by JSDoc rather than by a declaration.
-import { AXIS_DEFAULTS, CATALOG, GROUPS, slugOf } from '../../agent/catalog.mjs'
+import { AXIS_DEFAULTS, CATALOG, ENTRY_POINTS, GROUPS, slugOf } from '../../agent/catalog.mjs'
 // @ts-expect-error — a build script, run here for the fact it derives.
 import { themeAxes } from '../../scripts/theme-axes.mjs'
 
@@ -38,10 +38,26 @@ const groups = GROUPS as string[]
 const axisDefaults = AXIS_DEFAULTS as Record<string, string>
 const derivedAxes = themeAxes() as Record<string, string[]>
 
-const COMPONENTS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'components')
-const SOURCE_DIRS = readdirSync(COMPONENTS_DIR).filter((entry) =>
-  statSync(join(COMPONENTS_DIR, entry)).isDirectory(),
-)
+const SRC = join(dirname(fileURLToPath(import.meta.url)), '..')
+const entryPoints = ENTRY_POINTS as Record<string, string>
+
+/**
+ * One tree per entry point. A tree's shared pieces live in `lib/` — lowercase,
+ * which is how they are told apart from a component: every component directory
+ * is a PascalCase name, and nothing else in any of the trees is.
+ */
+const componentDirs = (dir: string) =>
+  readdirSync(join(SRC, dir))
+    .filter((entry) => /^[A-Z]/.test(entry))
+    .filter((entry) => statSync(join(SRC, dir, entry)).isDirectory())
+
+/** Component name → the specifier it is imported from. */
+const ENTRY_OF = new Map<string, string>()
+for (const [specifier, dir] of Object.entries(entryPoints)) {
+  for (const name of componentDirs(dir)) ENTRY_OF.set(name, specifier)
+}
+
+const SOURCE_DIRS = [...ENTRY_OF.keys()]
 
 /**
  * The catalog is the one hand-written file in the package, which makes it the
@@ -82,7 +98,7 @@ describe('agent catalog', () => {
   })
 
   it('concatenates every group file, once each, in GROUPS order', () => {
-    // The entries live one group to a file under `agent/catalog/` so that seven
+    // The entries live one group to a file under `agent/catalog/` so that ten
     // people can write them at once; `catalog.mjs` puts them back together. That
     // is the seam this file did not have before. A group file left out of the
     // concatenation is a dozen components that quietly stop existing, and a
@@ -92,7 +108,7 @@ describe('agent catalog', () => {
     //
     // The count is written out on purpose. Adding a component means changing it,
     // which is the moment to look at the import list.
-    expect(entries).toHaveLength(61)
+    expect(entries).toHaveLength(92)
     const runs = entries
       .map((entry) => entry.group)
       .filter((group, index, all) => group !== all[index - 1])
@@ -111,6 +127,27 @@ describe('agent catalog', () => {
     // emitted index alike.
     const used = new Set(entries.map((entry) => entry.group))
     expect(groups.filter((group) => !used.has(group))).toEqual([])
+  })
+
+  it('names an entry point that actually exports every component', () => {
+    // The `Import:` line in `dist/agent/` is derived from this, and it is the
+    // one line an agent pastes without checking. `AreaChart` under
+    // `@misoto22/design` does not render a blank page — it throws, because the
+    // charts entry exists precisely so an app that renders a Badge never
+    // resolves `recharts`. It shipped wrong once, in 0.6.0.
+    const homeless = entries.filter((entry) => !ENTRY_OF.has(entry.name))
+    expect(homeless.map((entry) => entry.name)).toEqual([])
+  })
+
+  it('builds every declared entry point from a real directory', () => {
+    const missing = Object.entries(entryPoints).filter(([, dir]) => {
+      try {
+        return !statSync(join(SRC, dir)).isDirectory()
+      } catch {
+        return true
+      }
+    })
+    expect(missing.map(([specifier]) => specifier)).toEqual([])
   })
 
   it('only cross-links to components that exist', () => {
@@ -174,7 +211,7 @@ describe('agent catalog', () => {
   })
 
   it('fills both fields for Button, the entry the rest are written against', () => {
-    // The reference entry: the one the other fifty-one are copied from, so it
+    // The reference entry: the one the other ninety-one are copied from, so it
     // is the one that has to still be complete when they are.
     const button = entries.find((entry) => entry.name === 'Button')
     expect(button?.anatomy?.length ?? 0).toBeGreaterThan(0)

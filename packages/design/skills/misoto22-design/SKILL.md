@@ -1,6 +1,6 @@
 ---
 name: misoto22-design
-description: Builds UI with @misoto22/design — a monochrome design system of CSS tokens and 52 accessible React primitives. Use when a project imports '@misoto22/design', sets data-mode / data-surface / data-radius / data-accent, or uses cn(), CONTROL_BASE, or isInvalid. Also applies when adding a component, theming, or fixing a form, table, dialog, or toast in such a project.
+description: Builds UI with @misoto22/design — a monochrome design system of CSS tokens and 83 accessible React primitives, charts and diagrams included. Use when a project imports '@misoto22/design', '@misoto22/design/charts' or '@misoto22/design/diagrams', sets data-mode / data-surface / data-radius / data-density, or uses cn(), CONTROL_BASE, or isInvalid. Also applies when adding a component, theming, plotting data, drawing an architecture, workflow, sequence, data-flow or lifecycle diagram, or fixing a form, table, dialog, or toast in such a project.
 allowed-tools: Bash(npx misoto22-design *), Bash(pnpm exec misoto22-design *), Bash(bunx misoto22-design *)
 ---
 
@@ -13,6 +13,54 @@ you do not copy them into the project.
 import { Button, Field, Input } from '@misoto22/design'
 import '@misoto22/design/styles.css'
 ```
+
+## Three entry points
+
+The root entry has no dependencies a consumer has to install. Two groups live
+behind their own specifier instead, each for weight the root should not carry:
+
+```tsx
+import { AreaChart, BarList, BigNumber } from '@misoto22/design/charts'
+import { ArchitectureFigure, DiagramCanvas } from '@misoto22/design/diagrams'
+```
+
+Charts need a rendering engine and an animation runtime that nothing else in
+the package does:
+
+```bash
+pnpm add recharts motion      # optional peers, only for the charts entry
+```
+
+That separation is the reason an app that renders a Badge never resolves
+`recharts` — so importing a chart from the root specifier does not render a
+blank component, it throws. `docs <Component>` prints the right line for each
+one; the `Import:` header is derived from the tree the component lives in, not
+written by hand.
+
+Some of the charts need no engine at all — `Heatmap` is a `<table>`,
+`Sparkline` is one `<path>`, `BarList`, `BigNumber` and `BulletChart` are plain
+HTML — but they ship from the charts entry all the same, so the boundary stays
+one line rather than a list to memorise.
+
+Diagrams need no peer at all; they carry an orthogonal routing engine instead,
+which has no business in a bundle that renders a Badge. Reach for that entry
+when the task is to DRAW a system rather than to build a screen:
+`ArchitectureFigure` for what talks to what, `WorkflowFigure` for a process in
+lanes, `SequenceFigure` for a call chain over time, `DataflowFigure` for a
+pipeline, `LifecycleFigure` for a state machine. Each takes a typed JSON
+specification and renders on a server. `Diagram` is a different thing and stays
+on the root: a nesting CSS diagram for an article, not an SVG figure with
+routed edges.
+
+One more, for surfaces that cannot read a custom property — an OpenGraph card, a
+`theme-color`, a canvas:
+
+```ts
+import { TOKENS } from '@misoto22/design/tokens'
+```
+
+Never for styling a component. A literal in a stylesheet is a value that stops
+following the theme, and every one of these mirrors a token that does.
 
 ## What this project has installed
 
@@ -30,9 +78,10 @@ npx misoto22-design docs Button
 ```
 
 Run that before writing against a component you have not used in this session.
-The median component is ~500 tokens and the largest is ~1,300, against ~28,000
-for all fifty-two. It is generated from the installed source, so it cannot be
-out of date the way the website can.
+The median component is ~500 tokens and the largest is ~1,300, against far more
+for all eighty-three. It is generated from the installed source, so it cannot be
+out of date the way the website can — and each file names the specifier it
+ships from on its `Import:` line, which is the half that matters below.
 
 It also resolves parts and types, not just components: `docs CardBody`,
 `docs TH` and `docs ButtonVariant` all land on the right file. When an import
@@ -63,9 +112,12 @@ you are about to do that thing, not before.
   `border-(--border-color)`.
 - **Never write a `dark:` variant.** Dark mode is a value swap behind
   `data-mode="dark"`; a `dark:` override fights it and wins in only one theme.
-- **Theme with the seven `data-*` axes**, set on any element, not just `:root`.
+- **Theme with the `data-*` axes**, set on any element, not just `:root`.
   `data-mode`, `data-surface`, `data-radius`, `data-rules`, `data-type`,
-  `data-motion`, `data-density`, plus `data-accent`.
+  `data-motion`, `data-density`, `data-table-density`, `data-chart-palette`.
+  There is no `data-accent` — `--accent` is a custom property, re-pointed in
+  CSS. `npx misoto22-design docs --installed` prints the current list; it is
+  read out of the stylesheets rather than kept by hand here.
 - **Durations and radii come from tokens.** `duration-(--duration-fast)`,
   `rounded-(--radius)` — not `duration-150`, not `rounded-lg`.
 - **No blurred shadow.** `--shadow*` resolves to `none` on purpose. Depth is a
