@@ -240,12 +240,18 @@ export function TableFilter() {
               one accent and spending it on "you ticked this" leaves nothing for
               the action the row is heading towards. */}
           <TBody>
+            {/* Every cell is `align-middle`. The row action is a 36px button
+                and the values are one line, so the row is twenty pixels taller
+                than its own contents — top-aligned, every column but the button
+                hangs at the top of that and the table reads as if a column has
+                slipped. TD is top by default because the common table in this
+                system holds paragraphs; this one holds values. */}
             {rows.map((invoice) => (
               <TR
                 key={invoice.id}
                 className={chosen.includes(invoice.id) ? 'bg-(--paper-2)' : undefined}
               >
-                <TD>
+                <TD className="align-middle">
                   <Checkbox
                     aria-label={`Select ${invoice.id}`}
                     checked={chosen.includes(invoice.id)}
@@ -258,20 +264,20 @@ export function TableFilter() {
                     }
                   />
                 </TD>
-                <TD className="font-mono text-xs text-(--ink)">{invoice.id}</TD>
-                <TD>{invoice.client}</TD>
-                <TD className="text-(--ink-3-aa)">{invoice.issued}</TD>
-                <TD className="text-(--ink-3-aa)">{invoice.due}</TD>
-                <TD>
+                <TD className="font-mono text-xs text-(--ink) align-middle">{invoice.id}</TD>
+                <TD className="align-middle">{invoice.client}</TD>
+                <TD className="text-(--ink-3-aa) align-middle">{invoice.issued}</TD>
+                <TD className="text-(--ink-3-aa) align-middle">{invoice.due}</TD>
+                <TD className="align-middle">
                   <span className="flex items-center gap-2">
                     <StatusDot tone={STATES[invoice.state].tone} />
                     {STATES[invoice.state].label}
                   </span>
                 </TD>
-                <TD align="end" className="tabular-nums">
+                <TD align="end" className="tabular-nums align-middle">
                   {money(invoice.cents)}
                 </TD>
-                <TD align="end">
+                <TD align="end" className="align-middle">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button

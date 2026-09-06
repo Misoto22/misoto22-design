@@ -68,9 +68,15 @@ export function ErrorState({
       {...rest}
     >
       <div className="mx-auto w-full max-w-(--w-page) px-(--page-pad)">
+        {/* `leading-tight`, not `leading-none`. At the title step this face
+            draws about 62px of ink, and a line box of exactly the font size is
+            47 — so the figures overflowed their own box by seven pixels at the
+            top and seven at the bottom, pressing up against the eyebrow above
+            and eating half the gap to the heading below. The box that says
+            nothing is spaced from is the box the ink is actually in. */}
         <p
           aria-hidden="true"
-          className="m-0 font-heading text-[length:var(--fs-title)] leading-none text-(--ink)"
+          className="m-0 font-heading text-[length:var(--fs-title)] leading-tight text-(--ink)"
         >
           {code}
         </p>

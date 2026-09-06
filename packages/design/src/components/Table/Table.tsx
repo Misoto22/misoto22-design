@@ -244,6 +244,20 @@ export interface TDProps extends Omit<TdHTMLAttributes<HTMLTableCellElement>, 'a
   align?: TableAlign
 }
 
+/**
+ * A body cell.
+ *
+ * TOP-aligned, and that is a choice about which kind of table is the common
+ * one here: a cell holding a paragraph. Top is what lines the first lines of a
+ * row up with each other, and centring a two-word term against a four-line
+ * description puts the term in the middle of nothing.
+ *
+ * It is the wrong default for the other kind — a row of one-line values with a
+ * control in it. A 36px button next to 16px of text makes a 52px row, and every
+ * other cell then hangs at the top of it with twenty pixels of nothing
+ * underneath, which reads as a column that has slipped. Pass
+ * `className="align-middle"` on those rows; the data-table template does.
+ */
 export function TD({ align = 'start', className, ...rest }: TDProps) {
   return (
     <td
