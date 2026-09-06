@@ -89,12 +89,12 @@ export function DocsShell({ children }: { children: ReactNode }) {
     <TooltipProvider>
       <CommandPalette />
     {/* The column list has to follow the sidebar. `lg:hidden` takes the aside
-        out of the grid, and with a fixed 17rem first track the CONTENT then
+        out of the grid, and with a fixed first track the CONTENT then
         landed in it — a 272px column on a 1440px screen, which is why
         collapsing the sidebar crushed the page instead of widening it. */}
     <div
       className={`min-h-svh lg:grid ${
-        sidebar && docked ? 'lg:grid-cols-[17rem_minmax(0,1fr)]' : 'lg:grid-cols-[minmax(0,1fr)]'
+        sidebar && docked ? 'lg:grid-cols-[var(--sidebar-w)_minmax(0,1fr)]' : 'lg:grid-cols-[minmax(0,1fr)]'
       }`}
     >
       <a
@@ -120,7 +120,7 @@ export function DocsShell({ children }: { children: ReactNode }) {
         // is still read aloud: closed, it put sixty links between the reader
         // and the page they were on.
         inert={isDrawer && !open}
-        className={`fixed inset-y-0 start-0 z-(--z-modal) flex w-[17rem] flex-col border-e border-(--rule) bg-(--paper) transition-transform duration-(--duration-slow) ease-(--ease-out-expo) ${
+        className={`fixed inset-y-0 start-0 z-(--z-modal) flex w-(--sidebar-w) flex-col border-e border-(--rule) bg-(--paper) transition-transform duration-(--duration-slow) ease-(--ease-out-expo) ${
           open ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full'
         } lg:sticky lg:top-0 lg:z-auto lg:h-svh lg:translate-x-0 ${
           sidebar && docked ? '' : 'lg:hidden'
