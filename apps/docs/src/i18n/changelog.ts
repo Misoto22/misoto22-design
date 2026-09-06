@@ -32,6 +32,38 @@ import type { Locale } from './locales'
  * publish is what stops. See `docs/releasing.md`.
  */
 const ZH: Record<string, string> = {
+  // ─── 0.7.0 ───
+  [fingerprint(
+    'Add `@misoto22/design/diagrams`: five diagram figures and the chrome to explore one.',
+  )]: '新增 `@misoto22/design/diagrams`：五种图示，以及把其中一张读下去所需的那套外围界面。',
+  [fingerprint(
+    '`ArchitectureFigure`, `WorkflowFigure`, `SequenceFigure`, `DataflowFigure` and `LifecycleFigure` render the JSON schemas published by [archify](https://github.com/tt-a1i/archify), so a specification authored for that tool renders here with no translation step — in this system\'s own terms rather than in archify\'s palette. Where archify separates seven kinds of node by hue, these carry the kind twice, as a drawn sigil and as a word on the plate\'s eyebrow, so the distinction survives a greyscale print and a colour-blind reader. The only colour any of them spends is `--success` and `--danger` on a terminal lifecycle state, which is what those two tokens were reserved for.',
+  )]: '`ArchitectureFigure`、`WorkflowFigure`、`SequenceFigure`、`DataflowFigure` 和 `LifecycleFigure` 渲染的是 [archify](https://github.com/tt-a1i/archify) 公布的那几份 JSON schema，所以一份为那个工具写的规格，不经任何转换步骤就能在这里画出来——而且用的是这套系统自己的语汇，而不是 archify 的配色。archify 靠七种色相把七类节点分开；这里则把类别说两遍——一个画出来的记号，加上底板引题上的一个词——于是这个区分挺得过一次灰度打印，也挺得住一位色盲读者。它们唯一花掉的颜色，是终态生命周期状态上的 `--success` 和 `--danger`，而这两个 token 当初留出来就是为了这个。',
+  [fingerprint(
+    'Every position comes out of the specification, so the figures render on a server and produce identical markup twice — there is no layout to do and therefore no shift on hydration. The `<svg>` is `role="img"` with a name, and each figure publishes its nodes and relationships beside it as an ordinary list; passing `onSelectNode` turns that list into the keyboard\'s route to a selection.',
+  )]: '每一个位置都出自那份规格，所以这些图能在服务端渲染，两次产出的标记完全一致——压根没有布局要做，因此水合时也不会有任何抖动。`<svg>` 是带名字的 `role="img"`，而每张图都会把自己的节点和关系当成一份普通列表，一并陈列在它旁边；传入 `onSelectNode`，这份列表就变成键盘通往一次选中的那条路。',
+  [fingerprint(
+    '`DiagramCanvas`, `DiagramToolbar`, `DiagramExportMenu`, `DiagramInspector`, `DiagramMinimap` and `DiagramLegend` are the reader-facing half: pan and zoom, a grouped action bar, PNG / JPEG / WebP / SVG / share-card export with the theme\'s custom properties baked into real colours, a detail panel and an overview map.',
+  )]: '`DiagramCanvas`、`DiagramToolbar`、`DiagramExportMenu`、`DiagramInspector`、`DiagramMinimap` 和 `DiagramLegend` 是面向读者的那一半：平移与缩放、一条分了组的动作栏、把主题的自定义属性烘成真实颜色的 PNG / JPEG / WebP / SVG / 分享卡导出、一块详情面板，以及一张总览地图。',
+  [fingerprint(
+    'They ship from their own entry point so a page rendering a `Badge` does not pay for a routing engine; `check-size` fails if they ever leak into the main barrel. The shared SVG export helpers now live in `src/lib/svg-export.ts`.',
+  )]: '它们从自己的入口点发出，这样一个只渲染 `Badge` 的页面就不会为一台布线引擎付钱；一旦它们漏进主 barrel，`check-size` 就会红。共享的 SVG 导出辅助函数现在住在 `src/lib/svg-export.ts` 里。',
+  [fingerprint(
+    'Fold the chart PNG export onto the shared SVG export.',
+  )]: '把图表的 PNG 导出并到共享的 SVG 导出上。',
+  [fingerprint(
+    '`charts/lib/export.ts` and `lib/svg-export.ts` each carried the same computed- style walker, the same standalone-document builder and the same canvas rasteriser — arrived at independently, for charts and for diagrams, and already diverging: the shared copy had picked up `marker-start`/`mid`/`end`, without which an exported arrow comes out headless. Two copies of a paint walker means the next fix lands in one of them.',
+  )]: '`charts/lib/export.ts` 和 `lib/svg-export.ts` 各自带着同一个计算样式遍历器、同一个独立文档构造器，以及同一个 canvas 栅格化器——一个为图表、一个为图示，各自独立地走到了这里，而且已经开始分岔：共享的那一份已经补上了 `marker-start`/`mid`/`end`，少了它，导出来的箭头是没有头的。一个上色遍历器存着两份拷贝，意思就是下一次修复只会落进其中一份里。',
+  [fingerprint(
+    'The chart module keeps only what a Recharts chart knows and a diagram does not: which `<svg>` in the subtree is the plot, what a row of chart data looks like as a CSV record, and that the ground behind an exported plot is `--chart-surface`. It is 387 lines down to 182, and `chartToPng`\'s signature is unchanged.',
+  )]: '图表模块只留下「Recharts 图表知道、而图示不知道」的那些事：子树里哪一个 `<svg>` 才是绘图区、一行图表数据写成 CSV 记录长什么样，以及导出的绘图区背后那层底是 `--chart-surface`。387 行降到 182 行，而 `chartToPng` 的签名没有变。',
+  [fingerprint(
+    '`findPlotSvg` now has a test, which it did not before. Both of its narrowings are load-bearing and each fails the same silent way — the toolbar sits outside the plot wrapper and every control in it is an `<svg>`, the legend draws its swatches inside it — so an export that skipped either one would be a picture of an icon, which looks like a working download until somebody opens the file.',
+  )]: '`findPlotSvg` 现在有测试了，之前没有。它的两处收窄都是承重的，而且各自都以同样一种无声的方式失败——工具栏坐在绘图区包装层外面，而它里面每一个控件都是一个 `<svg>`；图例则把自己的色块画在包装层里面——所以一次跳过其中任何一处的导出，出来会是一张图标的图片，而它看上去和一次正常的下载没有区别，直到有人真的打开那个文件。',
+  [fingerprint(
+    'Two visible differences, both from the shared serialiser: the exported title band is 34px at 15px rather than 30px at 13px, and a chart exported before it has been measured now says `serializeSvg:` rather than `chartToPng:` in the error it throws.',
+  )]: '两处看得见的差别，都来自那个共享的序列化器：导出的标题带从 30px 高、13px 字号变成 34px 高、15px 字号；而一张还没被测量就被导出的图表，现在抛出的错误里写的是 `serializeSvg:` 而不是 `chartToPng:`。',
+
   // ─── 0.6.1 ───
   [fingerprint(
     'Fix the `Import:` line the offline documentation prints for a chart.',
