@@ -63,7 +63,7 @@ export interface PropsPlaygroundProps {
  * `complementary` landmarks that nesting makes. Every AppShell example on the
  * site already passes both. The panel was the one call site that did not.
  *
- * The five `aria-label`s below document no props at all — `Checkbox` is
+ * The six `aria-label`s below document no props at all — `Checkbox` is
  * `ComponentProps<typeof CheckboxPrimitive.Root>` and nothing more — so there
  * is no row to seed and no control to offer. Their accessible name comes from
  * the call site, and here the panel IS the call site: a preview of a naked,
@@ -97,6 +97,7 @@ const PINNED: Record<string, Record<string, unknown>> = {
   Checkbox: { 'aria-label': 'Checkbox' },
   Input: { 'aria-label': 'Input' },
   NativeSelect: { 'aria-label': 'NativeSelect' },
+  NumberField: { 'aria-label': 'NumberField' },
   Slider: { label: 'Slider' },
   Switch: { 'aria-label': 'Switch' },
   Textarea: { 'aria-label': 'Textarea' },
