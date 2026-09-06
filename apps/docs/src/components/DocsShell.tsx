@@ -1,10 +1,19 @@
 'use client'
 
-import { Button, Kbd, TooltipProvider } from '@misoto22/design'
+import {
+  Button,
+  Kbd,
+  Sidebar as SidebarRail,
+  SidebarContent,
+  SidebarHeader,
+  SidebarInset,
+  SidebarProvider,
+  useSidebar,
+} from '@misoto22/design'
 import { Menu, PanelLeftClose, PanelLeftOpen, Search, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { ThemeMenu } from './ThemeMenu'
 import { BrandMark } from './BrandMark'
 import { CommandPalette } from './CommandPalette'
@@ -29,44 +38,38 @@ import { useLocale, useMessages } from '@/i18n/useLocale'
  * Everything INSIDE the frame is the package's own components.
  */
 export function DocsShell({ children }: { children: ReactNode }) {
-  const [open, setOpen] = useState(false)
-  // Desktop only. `true` until told otherwise, and remembered afterwards: a
-  // reader who put the sidebar away did not mean "until the next page".
-  const [docked, setDocked] = useState(true)
+  return (
+    // Everything this used to keep by hand — which media query makes the rail a
+    // drawer, whether a closed one is `inert`, where the docked state is
+    // remembered — is the component's now. `1024` is `lg`, the width the rest
+    // of this file already switches at; `m22-sidebar` is the key the shell was
+    // already writing, so a reader who had put the rail away keeps it away
+    // across this change. `shortcut={null}` because this site's chord is ⌘K and
+    // taking a second one nobody asked for is not a refactor.
+    <SidebarProvider
+      collapsible="offcanvas"
+      breakpoint="lg"
+      persist="m22-sidebar"
+      shortcut={null}
+    >
+      <Frame>{children}</Frame>
+    </SidebarProvider>
+  )
+}
 
-  // Whether the sidebar is a column or a drawer. A closed drawer is only
-  // translated off-screen, so without knowing which it is there is no way to
-  // say when its sixty links should leave the tab order.
-  const [isDrawer, setIsDrawer] = useState(false)
-
-  useEffect(() => {
-    const query = matchMedia('(max-width: 1023px)')
-    const sync = () => setIsDrawer(query.matches)
-    sync()
-    query.addEventListener('change', sync)
-    return () => query.removeEventListener('change', sync)
-  }, [])
-
-  useEffect(() => {
-    try {
-      setDocked(localStorage.getItem('m22-sidebar') !== 'closed')
-    } catch {
-      // A storage-blocked context just starts docked every time.
-    }
-  }, [])
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('m22-sidebar', docked ? 'open' : 'closed')
-    } catch {
-      // Same.
-    }
-  }, [docked])
+function Frame({ children }: { children: ReactNode }) {
+  const { open, setOpen, mobile } = useSidebar()
+  const docked = !mobile && open
   const pathname = usePathname()
   const locale = useLocale()
   const t = useMessages()
   const section = sectionFor(pathname)
   const sidebar = HAS_SIDEBAR[section]
+  // The rail's own name. It used to be the aside's, with a second `<nav>`
+  // inside it carrying a second name — two landmarks for one column. There is
+  // one now, and it is called what it holds: the themes rail is a set of
+  // switches, not an index of documents.
+  const railLabel = section === 'themes' ? t.themes.title : t.nav.documentation
   const SECTION_LABEL: Record<SectionId, string> = {
     docs: t.nav.docs,
     components: t.section.components,
@@ -75,28 +78,33 @@ export function DocsShell({ children }: { children: ReactNode }) {
   }
 
   // Close on navigation: a drawer left open over the page the reader just asked
-  // for is the most common mobile-nav bug.
-  useEffect(() => setOpen(false), [pathname])
+  // for is the most common mobile-nav bug. Guarded on `mobile`, because at a
+  // desktop width the same call means "undock the rail" — one `open` answering
+  // two questions, and this is the call site where the difference bites.
+  useEffect(() => {
+    if (mobile) setOpen(false)
+    // The rail's own rows close it; this is for everything else that navigates
+    // — the palette, the section strip, a link inside the page.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname])
 
   useEffect(() => {
-    if (!open) return
+    if (!open || !mobile) return
     const onKey = (event: KeyboardEvent) => event.key === 'Escape' && setOpen(false)
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [open])
+  }, [open, mobile, setOpen])
 
   return (
-    <TooltipProvider>
+    <>
       <CommandPalette />
-    {/* The column list has to follow the sidebar. `lg:hidden` takes the aside
-        out of the grid, and with a fixed first track the CONTENT then
-        landed in it — a 272px column on a 1440px screen, which is why
-        collapsing the sidebar crushed the page instead of widening it. */}
-    <div
-      className={`min-h-svh lg:grid ${
-        sidebar && docked ? 'lg:grid-cols-[var(--sidebar-w)_minmax(0,1fr)]' : 'lg:grid-cols-[minmax(0,1fr)]'
-      }`}
-    >
+    {/* A flex row, not a grid with a computed track list. The grid had to be
+        told the sidebar's width AND told to drop the track when the sidebar
+        went away, in two places that could disagree — and they did: with a
+        fixed first track and the aside hidden, the CONTENT landed in the 272px
+        column. A collapsed rail is `w-0` here, so the row needs no second
+        opinion about how wide it is. */}
+    <div className="flex min-h-svh">
       <a
         href="#content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-(--z-toast) focus:rounded-(--radius) focus:bg-(--ink) focus:px-4 focus:py-2 focus:text-sm focus:text-(--paper)"
@@ -104,27 +112,21 @@ export function DocsShell({ children }: { children: ReactNode }) {
         {t.nav.skip}
       </a>
 
-      {open && (
-        <button
-          type="button"
-          aria-label={t.nav.closeNav}
-          onClick={() => setOpen(false)}
-          className="fixed inset-0 z-(--z-scrim) bg-(--scrim) lg:hidden"
-        />
-      )}
-
-      <aside
+      {sidebar && (
+      <SidebarRail
         id="docs-sidebar"
-        aria-label={t.nav.sidebar}
-        // A drawer that is merely translated off-screen still holds focus and
-        // is still read aloud: closed, it put sixty links between the reader
-        // and the page they were on.
-        inert={isDrawer && !open}
-        className={`fixed inset-y-0 start-0 z-(--z-modal) flex w-(--sidebar-w) flex-col border-e border-(--rule) bg-(--paper) transition-transform duration-(--duration-slow) ease-(--ease-out-expo) ${
-          open ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full'
-        } lg:sticky lg:top-0 lg:z-auto lg:h-svh lg:translate-x-0 ${
-          sidebar && docked ? '' : 'lg:hidden'
-        }`}
+        label={railLabel}
+        scrimLabel={t.nav.closeNav}
+        // `compact`, and it is the system's own axis rather than a number
+        // invented here: this is a dense index driven by a mouse, which is
+        // exactly the trade `data-density` documents. Ten groups at the
+        // comfortable 44px floor is four hundred pixels of mostly nothing, and
+        // a reader looking for Breadcrumb scrolls past it.
+        data-density="compact"
+        // `lg:` on both, so neither can win against the drawer's own `fixed`
+        // below that width — a bare `sticky` here is merged as the same
+        // property and takes the drawer off the page it is supposed to cover.
+        className="lg:sticky lg:top-0 lg:h-svh"
       >
         {/* The same 4rem as the header beside it, and its own bottom rule, so
             the two run as one line across the page. They used to be a
@@ -147,7 +149,7 @@ export function DocsShell({ children }: { children: ReactNode }) {
             screen, and the masthead's own button — the same button a phone uses
             to open the drawer — brings it back once there is no rail left to
             put it in. */}
-        <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-(--rule-2) px-4">
+        <SidebarHeader className="h-16 justify-between border-(--rule-2) px-4">
           <Link
             href={localePath(locale, '/')}
             className="flex items-center gap-2.5 text-(--ink) transition-opacity duration-(--duration-fast) hover:opacity-70"
@@ -177,23 +179,24 @@ export function DocsShell({ children }: { children: ReactNode }) {
               aria-label={t.nav.collapseNav}
               aria-expanded
               aria-controls="docs-sidebar"
-              onClick={() => setDocked(false)}
+              onClick={() => setOpen(false)}
             >
               <PanelLeftClose size={16} strokeWidth={1.5} aria-hidden />
             </Button>
           )}
-        </div>
+        </SidebarHeader>
         {/* The four sections used to be repeated here, on the grounds that they
             live in the masthead on a desktop and had nowhere to go on a phone.
             They have somewhere to go now — the strip under the masthead — so
             the drawer is back to one job: the open section's own index, rather
             than sixteen rows of tree behind four rows of something else. */}
-        <div className="min-h-0 flex-1 px-4 pt-4">
-          <Sidebar onNavigate={() => setOpen(false)} />
-        </div>
-      </aside>
+        <SidebarContent className="gap-2 p-0 px-4 pt-4 pb-6">
+          <Sidebar />
+        </SidebarContent>
+      </SidebarRail>
+      )}
 
-      <div className="flex min-w-0 flex-col">
+      <SidebarInset>
         {/* `size="sm"` is 36px, which the Button docs are explicit about being
             below the pointer-target floor — a deliberate density for a mouse.
             A finger is not a mouse, so every control in this bar gets 44px on a
@@ -242,7 +245,7 @@ export function DocsShell({ children }: { children: ReactNode }) {
               aria-label={t.nav.expandNav}
               aria-expanded={false}
               aria-controls="docs-sidebar"
-              onClick={() => setDocked(true)}
+              onClick={() => setOpen(true)}
             >
               <PanelLeftOpen size={16} strokeWidth={1.5} aria-hidden />
             </Button>
@@ -363,8 +366,8 @@ export function DocsShell({ children }: { children: ReactNode }) {
         </main>
 
         <DocsFooter />
-      </div>
+      </SidebarInset>
     </div>
-    </TooltipProvider>
+    </>
   )
 }

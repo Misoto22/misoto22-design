@@ -121,7 +121,7 @@ const OPTIONS = [
  */
 export function DocsShell() {
   return (
-    <SidebarProvider collapsible="icon" shortcut={null}>
+    <SidebarProvider breakpoint={null} collapsible="icon" shortcut={null}>
     <div className="flex min-h-[38rem]">
       {/* Named for the product, not for the section. The trail on this page is
           already a navigation landmark called "Reference", and two of those is a

@@ -334,6 +334,16 @@ export const NAVIGATION = [
         element: 'Footer',
         description: 'SidebarFooter. The utilities a rail ends on, kept out of the index above it.',
       },
+      {
+        element: 'Page',
+        description:
+          'SidebarInset, the column beside the rail. It is `min-w-0` — the half every hand-written version forgets, and the reason one wide table inside pushes the page past the viewport and takes the rail’s width with it. Under variant="inset" it is also the panel: the rail becomes the ground, and this draws the bordered --paper surface sitting on it.',
+      },
+      {
+        element: 'Drawer',
+        description:
+          'What the rail becomes under the provider’s breakpoint (768px by default): fixed against its own edge, over a scrim, and inert while closed. Nothing to render — the same <Sidebar> is both — but it is a different component to a reader, and the collapsible setting does not apply there.',
+      },
     ],
     practices: [
       {
@@ -368,6 +378,26 @@ export const NAVIGATION = [
         kind: 'dont',
         text: 'Do not control open without onOpenChange. The trigger and the shortcut then both do nothing, and the state that looks broken is the one the caller froze.',
       },
+      {
+        kind: 'do',
+        text: 'Wrap the page in SidebarInset rather than a hand-written flex column. It carries min-w-0, which is what stops one wide table inside the page from pushing the whole layout past the viewport, and it is the other half of variant="inset".',
+      },
+      {
+        kind: 'do',
+        text: 'Pass persist with a key when the rail is an application’s own. A reader who put the rail away did not mean “until the next page”. Only the docked state is kept: restoring an open drawer is a page that loads with its navigation over the top of itself.',
+      },
+      {
+        kind: 'do',
+        text: 'Give the provider a ground for variant="floating" and variant="inset" — bg-(--stone) on the element holding it. Both draw a --paper panel, and a panel on the same colour as the thing behind it is a border with nothing on either side of it.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not put a transform, filter or perspective on an element wrapping the provider. The drawer is fixed, and any of those makes that ancestor its containing block — so it opens inside the wrapper instead of against the edge of the window.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not build the phone drawer yourself around this. It already is one under breakpoint, with the scrim, the inert closed state and the close-on-navigate; a second one outside gives the page two drawers and one of them has no scrim.',
+      },
     ],
     accessibility: [
       'label is required, and names the landmark. A page with two navigations in it announces two things called “navigation” unless each says which it is.',
@@ -375,6 +405,8 @@ export const NAVIGATION = [
       'A collapsed row keeps its label as its accessible name, through a tooltip — an icon alone is a guess for a sighted reader and nothing at all for a screen reader.',
       'A collapsed group keeps its heading as the group’s name even though the words are not drawn.',
       'The current row carries aria-current="page", not only a darker ground.',
+      'The closed drawer is inert, not merely translated off-screen. Off-screen it still holds focus and is still read aloud, so a shut drawer puts its whole index between the reader and the page they were on.',
+      'The scrim is a button with a name, because tapping beside a drawer is how a drawer is closed — and a gesture that exists only for a pointer is one a keyboard cannot make.',
     ],
     keyboard: [
       { keys: ['⌘B', 'Ctrl B'], does: 'Opens and closes the rail.' },
