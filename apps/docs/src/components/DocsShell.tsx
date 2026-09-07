@@ -149,7 +149,7 @@ function Frame({ children }: { children: ReactNode }) {
             screen, and the masthead's own button — the same button a phone uses
             to open the drawer — brings it back once there is no rail left to
             put it in. */}
-        <SidebarHeader className="h-16 justify-between border-(--rule-2) px-4">
+        <SidebarHeader className="h-(--bar-h) justify-between border-(--rule-2) px-4">
           <Link
             href={localePath(locale, '/')}
             className="flex items-center gap-2.5 text-(--ink) transition-opacity duration-(--duration-fast) hover:opacity-70"
@@ -201,7 +201,7 @@ function Frame({ children }: { children: ReactNode }) {
             below the pointer-target floor — a deliberate density for a mouse.
             A finger is not a mouse, so every control in this bar gets 44px on a
             coarse pointer. */}
-        <header className="sticky top-0 z-(--z-sticky) flex h-16 items-center justify-between gap-3 border-b border-(--rule-2) bg-(--paper)/85 px-5 backdrop-blur pointer-coarse:[&_a]:min-h-11 pointer-coarse:[&_button]:min-h-11">
+        <header className="sticky top-0 z-(--z-sticky) flex h-(--bar-h) items-center justify-between gap-3 border-b border-(--rule-2) bg-(--paper)/85 px-5 backdrop-blur pointer-coarse:[&_a]:min-h-11 pointer-coarse:[&_button]:min-h-11">
           <Button
             iconOnly
             size="sm"
@@ -260,7 +260,7 @@ function Frame({ children }: { children: ReactNode }) {
               a state anyone can see. */}
           <nav
             aria-label={t.nav.sections}
-            className="-mb-px flex h-16 items-stretch gap-1 self-stretch max-nav:hidden"
+            className="-mb-px flex h-(--bar-h) items-stretch gap-1 self-stretch max-nav:hidden"
           >
             {SECTIONS.map((id) => {
               const href = localePath(locale, SECTION_ROOT[id])

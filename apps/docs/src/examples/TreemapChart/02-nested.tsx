@@ -3,6 +3,7 @@
 import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
 import { TreemapChart, type TreemapVariant } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 const tree = [
   {
@@ -46,18 +47,20 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <ToggleGroup
-        type="single"
-        value={variant}
-        onValueChange={(next) => next && setVariant(next as TreemapVariant)}
-        aria-label="Tile fill"
-      >
-        {VARIANTS.map((option) => (
-          <ToggleGroupItem key={option} value={option}>
-            {option}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      <ExampleControls>
+        <ToggleGroup
+          type="single"
+          value={variant}
+          onValueChange={(next) => next && setVariant(next as TreemapVariant)}
+          aria-label="Tile fill"
+        >
+          {VARIANTS.map((option) => (
+            <ToggleGroupItem key={option} value={option}>
+              {option}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </ExampleControls>
 
       <TreemapChart
         title={`Bundle size by group — ${variant}`}

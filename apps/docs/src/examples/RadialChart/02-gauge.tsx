@@ -3,6 +3,7 @@
 import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
 import { RadialChart, type ChartConfig, type RadialVariant } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 const data = [{ tier: 'used', used: 62 }]
 
@@ -24,18 +25,20 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <ToggleGroup
-        type="single"
-        value={variant}
-        onValueChange={(next) => next && setVariant(next as RadialVariant)}
-        aria-label="Arc"
-      >
-        {VARIANTS.map((option) => (
-          <ToggleGroupItem key={option} value={option}>
-            {option}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      <ExampleControls>
+        <ToggleGroup
+          type="single"
+          value={variant}
+          onValueChange={(next) => next && setVariant(next as RadialVariant)}
+          aria-label="Arc"
+        >
+          {VARIANTS.map((option) => (
+            <ToggleGroupItem key={option} value={option}>
+              {option}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </ExampleControls>
 
       <RadialChart
         title="Storage used"

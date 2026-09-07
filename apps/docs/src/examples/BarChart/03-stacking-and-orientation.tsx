@@ -8,6 +8,7 @@ import {
   type ChartConfig,
 } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 const data = [
   { channel: 'Organic search', desktop: 186, mobile: 80 },
@@ -40,33 +41,35 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="flex flex-wrap gap-3">
-        <ToggleGroup
-          type="single"
-          value={stackType}
-          onValueChange={(next) => next && setStackType(next as BarStackType)}
-          aria-label="Stacking"
-        >
-          {STACKS.map((option) => (
-            <ToggleGroupItem key={option} value={option}>
-              {option}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
+      <ExampleControls>
+        <div className="flex flex-wrap gap-3">
+          <ToggleGroup
+            type="single"
+            value={stackType}
+            onValueChange={(next) => next && setStackType(next as BarStackType)}
+            aria-label="Stacking"
+          >
+            {STACKS.map((option) => (
+              <ToggleGroupItem key={option} value={option}>
+                {option}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
 
-        <ToggleGroup
-          type="single"
-          value={orientation}
-          onValueChange={(next) => next && setOrientation(next as BarOrientation)}
-          aria-label="Orientation"
-        >
-          {ORIENTATIONS.map((option) => (
-            <ToggleGroupItem key={option} value={option}>
-              {option}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-      </div>
+          <ToggleGroup
+            type="single"
+            value={orientation}
+            onValueChange={(next) => next && setOrientation(next as BarOrientation)}
+            aria-label="Orientation"
+          >
+            {ORIENTATIONS.map((option) => (
+              <ToggleGroupItem key={option} value={option}>
+                {option}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </div>
+      </ExampleControls>
 
       <BarChart
         title={`Visitors by channel — ${stackType}, ${orientation}`}

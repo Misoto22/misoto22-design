@@ -14,6 +14,12 @@ ds-bundle/
 .design-sync/learnings/
 .design-sync/node_modules
 
+# Agent-local state. `.claude/worktrees/` holds this checkout's worktrees and
+# `.claude/launch.json` is written by whichever tool last started a dev server —
+# both are machine state, not repository state. Nothing here has ever been
+# tracked; this stops it arriving by accident.
+.claude/
+
 # Next.js (apps/docs)
 .next/
 out/

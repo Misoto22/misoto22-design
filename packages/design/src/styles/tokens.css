@@ -115,7 +115,9 @@
 
      A consumer who genuinely needs hue does not hand-pick hexes: it sets
      `data-chart-palette="chroma"` (see themes.css), which re-points these
-     eight names onto a categorical palette validated against both grounds. */
+     eight names onto a categorical palette validated against both grounds —
+     or `"accent"`, which ladders the same eight names out of `--clay` when
+     what the charts have to carry is a brand rather than eight categories. */
   --series-1: #101010;
   --series-2: #565656;
   --series-3: #202020;
@@ -385,6 +387,21 @@
   --control-py-sm: 0.5rem;
   --control-py-md: 0.75rem;
   --control-py-lg: 0.75rem;
+  /* And so is the LEADING, which is the term that guard was missing.
+     `min-height` is a floor, and what has to stay under it is the whole box:
+     the line, the padding and the border. The padding was scaled and the line
+     was left inheriting the body's 1.6 — so `sm` measured 20.8 + 16 + 2 = 38.8
+     against a 36px token, `md` 46 against 44 and `lg` 50 against 48. Every
+     text button in the system was two to three pixels taller than the number
+     documenting it, and the floor never bound because the box had already
+     cleared it.
+
+     One value on both densities: the font sizes do not move with density, only
+     the padding and the heights do, so this does not have to. It is not a
+     reading leading — a control's label is one line, and 1.2 leaves every size
+     at every density inside its own height with room to spare. The test in
+     `tokens.test.ts` is what keeps that true. */
+  --control-lh: 1.2;
   --control-gap: 0.625rem;
   /* Text inputs are measured separately: they are read as much as they are
      hit, so their padding tracks the type rather than the target. */
@@ -417,6 +434,37 @@
      of its life in. */
   --sidebar-w: 16rem;
   --sidebar-w-icon: 3.5rem;
+
+  /* ─── Bar ────────────────────────────────────────────────────────────────
+     How tall the band across the top of an application is — the masthead, and
+     the head of the rail beside it, which has to line up with it or the two
+     rules meeting at the corner are two different rules.
+
+     Derived, not typed. A bar is a row of controls and the air around them, so
+     it is the control it seats plus six pixels above and below — the same
+     twelve `--sidebar-w-icon` adds to a rail's collapsed width, for the same
+     reason.
+
+     WHICH control depends on the pointer, and that is the whole of the second
+     block. A bar is chrome: its controls are `sm`, the density this system
+     documents as a deliberate below-the-floor size for a mouse. A finger is
+     not a mouse, so on a coarse pointer they grow to the 44px target WCAG
+     2.5.5 asks for, and the bar has to grow with them or it clips what it
+     seats. Sizing it from `--control-h-md` on both is what made it too tall:
+     56px of bar around 39px of search field, holding room for a target that is
+     not on screen when a mouse is.
+
+     48px comfortable / 42px compact with a pointer, 56px / 48px with a finger.
+     A bar cannot be set to a height its own controls do not fit in.
+
+     It was five literals before, in two packages, and they did not agree:
+     `AppShell` said `h-14` and the documentation site said `h-16`, so the same
+     role was 56px in the component this system ships and 64px on the site
+     documenting it. `--scroll-offset` in `semantic.css` is a sixth, and the
+     one that shows why this matters — it is "a masthead plus a line of air"
+     and was written as `88px`, a number derived by hand from whichever of the
+     two answers its author had on screen. It now derives from this. */
+  --bar-h: calc(var(--control-h-sm) + 0.75rem);
 
   /* ─── Floating surfaces ──────────────────────────────────────────────────
      What a panel that FLOATS fills with, and what it does to whatever is
@@ -510,6 +558,24 @@
   --danger: #ee8b68;
   --danger-soft: rgba(238, 139, 104, 0.16);
   --scrim: color-mix(in srgb, #000 72%, transparent);
+}
+
+/* The bar, on a finger.
+ *
+ * A bar's controls are `sm` — the size this system documents as a deliberate
+ * below-the-floor density for a mouse — and a coarse pointer grows them to the
+ * 44px target WCAG 2.5.5 asks for. The bar grows with them, or it clips what it
+ * seats. Declared on the ROOT like the base value, so the substitution argument
+ * above still holds: one answer, resolved once, inherited by a rail that pins
+ * its own density.
+ */
+@media (pointer: coarse) {
+  :root,
+  [data-mode='light'],
+  [data-surface='paper'],
+  [data-rules='hairline'] {
+    --bar-h: calc(var(--control-h-md) + 0.75rem);
+  }
 }
 
 [data-density='compact'] {

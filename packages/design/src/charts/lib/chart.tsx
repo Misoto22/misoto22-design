@@ -223,6 +223,11 @@ export function ChartContainer({
           // 1200px it is a 675px-tall plot with six points in it. The cap is
           // what stops the aspect ratio running away with a wide container,
           // and `min-h` keeps it from collapsing in a narrow one.
+          //
+          // With a footer the shape moves DOWN one element rather than being
+          // dropped — see the container below. Sizing this box 16:9 would hand
+          // the footer's height to the footer out of the plot's share, which is
+          // a plot that shrinks as its brush grows.
           !footer && 'aspect-video max-h-[26rem] min-h-[13rem]',
           // Recharts' own defaults, re-pointed at the token layer.
           "[&_.recharts-cartesian-axis-tick_text]:fill-(--chart-axis)",
@@ -242,7 +247,22 @@ export function ChartContainer({
         {...rest}
       >
         <ChartStyle id={chartId} config={config} />
-        <ResponsiveContainer className="min-h-0 w-full flex-1" initialDimension={initialDimension}>
+        {/* The plot carries the shape when there is a footer under it.
+            It used to carry nothing: the outer box dropped `aspect-video` AND
+            `min-h` the moment a footer existed, on the reasoning that a fixed
+            aspect plus a footer overflows — which is true of the aspect and
+            not of the floor. So a chart with a brush had a plot with no
+            intrinsic height at all, and in any container that sizes to its
+            content the plot measured zero and only the brush's own 56px
+            survived. Recharts says so out loud — "width(-1) and height(-1) of
+            chart should be greater than 0" — into a console nobody reads. */}
+        <ResponsiveContainer
+          className={cn(
+            'w-full flex-1',
+            footer ? 'aspect-video max-h-[26rem] min-h-[13rem]' : 'min-h-0',
+          )}
+          initialDimension={initialDimension}
+        >
           {children}
         </ResponsiveContainer>
         {footer}

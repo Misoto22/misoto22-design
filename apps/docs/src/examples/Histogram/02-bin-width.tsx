@@ -3,6 +3,7 @@
 import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
 import { Histogram } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 const samples = [
   62, 64, 65, 65, 66, 67, 67, 68, 68, 68, 69, 69, 70, 70, 70, 71, 71, 72, 72, 73, 73, 74, 74, 75,
@@ -27,18 +28,20 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <ToggleGroup
-        type="single"
-        value={choice}
-        onValueChange={(next) => next && setChoice(next as (typeof WIDTHS)[number])}
-        aria-label="Bin count"
-      >
-        {WIDTHS.map((option) => (
-          <ToggleGroupItem key={option} value={option}>
-            {option === 'auto' ? 'auto' : `${option} bins`}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      <ExampleControls>
+        <ToggleGroup
+          type="single"
+          value={choice}
+          onValueChange={(next) => next && setChoice(next as (typeof WIDTHS)[number])}
+          aria-label="Bin count"
+        >
+          {WIDTHS.map((option) => (
+            <ToggleGroupItem key={option} value={option}>
+              {option === 'auto' ? 'auto' : `${option} bins`}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </ExampleControls>
 
       <Histogram
         title={`Request duration — ${choice === 'auto' ? 'Freedman–Diaconis' : `${choice} bins`}`}

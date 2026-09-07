@@ -1,6 +1,6 @@
 import { apiCopy } from '@/i18n/api'
 import { componentCopy, componentName, groupName } from '@/i18n/content'
-import { exampleCopy } from '@/i18n/examples'
+import { exampleCopy, exampleTitle } from '@/i18n/examples'
 import { localePath, type Locale } from '@/i18n/locales'
 import { getMessages } from '@/i18n/messages'
 import { Alert, Badge, Kbd, Separator, TBody, TD, TH, THead, TR, Table } from '@misoto22/design'
@@ -204,7 +204,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
                   id={`example-${example.id}`}
                   className="m-0 scroll-mt-(--scroll-offset) eyebrow text-(--ink-3-aa)"
                 >
-                  {example.title}
+                  {exampleTitle(locale, `${entry.dir}/${example.id}`, example.title)}
                 </h3>
                 {example.description && (
                   <p className="m-0 max-w-(--w-reading) text-sm leading-relaxed text-(--ink-2)">

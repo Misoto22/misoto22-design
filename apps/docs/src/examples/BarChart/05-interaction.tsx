@@ -9,6 +9,7 @@ import {
 } from '@misoto22/design/charts'
 import { Monitor, Smartphone } from 'lucide-react'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 const data = [
   { month: 'Jan', desktop: 186, mobile: 80 },
@@ -34,7 +35,10 @@ const ROUNDNESS: ChartTooltipRoundness[] = ['sm', 'md', 'lg']
  * bars take a click to select for the same reason. The tooltip's ground and its
  * corner are the two knobs worth exposing, and defaultIndex opens it on a row
  * before anything is hovered, so the panel is legible in a screenshot and to a
- * reader who never moves a pointer.
+ * reader who never moves a pointer. Both knobs move the floating panel and
+ * nothing else on the card — and frosted is the plot showing THROUGH that
+ * panel, so it reads where the panel crosses a bar and nowhere else: over the
+ * white ground it is white at 75% over white, which is white.
  */
 export function Example() {
   const [variant, setVariant] = useState<ChartTooltipVariant>('solid')
@@ -42,33 +46,35 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="flex flex-wrap gap-3">
-        <ToggleGroup
-          type="single"
-          value={variant}
-          onValueChange={(next) => next && setVariant(next as ChartTooltipVariant)}
-          aria-label="Tooltip ground"
-        >
-          {VARIANTS.map((option) => (
-            <ToggleGroupItem key={option} value={option}>
-              {option}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
+      <ExampleControls>
+        <div className="flex flex-wrap gap-3">
+          <ToggleGroup
+            type="single"
+            value={variant}
+            onValueChange={(next) => next && setVariant(next as ChartTooltipVariant)}
+            aria-label="Tooltip ground"
+          >
+            {VARIANTS.map((option) => (
+              <ToggleGroupItem key={option} value={option}>
+                {option}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
 
-        <ToggleGroup
-          type="single"
-          value={roundness}
-          onValueChange={(next) => next && setRoundness(next as ChartTooltipRoundness)}
-          aria-label="Tooltip corner"
-        >
-          {ROUNDNESS.map((option) => (
-            <ToggleGroupItem key={option} value={option}>
-              {option}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-      </div>
+          <ToggleGroup
+            type="single"
+            value={roundness}
+            onValueChange={(next) => next && setRoundness(next as ChartTooltipRoundness)}
+            aria-label="Tooltip corner"
+          >
+            {ROUNDNESS.map((option) => (
+              <ToggleGroupItem key={option} value={option}>
+                {option}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </div>
+      </ExampleControls>
 
       <BarChart title="Visitors by month" config={config} data={data}>
         <BarChart.Grid />

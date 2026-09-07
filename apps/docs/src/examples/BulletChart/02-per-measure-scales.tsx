@@ -3,6 +3,7 @@
 import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
 import { BulletChart, formatNumber } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 // Four measures that share no unit and no range. Each one carries its own
 // scale and its own thresholds, which is what lets a latency sit above a
@@ -28,15 +29,17 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <ToggleGroup
-        type="single"
-        value={showScale ? 'shown' : 'hidden'}
-        onValueChange={(next) => next && setShowScale(next === 'shown')}
-        aria-label="Scale labels"
-      >
-        <ToggleGroupItem value="hidden">no scale</ToggleGroupItem>
-        <ToggleGroupItem value="shown">scale</ToggleGroupItem>
-      </ToggleGroup>
+      <ExampleControls>
+        <ToggleGroup
+          type="single"
+          value={showScale ? 'shown' : 'hidden'}
+          onValueChange={(next) => next && setShowScale(next === 'shown')}
+          aria-label="Scale labels"
+        >
+          <ToggleGroupItem value="hidden">no scale</ToggleGroupItem>
+          <ToggleGroupItem value="shown">scale</ToggleGroupItem>
+        </ToggleGroup>
+      </ExampleControls>
 
       <BulletChart
         title="Platform health"

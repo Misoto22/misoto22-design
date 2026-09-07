@@ -53,7 +53,7 @@ try {
   // Every other axis, restored the same way and for the same reason: a theme
   // applied on hydration is a theme the reader watches being applied.
   var theme = JSON.parse(localStorage.getItem('m22-theme') || '{}')
-  var defaults = { surface: 'paper', radius: 'soft', rules: 'hairline', type: 'editorial', motion: 'calm', density: 'comfortable' }
+  var defaults = { surface: 'paper', radius: 'soft', rules: 'hairline', type: 'editorial', motion: 'calm', density: 'comfortable', chartPalette: 'mono' }
   for (var axis in defaults) {
     if (theme[axis] && theme[axis] !== defaults[axis]) document.documentElement.dataset[axis] = theme[axis]
   }

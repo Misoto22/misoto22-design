@@ -3,6 +3,7 @@
 import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
 import { LineChart, type ChartConfig, type ChartLegendVariant } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 const data = [
   { month: 'Jan', desktop: 186, mobile: 80 },
@@ -39,18 +40,20 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <ToggleGroup
-        type="single"
-        value={variant}
-        onValueChange={(next) => next && setVariant(next as ChartLegendVariant)}
-        aria-label="Legend swatch"
-      >
-        {VARIANTS.map((option) => (
-          <ToggleGroupItem key={option} value={option}>
-            {option}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      <ExampleControls>
+        <ToggleGroup
+          type="single"
+          value={variant}
+          onValueChange={(next) => next && setVariant(next as ChartLegendVariant)}
+          aria-label="Legend swatch"
+        >
+          {VARIANTS.map((option) => (
+            <ToggleGroupItem key={option} value={option}>
+              {option}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </ExampleControls>
 
       <LineChart title="Visitors per month" config={config} data={data}>
         <LineChart.Grid />

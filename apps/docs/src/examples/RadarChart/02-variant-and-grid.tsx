@@ -3,6 +3,7 @@
 import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
 import { RadarChart, type ChartConfig, type RadarVariant } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 const data = [
   { skill: 'Design', current: 86, target: 95 },
@@ -37,33 +38,35 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="flex flex-wrap gap-3">
-        <ToggleGroup
-          type="single"
-          value={variant}
-          onValueChange={(next) => next && setVariant(next as RadarVariant)}
-          aria-label="Radar fill"
-        >
-          {VARIANTS.map((option) => (
-            <ToggleGroupItem key={option} value={option}>
-              {option}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
+      <ExampleControls>
+        <div className="flex flex-wrap gap-3">
+          <ToggleGroup
+            type="single"
+            value={variant}
+            onValueChange={(next) => next && setVariant(next as RadarVariant)}
+            aria-label="Radar fill"
+          >
+            {VARIANTS.map((option) => (
+              <ToggleGroupItem key={option} value={option}>
+                {option}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
 
-        <ToggleGroup
-          type="single"
-          value={gridType}
-          onValueChange={(next) => next && setGridType(next as (typeof GRIDS)[number])}
-          aria-label="Grid"
-        >
-          {GRIDS.map((option) => (
-            <ToggleGroupItem key={option} value={option}>
-              {option}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-      </div>
+          <ToggleGroup
+            type="single"
+            value={gridType}
+            onValueChange={(next) => next && setGridType(next as (typeof GRIDS)[number])}
+            aria-label="Grid"
+          >
+            {GRIDS.map((option) => (
+              <ToggleGroupItem key={option} value={option}>
+                {option}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </div>
+      </ExampleControls>
 
       <RadarChart title="Team profile" config={config} data={data} angleDataKey="skill">
         <RadarChart.PolarGrid gridType={gridType} />

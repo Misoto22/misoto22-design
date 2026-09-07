@@ -180,7 +180,7 @@ export function AppShell({
         )}
       >
         {brand && (
-          <div className="flex h-14 items-center border-b border-(--rule) px-5">{brand}</div>
+          <div className="flex h-(--bar-h) items-center border-b border-(--rule) px-5">{brand}</div>
         )}
         <nav
           aria-label={navLabel}
@@ -191,7 +191,7 @@ export function AppShell({
       </aside>
 
       <div className="flex min-w-0 flex-col">
-        <header className="sticky top-0 z-(--z-sticky) flex h-14 items-center gap-3 border-b border-(--rule) bg-(--paper)/85 px-(--page-pad) backdrop-blur">
+        <header className="sticky top-0 z-(--z-sticky) flex h-(--bar-h) items-center gap-3 border-b border-(--rule) bg-(--paper)/85 px-(--page-pad) backdrop-blur">
           <button
             type="button"
             aria-label={open ? closeLabel : openLabel}

@@ -8,6 +8,7 @@ import {
   type ChartCurveType,
 } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 const data = [
   { month: 'Jan', desktop: 186 },
@@ -38,33 +39,35 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="flex flex-wrap gap-3">
-        <ToggleGroup
-          type="single"
-          value={stroke}
-          onValueChange={(next) => next && setStroke(next as AreaStrokeVariant)}
-          aria-label="Stroke"
-        >
-          {STROKES.map((option) => (
-            <ToggleGroupItem key={option} value={option}>
-              {option}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
+      <ExampleControls>
+        <div className="flex flex-wrap gap-3">
+          <ToggleGroup
+            type="single"
+            value={stroke}
+            onValueChange={(next) => next && setStroke(next as AreaStrokeVariant)}
+            aria-label="Stroke"
+          >
+            {STROKES.map((option) => (
+              <ToggleGroupItem key={option} value={option}>
+                {option}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
 
-        <ToggleGroup
-          type="single"
-          value={String(curve)}
-          onValueChange={(next) => next && setCurve(next as ChartCurveType)}
-          aria-label="Curve"
-        >
-          {CURVES.map((option) => (
-            <ToggleGroupItem key={option} value={option}>
-              {option}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-      </div>
+          <ToggleGroup
+            type="single"
+            value={String(curve)}
+            onValueChange={(next) => next && setCurve(next as ChartCurveType)}
+            aria-label="Curve"
+          >
+            {CURVES.map((option) => (
+              <ToggleGroupItem key={option} value={option}>
+                {option}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </div>
+      </ExampleControls>
 
       <AreaChart title="Visitors per month" config={config} data={data} curveType={curve}>
         <AreaChart.Grid />

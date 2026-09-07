@@ -156,3 +156,147 @@ describe('lengths inside calc()', () => {
     expect(offenders).toEqual([])
   })
 })
+
+/**
+ * The band across the top of an application, and the one number that says how
+ * tall it is.
+ *
+ * It was five literals in two packages before, and they disagreed: `AppShell`
+ * said `h-14` and the documentation site said `h-16`, so the same role was
+ * 56px in the component this system ships and 64px on the site documenting it.
+ * `SidebarHeader` held a sixth as a floor, which is what accidentally kept the
+ * rail's head level with the masthead — and what stopped it staying level once
+ * either moved. `--scroll-offset` was a seventh: "a masthead plus a line of
+ * air", written as `88px`, derived by hand from whichever of the two answers
+ * its author had on screen.
+ */
+describe('the bar height', () => {
+  const value = declarations(TOKENS).find(([name]) => name === 'bar-h')?.[1]
+
+  it('is declared once, in the token layer', () => {
+    expect(value, 'tokens.css must declare --bar-h').toBeDefined()
+  })
+
+  /**
+   * A bar is a row of controls and the air around them. Typed as a length it is
+   * a bar that can be set shorter than the controls it seats.
+   */
+  it('derives from the control height rather than naming a length', () => {
+    expect(value).toContain('var(--control-h-sm)')
+  })
+
+  /**
+   * `sm` is the size this system documents as a deliberate below-the-floor
+   * density for a mouse, and a finger is not a mouse: a coarse pointer grows
+   * these controls to the 44px target WCAG 2.5.5 asks for, so the bar has to
+   * grow with them. Sizing it from `--control-h-md` on BOTH is what made it
+   * too tall — 56px of bar around 39px of search field, holding room for a
+   * target that is not on screen when a mouse is.
+   */
+  it('grows for a finger rather than reserving the room always', () => {
+    const coarse = /@media \(pointer: coarse\)\s*\{([\s\S]*?)\n\}\n/.exec(
+      TOKENS.replace(/\/\*[\s\S]*?\*\//g, ''),
+    )?.[1]
+    expect(coarse, 'tokens.css must raise --bar-h on a coarse pointer').toBeDefined()
+    expect(coarse).toContain('--bar-h: calc(var(--control-h-md)')
+    // On the root, or the substitution argument above stops holding.
+    expect(coarse).toContain(':root')
+  })
+
+  /**
+   * Declared on the ROOT, and that is load-bearing rather than incidental: a
+   * `var()` inside a custom property is substituted where the property is
+   * DECLARED. So `--control-h-md` resolves once, at the root, and every
+   * descendant inherits the same answer — including a rail that pins its own
+   * `data-density`, which is how the rail's head stays level with a masthead
+   * that is following the page.
+   */
+  it('is not re-declared per density, or a compact rail leaves the corner', () => {
+    const perDensity = /\[data-density=['"]compact['"]\][^{]*\{([\s\S]*?)\n\}/.exec(
+      TOKENS.replace(/\/\*[\s\S]*?\*\//g, ''),
+    )?.[1]
+    expect(perDensity, 'tokens.css must have a compact block').toBeDefined()
+    expect(perDensity).not.toContain('--bar-h')
+  })
+
+  it('is what an anchored heading measures its offset from', () => {
+    const offset = declarations(SEMANTIC).find(([name]) => name === 'scroll-offset')?.[1]
+    expect(offset).toContain('var(--bar-h)')
+  })
+
+  /** Nothing re-types it. A second answer is how the first one drifts. */
+  it('is the only place a bar names a height', () => {
+    const guilty = componentSources()
+      .filter(([, text]) => /\b(min-)?h-1[46]\b/.test(text))
+      .map(([file]) => file)
+
+    expect(guilty).toEqual([])
+  })
+})
+
+/**
+ * A control's height token is a floor, and a floor only binds while the box is
+ * under it. The box is the line plus the padding plus the border — and the
+ * line was inheriting the body's 1.6 reading leading, which no control asked
+ * for. So `sm` measured 39px against its own 36px token, `md` 46 against 44,
+ * `lg` 50 against 48: every text button in the system was two to three pixels
+ * taller than the number documenting it, and the documentation said 36 and 44.
+ *
+ * `--control-lh` is the missing term. This is the arithmetic that keeps it
+ * sufficient, at every size and on both densities — the check nobody could run
+ * while the leading was somebody else's.
+ */
+describe('a control fits inside its own height', () => {
+  const BORDER = 2 // 1px each side, from Button's base ring
+  const px = (value: string, base = 16) =>
+    value.endsWith('rem') ? parseFloat(value) * base : parseFloat(value)
+
+  const BUTTON = readFileSync(join(COMPONENTS, 'Button', 'Button.tsx'), 'utf8')
+  /** Tailwind's own `text-sm`, which the md size uses rather than a literal. */
+  const FONT: Record<string, number> = { sm: 13, md: 14, lg: 15 }
+
+  const leading = declarations(TOKENS).find(([name]) => name === 'control-lh')?.[1]
+
+  it('gives a control its own leading rather than the page\'s', () => {
+    expect(leading, 'tokens.css must declare --control-lh').toBeDefined()
+    expect(Number(leading)).toBeGreaterThan(0)
+    expect(Number(leading), 'a control label is one line, not a paragraph').toBeLessThan(1.5)
+  })
+
+  it('reaches every button size', () => {
+    for (const size of ['sm', 'md', 'lg']) {
+      const line = new RegExp(`^\\s*${size}: '([^']+)'`, 'm').exec(BUTTON)?.[1]
+      expect(line, `Button's ${size} size`).toBeDefined()
+      expect(line, `${size} must set the control leading`).toContain('leading-(--control-lh)')
+    }
+  })
+
+  it('is not undone by a keycap carrying the reading leading', () => {
+    // The last term in the masthead's search field, and the one that kept it
+    // at 39px after the button itself was fixed.
+    const KBD = readFileSync(join(COMPONENTS, 'Kbd', 'Kbd.tsx'), 'utf8')
+    expect(KBD).toContain('leading-(--control-lh)')
+    expect(KBD, 'a literal leading is the bug this had').not.toMatch(/leading-\[[\d.]+\]/)
+  })
+
+  it.each(['sm', 'md', 'lg'])('leaves %s room to bind at both densities', (size) => {
+    const compact = /\[data-density='compact'\]\s*\{([\s\S]*?)\n\}/.exec(
+      TOKENS.replace(/\/\*[\s\S]*?\*\//g, ''),
+    )![1]!
+    const root = declarations(TOKENS)
+    const at = (name: string, css?: string) =>
+      css
+        ? new RegExp(`--${name}:\\s*([^;]+);`).exec(css)?.[1]?.trim() ??
+          root.find(([n]) => n === name)![1]
+        : root.find(([n]) => n === name)![1]
+
+    for (const [label, css] of [['comfortable', undefined], ['compact', compact]] as const) {
+      const height = px(at(`control-h-${size}`, css))
+      const pad = px(at(`control-py-${size}`, css)) * 2
+      const box = FONT[size]! * Number(leading) + pad + BORDER
+
+      expect(box, `${size} at ${label}: ${box}px of box in a ${height}px control`)
+        .toBeLessThanOrEqual(height)
+    }
+  })
+})

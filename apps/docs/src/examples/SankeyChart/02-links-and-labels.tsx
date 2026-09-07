@@ -8,6 +8,7 @@ import {
   type SankeyLinkVariant,
 } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 const data = {
   nodes: [
@@ -56,33 +57,35 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="flex flex-wrap gap-3">
-        <ToggleGroup
-          type="single"
-          value={link}
-          onValueChange={(next) => next && setLink(next as SankeyLinkVariant)}
-          aria-label="Link"
-        >
-          {LINKS.map((option) => (
-            <ToggleGroupItem key={option} value={option}>
-              {option}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
+      <ExampleControls>
+        <div className="flex flex-wrap gap-3">
+          <ToggleGroup
+            type="single"
+            value={link}
+            onValueChange={(next) => next && setLink(next as SankeyLinkVariant)}
+            aria-label="Link"
+          >
+            {LINKS.map((option) => (
+              <ToggleGroupItem key={option} value={option}>
+                {option}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
 
-        <ToggleGroup
-          type="single"
-          value={position}
-          onValueChange={(next) => next && setPosition(next as SankeyLabelPosition)}
-          aria-label="Labels"
-        >
-          {LABELS.map((option) => (
-            <ToggleGroupItem key={option} value={option}>
-              {option}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-      </div>
+          <ToggleGroup
+            type="single"
+            value={position}
+            onValueChange={(next) => next && setPosition(next as SankeyLabelPosition)}
+            aria-label="Labels"
+          >
+            {LABELS.map((option) => (
+              <ToggleGroupItem key={option} value={option}>
+                {option}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </div>
+      </ExampleControls>
 
       <SankeyChart
         title="Visits by source and outcome"

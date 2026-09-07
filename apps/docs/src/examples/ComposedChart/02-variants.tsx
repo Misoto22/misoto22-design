@@ -8,6 +8,7 @@ import {
   type ChartConfig,
 } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 const data = [
   { month: 'Jan', revenue: 4200, profit: 1800 },
@@ -40,33 +41,35 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="flex flex-wrap gap-3">
-        <ToggleGroup
-          type="single"
-          value={bar}
-          onValueChange={(next) => next && setBar(next as BarVariant)}
-          aria-label="Bar fill"
-        >
-          {BARS.map((option) => (
-            <ToggleGroupItem key={option} value={option}>
-              {option}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
+      <ExampleControls>
+        <div className="flex flex-wrap gap-3">
+          <ToggleGroup
+            type="single"
+            value={bar}
+            onValueChange={(next) => next && setBar(next as BarVariant)}
+            aria-label="Bar fill"
+          >
+            {BARS.map((option) => (
+              <ToggleGroupItem key={option} value={option}>
+                {option}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
 
-        <ToggleGroup
-          type="single"
-          value={stroke}
-          onValueChange={(next) => next && setStroke(next as AreaStrokeVariant)}
-          aria-label="Line stroke"
-        >
-          {STROKES.map((option) => (
-            <ToggleGroupItem key={option} value={option}>
-              {option}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-      </div>
+          <ToggleGroup
+            type="single"
+            value={stroke}
+            onValueChange={(next) => next && setStroke(next as AreaStrokeVariant)}
+            aria-label="Line stroke"
+          >
+            {STROKES.map((option) => (
+              <ToggleGroupItem key={option} value={option}>
+                {option}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </div>
+      </ExampleControls>
 
       <ComposedChart title="Revenue and profit" config={config} data={data}>
         <ComposedChart.Grid />

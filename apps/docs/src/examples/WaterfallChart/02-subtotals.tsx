@@ -3,6 +3,7 @@
 import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
 import { WaterfallChart, formatNumber, type WaterfallStep } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 // `total` plants a bar on the baseline and sets the running figure. Here it is
 // used twice in the middle, as subtotals: gross profit, then operating profit.
@@ -31,15 +32,17 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <ToggleGroup
-        type="single"
-        value={connectors ? 'joined' : 'loose'}
-        onValueChange={(next) => next && setConnectors(next === 'joined')}
-        aria-label="Connectors"
-      >
-        <ToggleGroupItem value="joined">connectors</ToggleGroupItem>
-        <ToggleGroupItem value="loose">bars only</ToggleGroupItem>
-      </ToggleGroup>
+      <ExampleControls>
+        <ToggleGroup
+          type="single"
+          value={connectors ? 'joined' : 'loose'}
+          onValueChange={(next) => next && setConnectors(next === 'joined')}
+          aria-label="Connectors"
+        >
+          <ToggleGroupItem value="joined">connectors</ToggleGroupItem>
+          <ToggleGroupItem value="loose">bars only</ToggleGroupItem>
+        </ToggleGroup>
+      </ExampleControls>
 
       <WaterfallChart
         title="Operating profit bridge"

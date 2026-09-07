@@ -3,6 +3,7 @@
 import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
 import { PieChart, type ChartConfig } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 const data = [
   { browser: 'chrome', visitors: 275 },
@@ -41,18 +42,20 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <ToggleGroup
-        type="single"
-        value={shape}
-        onValueChange={(next) => next && setShape(next as Shape)}
-        aria-label="Shape"
-      >
-        {(Object.keys(SHAPES) as Shape[]).map((option) => (
-          <ToggleGroupItem key={option} value={option}>
-            {option}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      <ExampleControls>
+        <ToggleGroup
+          type="single"
+          value={shape}
+          onValueChange={(next) => next && setShape(next as Shape)}
+          aria-label="Shape"
+        >
+          {(Object.keys(SHAPES) as Shape[]).map((option) => (
+            <ToggleGroupItem key={option} value={option}>
+              {option}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </ExampleControls>
 
       <PieChart
         title={`Visitors by browser — ${shape}`}

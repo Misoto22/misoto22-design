@@ -235,7 +235,10 @@ export function componentCopy(locale: Locale, slug: string): ComponentCopy {
  */
 export function componentName(locale: Locale, slug: string, name: string): string {
   const zh = locale === 'zh' ? COMPONENTS_ZH[slug]?.name : undefined
-  return zh ? `${name} ${zh}` : name
+  // A separator, not a space. Both halves are names — `AreaChart` and 面积图 —
+  // and a space between two names reads as one name in two scripts. The dash
+  // says they are two labels for the same thing, which is what they are.
+  return zh ? `${name} - ${zh}` : name
 }
 
 export function groupName(locale: Locale, group: ComponentGroup): string {
@@ -328,7 +331,7 @@ const FOUNDATIONS_ZH: Record<string, FoundationCopy> = {
       colour: { title: '色彩 token' },
       data: {
         title: '数据',
-        note: '这是整套系统唯一一处必须回答一个单色方案宁愿不被问到的问题的地方：没有色相可以花，怎么把六条序列分开？答案是纹理——每张图都提供填充样式，而下面这条色阶是第二层编码，不是第一层。八级是交错排列的，所以相邻序列在明度上尽可能拉开（ΔE 21，下限是 15），而且每一级在自己的底色上都过 3:1。彩色色板能通过的六项检查里，有两项在这里是刻意不通过的，而且是明说而不是藏着：色度下限（这些都是灰）和明度带（--series-1 就是墨色本身）。真的需要色相的使用者，是去设 data-chart-palette="chroma"，而不是自己挑十六进制。--chart-fill 和 --chart-texture 是全系统唯一一对在两种底色上取值不同的 token：墨色以 14% 压在纸白上是一条读得出的带，纸白以 14% 压在近黑上什么都不是。',
+        note: '这是整套系统唯一一处必须回答一个单色方案宁愿不被问到的问题的地方：没有色相可以花，怎么把六条序列分开？答案是纹理——每张图都提供填充样式，而下面这条色阶是第二层编码，不是第一层。八级是交错排列的，所以相邻序列在明度上尽可能拉开（ΔE 21，下限是 15），而且每一级在自己的底色上都过 3:1。彩色色板能通过的六项检查里，有两项在这里是刻意不通过的，而且是明说而不是藏着：色度下限（这些都是灰）和明度带（--series-1 就是墨色本身）。真的需要色相的使用者，是去设 data-chart-palette="chroma"，而不是自己挑十六进制；如果图表要穿的是一个品牌而不是八个分类，那就是 data-chart-palette="accent"，它把同样这八个名字从 --clay 上派生出来。--chart-fill 和 --chart-texture 是全系统唯一一对在两种底色上取值不同的 token：墨色以 14% 压在纸白上是一条读得出的带，纸白以 14% 压在近黑上什么都不是。',
       },
       depth: {
         title: '深度',

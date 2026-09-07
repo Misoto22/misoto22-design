@@ -3,6 +3,7 @@
 import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
 import { BarChart, type BarVariant, type ChartConfig } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 const data = [
   { month: 'Jan', desktop: 186 },
@@ -37,18 +38,20 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <ToggleGroup
-        type="single"
-        value={variant}
-        onValueChange={(next) => next && setVariant(next as BarVariant)}
-        aria-label="Fill variant"
-      >
-        {VARIANTS.map((option) => (
-          <ToggleGroupItem key={option} value={option}>
-            {option}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      <ExampleControls>
+        <ToggleGroup
+          type="single"
+          value={variant}
+          onValueChange={(next) => next && setVariant(next as BarVariant)}
+          aria-label="Fill variant"
+        >
+          {VARIANTS.map((option) => (
+            <ToggleGroupItem key={option} value={option}>
+              {option}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </ExampleControls>
 
       <BarChart title={`Visitors by month — ${variant}`} config={config} data={data}>
         <BarChart.Grid />
