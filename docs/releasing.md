@@ -32,6 +32,16 @@ carries a changeset, and everything else passes untouched. A refactor there that
 no consumer can observe is waived with the `skip-changeset` label, so the
 exception is a visible act rather than an omission nobody noticed.
 
+The same job checks the changeset's shape, through `node .changeset/shape.mjs`.
+A changeset's first paragraph is the changelog entry — one sentence, under 160
+characters — and everything below a blank line is detail. `DESIGN-CHANGELOG-001`
+is the rule; the reason is that the entries here carry their reasoning, which is
+what makes them worth reading and what cost the changelog its index: 0.9.0 ran
+to 2,685 words at a median of 161 an entry, against an ecosystem norm of 10 to
+25. The documentation site folds the detail under the entry rather than cutting
+it, so the page can be scanned and the argument is still there for whoever wants
+it.
+
 Note what the gate is *not* protecting against. Two branches can never contest a
 version number, because neither one writes one — a changeset names a bump kind
 in a randomly named file, and `release.yml` computes the number afterwards, once,

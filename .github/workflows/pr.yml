@@ -61,6 +61,13 @@ jobs:
           added=$(echo "$changed" | grep '^\.changeset/.*\.md$' | grep -v '/README\.md$' || true)
           if [ -n "$added" ]; then
             echo "Changeset present:"; echo "$added"
+            # And in shape. `DESIGN-CHANGELOG-001`: the first paragraph is the
+            # changelog entry, so it has to read as one in a list of forty —
+            # everything below the blank line is detail the site folds away.
+            # The rule lives in the script rather than here, because the docs
+            # tests check the same file and two copies of a regex drift.
+            # shellcheck disable=SC2086
+            node .changeset/shape.mjs $added
             exit 0
           fi
 

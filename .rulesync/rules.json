@@ -124,6 +124,34 @@
           "blocking": true
         }
       ]
+    },
+    {
+      "id": "DESIGN-CHANGELOG-001",
+      "name": "Lead a changeset with its entry",
+      "level": "MUST",
+      "scope": "project",
+      "owner": "Misoto22/misoto22-design",
+      "status": "active",
+      "since": "0.9.0",
+      "statement": "Write the changelog entry as a changeset's first paragraph — one sentence, under 160 characters — and put the reasoning below a blank line, where the documentation site folds it away.",
+      "rationale": "The reasoning is why an entry here is worth reading, but unfolded it cost the changelog its index: 0.9.0 ran to 2,685 words with a median entry of 161 against an ecosystem norm of 10 to 25.",
+      "sources": [
+        {
+          "type": "policy",
+          "ref": ".changeset/README.md"
+        },
+        {
+          "type": "policy",
+          "ref": "docs/releasing.md"
+        }
+      ],
+      "enforcement": [
+        {
+          "kind": "ci",
+          "check": "node .changeset/shape.mjs, run by the changeset job in .github/workflows/pr.yml",
+          "blocking": true
+        }
+      ]
     }
   ]
 }
