@@ -152,6 +152,34 @@
           "blocking": true
         }
       ]
+    },
+    {
+      "id": "DESIGN-I18N-001",
+      "name": "Ship a changeset's Chinese with it",
+      "level": "MUST",
+      "scope": "project",
+      "owner": "Misoto22/misoto22-design",
+      "status": "active",
+      "since": "0.9.0",
+      "statement": "Translate a changeset's sentences into `apps/docs/src/i18n/changelog.ts` in the pull request that writes the changeset, not in the release that publishes it.",
+      "rationale": "The documentation changelog is gated, and under auto-merge an untranslated entry stops the release rather than shipping half in English — so a translation deferred is a publish halted at the last step, twice on the day this rule was written.",
+      "sources": [
+        {
+          "type": "policy",
+          "ref": "docs/releasing.md"
+        },
+        {
+          "type": "policy",
+          "ref": "apps/docs/src/i18n/changelog.ts"
+        }
+      ],
+      "enforcement": [
+        {
+          "kind": "test",
+          "check": "changelog.test.ts covers the changesets that are about to become one, run by verify on every pull request",
+          "blocking": true
+        }
+      ]
     }
   ]
 }

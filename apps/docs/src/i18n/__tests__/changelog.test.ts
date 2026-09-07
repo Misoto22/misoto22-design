@@ -154,6 +154,27 @@ describe('the Chinese changelog', () => {
     expect(missing).toEqual([])
   })
 
+  /**
+   * THE SAME GATE, ONE STEP EARLIER, and the step is the whole point.
+   *
+   * The case above reads the released changelog, which on a feature branch is
+   * the LAST release and is therefore always translated — so a pull request
+   * adding a changeset and no Chinese was green, merged, and only then held the
+   * release: the strings first appear in `CHANGELOG.md` on the Version Packages
+   * pull request, which is where the failure surfaced. That happened twice on
+   * the day this was written, at 42 strings and at 4, and each time somebody had
+   * to go and find out why 0.9.0 had stopped.
+   *
+   * A changeset already says exactly what it is about to add. So ask it here,
+   * on the branch that wrote it, where the person who can answer is still
+   * looking. `verify` runs on every pull request, so this needs no new job:
+   * the gate was in the right workflow and pointed at the wrong text.
+   */
+  it('covers the changesets that are about to become one', () => {
+    const missing = [...PENDING.values()].filter((text) => !CHANGELOG_ZH[fingerprint(text)])
+    expect(missing).toEqual([])
+  })
+
   describe('the pending-changeset window', () => {
     it('reads a changeset the way the changelog will be read', () => {
       // Segmentation is the only thing that matters — `fingerprint` collapses

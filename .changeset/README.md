@@ -44,6 +44,13 @@ that same file. It checks the shape and not the sentence: whether the entry is a
 GOOD one is the same thing this repository already cannot check about a bump
 level. See `DESIGN-CHANGELOG-001`.
 
+## And its Chinese, in the same pull request
+
+`apps/docs/src/i18n/changelog.ts` carries every entry in Chinese, keyed by the
+fingerprint of the English, and `changelog.test.ts` asks for the pending
+changesets to be covered — so a changeset with no translation is red on its own
+branch rather than on the release it would otherwise stop. `DESIGN-I18N-001`.
+
 ## What counts as a consumer-visible change
 
 - A new component, prop, or export → `minor`
