@@ -35,6 +35,11 @@ const en = {
     expandNav: 'Show the sidebar',
     skip: 'Skip to content',
   },
+  changelog: {
+    // The count is what makes the fold a decision rather than a guess.
+    more: 'Show {count} more',
+    less: 'Show less',
+  },
   footer: {
     blurb:
       'A pure-white monochrome design system for software, writing and photography: portable tokens and accessible React primitives.',
@@ -227,6 +232,10 @@ const zh: Messages = {
     collapseNav: '收起侧栏',
     expandNav: '展开侧栏',
     skip: '跳到正文',
+  },
+  changelog: {
+    more: '展开 {count} 条',
+    less: '收起',
   },
   footer: {
     blurb: '一套面向软件、写作与摄影的纯白单色设计系统：可移植的 token，加上一批无障碍的 React 原语。',

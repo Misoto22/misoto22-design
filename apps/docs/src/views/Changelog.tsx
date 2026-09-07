@@ -1,8 +1,9 @@
 import { changelogText } from '@/i18n/changelog'
 import { PAGE_ZH } from '@/i18n/content'
 import type { Locale } from '@/i18n/locales'
-import { getMessages } from '@/i18n/messages'
+import { fill, getMessages } from '@/i18n/messages'
 import { Badge } from '@misoto22/design'
+import { ChangelogDetail } from '@/components/ChangelogDetail'
 import { PageIntro } from '@/components/PageIntro'
 import { Prose } from '@/components/Prose'
 import changelog from '@/generated/changelog.json'
@@ -44,6 +45,14 @@ const RELEASES = changelog as Release[]
  * The body is rendered as the small document it is rather than joined into one
  * paragraph: a changeset that lists five changes is five lines, and flattening
  * them was what made this page unreadable at the length it had reached.
+ *
+ * THE HEADLINES ARE THE PAGE and the bodies are folded under them. The entries
+ * here carry their reasoning, which is the reason to read one and the reason
+ * the page could not be scanned: 0.9.0 is two and a half thousand words, and a
+ * reader looking for the version that changed `Sidebar` was reading an essay
+ * about line boxes on the way past. Folding keeps the argument and gives back
+ * the index; `DESIGN-CHANGELOG-001` is what keeps the headline short enough for
+ * that index to be worth having.
  */
 export function Changelog({ locale }: { locale: Locale }) {
   const t = getMessages(locale)
@@ -101,7 +110,10 @@ export function Changelog({ locale }: { locale: Locale }) {
                           )}
                         </div>
                         {item.body && item.body.length > 0 && (
-                          <div className="flex flex-col gap-2">
+                          <ChangelogDetail
+                            more={fill(t.changelog.more, { count: item.body.length })}
+                            less={t.changelog.less}
+                          >
                             {item.body.map((block, blockIndex) =>
                               block.kind === 'bullet' ? (
                                 <div key={blockIndex} className="flex gap-2.5">
@@ -117,7 +129,7 @@ export function Changelog({ locale }: { locale: Locale }) {
                                 <Prose key={blockIndex} text={changelogText(locale, block.text)} small />
                               ),
                             )}
-                          </div>
+                          </ChangelogDetail>
                         )}
                       </div>
                     ) : (

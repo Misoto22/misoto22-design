@@ -17,6 +17,40 @@ from commit subjects a month later.
 `@misoto22/design-docs` is ignored: the documentation site is deployed, not
 versioned, and a version bump on it would mean nothing to anyone.
 
+## The shape of one
+
+The FIRST PARAGRAPH is the changelog entry: one sentence, under 160 characters,
+readable in a list of forty. Everything below a blank line is detail — kept in
+full, folded away under the entry on the documentation site.
+
+```markdown
+---
+'@misoto22/design': minor
+---
+
+`Sidebar` — a navigation rail down the side of an application, with the control
+that hides it living on the thing it hides.
+
+**Closing has three shapes.** `icon` keeps the rail and drops the labels …
+```
+
+That split is not a length budget in disguise. The reasoning is the reason an
+entry here is worth reading; what it cost, unfolded, was the index — 0.9.0 ran
+to 2,685 words at a median of 161 an entry, where Radix, Chakra and MUI run 10
+to 25. Folding gives the index back and keeps the argument.
+
+`node .changeset/shape.mjs` checks it, and the `changeset` job in `pr.yml` runs
+that same file. It checks the shape and not the sentence: whether the entry is a
+GOOD one is the same thing this repository already cannot check about a bump
+level. See `DESIGN-CHANGELOG-001`.
+
+## And its Chinese, in the same pull request
+
+`apps/docs/src/i18n/changelog.ts` carries every entry in Chinese, keyed by the
+fingerprint of the English, and `changelog.test.ts` asks for the pending
+changesets to be covered — so a changeset with no translation is red on its own
+branch rather than on the release it would otherwise stop. `DESIGN-I18N-001`.
+
 ## What counts as a consumer-visible change
 
 - A new component, prop, or export → `minor`

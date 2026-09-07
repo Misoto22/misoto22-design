@@ -32,6 +32,16 @@ carries a changeset, and everything else passes untouched. A refactor there that
 no consumer can observe is waived with the `skip-changeset` label, so the
 exception is a visible act rather than an omission nobody noticed.
 
+The same job checks the changeset's shape, through `node .changeset/shape.mjs`.
+A changeset's first paragraph is the changelog entry — one sentence, under 160
+characters — and everything below a blank line is detail. `DESIGN-CHANGELOG-001`
+is the rule; the reason is that the entries here carry their reasoning, which is
+what makes them worth reading and what cost the changelog its index: 0.9.0 ran
+to 2,685 words at a median of 161 an entry, against an ecosystem norm of 10 to
+25. The documentation site folds the detail under the entry rather than cutting
+it, so the page can be scanned and the argument is still there for whoever wants
+it.
+
 Note what the gate is *not* protecting against. Two branches can never contest a
 version number, because neither one writes one — a changeset names a bump kind
 in a randomly named file, and `release.yml` computes the number afterwards, once,
@@ -94,12 +104,18 @@ an hour, so like the npm side there is nothing standing to leak.
 
 > [!IMPORTANT]
 > **The Chinese changelog goes in with the change, not with the release.**
-> `apps/docs/src/i18n/changelog.ts` carries each release's entries and
-> `changelog.test.ts` gates them, and `verify` runs on the version pull request.
-> A missing translation is now a version pull request that never goes green and
-> so never auto-merges — the release simply does not happen, and waits, visibly,
-> for the sentence nobody wrote. The test deliberately accepts a translation of
-> English that only a *changeset* has, precisely so it can be written early.
+> `DESIGN-I18N-001`, and `changelog.test.ts` asks for it on the branch that
+> writes the changeset — `verify` runs on every pull request, so a changeset
+> with no Chinese is red immediately, in front of the person who can answer.
+>
+> It was not always asked there, and the difference is the whole rule. The test
+> used to read the RELEASED changelog, which on a feature branch is the previous
+> release and is therefore always translated; a pull request adding a changeset
+> and no Chinese went green, merged, and only then held the release, because the
+> strings first reach `CHANGELOG.md` on the Version Packages pull request. 0.9.0
+> stopped that way twice in one day, at 42 strings and at 4, and each time
+> somebody had to go and find out why. The gate was in the right workflow and
+> pointed at the wrong text.
 
 > [!NOTE]
 > `--auto` is a queue, not a bypass. It merges only once every check the ruleset
