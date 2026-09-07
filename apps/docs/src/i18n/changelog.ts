@@ -44,6 +44,103 @@ import type { Locale } from './locales'
  * keeps this a gate. See `docs/releasing.md`.
  */
 const ZH: Record<string, string> = {
+  // ─── 0.10.0 ───
+  [fingerprint(
+    'The chart palette gains a third value, and forced colours gets its ramp back.',
+  )]: '图表调色板多了第三个取值，而强制颜色模式拿回了它那条色阶。',
+  [fingerprint(
+    '`data-chart-palette` had two answers — `mono` and `chroma` — and neither one was "our accent is not ink". A consumer whose buttons, pills and rules had all re-pointed off `--clay` still got eight greys in every chart, and the only way out was the thing the axis exists to prevent: hand-picked hexes in a `colors` config. `accent` derives all eight names from `--clay` instead, so it works for an accent nobody here has seen.',
+  )]: '`data-chart-palette` 只有两个答案——`mono` 和 `chroma`——而没有一个是「我们的强调色不是墨色」。一个把按钮、药丸和线条统统重新指向 `--clay` 的消费者，在每一张图表里拿到的仍然是八级灰，而唯一的出路，恰恰是这根轴存在的意义所要避免的那件事：在 `colors` 配置里手挑一堆十六进制值。`accent` 改为从 `--clay` 推导出全部八个名字，所以它对一个这里从没见过的强调色也管用。',
+  [fingerprint(
+    'It pins the LIGHTNESS and inherits the hue, because separation and contrast are carried almost entirely by lightness — eight even steps across L 0.173–0.640 on paper and L 0.967–0.530 on the dark ground, both bounds set by the weakest hue rather than the prettiest. Measured across all 360 hues at maximum chroma: adjacent-pair separation ΔE 26.7 light / 25.0 dark (OKLab ×100, against a floor of 15), minimum contrast 3.11 on both grounds. `--series-1` sits mid-band, so a one-series chart paints within ΔE 2 of the accent itself rather than in the accent\'s darkest possible shade, and ink stays available as `--series-2`. What it is NOT is a categorical palette: one hue laddered eight ways is guesswork at eight series, and `chroma` is still the answer for a reader comparing categories.',
+  )]: '它钉住的是「明度」，色相则继承下来，因为区分度和对比度几乎全靠明度承载——纸上是 L 0.173–0.640 之间八个均匀的台阶，深色底上是 L 0.967–0.530，两端的边界都由最弱的那个色相定，而不是最好看的那个。在最大彩度下把全部 360 个色相都量过：相邻两级的区分度，浅底 ΔE 26.7、深底 25.0（OKLab ×100，下限是 15），最小对比度在两种底色上都是 3.11。`--series-1` 落在色带中部，所以单序列图表画出来跟强调色本身相差在 ΔE 2 以内，而不是落在强调色最深的那一档，同时墨色仍然留给 `--series-2`。它「不是」一套分类调色板：一个色相拉成八级，到了八个序列就是猜；读者要比较类别，答案仍然是 `chroma`。',
+  [fingerprint(
+    'Separately, and older than this: `tokens.css` collapses the ramp to `CanvasText` under `forced-colors`, and it writes that on `:root` — which any palette attribute then outranks, because an element matching `[data-chart-palette]` directly beats a value it merely inherits from the root, and beats it on source order at the root itself. A reader in Windows High Contrast who was on `chroma` kept getting the eight hues, which is the setting being ignored rather than honoured. The ramp is restated after the palettes, at the specificity the dark blocks use.',
+  )]: '另外还有一件，而且比这件更早：`tokens.css` 在 `forced-colors` 下会把整条色阶塌成 `CanvasText`，而它写在 `:root` 上——于是任何调色板属性都压得过它，因为一个直接匹配 `[data-chart-palette]` 的元素，胜过它仅仅从根节点继承来的值，即便在根节点自己身上，也靠源码顺序取胜。一个用 Windows 高对比度、又选了 `chroma` 的读者，拿到的还是那八个色相——这是设置被忽略，而不是被尊重。这条色阶现在改到调色板之后重述一遍，用的是深色块所用的那个特异度。',
+  [fingerprint(
+    'A chart with a brush gets its plot back.',
+  )]: '带 brush 的图表拿回了它的绘图区。',
+  [fingerprint(
+    'The brush is rendered as the chart container\'s FOOTER, and the footer branch dropped the plot\'s whole shape: no `aspect-video` — correct, since sizing the outer box 16:9 pays for the footer out of the plot\'s share — but also no `min-h`, which was not. So a brushed chart had a plot with no intrinsic height at all, and in any container that sizes to its content the plot measured zero and only the brush\'s own 56px survived. The page showed a scrubber with nothing above it to scrub. Recharts says so out loud — "width(-1) and height(-1) of chart should be greater than 0" — into a console nobody reads, which is why it stood.',
+  )]: 'brush 是作为图表容器的「页脚」渲染的，而页脚那条分支把绘图区的整套形状都丢掉了：没有 `aspect-video`——这是对的，因为把外框按 16:9 定尺寸，等于让页脚从绘图区的份额里扣——但连 `min-h` 也没有，这就不对了。于是一张带 brush 的图表，它的绘图区根本没有固有高度，在任何按内容定尺寸的容器里，绘图区量出来是零，只有 brush 自己那 56px 活了下来。页面上就是一条拖拽条，上头没有任何可拖的东西。Recharts 其实明说了——「width(-1) and height(-1) of chart should be greater than 0」——只是说进了一个没人看的控制台，所以它就这么一直立着。',
+  [fingerprint(
+    'The shape moves down one element instead of being dropped: with a footer, the plot carries `aspect-video max-h-[26rem] min-h-[13rem]` and the footer sits under it. `AreaChart`, `BarChart`, `LineChart` and `ComposedChart` are all affected — every chart that takes a `Brush`.',
+  )]: '这套形状不是被丢掉，而是往下挪了一个元素：有页脚时，绘图区带上 `aspect-video max-h-[26rem] min-h-[13rem]`，页脚坐在它下面。`AreaChart`、`BarChart`、`LineChart` 和 `ComposedChart` 都受影响——每一张接受 `Brush` 的图表。',
+  [fingerprint(
+    '`--control-lh`: every control is now the height its token claims.',
+  )]: '`--control-lh`：现在每一个控件都真的是它的 token 所声称的那个高度。',
+  [fingerprint(
+    '`--control-h-sm` is 36px and an `sm` Button measured 39. `md` said 44 and measured 46; `lg` said 48 and measured 50. `min-height` is a floor, and a floor only binds while the box is under it — the box being the line, the padding and the border. The padding was already scaled per density for exactly this reason, with a comment saying so. The LINE was not: it inherited the body\'s 1.6 reading leading, which no control asked for, and 20.8 + 16 + 2 clears 36 on its own.',
+  )]: '`--control-h-sm` 是 36px，而一个 `sm` 的 Button 量出来是 39。`md` 说 44，量出来 46；`lg` 说 48，量出来 50。`min-height` 是一条下限，而下限只在盒子低于它的时候才咬得住——盒子等于行高加内边距加边框。内边距早就按密度分级缩放过了，正是为了这个原因，旁边还写着注释说明。「行高」没有：它继承了正文那个 1.6 的阅读行距，没有任何控件要过它，而 20.8 + 16 + 2 光靠自己就越过了 36。',
+  [fingerprint(
+    'So every text button in the system was two to three pixels taller than the number documenting it, and the documentation said 36 and 44. The Button page still says "sm is 36px at the default density"; it is now true.',
+  )]: '所以这套系统里每一个文字按钮，都比记录它的那个数字高出两到三个像素，而文档写的是 36 和 44。Button 那一页现在仍然写着「默认密度下 sm 是 36px」；现在这句话是真的了。',
+  [fingerprint(
+    '`--control-lh: 1.2` is the missing term, declared beside the padding it belongs with, and `tokens.test.ts` now runs the arithmetic — line plus padding plus border against the height token, at every size, on both densities.',
+  )]: '`--control-lh: 1.2` 就是缺掉的那一项，声明在它本该待着的内边距旁边，而 `tokens.test.ts` 现在会把这道算术跑一遍——行高加内边距加边框，对上高度 token，每一个尺寸、两种密度都算。',
+  [fingerprint(
+    '`Kbd` carried the same literal `1.6`. Everything about it tracks its context in `em` — "so it tracks whatever type it sits beside" — except the leading, which was pinned at the reading value, so a keycap inside a control stood proud of the label next to it. That is what kept the documentation site\'s search field at 39px after the button itself was fixed, and what made it the one control in the masthead taller than the four beside it.',
+  )]: '`Kbd` 身上带着同一个写死的 `1.6`。它其余的一切都用 `em` 跟着上下文走——「这样它就跟着它旁边的字号走」——唯独行距被钉死在阅读用的那个值上，于是一个嵌在控件里的键帽，会比它旁边的标签高出一截。这正是按钮本身修好之后、文档站的搜索框仍然停在 39px 的原因，也是它成为顶栏里唯一比旁边四个都高的那个控件的原因。',
+  [fingerprint(
+    'Example headings reach the Chinese site.',
+  )]: '示例标题终于到得了中文站。',
+  [fingerprint(
+    '`generate.mjs` derives them from the filename — `02-fill-variants` becomes `fill variants` — so they are not prose anyone wrote, are not in `messages.ts`, and are not JSX for `untranslated-chrome.test.ts` to find. Three mechanisms guard the site\'s Chinese and none of them can see a string the BUILD makes. So the contents rail on `/zh` listed `default`, `brush` and `value labels` under 示例 for as long as the site has existed, and every check passed.',
+  )]: '`generate.mjs` 是从文件名推出它们的——`02-fill-variants` 变成 `fill variants`——所以它们不是任何人写下的文句，不在 `messages.ts` 里，也不是 `untranslated-chrome.test.ts` 找得到的 JSX。守着这个站中文的三套机制，没有一套看得见由「构建」造出来的字符串。于是 `/zh` 上的目录栏，在「示例」下面列着 `default`、`brush` 和 `value labels`，站点存在了多久它就这样多久，而每一道检查都通过。',
+  [fingerprint(
+    '`ExampleCopy` gains a `title`, and `exampleTitle()` reads it. No fingerprint, for the reason `ComponentCopyZh.name` has none: there is no English author to drift away from, and renaming the file renames the key, which already fails.',
+  )]: '`ExampleCopy` 多了一个 `title`，`exampleTitle()` 会读它。不带指纹，理由跟 `ComponentCopyZh.name` 不带指纹是同一个：这里没有一个英文原文可供漂移，而重命名文件就等于重命名键，那件事本来就会失败。',
+  [fingerprint(
+    'The catalogue is translated a group at a time. Charts and Data are done — 88 headings — and the test guards it two ways: a finished group may not regress, and the untranslated remainder may only get smaller.',
+  )]: '目录是一组一组翻的。Charts 和 Data 已经完成——88 个标题——而测试从两头守着：翻完的组不许倒退，没翻的余量只许变小。',
+  [fingerprint(
+    'An example\'s own knobs move out of the specimen and into the canvas toolbar.',
+  )]: '示例自己的旋钮从样品里挪了出来，进了画布工具条。',
+  [fingerprint(
+    'A chart example that lets a reader switch the tooltip\'s ground had two different things on the card: the chart, which is what the page is about, and two pill groups, which are the demo\'s scaffolding. Drawn together they read as one composition and the scaffolding won — it sat on top, it was the only thing with a filled ground, and at 36px it was the system\'s smallest control against a 26px toolbar two pixels above it. A reader looking for what `BarChart` renders found a settings panel.',
+  )]: '一个让读者切换 tooltip 底色的图表示例，卡片上放着两样不同的东西：图表，也就是这一页真正要讲的；以及两组药丸按钮，也就是这个演示的脚手架。画在一起，它们读起来是一个整体构图，而赢的是脚手架——它压在上面，是唯一有填充底色的东西，而且 36px 的它，是这套系统里最小的控件，紧挨着上方两个像素处那条 26px 的工具条。一个想看 `BarChart` 画出什么的读者，看到的是一块设置面板。',
+  [fingerprint(
+    '`ExampleControls` portals them up one band, beside LTR/RTL and the density switch, at the same chrome scale — the same strip height, to the pixel. The example\'s own code does not change: wiring state to a prop is the lesson in several of these, so the controls stay where they were written and only the canvas draws them elsewhere. `generate.mjs` unwraps the element out of the printed snippet, the way it already drops `export function Example` and the relative imports, so the code a reader copies is byte-for-byte what it was.',
+  )]: '`ExampleControls` 把它们传送到上面那一条带里，跟 LTR/RTL 和密度开关并排，用同一档 chrome 尺度——条高一致，精确到像素。示例自己的代码不变：把 state 接到一个 prop 上，正是这几个示例里要教的东西，所以控件仍然写在它原来的地方，只是画布把它画到了别处。`generate.mjs` 会把这个元素从印出来的代码片段里剥掉，就像它本来就会去掉 `export function Example` 和那些相对导入一样，所以读者复制走的代码，逐字节地还是原来那一份。',
+  [fingerprint(
+    'Twenty-four chart examples move. The four where a `ToggleGroup` IS the specimen — its own three examples and `Field`\'s group-naming one — stay put.',
+  )]: '二十四个图表示例挪了位。有四个里 `ToggleGroup` 本身「就是」样品——它自己的三个示例，加上 `Field` 那个讲分组命名的——原地不动。',
+  [fingerprint(
+    'Separately, the tooltip knobs in `BarChart`\'s interaction example now say what they do: both move the floating panel and nothing else on the card, and `frosted` is the plot showing THROUGH that panel, so it reads where the panel crosses a bar and nowhere else. Over the white ground it is white at 75% over white, which is white — a knob that appeared not to work.',
+  )]: '另外，`BarChart` 交互示例里的那几个 tooltip 旋钮，现在会把自己在干什么说清楚：它们只挪动那块浮层，卡片上别的什么都不动；而 `frosted` 是绘图区「透过」那块浮层显出来，所以它只在浮层压过柱子的地方读得出来，别处读不出来。在白色底上，那是 75% 的白压在白上，结果还是白——一个看上去不起作用的旋钮。',
+  [fingerprint(
+    '`--bar-h`: the band across the top of an application, as one number.',
+  )]: '`--bar-h`：横在应用顶部的那条带，收拢成一个数字。',
+  [fingerprint(
+    'It was five literals in two packages, and they disagreed. `AppShell` said `h-14` and the documentation site said `h-16` — the same role, 56px in the component this system ships and 64px on the site documenting it. A sixth, `SidebarHeader`\'s `min-h-14` floor, is what accidentally kept the rail\'s head level with the masthead beside it, and what would have stopped it staying level the moment either moved. `--scroll-offset` was a seventh: "a masthead plus a line of air", written as `88px`, a number derived by hand from whichever of the two answers its author had on screen.',
+  )]: '它原来是分散在两个包里的五个字面量，而且互相不一致。`AppShell` 说 `h-14`，文档站说 `h-16`——同一个角色，在这套系统发出去的组件里是 56px，在记录它的那个站点上是 64px。还有第六个，`SidebarHeader` 的 `min-h-14` 下限，是它偶然让导航栏的头跟旁边的顶栏齐平的，也是它会在两者任一挪动的那一刻让齐平消失的。`--scroll-offset` 是第七个：「一条顶栏加一行空气」，写成 `88px`，一个由人手从当时屏幕上那两个答案里挑一个推出来的数字。',
+  [fingerprint(
+    'Derived rather than typed. A bar is a row of controls and the air around them, so it is the control it seats plus six pixels above and below — the same twelve `--sidebar-w-icon` adds to a rail\'s collapsed width, for the same reason. A bar can no longer be set to a height its own controls do not fit in, and `--scroll-offset` is now `calc(var(--bar-h) + 1.5rem)`, so a bar that moves takes every anchored heading with it.',
+  )]: '现在是推导出来的，不是敲进去的。一条顶栏就是一排控件加上它们周围的空气，所以它等于它所安放的那个控件，上下各加六个像素——正是 `--sidebar-w-icon` 给导航栏收起宽度加的那十二个，理由也一样。一条顶栏再也不能被设成一个连自己的控件都装不下的高度，而 `--scroll-offset` 现在是 `calc(var(--bar-h) + 1.5rem)`，于是顶栏一动，所有锚定标题都跟着动。',
+  [fingerprint(
+    'WHICH control depends on the pointer. A bar is chrome: its controls are `sm`, the density this system documents as a deliberate below-the-floor size for a mouse. A finger is not a mouse, so on a coarse pointer they grow to the 44px target WCAG 2.5.5 asks for and the bar grows with them. 48px comfortable and 42px compact with a pointer; 56px and 48px with a finger.',
+  )]: '至于是「哪一个」控件，取决于指针。顶栏属于 chrome：它的控件是 `sm`，也就是这套系统明确记录为「为鼠标而刻意低于下限」的那一档。手指不是鼠标，所以在粗指针下它们会长到 WCAG 2.5.5 要求的 44px 目标，顶栏也跟着长。鼠标下是宽松 48px、紧凑 42px；手指下是 56px 和 48px。',
+  [fingerprint(
+    'Declared on the root, which is load-bearing rather than incidental: a `var()` inside a custom property is substituted where the property is DECLARED, so `--control-h-md` resolves once and every descendant inherits the same answer — including a rail that pins its own `data-density`, which is what keeps a compact rail\'s head level with a comfortable page\'s bar.',
+  )]: '声明在根节点上，而这一点是承重的、不是顺手的：自定义属性里的 `var()` 是在该属性被「声明」的地方代换的，所以 `--control-h-md` 只解析一次，而每一个后代继承到的都是同一个答案——包括一条钉死了自己 `data-density` 的导航栏，这正是让紧凑导航栏的头跟宽松页面的顶栏保持齐平的原因。',
+  [fingerprint(
+    'The documentation site\'s masthead loses 16px in the process — 64px down to 48px on a desktop, unchanged at 56px on a phone. It was seating 39px of content in 64px of bar, and holding a further 8px for a 44px target that only exists when the pointer is a finger.',
+  )]: '文档站的顶栏在这个过程中瘦了 16px——桌面端从 64px 降到 48px，手机端仍是 56px。它原本是把 39px 的内容安在一条 64px 的栏里，还额外为一个只在指针是手指时才存在的 44px 目标留了 8px。',
+  [fingerprint(
+    'Hovering a rail no longer emboldens the section under the pointer.',
+  )]: '划过导航栏，不会再把指针底下那一整节加粗了。',
+  [fingerprint(
+    'The fill follows the pointer while the pointer is in the list, and the three declarations that do it land on every row. Two are no-ops on a row that is not current — it has no fill and no ink to give up. `font-normal` was not: it is an absolute weight rather than an undo, so in a rail whose base face is lighter than 400 — the White Reset\'s own sidebar runs at 300 — every row got HEAVIER the moment the pointer arrived. Selecting one row appeared to embolden its whole section, which is the opposite of a highlight that follows the pointer.',
+  )]: '指针在列表里的时候填充跟着指针走，而做这件事的三条声明会落到每一行上。其中两条对一个非当前行是空操作——它既没有填充也没有墨色可让。`font-normal` 不是：它是一个绝对字重而不是一次撤销，所以在一条基础字体比 400 更细的导航栏里——归白自己的侧栏跑在 300——指针一到，每一行反而「变重」了。选中一行看上去把它整节都加粗了，而那恰恰是「跟着指针走的高亮」的反面。',
+  [fingerprint(
+    'The weight is now scoped to `aria-current="page"`, which is the only row that has a weight to give up. The fill and the ink still relax on every row, because there the class says what it means.',
+  )]: '字重现在收窄到 `aria-current="page"` 上，那是唯一一行有字重可让的。填充和墨色仍然在每一行上放松，因为在那里，这个类名说的就是它的意思。',
+  [fingerprint(
+    '`AreaChart 面积图` becomes `AreaChart - 面积图`.',
+  )]: '`AreaChart 面积图` 变成 `AreaChart - 面积图`。',
+  [fingerprint(
+    'Both halves are names — the export identifier and the Chinese one — and a space between two names reads as one name that changed script half way through. The dash says they are two labels for the same thing, which is what they are. The order does not move: the English is the import, and it stays first.',
+  )]: '两半都是名字——导出标识符，和中文那个——而两个名字之间的一个空格，读起来像是一个名字写到一半换了文字系统。这道短横说明它们是同一样东西的两个标签，而它们本来就是。顺序不变：英文是 import，它留在前面。',
   [fingerprint(
     '`RadarChart.Radar` fills again instead of handing the SVG `NaN`.',
   )]: '`RadarChart.Radar` 又能填充了，而不是把一个 `NaN` 递给 SVG。',
