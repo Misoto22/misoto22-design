@@ -125,6 +125,16 @@
   --swatch-plum: #6b3a72;
 }
 
+/* The default, NAMED — the same lesson the theme axes learned. "Ink" used to be
+   spelled "write no attribute", which works exactly once, at the root. Inside an
+   element that already carries an accent, an unset accent is not ink, it is
+   whatever the ancestor said. */
+[data-accent='ink'] {
+  --clay: var(--ink);
+  --clay-ink: var(--ink);
+  --red-soft: rgba(16, 16, 16, 0.07);
+}
+
 [data-accent='clay'] {
   --clay: var(--swatch-clay);
   --clay-ink: #7a3720;
@@ -146,6 +156,31 @@
   --red-soft: rgba(107, 58, 114, 0.1);
 }
 
+/* Re-derives the chain, on any element that names an accent.
+   A `var()` is substituted where it is DECLARED, not where it is read: `--accent:
+   var(--red)` is written on `:root`, so it computes there — against the root's
+   `--clay` — and what inherits down is the answer, not the question. Re-pointing
+   `--clay` on a descendant therefore changed nothing at all, and every accent
+   swatch, every preview and every thumbnail on the themes rail painted the
+   accent of the SITE rather than its own. Eight previews of eight themes, all
+   showing the one already on screen; clicking any of them repainted the other
+   seven, which is what a reader noticed first.
+   `--on-red` is in here for the same reason one axis up: it resolves to
+   `--paper`, so an element naming its own surface needs the foreground
+   re-derived against that surface rather than against the document's. */
+[data-accent] {
+  --red: var(--clay);
+  --red-ink: var(--clay);
+  --on-red: var(--paper);
+  --accent: var(--red);
+  --accent-hover: var(--red-ink);
+  --accent-muted: var(--red-soft);
+  --accent-wash: var(--red-soft);
+  --accent-foreground: var(--on-red);
+  --accent-on-dark: var(--red);
+  --accent-on-muted: var(--red-ink);
+}
+
 /* On the dark ground the same hues have to come UP to clear AA, not down. An
    accent that only had a light-mode value would fail contrast the moment
    someone switched theme — which is the failure the two-block theme used to
@@ -158,22 +193,33 @@
   --swatch-plum: #cf9dd6;
 }
 
-[data-mode='dark'][data-accent='clay'] {
+[data-mode='dark'][data-accent='ink'],
+[data-mode='dark'] [data-accent='ink'] {
+  --clay: var(--ink);
+  --clay-ink: var(--ink);
+  --red-soft: rgba(244, 244, 242, 0.12);
+}
+
+[data-mode='dark'][data-accent='clay'],
+[data-mode='dark'] [data-accent='clay'] {
   --clay: var(--swatch-clay);
   --clay-ink: #e8a184;
   --red-soft: rgba(224, 138, 104, 0.14);
 }
-[data-mode='dark'][data-accent='forest'] {
+[data-mode='dark'][data-accent='forest'],
+[data-mode='dark'] [data-accent='forest'] {
   --clay: var(--swatch-forest);
   --clay-ink: #98caab;
   --red-soft: rgba(127, 189, 151, 0.14);
 }
-[data-mode='dark'][data-accent='cobalt'] {
+[data-mode='dark'][data-accent='cobalt'],
+[data-mode='dark'] [data-accent='cobalt'] {
   --clay: var(--swatch-cobalt);
   --clay-ink: #a3bcf4;
   --red-soft: rgba(138, 170, 240, 0.14);
 }
-[data-mode='dark'][data-accent='plum'] {
+[data-mode='dark'][data-accent='plum'],
+[data-mode='dark'] [data-accent='plum'] {
   --clay: var(--swatch-plum);
   --clay-ink: #dab0e0;
   --red-soft: rgba(207, 157, 214, 0.14);

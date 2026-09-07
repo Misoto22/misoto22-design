@@ -50,8 +50,6 @@ const ENGLISH_BY_DESIGN: Record<string, string> = {
   'components/ThemeSpecimen.tsx': 'Specimen labels, shown as an example of the type rather than read.',
   'components/ThemeShowcase.tsx':
     'A specimen screen, and the words on it are furniture rather than copy: the argument is that a heading, a table, a form and a chart can be drawn in eight looks without a component changing, and the sentences are there to give the type something to be set in. Translating them would translate the exhibit — and would make two locales two different specimens.',
-  'components/AxisChip.tsx':
-    'The same reason, one size down: this is the object drawn nineteen times so that one attribute is the only thing different between two of them, and words that changed with the locale would be a second difference in a comparison that has to have exactly one.',
 }
 
 /**

@@ -172,16 +172,47 @@ test.describe('theme', () => {
     await expect(page.locator('html')).toHaveAttribute('data-surface', 'warm')
   })
 
-  test('the themes page draws every look at once', async ({ page }) => {
+  test('the rail draws every look at once, and picking one does not move them', async ({
+    page,
+  }) => {
     await page.goto('/themes/')
     await ready(page)
 
-    // Nothing in themes.css is anchored to :root, which is what lets seven
-    // themes share one document — and is the argument the page is making.
-    const radii = await page
-      .locator('main [data-radius], main section > div.overflow-hidden')
-      .evaluateAll((els) => els.map((el) => getComputedStyle(el).borderTopLeftRadius))
-    expect(new Set(radii).size).toBeGreaterThan(1)
+    // Nothing in themes.css is anchored to :root, which is what lets eight
+    // themes share one document. That claim used to be made by the PAGE, in
+    // eight preset cards side by side; it is the rail's now, because eight
+    // things can only be compared at the size the rail draws them and the page
+    // is for judging one at full size.
+    const thumbs = page.locator('nav[aria-label] button > span[data-surface]')
+    const look = () =>
+      thumbs.evaluateAll((els) =>
+        els.map((el) => {
+          // The mark, not the frame: the frame's corner belongs to the button
+          // around the preview, which is the SITE's chrome and correctly moves
+          // with it. What has to differ between previews is inside them.
+          const mark = el.querySelector('[class*="bg-(--accent)"]')!
+          const paint = getComputedStyle(mark)
+          return `${paint.borderTopLeftRadius}|${getComputedStyle(el).backgroundColor}|${paint.backgroundColor}`
+        }),
+      )
+
+    const before = await look()
+    expect(new Set(before.map((row) => row.split('|')[0])).size).toBeGreaterThan(1)
+    // And every accent is its own. `--accent` resolves to `var(--red)` where it
+    // is DECLARED, on `:root`, so re-pointing the primitive under a thumbnail
+    // changed nothing at all until the chain was re-derived there: eight
+    // previews of eight themes all painted the accent of the site.
+    expect(new Set(before.map((row) => row.split('|')[2])).size).toBeGreaterThan(1)
+
+    await page
+      .getByRole('navigation', { name: 'Themes' })
+      .getByRole('button', { name: /Console/ })
+      .click()
+    await expect(page.locator('html')).toHaveAttribute('data-surface', 'cool')
+
+    // The site moved; the previews did not. Each names every axis it has, so
+    // there is nothing left in them for the document to answer.
+    expect(await look()).toEqual(before)
   })
 
   test('the themes rail applies a whole look to the site', async ({ page }) => {

@@ -5,9 +5,15 @@ import { Check, RotateCcw } from 'lucide-react'
 import type { Locale } from '@/i18n/locales'
 import { getMessages } from '@/i18n/messages'
 import { SectionHeading } from './PageIntro'
-import { attribute, AxisRack } from './AxisRack'
-import { LOOK_AXES } from './AxisChip'
-import { AXES, DEFAULTS, RESET_PRESET, useTheme, type Axis } from './ThemeProvider'
+import {
+  attribute,
+  AXES,
+  DEFAULTS,
+  LOOK_AXES,
+  RESET_PRESET,
+  useTheme,
+  type Axis,
+} from './ThemeProvider'
 import { ThemeShowcase } from './ThemeShowcase'
 
 /**
@@ -27,8 +33,12 @@ import { ThemeShowcase } from './ThemeShowcase'
  * the whole site with them — which is the claim this page exists to make and
  * cannot make from inside a frame.
  *
- * Then the six dials, because a preset is a combination of them and a reader
- * who wants a look nobody shipped needs to know what the parts are.
+ * The dials themselves are named in the rail, beside the theme they add up to,
+ * and set one at a time in the masthead panel. They were briefly a section on
+ * this page — six rows of nineteen small chips, one per value — and that was a
+ * reference table for a question this page is not asking. What a reader wants
+ * here is a look; what a reader wants from an axis is to turn it, which is a
+ * control, not a picture of one.
  */
 export function ThemeGallery({ locale }: { locale: Locale }) {
   const t = getMessages(locale)
@@ -84,16 +94,6 @@ export function ThemeGallery({ locale }: { locale: Locale }) {
         </p>
 
         <ThemeShowcase />
-      </section>
-
-      <section className="flex flex-col gap-5">
-        <div className="flex flex-col gap-2">
-          <SectionHeading id="axes">{t.themes.axesTitle}</SectionHeading>
-          <p className="m-0 max-w-(--w-reading) text-[13px] leading-relaxed text-(--ink-2)">
-            {t.themes.axesLead}
-          </p>
-        </div>
-        <AxisRack locale={locale} />
       </section>
 
       <section className="flex flex-col gap-5">
