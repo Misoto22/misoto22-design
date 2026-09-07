@@ -94,6 +94,7 @@ export interface PropsPlaygroundProps {
  */
 const PINNED: Record<string, Record<string, unknown>> = {
   AppShell: { contentAs: 'div', sidebarLabel: 'Preview sidebar' },
+  RecoveryState: { code: '404', heading: 'Page unavailable', message: 'Choose another destination.', level: 2 },
   Checkbox: { 'aria-label': 'Checkbox' },
   Input: { 'aria-label': 'Input' },
   NativeSelect: { 'aria-label': 'NativeSelect' },
@@ -206,7 +207,8 @@ export function PropsPlayground({
 
   const Subject = COMPONENTS[name]
   const jsx = toJsx(name, fields, values)
-  const failed = failedFor === jsx
+  // A full document shell cannot be mounted inside this page's main landmark.
+  const failed = failedFor === jsx || name === 'SiteShell'
 
   // The acknowledgement is a moment, not a state. A button that reads "Copied"
   // for the rest of the visit stops saying anything about the click that just

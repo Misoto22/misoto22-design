@@ -10,7 +10,7 @@ export function Example() {
     <div className="w-full">
       <DetailMasthead title="A practice of attention" dek="A few observations from the daily walk."
         width="fill" metadata={[{ label: 'Published', value: '7 September 2026', dateTime: '2026-09-07' }]} />
-      <ReadingLayout outline={<TableOfContents label="On this page" items={[
+      <ReadingLayout outline={<TableOfContents label="Example article sections" items={[
         { id: 'reading-notice', label: 'Notice', level: 2 },
         { id: 'reading-return', label: 'Return', level: 2 },
       ]} />}>
