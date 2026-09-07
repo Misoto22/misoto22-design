@@ -1,5 +1,5 @@
 import { FloatingIconButton } from '@misoto22/design'
-import { ArrowUp, MessageCircle } from 'lucide-react'
+import { RiArrowUpLine, RiChat3Line } from '@remixicon/react'
 
 /**
  * Both corners, and the reason there is no room for a third. start is raised to
@@ -15,10 +15,10 @@ export function Example() {
   return (
     <div className="relative h-40 w-full overflow-hidden rounded-(--radius) border border-(--rule) [&>button]:absolute">
       <FloatingIconButton position="start" label="Open the chat">
-        <MessageCircle size={16} strokeWidth={1.5} />
+        <RiChat3Line size={16} aria-hidden />
       </FloatingIconButton>
       <FloatingIconButton position="end" label="Back to top">
-        <ArrowUp size={16} strokeWidth={1.5} />
+        <RiArrowUpLine size={16} aria-hidden />
       </FloatingIconButton>
     </div>
   )

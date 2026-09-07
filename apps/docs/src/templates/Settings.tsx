@@ -23,7 +23,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@misoto22/design'
-import { Bell, CreditCard, ShieldCheck, SlidersHorizontal } from 'lucide-react'
+import { RiBankCardLine, RiEqualizerLine, RiNotification3Line, RiShieldCheckLine } from '@remixicon/react'
 import { useState } from 'react'
 
 const NOTIFICATIONS = [
@@ -95,16 +95,16 @@ export function Settings() {
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup label="Account" count={4} collapsible={false}>
-            <SidebarItem href="#general" icon={SlidersHorizontal} active>
+            <SidebarItem href="#general" icon={RiEqualizerLine} active>
               General
             </SidebarItem>
-            <SidebarItem href="#notifications" icon={Bell}>
+            <SidebarItem href="#notifications" icon={RiNotification3Line}>
               Notifications
             </SidebarItem>
-            <SidebarItem href="#access" icon={ShieldCheck}>
+            <SidebarItem href="#access" icon={RiShieldCheckLine}>
               Access
             </SidebarItem>
-            <SidebarItem href="#billing" icon={CreditCard}>
+            <SidebarItem href="#billing" icon={RiBankCardLine}>
               Billing
             </SidebarItem>
           </SidebarGroup>

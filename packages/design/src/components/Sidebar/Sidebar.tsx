@@ -1,13 +1,6 @@
 'use client'
 
-import {
-  ChevronRight,
-  PanelLeftClose,
-  PanelLeftOpen,
-  PanelRightClose,
-  PanelRightOpen,
-  type LucideIcon,
-} from 'lucide-react'
+import { RiArrowRightSLine, RiMenuFold3Line, RiMenuFoldLine, RiMenuUnfold3Line, RiMenuUnfoldLine, type RemixiconComponentType } from '@remixicon/react'
 import {
   createContext,
   useCallback,
@@ -659,7 +652,7 @@ export function SidebarTrigger({
   // The glyph points at the edge the rail is on, so the button is a picture of
   // what it will do rather than a picture of somebody else's layout.
   const Icon =
-    side === 'end' ? (open ? PanelRightClose : PanelRightOpen) : open ? PanelLeftClose : PanelLeftOpen
+    side === 'end' ? (open ? RiMenuUnfold3Line : RiMenuFold3Line) : open ? RiMenuFoldLine : RiMenuUnfoldLine
 
   return (
     <button
@@ -676,7 +669,7 @@ export function SidebarTrigger({
       )}
       {...rest}
     >
-      <Icon size={16} strokeWidth={1.5} aria-hidden />
+      <Icon size={16} aria-hidden />
     </button>
   )
 }
@@ -787,9 +780,8 @@ export function SidebarGroup({
     <Collapsible open={open} onOpenChange={setOpen} className={cn('flex flex-col gap-1', className)}>
       <div className="flex min-h-9 items-center gap-1.5">
         <CollapsibleTrigger className="group/heading flex min-h-8 flex-1 items-center gap-1.5 rounded-(--radius-sm) px-2 py-1 text-start transition-colors duration-(--duration-fast) hover:bg-(--stone)">
-          <ChevronRight
+          <RiArrowRightSLine
             size={12}
-            strokeWidth={2}
             aria-hidden
             className="shrink-0 text-(--ink-3-aa) transition-transform duration-(--duration-base) ease-(--ease-out-expo) group-data-[state=open]/heading:rotate-90 motion-reduce:transition-none"
           />
@@ -834,7 +826,7 @@ export interface SidebarBranchProps {
   /** The row's own words, and the name of the group it opens. */
   label: string
   /** Drawn at the start of the row, and the whole of the row when collapsed. */
-  icon?: LucideIcon
+  icon?: RemixiconComponentType
   /** A count or a state at the end of the row. */
   trailing?: ReactNode
   defaultOpen?: boolean
@@ -902,7 +894,7 @@ export function SidebarBranch({
             className,
           )}
         >
-          <Icon size={18} strokeWidth={1.5} aria-hidden />
+          <Icon size={18} aria-hidden />
         </button>
       </Tooltip>
     )
@@ -911,15 +903,14 @@ export function SidebarBranch({
   return (
     <Collapsible open={open} onOpenChange={setOpen} className={cn('flex flex-col gap-0.5', className)}>
       <CollapsibleTrigger className="group/branch flex min-h-(--control-h-sm) items-center gap-3 rounded-(--radius) px-3 py-2 text-start text-sm text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)">
-        {Icon && <Icon size={18} strokeWidth={1.5} aria-hidden className="shrink-0" />}
+        {Icon && <Icon size={18} aria-hidden className="shrink-0" />}
         <span className="truncate">{label}</span>
         {trailing !== undefined && <span className="ms-auto shrink-0">{trailing}</span>}
         {/* The chevron goes at the END and only when nothing else is there, so
             a row with a count does not put two marks in the same corner. */}
         {trailing === undefined && (
-          <ChevronRight
+          <RiArrowRightSLine
             size={12}
-            strokeWidth={2}
             aria-hidden
             className="ms-auto shrink-0 transition-transform duration-(--duration-base) ease-(--ease-out-expo) group-data-[state=open]/branch:rotate-90 motion-reduce:transition-none"
           />

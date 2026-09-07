@@ -4,7 +4,7 @@ import { exampleCopy, exampleTitle } from '@/i18n/examples'
 import { localePath, type Locale } from '@/i18n/locales'
 import { getMessages } from '@/i18n/messages'
 import { Alert, Badge, Kbd, Separator, TBody, TD, TH, THead, TR, Table } from '@misoto22/design'
-import { Check, X } from 'lucide-react'
+import { RiCheckLine, RiCloseLine } from '@remixicon/react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CodeBlock } from '@/components/CodeBlock'
@@ -167,7 +167,7 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
               return (
                 <div key={kind} className="flex flex-col gap-3">
                   <h3 className="m-0 flex items-center gap-2 eyebrow text-(--ink)">
-                    <Icon size={15} strokeWidth={2} aria-hidden className={tone} />
+                    <Icon size={15} aria-hidden className={tone} />
                     {kind === 'do' ? t.practice.do : t.practice.dont}
                   </h3>
                   <ul className="m-0 flex list-none flex-col gap-3 p-0">
@@ -411,8 +411,8 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
 
 /** The two halves of "best practices", and the second signal each one carries. */
 const PRACTICE_HALVES = [
-  { kind: 'do' as const, icon: Check, tone: 'text-(--ok)' },
-  { kind: 'dont' as const, icon: X, tone: 'text-(--danger)' },
+  { kind: 'do' as const, icon: RiCheckLine, tone: 'text-(--ok)' },
+  { kind: 'dont' as const, icon: RiCloseLine, tone: 'text-(--danger)' },
 ]
 
 /**

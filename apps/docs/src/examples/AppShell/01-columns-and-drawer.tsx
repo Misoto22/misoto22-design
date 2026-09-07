@@ -1,7 +1,7 @@
 'use client'
 
 import { AppShell, Card, CardBody, CardTitle, NavItem } from '@misoto22/design'
-import { Component, Home, Settings } from 'lucide-react'
+import { RiHomeLine, RiSettings3Line, RiShapesLine } from '@remixicon/react'
 
 /**
  * Eight named parts, and the name gives away none of them. The frame is a grid
@@ -31,9 +31,9 @@ export function Example() {
         brand={<span className="font-heading text-base">Console</span>}
         sidebar={
           <>
-            <NavItem href="#" icon={Home} active>Overview</NavItem>
-            <NavItem href="#" icon={Component}>Components</NavItem>
-            <NavItem href="#" icon={Settings}>Settings</NavItem>
+            <NavItem href="#" icon={RiHomeLine} active>Overview</NavItem>
+            <NavItem href="#" icon={RiShapesLine}>Components</NavItem>
+            <NavItem href="#" icon={RiSettings3Line}>Settings</NavItem>
           </>
         }
         topbar={<span className="mono-meta text-(--ink-3-aa)">production</span>}

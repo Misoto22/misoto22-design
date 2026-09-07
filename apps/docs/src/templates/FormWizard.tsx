@@ -21,7 +21,7 @@ import {
   Table,
   Textarea,
 } from '@misoto22/design'
-import { ArrowLeft, ArrowRight, Rocket } from 'lucide-react'
+import { RiArrowLeftLine, RiArrowRightLine, RiRocketLine } from '@remixicon/react'
 import { useState } from 'react'
 
 /**
@@ -275,7 +275,7 @@ export function FormWizard() {
               disabled={current === 0}
               onClick={() => setCurrent((index) => Math.max(0, index - 1))}
             >
-              <ArrowLeft size={14} strokeWidth={1.5} aria-hidden className="rtl:-scale-x-100" />
+              <RiArrowLeftLine size={14} aria-hidden className="rtl:-scale-x-100" />
               Back
             </Button>
             <span className="mono-meta text-(--ink-3-aa)">{step.title}</span>
@@ -285,13 +285,13 @@ export function FormWizard() {
             >
               {last ? (
                 <>
-                  <Rocket size={14} strokeWidth={1.5} aria-hidden />
+                  <RiRocketLine size={14} aria-hidden />
                   Create environment
                 </>
               ) : (
                 <>
                   Continue
-                  <ArrowRight size={14} strokeWidth={1.5} aria-hidden className="rtl:-scale-x-100" />
+                  <RiArrowRightLine size={14} aria-hidden className="rtl:-scale-x-100" />
                 </>
               )}
             </Button>

@@ -11,7 +11,7 @@ import {
   type SidebarSide,
   type SidebarVariant,
 } from '@misoto22/design'
-import { Home, Inbox } from 'lucide-react'
+import { RiHomeLine, RiInboxLine } from '@remixicon/react'
 
 const ARRANGEMENTS: { variant: SidebarVariant; side: SidebarSide; note: string }[] = [
   { variant: 'flush', side: 'start', note: 'flush' },
@@ -62,10 +62,10 @@ export function Example() {
                 </SidebarHeader>
                 <SidebarContent>
                   <SidebarGroup label="Inbox" count={2} collapsible={false}>
-                    <SidebarItem href="#all" icon={Inbox} active>
+                    <SidebarItem href="#all" icon={RiInboxLine} active>
                       All mail
                     </SidebarItem>
-                    <SidebarItem href="#home" icon={Home}>
+                    <SidebarItem href="#home" icon={RiHomeLine}>
                       Home
                     </SidebarItem>
                   </SidebarGroup>

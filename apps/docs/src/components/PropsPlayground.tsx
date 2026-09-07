@@ -1,7 +1,7 @@
 'use client'
 
 import { Badge, Button, Input, Select, SelectItem, Switch, TBody, TD, TH, THead, TR, Table, cn } from '@misoto22/design'
-import { Check, Copy, Minus, Plus, RotateCcw } from 'lucide-react'
+import { RiAddLine, RiCheckLine, RiFileCopyLine, RiResetLeftLine, RiSubtractLine } from '@remixicon/react'
 import { Component, createElement, useEffect, useId, useMemo, useState, type ReactNode } from 'react'
 import { COMPONENTS } from '@/generated/component-registry'
 import type { Locale } from '@/i18n/locales'
@@ -246,14 +246,14 @@ export function PropsPlayground({
           <div className="flex items-center gap-1">
             <Button size="sm" variant="ghost" onClick={copy} className="gap-2">
               {copied ? (
-                <Check size={14} strokeWidth={1.5} aria-hidden />
+                <RiCheckLine size={14} aria-hidden />
               ) : (
-                <Copy size={14} strokeWidth={1.5} aria-hidden />
+                <RiFileCopyLine size={14} aria-hidden />
               )}
               {copied ? t.playground.copied : t.playground.copy}
             </Button>
             <Button size="sm" variant="ghost" onClick={reset} className="gap-2">
-              <RotateCcw size={14} strokeWidth={1.5} aria-hidden />
+              <RiResetLeftLine size={14} aria-hidden />
               {t.playground.reset}
             </Button>
           </div>
@@ -474,7 +474,7 @@ function Stepper({
         disabled={count <= 0}
         onClick={() => onChange(Math.max(0, count - 1))}
       >
-        <Minus size={14} strokeWidth={1.5} aria-hidden />
+        <RiSubtractLine size={14} aria-hidden />
       </Button>
       <output className="w-4 text-center font-mono text-xs text-(--ink)">{count}</output>
       <Button
@@ -484,7 +484,7 @@ function Stepper({
         aria-label={more}
         onClick={() => onChange(count + 1)}
       >
-        <Plus size={14} strokeWidth={1.5} aria-hidden />
+        <RiAddLine size={14} aria-hidden />
       </Button>
     </span>
   )

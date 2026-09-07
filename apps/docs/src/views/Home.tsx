@@ -1,13 +1,16 @@
-import { Button, FigureBand, StatusPill } from '@misoto22/design'
+import { Badge, Button, FigureBand, StatusPill } from '@misoto22/design'
+import { RiRulerLine, RiShapesLine } from '@remixicon/react'
 import Link from 'next/link'
 import { CodeBlock } from '@/components/CodeBlock'
-import { PageIntro, SectionHeading } from '@/components/PageIntro'
+import { HomeBand } from '@/components/HomeBand'
+import { SectionHeading } from '@/components/PageIntro'
 import { FOUNDATIONS } from '@/content/foundations'
 import { COMPONENTS, groupedComponents } from '@/content/registry'
+import STACK from '@/generated/stack.json'
 import { foundationCopy, groupName, PAGE_ZH } from '@/i18n/content'
 import { localePath, type Locale } from '@/i18n/locales'
 import { fill, getMessages } from '@/i18n/messages'
-import { radiusSteps, snippet, tokenCount, WARNING_CODES } from '@/lib/docs'
+import { packageVersion, radiusSteps, snippet, tokenCount, WARNING_CODES } from '@/lib/docs'
 
 const EN = {
   eyebrow: 'misoto22 design',
@@ -17,6 +20,7 @@ const EN = {
   browse: 'Browse components',
   readPrinciples: 'Read the principles',
   componentsCount: '{count} components',
+  builtOn: 'Built on',
   figures: {
     components: 'Components',
     tokens: 'Tokens',
@@ -27,7 +31,7 @@ const EN = {
     shadowNote: 'depth is a hairline',
   },
   installNote:
-    'Six runtime dependencies — Radix for the behaviour nobody should re-implement, cmdk for the combobox pattern, react-day-picker for the calendar, lucide for icons, sonner for toasts, and clsx + tailwind-merge to resolve a class conflict in the caller’s favour. No router, no state library, no CSS-in-JS.',
+    'Six runtime dependencies — Radix for the behaviour nobody should re-implement, cmdk for the combobox pattern, react-day-picker for the calendar, Remix Icon for icons, sonner for toasts, and clsx + tailwind-merge to resolve a class conflict in the caller’s favour. No router, no state library, no CSS-in-JS.',
   tailwindNote:
     'Take the portable token layers on their own and skip the second copy of the utilities. The mode is an attribute on <html>, so it can be written before the first paint and never flashes the wrong theme.',
 } as const
@@ -39,17 +43,63 @@ export function Home({ locale }: { locale: Locale }) {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-16">
-      <PageIntro eyebrow={copy.eyebrow} title={copy.title} summary={copy.summary}>
-        <div className="flex flex-wrap items-center gap-3 pt-2">
+      {/* The landing page's own masthead rather than `PageIntro`, which every
+          other route shares. This is the one page with nothing above it and
+          nothing to navigate back to, so it takes the title step the ladder
+          reserves for a page's single largest thing, and it spends the room a
+          breadcrumb would have taken on the two links a first visit wants.
+
+          The version, the component count and the stack strip are all read from
+          the build rather than typed here. A landing page is the surface most
+          likely to be edited last and least likely to be checked, and every
+          number on this one goes stale by itself otherwise. */}
+      <header className="flex flex-col gap-8 border-b border-(--rule) pb-10">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="m-0 eyebrow text-(--ink-3-aa)">{copy.eyebrow}</p>
+            <Badge tone="outline">v{packageVersion()}</Badge>
+          </div>
+          <h1 className="m-0 font-heading text-[length:var(--fs-title)] font-normal leading-[1.05] tracking-[-0.02em] text-(--ink)">
+            {copy.title}
+          </h1>
+          <p className="m-0 max-w-(--w-reading) text-[17px] leading-relaxed text-(--ink-2)">
+            {copy.summary}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          {/* The icon goes INSIDE the slotted child. `asChild` hands the styles
+              to the router's Link and does not inject a Button's own slots into
+              it, so an icon written as a sibling would not render at all. */}
           <Button asChild>
-            <Link href={localePath(locale, '/components/')}>{copy.browse}</Link>
+            <Link href={localePath(locale, '/components/')}>
+              <RiShapesLine size={16} aria-hidden />
+              {copy.browse}
+            </Link>
           </Button>
           <Button asChild variant="secondary">
-            <Link href={localePath(locale, '/principles/')}>{copy.readPrinciples}</Link>
+            <Link href={localePath(locale, '/principles/')}>
+              <RiRulerLine size={16} aria-hidden />
+              {copy.readPrinciples}
+            </Link>
           </Button>
           <StatusPill>{fill(copy.componentsCount, { count: COMPONENTS.length })}</StatusPill>
         </div>
-      </PageIntro>
+
+        <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
+          <span className="eyebrow text-(--ink-3-aa)">{copy.builtOn}</span>
+          {STACK.map((row) => (
+            <span key={row.name} className="flex items-baseline gap-1.5">
+              <span className="text-[13px] text-(--ink-2)">{row.name}</span>
+              {'version' in row && (
+                <span className="mono-meta text-(--ink-3-aa)">v{row.version}</span>
+              )}
+            </span>
+          ))}
+        </div>
+      </header>
+
+      <HomeBand />
 
       <FigureBand
         label={copy.figures.components}

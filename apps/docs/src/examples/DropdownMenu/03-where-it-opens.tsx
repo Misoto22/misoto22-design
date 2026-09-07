@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@misoto22/design'
-import { ArrowDownUp, Filter, Rows3, SlidersHorizontal, Table2 } from 'lucide-react'
+import { RiArrowUpDownLine, RiEqualizerLine, RiFilterLine, RiLayoutRowLine, RiTableLine } from '@remixicon/react'
 
 /**
  * Two menus at the two ends of a toolbar, each aligned to the edge it sits on.
@@ -26,20 +26,20 @@ export function Example() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm">
-            <Filter size={16} strokeWidth={1.5} aria-hidden /> Filter
+            <RiFilterLine size={16} aria-hidden /> Filter
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          <DropdownMenuItem icon={Rows3}>Failed runs only</DropdownMenuItem>
-          <DropdownMenuItem icon={Table2}>Main branch only</DropdownMenuItem>
-          <DropdownMenuItem icon={SlidersHorizontal}>Longer than two minutes</DropdownMenuItem>
+          <DropdownMenuItem icon={RiLayoutRowLine}>Failed runs only</DropdownMenuItem>
+          <DropdownMenuItem icon={RiTableLine}>Main branch only</DropdownMenuItem>
+          <DropdownMenuItem icon={RiEqualizerLine}>Longer than two minutes</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm">
-            <ArrowDownUp size={16} strokeWidth={1.5} aria-hidden /> Sort
+            <RiArrowUpDownLine size={16} aria-hidden /> Sort
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

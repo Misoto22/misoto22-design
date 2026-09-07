@@ -9,14 +9,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@misoto22/design'
-import { LogOut, Settings, Trash2 } from 'lucide-react'
+import { RiDeleteBinLine, RiLogoutBoxRLine, RiSettings3Line } from '@remixicon/react'
 
 /**
  * A menu of ACTIONS, which is the only thing it is for: rows that navigate
  * belong in a nav, and rows that set a value are a Select or a RadioGroup. Two
- * details are easy to get wrong. icon takes the Lucide component itself —
- * icon={Settings}, never icon={<Settings />} — which is the exact reverse of
- * CommandItem one import away. And the trigger needs asChild with a real
+ * details are easy to get wrong. icon takes the icon component itself —
+ * icon={RiSettings3Line}, never icon={<RiSettings3Line />} — which is the exact
+ * reverse of CommandItem one import away. And the trigger needs asChild with a real
  * Button, or Radix renders an unstyled button of its own and the menu hangs off
  * a control that is not part of the system. The label is a plain div with no
  * role: it groups rows for the eye, and a screen reader walking the menu by
@@ -30,10 +30,10 @@ export function Example() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
         <DropdownMenuLabel>Signed in</DropdownMenuLabel>
-        <DropdownMenuItem icon={Settings}>Settings</DropdownMenuItem>
-        <DropdownMenuItem icon={LogOut}>Sign out</DropdownMenuItem>
+        <DropdownMenuItem icon={RiSettings3Line}>Settings</DropdownMenuItem>
+        <DropdownMenuItem icon={RiLogoutBoxRLine}>Sign out</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem icon={Trash2} destructive>Delete account</DropdownMenuItem>
+        <DropdownMenuItem icon={RiDeleteBinLine} destructive>Delete account</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

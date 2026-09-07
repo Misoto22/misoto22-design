@@ -29,7 +29,7 @@ import {
   TabsTrigger,
 } from '@misoto22/design'
 import { AreaChart, type ChartConfig } from '@misoto22/design/charts'
-import { Search, ShoppingBag } from 'lucide-react'
+import { RiSearchLine, RiShoppingBagLine } from '@remixicon/react'
 
 /**
  * One screen, in whichever theme is on, and long enough to be worth reading.
@@ -107,10 +107,10 @@ function Storefront() {
         </nav>
         <div className="ms-auto flex items-center gap-2">
           <Button iconOnly size="sm" variant="ghost" aria-label="Search the shop">
-            <Search size={15} strokeWidth={1.5} aria-hidden />
+            <RiSearchLine size={15} aria-hidden />
           </Button>
           <Button iconOnly size="sm" variant="ghost" aria-label="Basket">
-            <ShoppingBag size={15} strokeWidth={1.5} aria-hidden />
+            <RiShoppingBagLine size={15} aria-hidden />
           </Button>
           <Button size="sm">Sign in</Button>
         </div>

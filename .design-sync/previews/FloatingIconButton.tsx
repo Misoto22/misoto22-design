@@ -1,5 +1,5 @@
 import { FloatingIconButton } from '@misoto22/design'
-import { ArrowUp } from 'lucide-react'
+import { RiArrowUpLine } from '@remixicon/react'
 
 /**
  * FloatingIconButton is `position: fixed` and pins to a screen corner (a
@@ -23,7 +23,7 @@ export function BackToTop() {
       }}
     >
       <FloatingIconButton position="right" label="Back to top" onClick={() => {}}>
-        <ArrowUp size={18} />
+        <RiArrowUpLine size={18} aria-hidden />
       </FloatingIconButton>
     </div>
   )

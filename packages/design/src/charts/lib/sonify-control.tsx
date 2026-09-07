@@ -1,6 +1,6 @@
 'use client'
 
-import { Pause, Play, Square } from 'lucide-react'
+import { RiPauseLine, RiPlayLine, RiStopLine } from '@remixicon/react'
 import { useCallback, useEffect, useMemo, useRef, useState, type FC } from 'react'
 import { cn } from '../../lib/cn'
 import { Button } from '../../components/Button/Button'
@@ -346,7 +346,7 @@ export function ChartSonifyButton({
 
   const hasPoints = series.some((entry) => entry.values.some((value) => value !== null))
   const isDisabled = !isSupported || !hasPoints
-  const Icon = isPlaying ? Pause : Play
+  const Icon = isPlaying ? RiPauseLine : RiPlayLine
 
   const reason = !isSupported
     ? ' — audio is not available in this browser'
@@ -367,14 +367,14 @@ export function ChartSonifyButton({
 
       {state !== 'idle' && (
         <Button variant="ghost" size="md" onClick={stop}>
-          <Square size={14} strokeWidth={1.5} aria-hidden />
+          <RiStopLine size={14} aria-hidden />
           Stop
           <span className="sr-only"> playing {title} as sound</span>
         </Button>
       )}
 
       <Button variant="secondary" size="md" onClick={toggle} disabled={isDisabled}>
-        <Icon size={14} strokeWidth={1.5} aria-hidden />
+        <Icon size={14} aria-hidden />
         {label ?? (isPlaying ? 'Pause' : 'Play')}
         <span className="sr-only">
           {' '}

@@ -1,11 +1,11 @@
 import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
-import { AlignCenter, AlignJustify, AlignLeft, AlignRight } from 'lucide-react'
+import { RiAlignCenter, RiAlignJustify, RiAlignLeft, RiAlignRight } from '@remixicon/react'
 
 const ALIGNMENTS = [
-  { value: 'start', label: 'Align left', icon: AlignLeft },
-  { value: 'center', label: 'Align centre', icon: AlignCenter },
-  { value: 'end', label: 'Align right', icon: AlignRight },
-  { value: 'justify', label: 'Justify', icon: AlignJustify },
+  { value: 'start', label: 'Align left', icon: RiAlignLeft },
+  { value: 'center', label: 'Align centre', icon: RiAlignCenter },
+  { value: 'end', label: 'Align right', icon: RiAlignRight },
+  { value: 'justify', label: 'Justify', icon: RiAlignJustify },
 ]
 
 /**
@@ -22,7 +22,7 @@ export function Example() {
     <ToggleGroup type="single" defaultValue="start" aria-label="Text alignment">
       {ALIGNMENTS.map(({ value, label, icon: Icon }) => (
         <ToggleGroupItem key={value} value={value} aria-label={label} className="px-2.5">
-          <Icon size={16} strokeWidth={1.5} aria-hidden />
+          <Icon size={16} aria-hidden />
         </ToggleGroupItem>
       ))}
     </ToggleGroup>

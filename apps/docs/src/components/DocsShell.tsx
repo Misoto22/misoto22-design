@@ -10,7 +10,7 @@ import {
   SidebarProvider,
   useSidebar,
 } from '@misoto22/design'
-import { Menu, PanelLeftClose, PanelLeftOpen, Search, X } from 'lucide-react'
+import { RiCloseLine, RiGithubFill, RiMenuFoldLine, RiMenuLine, RiMenuUnfoldLine, RiSearchLine } from '@remixicon/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, type ReactNode } from 'react'
@@ -18,7 +18,6 @@ import { ThemeMenu } from './ThemeMenu'
 import { BrandMark } from './BrandMark'
 import { CommandPalette } from './CommandPalette'
 import { DocsFooter } from './DocsFooter'
-import { GithubMark } from './GithubMark'
 import { LocaleMenu } from './LocaleMenu'
 import { Sidebar } from './Sidebar'
 import { ThemeToggle } from './ThemeToggle'
@@ -168,7 +167,7 @@ function Frame({ children }: { children: ReactNode }) {
             aria-label={t.nav.closeNav}
             onClick={() => setOpen(false)}
           >
-            <X size={16} strokeWidth={1.5} aria-hidden />
+            <RiCloseLine size={16} aria-hidden />
           </Button>
           {sidebar && (
             <Button
@@ -181,7 +180,7 @@ function Frame({ children }: { children: ReactNode }) {
               aria-controls="docs-sidebar"
               onClick={() => setOpen(false)}
             >
-              <PanelLeftClose size={16} strokeWidth={1.5} aria-hidden />
+              <RiMenuFoldLine size={16} aria-hidden />
             </Button>
           )}
         </SidebarHeader>
@@ -212,7 +211,7 @@ function Frame({ children }: { children: ReactNode }) {
             aria-controls="docs-sidebar"
             onClick={() => setOpen(true)}
           >
-            <Menu size={18} strokeWidth={1.5} aria-hidden />
+            <RiMenuLine size={18} aria-hidden />
           </Button>
 
           {/* The brand, wherever the sidebar's own head is not on screen.
@@ -247,7 +246,7 @@ function Frame({ children }: { children: ReactNode }) {
               aria-controls="docs-sidebar"
               onClick={() => setOpen(true)}
             >
-              <PanelLeftOpen size={16} strokeWidth={1.5} aria-hidden />
+              <RiMenuUnfoldLine size={16} aria-hidden />
             </Button>
           )}
 
@@ -297,13 +296,18 @@ function Frame({ children }: { children: ReactNode }) {
               onClick={() => document.dispatchEvent(new CustomEvent('m22:palette'))}
               className="gap-2 text-(--ink-3-aa) sm:w-56 sm:justify-start max-sm:border-transparent max-sm:px-2"
             >
-              <Search size={14} strokeWidth={1.5} aria-hidden />
+              <RiSearchLine size={14} aria-hidden />
               <span className="max-sm:sr-only sm:flex-1 sm:text-start">{t.search}</span>
               <Kbd className="max-sm:hidden">⌘K</Kbd>
             </Button>
             {/* The mark, not the word. Four of the five controls beside it are
                 icons, and spelling this one out made the row read as a link
-                that had wandered in from the page. */}
+                that had wandered in from the page.
+
+                It is an import again. Remix Icon ships the brand marks lucide
+                dropped, so the octocat this site carried as a hand-drawn path
+                for two years is `RiGithubFill` — filled with `currentColor`,
+                so it still follows the button into dark mode. */}
             <Button
               iconOnly
               size="sm"
@@ -313,7 +317,7 @@ function Frame({ children }: { children: ReactNode }) {
               rel="noreferrer noopener"
               aria-label="GitHub"
             >
-              <GithubMark size={17} />
+              <RiGithubFill size={17} aria-hidden />
             </Button>
             <LocaleMenu />
             <ThemeMenu />

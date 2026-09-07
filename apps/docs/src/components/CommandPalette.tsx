@@ -11,21 +11,7 @@ import {
   CommandList,
   CommandSeparator,
 } from '@misoto22/design'
-import {
-  Box,
-  Circle,
-  History,
-  House,
-  LayoutGrid,
-  LayoutTemplate,
-  Move,
-  Palette,
-  SwatchBook,
-  Ruler,
-  Scale,
-  SunMoon,
-  Type,
-} from 'lucide-react'
+import { RiBox3Line, RiCircleLine, RiColorFilterLine, RiContrastLine, RiDragMove2Line, RiHistoryLine, RiHome5Line, RiLayoutGridLine, RiLayoutLine, RiPaletteLine, RiRulerLine, RiScales3Line, RiText } from '@remixicon/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { ACCENTS, useAccent } from './AccentProvider'
@@ -53,11 +39,11 @@ import { useLocale, useMessages } from '@/i18n/useLocale'
  */
 
 /** One icon per foundation page, keyed by slug. */
-const FOUNDATION_ICON: Record<string, typeof Palette> = {
-  colour: Palette,
-  typography: Type,
-  space: Ruler,
-  motion: Move,
+const FOUNDATION_ICON: Record<string, typeof RiPaletteLine> = {
+  colour: RiPaletteLine,
+  typography: RiText,
+  space: RiRulerLine,
+  motion: RiDragMove2Line,
 }
 export function CommandPalette() {
   const [open, setOpen] = useState(false)
@@ -107,31 +93,31 @@ export function CommandPalette() {
         <CommandEmpty>{t.palette.empty}</CommandEmpty>
 
         <CommandGroup heading={t.palette.goTo}>
-          <CommandItem value="overview" icon={<House />} onSelect={() => go('/')}>
+          <CommandItem value="overview" icon={<RiHome5Line aria-hidden />} onSelect={() => go('/')}>
             {t.nav.overview}
           </CommandItem>
-          <CommandItem value="principles" icon={<Scale />} onSelect={() => go('/principles/')}>
+          <CommandItem value="principles" icon={<RiScales3Line aria-hidden />} onSelect={() => go('/principles/')}>
             {t.nav.principles}
           </CommandItem>
           <CommandItem
             value="components index"
-            icon={<LayoutGrid />}
+            icon={<RiLayoutGridLine aria-hidden />}
             meta={String(COMPONENTS.length)}
             onSelect={() => go('/components/')}
           >
             {t.nav.allComponents}
           </CommandItem>
-          <CommandItem value="templates" icon={<LayoutTemplate />} onSelect={() => go('/templates/')}>
+          <CommandItem value="templates" icon={<RiLayoutLine aria-hidden />} onSelect={() => go('/templates/')}>
             {t.nav.templates}
           </CommandItem>
-          <CommandItem value="themes" icon={<SwatchBook />} onSelect={() => go('/themes/')}>
+          <CommandItem value="themes" icon={<RiColorFilterLine aria-hidden />} onSelect={() => go('/themes/')}>
             {t.themes.title}
           </CommandItem>
-          <CommandItem value="changelog" icon={<History />} onSelect={() => go('/changelog/')}>
+          <CommandItem value="changelog" icon={<RiHistoryLine aria-hidden />} onSelect={() => go('/changelog/')}>
             {t.nav.changelog}
           </CommandItem>
           {FOUNDATIONS.map((page) => {
-            const Icon = FOUNDATION_ICON[page.slug] ?? Box
+            const Icon = FOUNDATION_ICON[page.slug] ?? RiBox3Line
             return (
               <CommandItem
                 key={page.slug}
@@ -147,7 +133,7 @@ export function CommandPalette() {
                 // reorder groups, so one junk match at the top of an early
                 // group is the top of the whole list.
                 value={page.title}
-                icon={<Icon />}
+                icon={<Icon aria-hidden />}
                 meta={page.group === 'guide' ? t.nav.guide : t.nav.foundations}
                 onSelect={() => go(`/foundations/${page.slug}/`)}
               >
@@ -162,7 +148,7 @@ export function CommandPalette() {
         <CommandGroup heading={t.palette.appearance}>
           <CommandItem
             value="toggle theme light dark"
-            icon={<SunMoon />}
+            icon={<RiContrastLine aria-hidden />}
             onSelect={() => {
               const next = document.documentElement.dataset.mode === 'dark' ? 'light' : 'dark'
               document.documentElement.dataset.mode = next
@@ -181,11 +167,12 @@ export function CommandPalette() {
               key={option.id}
               value={`accent ${option.name}`}
               icon={
-                <Circle
+                <RiCircleLine
                   // The swatch IS the answer to "what does this one look like",
                   // which a row of five names cannot give.
                   className="fill-current"
                   style={{ color: option.swatch }}
+                  aria-hidden
                 />
               }
               meta={accent === option.id ? t.appearance.current : undefined}
@@ -222,7 +209,7 @@ export function CommandPalette() {
                 // Chinese pages — the whole point of naming it in both.
                 componentName(locale, entry.slug, entry.name),
               ]}
-              icon={<Box />}
+              icon={<RiBox3Line aria-hidden />}
               // The group again on the row, because a filtered list has no
               // headings to read it from.
               meta={groupName(locale, entry.group)}

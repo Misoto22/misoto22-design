@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronDown } from 'lucide-react'
+import { RiArrowDownSLine } from '@remixicon/react'
 import { isValidElement, useState, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 import { DEV, warn } from '../../lib/warn'
@@ -148,7 +148,7 @@ export function SearchableMenu({
         )}
       >
         {children}
-        <ChevronDown size={14} strokeWidth={1.5} aria-hidden className="shrink-0 text-(--ink-3-aa)" />
+        <RiArrowDownSLine size={14} aria-hidden className="shrink-0 text-(--ink-3-aa)" />
       </PopoverTrigger>
       <PopoverContent label={label} align={align} className="w-64 overflow-hidden p-0">
         <Command label={`${label}: ${searchPlaceholder}`} className="rounded-none border-0">

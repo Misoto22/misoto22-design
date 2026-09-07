@@ -1,6 +1,6 @@
 'use client'
 
-import { Menu, X } from 'lucide-react'
+import { RiCloseLine, RiMenuLine } from '@remixicon/react'
 import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from 'react'
 import type { HTMLAttributes, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
@@ -201,7 +201,7 @@ export function AppShell({
             onClick={() => setOpen((previous) => !previous)}
             className="-ms-2.5 grid size-11 place-items-center rounded-(--radius) text-(--ink-2) transition-colors duration-(--duration-fast) hover:text-(--ink) md:hidden"
           >
-            {open ? <X size={20} strokeWidth={1.5} aria-hidden /> : <Menu size={20} strokeWidth={1.5} aria-hidden />}
+            {open ? <RiCloseLine size={20} aria-hidden /> : <RiMenuLine size={20} aria-hidden />}
           </button>
           {topbar}
         </header>

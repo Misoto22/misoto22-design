@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react'
 import { Button } from '@misoto22/design'
 import { ArchitectureFigure, DiagramExportMenu } from '@misoto22/design/diagrams'
-import { Download } from 'lucide-react'
+import { RiDownloadLine } from '@remixicon/react'
 
 const SPEC = {
   meta: { title: 'Request path' },
@@ -34,7 +34,7 @@ export function Example() {
           title="Request path"
           trigger={
             <Button size="sm" variant="ghost" iconOnly aria-label="Export this diagram">
-              <Download size={14} strokeWidth={1.5} aria-hidden />
+              <RiDownloadLine size={14} aria-hidden />
             </Button>
           }
           onExport={(format) => setNote(`Queued a ${format} render on the server.`)}

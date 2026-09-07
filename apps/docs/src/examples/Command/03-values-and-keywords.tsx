@@ -8,7 +8,7 @@ import {
   CommandItem,
   CommandList,
 } from '@misoto22/design'
-import { FileDown, GitBranch, RotateCcw, Users } from 'lucide-react'
+import { RiFileDownloadLine, RiGitBranchLine, RiGroupLine, RiResetLeftLine } from '@remixicon/react'
 
 /**
  * cmdk filters on an item's value and only falls back to the row's own text
@@ -30,7 +30,7 @@ export function Example() {
           <CommandItem
             value="roll back the release"
             keywords={['revert', 'undo', 'previous']}
-            icon={<RotateCcw size={16} />}
+            icon={<RiResetLeftLine size={16} aria-hidden />}
             meta="release"
           >
             Roll back the release
@@ -38,7 +38,7 @@ export function Example() {
           <CommandItem
             value="create a release branch"
             keywords={['cut', 'branch', 'tag']}
-            icon={<GitBranch size={16} />}
+            icon={<RiGitBranchLine size={16} aria-hidden />}
             meta="git"
           >
             Create a release branch
@@ -48,7 +48,7 @@ export function Example() {
           <CommandItem
             value="invite a collaborator"
             keywords={['teammate', 'member', 'people']}
-            icon={<Users size={16} />}
+            icon={<RiGroupLine size={16} aria-hidden />}
             meta="people"
           >
             Invite a collaborator
@@ -56,7 +56,7 @@ export function Example() {
           <CommandItem
             value="export the deploy log"
             keywords={['csv', 'download', 'spreadsheet']}
-            icon={<FileDown size={16} />}
+            icon={<RiFileDownloadLine size={16} aria-hidden />}
             meta="data"
           >
             Export the deploy log

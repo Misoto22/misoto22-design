@@ -1,7 +1,7 @@
 'use client'
 
 import * as SelectPrimitive from '@radix-ui/react-select'
-import { Check, ChevronDown, ChevronUp } from 'lucide-react'
+import { RiArrowDownSLine, RiArrowUpSLine, RiCheckLine } from '@remixicon/react'
 import { useId, type ComponentProps, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 import { warnBlankName } from '../../lib/warn'
@@ -136,9 +136,8 @@ export function Select({
           <SelectPrimitive.Value placeholder={placeholder} />
         </span>
         <SelectPrimitive.Icon asChild>
-          <ChevronDown
+          <RiArrowDownSLine
             size={16}
-            strokeWidth={1.5}
             aria-hidden
             className="shrink-0 text-(--ink-3-aa) transition-transform duration-(--duration-fast) group-data-[state=open]:rotate-180"
           />
@@ -159,11 +158,11 @@ export function Select({
           )}
         >
           <SelectPrimitive.ScrollUpButton className="flex h-6 items-center justify-center text-(--ink-3-aa)">
-            <ChevronUp size={14} strokeWidth={1.5} aria-hidden />
+            <RiArrowUpSLine size={14} aria-hidden />
           </SelectPrimitive.ScrollUpButton>
           <SelectPrimitive.Viewport className="p-1.5">{children}</SelectPrimitive.Viewport>
           <SelectPrimitive.ScrollDownButton className="flex h-6 items-center justify-center text-(--ink-3-aa)">
-            <ChevronDown size={14} strokeWidth={1.5} aria-hidden />
+            <RiArrowDownSLine size={14} aria-hidden />
           </SelectPrimitive.ScrollDownButton>
         </SelectPrimitive.Content>
       </SelectPrimitive.Portal>
@@ -187,7 +186,7 @@ export function SelectItem({ className, children, ...props }: SelectItemProps) {
           choosing an option does not shunt every label sideways. */}
       <span className="grid size-3.5 shrink-0 place-items-center">
         <SelectPrimitive.ItemIndicator asChild>
-          <Check size={14} strokeWidth={2} aria-hidden />
+          <RiCheckLine size={14} aria-hidden />
         </SelectPrimitive.ItemIndicator>
       </span>
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>

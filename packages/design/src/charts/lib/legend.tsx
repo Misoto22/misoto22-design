@@ -97,7 +97,7 @@ export function ChartLegendContent({
           const body = (
             <>
               {series?.icon && !hideIcon ? (
-                <series.icon />
+                <series.icon aria-hidden />
               ) : (
                 <LegendSwatch variant={variant} seriesKey={key} stops={stops} />
               )}

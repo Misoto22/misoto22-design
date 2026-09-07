@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { Settings } from 'lucide-react'
+import { RiSettings3Line } from '@remixicon/react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,20 +21,20 @@ function open(children: React.ReactNode) {
 
 /**
  * `icon` meant opposite things one import apart: `DropdownMenuItem.icon` and
- * `ContextMenuItem.icon` took the Lucide COMPONENT and rendered it themselves,
+ * `ContextMenuItem.icon` took the icon COMPONENT and rendered it themselves,
  * while `CommandItem.icon` took the rendered element. Same prop name, same
  * group of components, inverted contract — and the wrong one does not fail a
  * type check into anything a reader can act on, it fails at render.
  */
 describe('DropdownMenuItem icon', () => {
   it('takes the component, which is what the type has always said', () => {
-    const { baseElement } = open(<DropdownMenuItem icon={Settings}>Settings</DropdownMenuItem>)
+    const { baseElement } = open(<DropdownMenuItem icon={RiSettings3Line}>Settings</DropdownMenuItem>)
     expect(baseElement.querySelector('svg')).not.toBeNull()
   })
 
   it('takes the element too, so the near-miss is no longer a crash', () => {
     const { baseElement } = open(
-      <DropdownMenuItem icon={<Settings size={16} />}>Settings</DropdownMenuItem>,
+      <DropdownMenuItem icon={<RiSettings3Line size={16} />}>Settings</DropdownMenuItem>,
     )
     expect(baseElement.querySelector('svg')).not.toBeNull()
   })

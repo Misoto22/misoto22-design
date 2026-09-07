@@ -158,6 +158,22 @@ const en = {
     perComponent: 'One component, on its own.',
     markdown: 'The same file, under the extension you would guess.',
   },
+  icons: {
+    sizes: {
+      12: 'Not a size — a mark inside an 18px box: a checkbox tick, a chip’s close, a table’s sort caret.',
+      14: 'Inside a control’s own padding, where 16 would crowd the label: a select indicator, a popover close.',
+      16: 'The default, and most of what the package draws: a chevron, a close, a check, a caret.',
+      18: 'A leading mark that opens a row rather than sitting inside one: a nav item, an alert’s tone, the palette’s search.',
+      20: 'The app shell’s menu toggle.',
+      24: 'Reserved for an EmptyState, where the icon is the only thing on the surface.',
+    },
+    inABoxTitle: 'Twelve pixels, on the accent',
+    inABoxNote:
+      'There is no strokeWidth on any of these and nothing to keep consistent. A Remix Icon glyph is a filled path on a 24px grid, so its weight comes down with its box rather than staying put and swamping it.',
+    brandsTitle: 'Brands, which are back',
+    brandsNote:
+      'Someone else’s trademark, reproduced rather than redrawn in a house stroke — which is the argument for importing one instead of inventing it. This site’s own masthead used to carry a hand-drawn octocat for exactly the want of this row.',
+  },
   themes: {
     title: 'Themes',
     lead: 'Six dials, and every look on this page is a setting of them. Nothing below required a component to change — each is a handful of attributes on one element. Pick one in the rail and the whole site follows.',
@@ -353,6 +369,22 @@ const zh: Messages = {
     full: '全部内容合成一个文件。',
     perComponent: '单个组件，单独一份。',
     markdown: '同一份文件，用你会去猜的那个扩展名。',
+  },
+  icons: {
+    sizes: {
+      12: '算不上一个尺寸——它是坐在 18px 方框里的一个记号：复选框的勾、标签上的关闭、表格的排序小三角。',
+      14: '放在控件自己的内边距里，16 会挤着标签的位置：选择器的指示符、气泡的关闭。',
+      16: '默认值，包里画的大多数东西都是它：折角、关闭、勾、小三角。',
+      18: '一个把整行领起来、而不是坐在行里面的前置记号：导航项、Alert 的语气标记、命令面板的搜索。',
+      20: 'AppShell 的菜单开关。',
+      24: '留给 EmptyState——那里图标是整个面上唯一的东西。',
+    },
+    inABoxTitle: '十二像素，画在强调色上',
+    inABoxNote:
+      '这里没有 strokeWidth，也没有什么需要保持一致。Remix Icon 的字形是 24px 网格上的填充路径，所以它的粗细跟着盒子一起缩小，而不是钉在原处把盒子塞满。',
+    brandsTitle: '品牌图标回来了',
+    brandsNote:
+      '别人的商标，是照搬而不是按自家描边风格重画的——这正是应该 import 而不是自己发明的理由。这个站点自己的顶栏，曾经就为了缺这一排而背着一只手绘章鱼猫。',
   },
   themes: {
     title: '主题',

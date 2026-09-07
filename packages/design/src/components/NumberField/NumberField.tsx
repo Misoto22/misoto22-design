@@ -1,6 +1,6 @@
 'use client'
 
-import { MoveHorizontal } from 'lucide-react'
+import { RiArrowLeftRightLine } from '@remixicon/react'
 import { useId, useRef, useState, type InputHTMLAttributes, type PointerEvent, type Ref } from 'react'
 import { cn } from '../../lib/cn'
 import { CONTROL_BASE, CONTROL_BORDER, isInvalid } from '../../lib/control'
@@ -242,7 +242,7 @@ export function NumberField({
             disabled ? 'pointer-events-none' : 'cursor-ew-resize hover:text-(--ink)',
           )}
         >
-          <MoveHorizontal className="size-4" />
+          <RiArrowLeftRightLine className="size-4" aria-hidden />
         </span>
       )}
       {unit && (

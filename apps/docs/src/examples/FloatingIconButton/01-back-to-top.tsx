@@ -1,5 +1,5 @@
 import { FloatingIconButton } from '@misoto22/design'
-import { ArrowUp } from 'lucide-react'
+import { RiArrowUpLine } from '@remixicon/react'
 
 /**
  * A page-level affordance that stays reachable while the reader scrolls.
@@ -15,7 +15,7 @@ export function Example() {
   return (
     <div className="relative h-32 w-full overflow-hidden rounded-(--radius) border border-(--rule) [&>button]:absolute">
       <FloatingIconButton position="end" label="Back to top">
-        <ArrowUp size={16} strokeWidth={1.5} />
+        <RiArrowUpLine size={16} aria-hidden />
       </FloatingIconButton>
     </div>
   )

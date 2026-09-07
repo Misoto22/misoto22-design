@@ -1,5 +1,5 @@
 import { Button } from '@misoto22/design'
-import { ArrowUpRight, Copy, Share2 } from 'lucide-react'
+import { RiArrowRightUpLine, RiFileCopyLine, RiShareLine } from '@remixicon/react'
 
 /**
  * A square control carrying a glyph and no label, for a toolbar where the word
@@ -12,13 +12,13 @@ export function Example() {
   return (
     <div className="flex flex-wrap items-center gap-3">
       <Button iconOnly aria-label="Copy to clipboard" variant="secondary">
-        <Copy size={16} strokeWidth={1.5} />
+        <RiFileCopyLine size={16} aria-hidden />
       </Button>
       <Button iconOnly aria-label="Share" variant="ghost">
-        <Share2 size={16} strokeWidth={1.5} />
+        <RiShareLine size={16} aria-hidden />
       </Button>
       <Button iconOnly aria-label="Open in a new tab">
-        <ArrowUpRight size={16} strokeWidth={1.5} />
+        <RiArrowRightUpLine size={16} aria-hidden />
       </Button>
     </div>
   )

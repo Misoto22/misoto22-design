@@ -10,7 +10,7 @@ import {
   Separator,
   StatusPill,
 } from '@misoto22/design'
-import { KeyRound, Mail } from 'lucide-react'
+import { RiKey2Line, RiMailLine } from '@remixicon/react'
 
 /**
  * A sign-in card, assembled from the set — and deliberately drawn wrong.
@@ -94,11 +94,11 @@ export function LoginCard() {
 
           <div className="grid gap-2 @sm:grid-cols-2">
             <Button variant="secondary" className="gap-2">
-              <KeyRound size={14} strokeWidth={1.5} aria-hidden />
+              <RiKey2Line size={14} aria-hidden />
               SAML SSO
             </Button>
             <Button variant="secondary" className="gap-2">
-              <Mail size={14} strokeWidth={1.5} aria-hidden />
+              <RiMailLine size={14} aria-hidden />
               Email a link
             </Button>
           </div>

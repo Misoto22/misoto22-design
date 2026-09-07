@@ -130,7 +130,7 @@ const packages = [
   { name: 'recharts', size: 480 },
   { name: 'react-dom', size: 310 },
   { name: 'motion', size: 140 },
-  { name: 'lucide', size: 90 },
+  { name: 'remixicon', size: 90 },
 ]
 
 const HOURS = ['00', '06', '12', '18']

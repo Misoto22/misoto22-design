@@ -1,7 +1,7 @@
 'use client'
 
 import { Article, Avatar, Badge, Button, Diagram, Separator, Steps, Tag } from '@misoto22/design'
-import { ArrowLeft, Link2 } from 'lucide-react'
+import { RiArrowLeftLine, RiLinkM } from '@remixicon/react'
 import { post } from '@/lib/posts'
 
 const POST = post('one-factor-moves-them-all')
@@ -35,11 +35,11 @@ export function Post() {
     <div className="flex flex-col">
       <header className="flex items-center justify-between gap-4 border-b border-(--rule) px-6 py-4 @3xl:px-10">
         <Button size="sm" variant="ghost" className="gap-2">
-          <ArrowLeft size={14} strokeWidth={1.5} aria-hidden />
+          <RiArrowLeftLine size={14} aria-hidden />
           Field Notes
         </Button>
         <Button size="sm" variant="ghost" iconOnly aria-label="Copy a link to this post">
-          <Link2 size={14} strokeWidth={1.5} aria-hidden />
+          <RiLinkM size={14} aria-hidden />
         </Button>
       </header>
 

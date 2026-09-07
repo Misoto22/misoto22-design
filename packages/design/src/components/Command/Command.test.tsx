@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { render } from '@testing-library/react'
-import { Settings } from 'lucide-react'
+import { RiSettings3Line } from '@remixicon/react'
 import { Command, CommandGroup, CommandItem, CommandList } from './Command'
 
 function palette(children: React.ReactNode) {
@@ -21,12 +21,12 @@ function palette(children: React.ReactNode) {
  */
 describe('CommandItem icon', () => {
   it('takes the element, which is what the type has always said', () => {
-    const { container } = palette(<CommandItem icon={<Settings size={16} />}>Settings</CommandItem>)
+    const { container } = palette(<CommandItem icon={<RiSettings3Line size={16} />}>Settings</CommandItem>)
     expect(container.querySelector('svg')).not.toBeNull()
   })
 
   it('takes the component too', () => {
-    const { container } = palette(<CommandItem icon={Settings}>Settings</CommandItem>)
+    const { container } = palette(<CommandItem icon={RiSettings3Line}>Settings</CommandItem>)
     expect(container.querySelector('svg')).not.toBeNull()
   })
 })

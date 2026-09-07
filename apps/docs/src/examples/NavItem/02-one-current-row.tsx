@@ -1,5 +1,5 @@
 import { NavItem } from '@misoto22/design'
-import { BookOpen, Component, FileText, Palette, Rows3 } from 'lucide-react'
+import { RiBookOpenLine, RiFileTextLine, RiLayoutRowLine, RiPaletteLine, RiShapesLine } from '@remixicon/react'
 
 /**
  * Two sections, one aria-current between them. Do not also mark the section a
@@ -20,14 +20,14 @@ export function Example() {
     <nav className="flex w-56 flex-col gap-5" aria-label="Sectioned example">
       <div className="flex flex-col gap-1">
         <span className="px-3 pb-1 mono-meta text-(--ink-3-aa)">Learn</span>
-        <NavItem href="#" icon={BookOpen}>Getting started</NavItem>
-        <NavItem href="#" icon={FileText}>Principles</NavItem>
+        <NavItem href="#" icon={RiBookOpenLine}>Getting started</NavItem>
+        <NavItem href="#" icon={RiFileTextLine}>Principles</NavItem>
       </div>
       <div className="flex flex-col gap-1">
         <span className="px-3 pb-1 mono-meta text-(--ink-3-aa)">Reference</span>
-        <NavItem href="#" icon={Component} active>Components</NavItem>
-        <NavItem href="#" icon={Palette}>Colour</NavItem>
-        <NavItem href="#" icon={Rows3}>Tokens</NavItem>
+        <NavItem href="#" icon={RiShapesLine} active>Components</NavItem>
+        <NavItem href="#" icon={RiPaletteLine}>Colour</NavItem>
+        <NavItem href="#" icon={RiLayoutRowLine}>Tokens</NavItem>
       </div>
     </nav>
   )

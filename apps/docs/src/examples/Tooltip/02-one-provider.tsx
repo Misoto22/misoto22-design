@@ -1,14 +1,14 @@
 'use client'
 
 import { Button, Tooltip, TooltipProvider } from '@misoto22/design'
-import { Bold, Italic, Link2, List, Quote } from 'lucide-react'
+import { RiBold, RiDoubleQuotesL, RiItalic, RiLinkM, RiListUnordered } from '@remixicon/react'
 
 const TOOLS = [
-  { name: 'Bold', icon: Bold },
-  { name: 'Italic', icon: Italic },
-  { name: 'Quote', icon: Quote },
-  { name: 'Bulleted list', icon: List },
-  { name: 'Link', icon: Link2 },
+  { name: 'Bold', icon: RiBold },
+  { name: 'Italic', icon: RiItalic },
+  { name: 'Quote', icon: RiDoubleQuotesL },
+  { name: 'Bulleted list', icon: RiListUnordered },
+  { name: 'Link', icon: RiLinkM },
 ]
 
 /**
@@ -29,7 +29,7 @@ export function Example() {
         {TOOLS.map((tool) => (
           <Tooltip key={tool.name} content={tool.name}>
             <Button iconOnly aria-label={tool.name} variant="ghost" size="sm">
-              <tool.icon size={16} strokeWidth={1.5} />
+              <tool.icon size={16} aria-hidden />
             </Button>
           </Tooltip>
         ))}

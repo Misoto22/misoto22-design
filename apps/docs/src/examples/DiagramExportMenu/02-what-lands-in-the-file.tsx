@@ -8,7 +8,7 @@ import {
   DiagramToolbar,
   DiagramToolbarGroup,
 } from '@misoto22/design/diagrams'
-import { Info } from 'lucide-react'
+import { RiInformationLine } from '@remixicon/react'
 
 const SPEC = {
   meta: { title: 'Order pipeline' },
@@ -41,7 +41,7 @@ export function Example() {
       <DiagramToolbar label="Diagram actions">
         <DiagramToolbarGroup>
           <Button size="sm" variant="ghost" iconOnly aria-label="About this diagram">
-            <Info size={14} strokeWidth={1.5} aria-hidden />
+            <RiInformationLine size={14} aria-hidden />
           </Button>
         </DiagramToolbarGroup>
         <DiagramToolbarGroup>

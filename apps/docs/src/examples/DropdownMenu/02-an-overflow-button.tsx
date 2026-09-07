@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
   Text,
 } from '@misoto22/design'
-import { Copy, Download, MoreHorizontal, Pin, Trash2 } from 'lucide-react'
+import { RiDeleteBinLine, RiDownloadLine, RiFileCopyLine, RiMoreLine, RiPushpinLine } from '@remixicon/react'
 
 /**
  * The overflow control at the end of a row, where a word would only repeat what
@@ -30,17 +30,17 @@ export function Example() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button iconOnly aria-label="Actions for kyoto-february.tif" variant="ghost" size="sm">
-            <MoreHorizontal size={16} strokeWidth={1.5} />
+            <RiMoreLine size={16} aria-hidden />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem icon={Copy}>Copy link</DropdownMenuItem>
-          <DropdownMenuItem icon={Download}>Download original</DropdownMenuItem>
-          <DropdownMenuItem icon={Pin} disabled>
+          <DropdownMenuItem icon={RiFileCopyLine}>Copy link</DropdownMenuItem>
+          <DropdownMenuItem icon={RiDownloadLine}>Download original</DropdownMenuItem>
+          <DropdownMenuItem icon={RiPushpinLine} disabled>
             Pin to the collection
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem icon={Trash2} destructive>
+          <DropdownMenuItem icon={RiDeleteBinLine} destructive>
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>

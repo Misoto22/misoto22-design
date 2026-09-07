@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import { RiArrowDownSLine, RiArrowLeftSLine, RiArrowRightSLine } from '@remixicon/react'
 import {
   createContext,
   useContext,
@@ -204,7 +204,7 @@ function MonthYearPanel({
             onClick={() => move(-1)}
             className={STEP}
           >
-            <ChevronLeft size={16} strokeWidth={1.5} aria-hidden />
+            <RiArrowLeftSLine size={16} aria-hidden />
           </button>
           <span className="mono-meta tabular-nums text-(--ink-3-aa)">
             {years[0]} – {years.at(-1)}
@@ -216,7 +216,7 @@ function MonthYearPanel({
             onClick={() => move(1)}
             className={STEP}
           >
-            <ChevronRight size={16} strokeWidth={1.5} aria-hidden />
+            <RiArrowRightSLine size={16} aria-hidden />
           </button>
         </div>
         <div data-picker-grid className="grid grid-cols-4 gap-1">
@@ -246,7 +246,7 @@ function MonthYearPanel({
           onClick={() => setOpen({ index, view: 'months', year: year - 1 })}
           className={STEP}
         >
-          <ChevronLeft size={16} strokeWidth={1.5} aria-hidden />
+          <RiArrowLeftSLine size={16} aria-hidden />
         </button>
         <button
           type="button"
@@ -262,7 +262,7 @@ function MonthYearPanel({
           onClick={() => setOpen({ index, view: 'months', year: year + 1 })}
           className={STEP}
         >
-          <ChevronRight size={16} strokeWidth={1.5} aria-hidden />
+          <RiArrowRightSLine size={16} aria-hidden />
         </button>
       </div>
       <div data-picker-grid className="grid grid-cols-3 gap-1">
@@ -391,9 +391,8 @@ function CalendarCaption({ calendarMonth, displayIndex, className, ...rest }: Mo
         className="group flex items-center gap-1.5 rounded-(--radius-row) px-2 py-1 font-heading text-[length:var(--fs-item)] text-(--ink) transition-colors duration-(--duration-fast) hover:bg-(--stone)"
       >
         {labels.caption.format(calendarMonth.date)}
-        <ChevronDown
+        <RiArrowDownSLine
           size={16}
-          strokeWidth={1.5}
           aria-hidden
           className={cn(
             'shrink-0 text-(--ink-3-aa) transition-transform duration-(--duration-fast)',
@@ -499,9 +498,9 @@ export function Calendar({
         components={{
           Chevron: ({ orientation, ...rest }) =>
             orientation === 'left' ? (
-              <ChevronLeft size={16} strokeWidth={1.5} aria-hidden {...rest} />
+              <RiArrowLeftSLine size={16} aria-hidden {...rest} />
             ) : (
-              <ChevronRight size={16} strokeWidth={1.5} aria-hidden {...rest} />
+              <RiArrowRightSLine size={16} aria-hidden {...rest} />
             ),
           MonthCaption: CalendarCaption,
           ...components,

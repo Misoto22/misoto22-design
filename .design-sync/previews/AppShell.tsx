@@ -1,5 +1,5 @@
 import { AppShell, NavItem, Button, Card, CardBody, Badge, Tag, StatusDot } from '@misoto22/design'
-import { LayoutDashboard, FolderGit2, Camera, PenLine, Briefcase, Music } from 'lucide-react'
+import { RiBriefcaseLine, RiCameraLine, RiDashboardLine, RiGitRepositoryLine, RiMusic2Line, RiPencilLine } from '@remixicon/react'
 
 // Real misoto22-site content: the projects table (title/category/technologies/
 // is_private) is one of the 8 Postgres tables the site manages. These three are
@@ -34,12 +34,12 @@ export function ProjectsAdmin() {
       brand={<strong style={{ fontFamily: 'var(--font-heading)', fontSize: 20 }}>misoto22</strong>}
       sidebar={
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <NavItem href="#" icon={LayoutDashboard}>Dashboard</NavItem>
-          <NavItem href="#" icon={FolderGit2} active>Projects</NavItem>
-          <NavItem href="#" icon={Camera}>Photography</NavItem>
-          <NavItem href="#" icon={PenLine}>Blog</NavItem>
-          <NavItem href="#" icon={Briefcase}>Experience</NavItem>
-          <NavItem href="#" icon={Music}>Music</NavItem>
+          <NavItem href="#" icon={RiDashboardLine}>Dashboard</NavItem>
+          <NavItem href="#" icon={RiGitRepositoryLine} active>Projects</NavItem>
+          <NavItem href="#" icon={RiCameraLine}>Photography</NavItem>
+          <NavItem href="#" icon={RiPencilLine}>Blog</NavItem>
+          <NavItem href="#" icon={RiBriefcaseLine}>Experience</NavItem>
+          <NavItem href="#" icon={RiMusic2Line}>Music</NavItem>
         </nav>
       }
       topbar={

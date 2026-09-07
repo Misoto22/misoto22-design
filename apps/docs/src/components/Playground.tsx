@@ -2,32 +2,27 @@
 
 import * as Design from '@misoto22/design'
 import { cn } from '@misoto22/design'
-import * as Icons from 'lucide-react'
+import * as Icons from '@remixicon/react'
 import { useEffect, useRef, useState } from 'react'
 import { LiveEditor, LiveError, LivePreview, LiveProvider } from 'react-live'
 
 /**
  * Everything a snippet can reach without importing it.
  *
- * The whole package plus lucide and React's own hooks — which is the set the
+ * The whole package plus Remix Icon and React's own hooks — which is the set the
  * examples on this site already use, so a reader who edits one and reaches for
  * a neighbouring component finds it there rather than hitting "X is not
  * defined". The import lines are stripped before evaluation for the same
  * reason: a snippet that has to be import-complete to run is a snippet nobody
  * edits.
+ *
+ * The package spreads LAST. Remix Icon prefixes every export with `Ri`, so
+ * nothing it ships can collide with a component name — but lucide shipped
+ * `Badge`, `Table`, `Command` and `Dialog`, and a reader who edited the Badge
+ * example and typed `<Badge>` got a small grey outline with no error to explain
+ * it. The playground belongs to the package, so the package still wins.
  */
 const SCOPE = { ...Icons, ...Design }
-
-/**
- * The package spreads LAST, and it matters.
- *
- * lucide ships icons called `Badge`, `Table`, `Command`, `Dialog` and more, so
- * with icons last a reader who edited the Badge example and typed `<Badge>`
- * got the icon — a small grey outline where a badge should be, with no error
- * to explain it. The playground belongs to the package, so the package wins
- * every collision.
- */
-export const SHADOWED_ICONS = Object.keys(Icons).filter((name) => name in Design)
 
 export interface PlaygroundProps {
   /** The snippet, exactly as the code block shows it. */

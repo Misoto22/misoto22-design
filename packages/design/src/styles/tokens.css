@@ -534,11 +534,10 @@
   --focus-w: 2px;
   --focus-off: 3px;
 
-  /* ─── Icons ─── one stroke weight, three sizes. */
+  /* ─── Icons ─── three sizes, and no weight: a Remix Icon glyph is a filled path. */
   --ico-s: 14px;
   --ico-m: 16px;
   --ico-l: 20px;
-  --ico-stroke: 1.5;
 
   /* ─── Status ─── the only chroma in the system, and it is bound to state. */
   --ok: #3d6b34;

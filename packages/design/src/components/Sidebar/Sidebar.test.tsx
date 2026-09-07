@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { Home, Settings } from 'lucide-react'
+import { RiHomeLine, RiMenuUnfold3Line, RiSettings3Line } from '@remixicon/react'
 import {
   Sidebar,
   SidebarBranch,
@@ -21,10 +21,10 @@ function rail(props: Partial<React.ComponentProps<typeof SidebarProvider>> = {})
         <SidebarTrigger />
         <SidebarContent>
           <SidebarGroup label="Guide" count={2}>
-            <SidebarItem href="#start" icon={Home} active>
+            <SidebarItem href="#start" icon={RiHomeLine} active>
               Getting started
             </SidebarItem>
-            <SidebarItem href="#settings" icon={Settings} trailing="3">
+            <SidebarItem href="#settings" icon={RiSettings3Line} trailing="3">
               Settings
             </SidebarItem>
           </SidebarGroup>
@@ -126,8 +126,8 @@ describe('SidebarBranch', () => {
         <Sidebar label="Workspace">
           <SidebarContent>
             <SidebarGroup label="Teamspaces" count={1} badge={<span>Beta</span>}>
-              <SidebarBranch label="Acme HQ" icon={Home}>
-                <SidebarItem href="#hq" icon={Home}>
+              <SidebarBranch label="Acme HQ" icon={RiHomeLine}>
+                <SidebarItem href="#hq" icon={RiHomeLine}>
                   Overview
                 </SidebarItem>
               </SidebarBranch>
@@ -174,7 +174,7 @@ describe('without a provider', () => {
       <Sidebar label="Workspace">
         <SidebarContent>
           <SidebarGroup label="Guide" count={1}>
-            <SidebarItem href="#one" icon={Home}>
+            <SidebarItem href="#one" icon={RiHomeLine}>
               One
             </SidebarItem>
           </SidebarGroup>
@@ -353,10 +353,15 @@ describe('Sidebar side and variant', () => {
 
   it('points the trigger at the edge it operates', () => {
     render(rail({ side: 'end' }))
-    // lucide names the icon it renders, which is the only way to tell the two
-    // panel glyphs apart without a snapshot.
+    // Remix Icon puts the same class on every glyph, so the drawn path is the
+    // only way to tell the two panel marks apart without a snapshot. Render the
+    // one this side is supposed to draw and compare against it, rather than
+    // pinning the path data a version bump is free to redraw.
     const trigger = screen.getByRole('button', { name: 'Close the sidebar' })
-    expect(trigger.querySelector('svg')).toHaveClass('lucide-panel-right-close')
+    const { container } = render(<RiMenuUnfold3Line />)
+    const expected = container.querySelector('svg path')?.getAttribute('d')
+    expect(expected).toBeTruthy()
+    expect(trigger.querySelector('svg path')?.getAttribute('d')).toBe(expected)
   })
 
   it('gives the border to the panel, not to both halves', () => {
@@ -367,7 +372,7 @@ describe('Sidebar side and variant', () => {
         <Sidebar label="Documentation">
           <SidebarContent>
             <SidebarGroup label="Guide" count={1}>
-              <SidebarItem href="#one" icon={Home}>
+              <SidebarItem href="#one" icon={RiHomeLine}>
                 One
               </SidebarItem>
             </SidebarGroup>

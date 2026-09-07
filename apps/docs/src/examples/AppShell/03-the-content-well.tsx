@@ -11,7 +11,7 @@ import {
   NavItem,
   Text,
 } from '@misoto22/design'
-import { Boxes, GitBranch, LayoutDashboard } from 'lucide-react'
+import { RiDashboardLine, RiGitBranchLine, RiStackLine } from '@remixicon/react'
 
 /**
  * The well already centres its children at the page measure and supplies the
@@ -33,9 +33,9 @@ export function Example() {
         brand={<span className="font-heading text-base">misoto22</span>}
         sidebar={
           <>
-            <NavItem href="#" icon={LayoutDashboard}>Overview</NavItem>
-            <NavItem href="#" icon={GitBranch} active>Deploys</NavItem>
-            <NavItem href="#" icon={Boxes}>Packages</NavItem>
+            <NavItem href="#" icon={RiDashboardLine}>Overview</NavItem>
+            <NavItem href="#" icon={RiGitBranchLine} active>Deploys</NavItem>
+            <NavItem href="#" icon={RiStackLine}>Packages</NavItem>
           </>
         }
         topbar={<Badge tone="success">all green</Badge>}

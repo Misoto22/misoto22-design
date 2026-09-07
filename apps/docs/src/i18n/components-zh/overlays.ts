@@ -55,7 +55,7 @@ export const OVERLAYS_ZH: Record<string, ComponentCopyZh> = {
     anatomy: [
       { hash: '68c335a5', element: '触发器', description: '直接透传给 Radix；不写 asChild，它就渲染自己那个光秃秃的 button。它带着 aria-haspopup 和 data-state，Button 能表现出自己的菜单是开着的，靠的就是这个。' },
       { hash: 'e82ab289', element: '面板', description: 'portal 出去的那个菜单：至少 11rem 宽，离触发器 6px，以 8px 的内边距去撞视口或者 OverlayContainer 的框。它没有最大高度，所以它是翻边，不是滚动。' },
-      { hash: '1103bdcf', element: '菜单项', description: '一行。icon 两种写法都收——Lucide 组件本身，在这里被定成 16px；或者一个渲染好的元素，你给什么就摆什么；destructive 把这一行画成 --danger；disabled 去掉指针事件并压低透明度。' },
+      { hash: '7fbff550', element: '菜单项', description: '一行。icon 两种写法都收——图标组件本身，在这里被定成 16px；或者一个渲染好的元素，你给什么就摆什么；destructive 把这一行画成 --danger；disabled 去掉指针事件并压低透明度。' },
       { hash: '9d2a84dc', element: '分组标签', description: '一行孤零零的等宽小标。纯视觉——Radix 把它渲染成一个普通 div，方向键会跳过它。真正给若干行当标题的是 DropdownMenuGroup：它渲染 role="group"，并把自己的 aria-labelledby 指向这一个。' },
       { hash: '929634d3', element: '分组', description: '一个有名字的区段：role="group" 包住那些行，label 在它内部渲染成 Label，再通过 aria-labelledby 完成命名。这套接线由组件来做，是因为调用方自己动手就得凭空造一个 id。' },
       { hash: 'a4ede456', element: '分隔线', description: '组与组之间的一条发丝线，而且是真正的 role="separator"——菜单允许这么写，Command 面板赖以搭建的那个 listbox 不允许。' },

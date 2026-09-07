@@ -1,5 +1,5 @@
 import { Button, EmptyState, Tag } from '@misoto22/design'
-import { SearchX } from 'lucide-react'
+import { RiFilterOffLine } from '@remixicon/react'
 
 /**
  * The same component, saying which kind of empty this is. No projects yet shown
@@ -18,7 +18,7 @@ export function Example() {
         <Tag active>2019</Tag>
       </div>
       <EmptyState
-        icon={SearchX}
+        icon={RiFilterOffLine}
         title="No projects match these filters"
         description="Archived and 2019 are both on. Clearing them brings back 34 projects."
         action={<Button variant="secondary">Clear filters</Button>}

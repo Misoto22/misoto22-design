@@ -107,7 +107,7 @@ export const OVERLAYS = [
       {
         element: 'Item',
         description:
-          'A row. icon takes either spelling — the Lucide component, sized to 16px here, or a rendered element, placed as given; destructive paints the row --danger; disabled drops pointer events and the opacity.',
+          'A row. icon takes either spelling — the icon component, sized to 16px here, or a rendered element, placed as given; destructive paints the row --danger; disabled drops pointer events and the opacity.',
       },
       {
         element: 'Label',

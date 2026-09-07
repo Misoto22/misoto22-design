@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, Info, XCircle } from 'lucide-react'
+import { RiAlertLine, RiCheckboxCircleLine, RiCloseCircleLine, RiInformationLine } from '@remixicon/react'
 import type { HTMLAttributes, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 
@@ -14,13 +14,16 @@ export interface AlertProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'
   hideIcon?: boolean
 }
 
-const TONE: Record<AlertTone, { surface: string; mark: string; icon: typeof Info; live: 'polite' | 'assertive' }> = {
-  info: { surface: 'border-(--rule-2) bg-(--paper-2)', mark: 'text-(--ink-2)', icon: Info, live: 'polite' },
-  success: { surface: 'border-transparent bg-(--ok-soft)', mark: 'text-(--ok)', icon: CheckCircle2, live: 'polite' },
-  warning: { surface: 'border-transparent bg-(--warn-soft)', mark: 'text-(--warn)', icon: AlertTriangle, live: 'polite' },
+const TONE: Record<
+  AlertTone,
+  { surface: string; mark: string; icon: typeof RiInformationLine; live: 'polite' | 'assertive' }
+> = {
+  info: { surface: 'border-(--rule-2) bg-(--paper-2)', mark: 'text-(--ink-2)', icon: RiInformationLine, live: 'polite' },
+  success: { surface: 'border-transparent bg-(--ok-soft)', mark: 'text-(--ok)', icon: RiCheckboxCircleLine, live: 'polite' },
+  warning: { surface: 'border-transparent bg-(--warn-soft)', mark: 'text-(--warn)', icon: RiAlertLine, live: 'polite' },
   /* Assertive: a danger alert interrupts because whatever the reader is doing
      is already failing. The other three wait for a pause in speech. */
-  danger: { surface: 'border-transparent bg-(--danger-soft)', mark: 'text-(--danger)', icon: XCircle, live: 'assertive' },
+  danger: { surface: 'border-transparent bg-(--danger-soft)', mark: 'text-(--danger)', icon: RiCloseCircleLine, live: 'assertive' },
 }
 
 /**
@@ -61,7 +64,7 @@ export function Alert({
       )}
       {...rest}
     >
-      {!hideIcon && <Icon size={18} strokeWidth={1.5} className={cn('mt-px shrink-0', mark)} aria-hidden />}
+      {!hideIcon && <Icon size={18} className={cn('mt-px shrink-0', mark)} aria-hidden />}
       <div className="min-w-0 flex-1">
         {title && <p className="m-0 font-medium text-(--ink)">{title}</p>}
         {children && <div className={cn('leading-relaxed', title && 'mt-1')}>{children}</div>}

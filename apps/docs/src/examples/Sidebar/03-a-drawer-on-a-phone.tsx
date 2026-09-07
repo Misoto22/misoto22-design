@@ -10,7 +10,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@misoto22/design'
-import { Boxes, Home, Settings } from 'lucide-react'
+import { RiHomeLine, RiSettings3Line, RiStackLine } from '@remixicon/react'
 
 /**
  * Under `breakpoint` the rail is not a narrower rail, it is a different
@@ -42,13 +42,13 @@ export function Example() {
           </SidebarHeader>
           <SidebarContent>
             <SidebarGroup label="Monitor" count={3}>
-              <SidebarItem href="#overview" icon={Home} active>
+              <SidebarItem href="#overview" icon={RiHomeLine} active>
                 Overview
               </SidebarItem>
-              <SidebarItem href="#deploys" icon={Boxes} trailing="4">
+              <SidebarItem href="#deploys" icon={RiStackLine} trailing="4">
                 Deploys
               </SidebarItem>
-              <SidebarItem href="#settings" icon={Settings}>
+              <SidebarItem href="#settings" icon={RiSettings3Line}>
                 Settings
               </SidebarItem>
             </SidebarGroup>

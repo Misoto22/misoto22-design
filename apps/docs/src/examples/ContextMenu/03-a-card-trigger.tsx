@@ -11,7 +11,7 @@ import {
   ContextMenuTrigger,
   Badge,
 } from '@misoto22/design'
-import { ExternalLink, Pin, RotateCcw } from 'lucide-react'
+import { RiExternalLinkLine, RiPushpinLine, RiResetLeftLine } from '@remixicon/react'
 
 /**
  * asChild hands Radix the Card itself. Without it Radix inserts a span between
@@ -37,9 +37,9 @@ export function Example() {
         </Card>
       </ContextMenuTrigger>
       <ContextMenuContent>
-        <ContextMenuItem icon={ExternalLink}>Open the deployment</ContextMenuItem>
-        <ContextMenuItem icon={Pin}>Pin to the dashboard</ContextMenuItem>
-        <ContextMenuItem icon={RotateCcw} destructive>Roll back to the previous build</ContextMenuItem>
+        <ContextMenuItem icon={RiExternalLinkLine}>Open the deployment</ContextMenuItem>
+        <ContextMenuItem icon={RiPushpinLine}>Pin to the dashboard</ContextMenuItem>
+        <ContextMenuItem icon={RiResetLeftLine} destructive>Roll back to the previous build</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   )
