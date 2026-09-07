@@ -1,5 +1,183 @@
 # @misoto22/design
 
+## 0.10.0
+
+### Minor Changes
+
+- [#76](https://github.com/Misoto22/misoto22-design/pull/76) [`d6a2ccc`](https://github.com/Misoto22/misoto22-design/commit/d6a2ccc3daac923962e121a6c405df0caad2d372) Thanks [@Misoto22](https://github.com/Misoto22)! - The chart palette gains a third value, and forced colours gets its ramp back.
+  
+  `data-chart-palette` had two answers — `mono` and `chroma` — and neither one
+  was "our accent is not ink". A consumer whose buttons, pills and rules had all
+  re-pointed off `--clay` still got eight greys in every chart, and the only way
+  out was the thing the axis exists to prevent: hand-picked hexes in a `colors`
+  config. `accent` derives all eight names from `--clay` instead, so it works for
+  an accent nobody here has seen.
+  
+  It pins the LIGHTNESS and inherits the hue, because separation and contrast are
+  carried almost entirely by lightness — eight even steps across L 0.173–0.640 on
+  paper and L 0.967–0.530 on the dark ground, both bounds set by the weakest hue
+  rather than the prettiest. Measured across all 360 hues at maximum chroma:
+  adjacent-pair separation ΔE 26.7 light / 25.0 dark (OKLab ×100, against a floor
+  of 15), minimum contrast 3.11 on both grounds. `--series-1` sits mid-band, so a
+  one-series chart paints within ΔE 2 of the accent itself rather than in the
+  accent's darkest possible shade, and ink stays available as `--series-2`. What
+  it is NOT is a categorical palette: one hue laddered eight ways is guesswork at
+  eight series, and `chroma` is still the answer for a reader comparing
+  categories.
+  
+  Separately, and older than this: `tokens.css` collapses the ramp to
+  `CanvasText` under `forced-colors`, and it writes that on `:root` — which any
+  palette attribute then outranks, because an element matching
+  `[data-chart-palette]` directly beats a value it merely inherits from the root,
+  and beats it on source order at the root itself. A reader in Windows High
+  Contrast who was on `chroma` kept getting the eight hues, which is the setting
+  being ignored rather than honoured. The ramp is restated after the palettes, at
+  the specificity the dark blocks use.
+
+### Patch Changes
+
+- [#76](https://github.com/Misoto22/misoto22-design/pull/76) [`d6a2ccc`](https://github.com/Misoto22/misoto22-design/commit/d6a2ccc3daac923962e121a6c405df0caad2d372) Thanks [@Misoto22](https://github.com/Misoto22)! - A chart with a brush gets its plot back.
+  
+  The brush is rendered as the chart container's FOOTER, and the footer branch
+  dropped the plot's whole shape: no `aspect-video` — correct, since sizing the
+  outer box 16:9 pays for the footer out of the plot's share — but also no
+  `min-h`, which was not. So a brushed chart had a plot with no intrinsic height
+  at all, and in any container that sizes to its content the plot measured zero
+  and only the brush's own 56px survived. The page showed a scrubber with nothing
+  above it to scrub. Recharts says so out loud — "width(-1) and height(-1) of
+  chart should be greater than 0" — into a console nobody reads, which is why it
+  stood.
+  
+  The shape moves down one element instead of being dropped: with a footer, the
+  plot carries `aspect-video max-h-[26rem] min-h-[13rem]` and the footer sits
+  under it. `AreaChart`, `BarChart`, `LineChart` and `ComposedChart` are all
+  affected — every chart that takes a `Brush`.
+
+- [#76](https://github.com/Misoto22/misoto22-design/pull/76) [`d6a2ccc`](https://github.com/Misoto22/misoto22-design/commit/d6a2ccc3daac923962e121a6c405df0caad2d372) Thanks [@Misoto22](https://github.com/Misoto22)! - `--control-lh`: every control is now the height its token claims.
+  
+  `--control-h-sm` is 36px and an `sm` Button measured 39. `md` said 44 and
+  measured 46; `lg` said 48 and measured 50. `min-height` is a floor, and a floor
+  only binds while the box is under it — the box being the line, the padding and
+  the border. The padding was already scaled per density for exactly this reason,
+  with a comment saying so. The LINE was not: it inherited the body's 1.6 reading
+  leading, which no control asked for, and 20.8 + 16 + 2 clears 36 on its own.
+  
+  So every text button in the system was two to three pixels taller than the
+  number documenting it, and the documentation said 36 and 44. The Button page
+  still says "sm is 36px at the default density"; it is now true.
+  
+  `--control-lh: 1.2` is the missing term, declared beside the padding it belongs
+  with, and `tokens.test.ts` now runs the arithmetic — line plus padding plus
+  border against the height token, at every size, on both densities.
+  
+  `Kbd` carried the same literal `1.6`. Everything about it tracks its context in
+  `em` — "so it tracks whatever type it sits beside" — except the leading, which
+  was pinned at the reading value, so a keycap inside a control stood proud of
+  the label next to it. That is what kept the documentation site's search field
+  at 39px after the button itself was fixed, and what made it the one control in
+  the masthead taller than the four beside it.
+
+- [#76](https://github.com/Misoto22/misoto22-design/pull/76) [`d6a2ccc`](https://github.com/Misoto22/misoto22-design/commit/d6a2ccc3daac923962e121a6c405df0caad2d372) Thanks [@Misoto22](https://github.com/Misoto22)! - Example headings reach the Chinese site.
+  
+  `generate.mjs` derives them from the filename — `02-fill-variants` becomes
+  `fill variants` — so they are not prose anyone wrote, are not in `messages.ts`,
+  and are not JSX for `untranslated-chrome.test.ts` to find. Three mechanisms
+  guard the site's Chinese and none of them can see a string the BUILD makes. So
+  the contents rail on `/zh` listed `default`, `brush` and `value labels` under
+  示例 for as long as the site has existed, and every check passed.
+  
+  `ExampleCopy` gains a `title`, and `exampleTitle()` reads it. No fingerprint,
+  for the reason `ComponentCopyZh.name` has none: there is no English author to
+  drift away from, and renaming the file renames the key, which already fails.
+  
+  The catalogue is translated a group at a time. Charts and Data are done — 88
+  headings — and the test guards it two ways: a finished group may not regress,
+  and the untranslated remainder may only get smaller.
+
+- [#76](https://github.com/Misoto22/misoto22-design/pull/76) [`d6a2ccc`](https://github.com/Misoto22/misoto22-design/commit/d6a2ccc3daac923962e121a6c405df0caad2d372) Thanks [@Misoto22](https://github.com/Misoto22)! - An example's own knobs move out of the specimen and into the canvas toolbar.
+  
+  A chart example that lets a reader switch the tooltip's ground had two
+  different things on the card: the chart, which is what the page is about, and
+  two pill groups, which are the demo's scaffolding. Drawn together they read as
+  one composition and the scaffolding won — it sat on top, it was the only thing
+  with a filled ground, and at 36px it was the system's smallest control against
+  a 26px toolbar two pixels above it. A reader looking for what `BarChart`
+  renders found a settings panel.
+  
+  `ExampleControls` portals them up one band, beside LTR/RTL and the density
+  switch, at the same chrome scale — the same strip height, to the pixel. The
+  example's own code does not change: wiring state to a prop is the lesson in
+  several of these, so the controls stay where they were written and only the
+  canvas draws them elsewhere. `generate.mjs` unwraps the element out of the
+  printed snippet, the way it already drops `export function Example` and the
+  relative imports, so the code a reader copies is byte-for-byte what it was.
+  
+  Twenty-four chart examples move. The four where a `ToggleGroup` IS the
+  specimen — its own three examples and `Field`'s group-naming one — stay put.
+  
+  Separately, the tooltip knobs in `BarChart`'s interaction example now say what
+  they do: both move the floating panel and nothing else on the card, and
+  `frosted` is the plot showing THROUGH that panel, so it reads where the panel
+  crosses a bar and nowhere else. Over the white ground it is white at 75% over
+  white, which is white — a knob that appeared not to work.
+
+- [#76](https://github.com/Misoto22/misoto22-design/pull/76) [`d6a2ccc`](https://github.com/Misoto22/misoto22-design/commit/d6a2ccc3daac923962e121a6c405df0caad2d372) Thanks [@Misoto22](https://github.com/Misoto22)! - `--bar-h`: the band across the top of an application, as one number.
+  
+  It was five literals in two packages, and they disagreed. `AppShell` said
+  `h-14` and the documentation site said `h-16` — the same role, 56px in the
+  component this system ships and 64px on the site documenting it. A sixth,
+  `SidebarHeader`'s `min-h-14` floor, is what accidentally kept the rail's head
+  level with the masthead beside it, and what would have stopped it staying level
+  the moment either moved. `--scroll-offset` was a seventh: "a masthead plus a
+  line of air", written as `88px`, a number derived by hand from whichever of the
+  two answers its author had on screen.
+  
+  Derived rather than typed. A bar is a row of controls and the air around them,
+  so it is the control it seats plus six pixels above and below — the same twelve
+  `--sidebar-w-icon` adds to a rail's collapsed width, for the same reason. A bar
+  can no longer be set to a height its own controls do not fit in, and
+  `--scroll-offset` is now `calc(var(--bar-h) + 1.5rem)`, so a bar that moves
+  takes every anchored heading with it.
+  
+  WHICH control depends on the pointer. A bar is chrome: its controls are `sm`,
+  the density this system documents as a deliberate below-the-floor size for a
+  mouse. A finger is not a mouse, so on a coarse pointer they grow to the 44px
+  target WCAG 2.5.5 asks for and the bar grows with them. 48px comfortable and
+  42px compact with a pointer; 56px and 48px with a finger.
+  
+  Declared on the root, which is load-bearing rather than incidental: a `var()`
+  inside a custom property is substituted where the property is DECLARED, so
+  `--control-h-md` resolves once and every descendant inherits the same answer —
+  including a rail that pins its own `data-density`, which is what keeps a
+  compact rail's head level with a comfortable page's bar.
+  
+  The documentation site's masthead loses 16px in the process — 64px down to 48px
+  on a desktop, unchanged at 56px on a phone. It was seating 39px of content in
+  64px of bar, and holding a further 8px for a 44px target that only exists when
+  the pointer is a finger.
+
+- [#76](https://github.com/Misoto22/misoto22-design/pull/76) [`d6a2ccc`](https://github.com/Misoto22/misoto22-design/commit/d6a2ccc3daac923962e121a6c405df0caad2d372) Thanks [@Misoto22](https://github.com/Misoto22)! - Hovering a rail no longer emboldens the section under the pointer.
+  
+  The fill follows the pointer while the pointer is in the list, and the three
+  declarations that do it land on every row. Two are no-ops on a row that is not
+  current — it has no fill and no ink to give up. `font-normal` was not: it is an
+  absolute weight rather than an undo, so in a rail whose base face is lighter
+  than 400 — the White Reset's own sidebar runs at 300 — every row got HEAVIER
+  the moment the pointer arrived. Selecting one row appeared to embolden its
+  whole section, which is the opposite of a highlight that follows the pointer.
+  
+  The weight is now scoped to `aria-current="page"`, which is the only row that
+  has a weight to give up. The fill and the ink still relax on every row, because
+  there the class says what it means.
+
+- [#76](https://github.com/Misoto22/misoto22-design/pull/76) [`d6a2ccc`](https://github.com/Misoto22/misoto22-design/commit/d6a2ccc3daac923962e121a6c405df0caad2d372) Thanks [@Misoto22](https://github.com/Misoto22)! - `AreaChart 面积图` becomes `AreaChart - 面积图`.
+  
+  Both halves are names — the export identifier and the Chinese one — and a
+  space between two names reads as one name that changed script half way
+  through. The dash says they are two labels for the same thing, which is what
+  they are. The order does not move: the English is the import, and it stays
+  first.
+
 ## 0.9.0
 
 ### Minor Changes
