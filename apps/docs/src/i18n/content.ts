@@ -536,6 +536,11 @@ export function lawCopy(locale: Locale, index: number): LawCopy | undefined {
 
 /** Templates. */
 export const TEMPLATES_ZH: Record<string, { name?: string; summary?: string; tests?: string }> = {
+  'activity-board': {
+    name: '活动看板',
+    summary: '一整屏的一周：四个数字、两条按类别分开的曲线、一列按严重程度排序的待办、一张分组表格，以及两张柱状图。',
+    tests: '把控制台做成「网格」而不是一栏。每块瓦片的高度由行给定，而不是自己挑——正是在这里，一张按 16:9 给自己定尺寸的图表，和一个不这么做的空状态，会在同一格里读出两个高度。',
+  },
   dashboard: {
     name: '控制台',
     summary: '一个后台：侧边栏、数字带、标签页、可筛选的表格，以及两张任务卡。',
