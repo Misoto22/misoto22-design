@@ -20,6 +20,11 @@
  * happens when ONE OBJECT owns the viewport and everything else is chrome
  * arranged over, beside and under it, rather than stacked in a column with it.
  *
+ * The activity board answers the one after that: what happens when the viewport
+ * is DIVIDED, and every region is handed a height by the grid rather than
+ * choosing one. A column lets a chart be as tall as it likes; a cell does not,
+ * and the components that only ever measured themselves show up immediately.
+ *
  * The eight after them are the opposite purpose: the SCREENS PEOPLE ACTUALLY
  * SHIP. Settings, sign-in, a data table, a wizard, a record, the three states,
  * a documentation page, a pricing page. Each one is still assembled only from
@@ -75,6 +80,17 @@ export const TEMPLATES: TemplateEntry[] = [
     summary: 'A console: a sidebar, a figure band, tabs, a filterable table and two job cards.',
     tests: 'Density. Twelve components in a bounded column, close enough together that any spacing decision that was only ever checked in isolation shows up.',
     uses: ['NavItem', 'FigureBand', 'Tabs', 'ToggleGroup', 'Table', 'Badge', 'Progress', 'Select', 'Card', 'StatusPill', 'Avatar', 'Button'],
+  },
+  {
+    slug: 'activity-board',
+    id: 'ActivityBoard',
+    name: 'Activity board',
+    category: 'Console',
+    summary:
+      'One screen of a working week: four figures, two lanes over time, a ranked attention column, a grouped table and two bar charts.',
+    tests:
+      'A console as a GRID rather than a column. Every tile is handed its height by the row instead of choosing one, which is where a chart that sizes itself 16:9 — and an empty state that does not — read at two different heights in the same cell.',
+    uses: ['BigNumber', 'LineChart', 'BarChart', 'BarList', 'Table', 'Alert', 'ToggleGroup', 'StatusPill', 'Progress', 'Card', 'Text', 'Button'],
   },
   {
     slug: 'landing',
