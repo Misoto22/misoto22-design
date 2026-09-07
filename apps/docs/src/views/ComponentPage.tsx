@@ -46,8 +46,9 @@ export async function ComponentPage({ locale, slug }: { locale: Locale; slug: st
   // about; the rest are its named parts (CardHeader, TabsTrigger) and are
   // documented under it rather than each getting a page of their own.
   const primary = source.components.find((component) => component.name === entry.dir)
+    ?? source.components.find((component) => /^[A-Z]/.test(component.name))
   const parts = source.components.filter(
-    (component) => component.name !== entry.dir && !component.reexport,
+    (component) => component.name !== primary?.name && !component.reexport,
   )
   const reexports = source.components.filter((component) => component.reexport)
   const related = (entry.related ?? []).map((s) => BY_SLUG.get(s)).filter(Boolean)

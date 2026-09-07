@@ -11,7 +11,7 @@
  * The font files are copied verbatim so the relative `url('./fonts/…')` in
  * both fonts.css and the appended tail resolves from dist/.
  */
-import { cp, readFile, writeFile } from 'node:fs/promises'
+import { cp, readFile, readdir, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -26,6 +26,7 @@ const PORTABLE = [
   'article.css',
   'keyframes.css',
   'fonts.css',
+  ...(await readdir(SRC)).filter(file => file.startsWith('website') && file.endsWith('.css')),
 ]
 
 for (const file of PORTABLE) {

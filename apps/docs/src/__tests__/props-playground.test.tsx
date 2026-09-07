@@ -316,6 +316,17 @@ describe('PropsPlayground', () => {
     expect(written[0]).not.toContain('Preview sidebar')
   })
 
+  it('keeps a full document shell out of the nested preview', () => {
+    render(<PropsPlayground name="SiteShell" rows={[]} aliases={[]} passthrough={[]} fallback={<p>Shell properties</p>} />)
+    expect(screen.queryByRole('main')).toBeNull()
+    expect(screen.getByText('Shell properties')).toBeInTheDocument()
+  })
+
+  it('supplies the recovery preview with its inherited required heading', () => {
+    render(<PropsPlayground name="RecoveryState" rows={[]} aliases={[]} passthrough={[]} fallback={<p>Recovery properties</p>} />)
+    expect(screen.getByRole('heading', { name: 'Page unavailable', level: 2 })).toBeInTheDocument()
+  })
+
   it('hands the page back the read-only table when the preview throws', () => {
     // React reports a caught error on the console; the boundary is the point.
     const quiet = vi.spyOn(console, 'error').mockImplementation(() => {})

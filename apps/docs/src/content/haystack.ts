@@ -29,16 +29,19 @@ export const SEARCH_TERMS = new Map<string, string[]>(
     const source = (propsJson as Record<string, { components?: { name: string; props?: Prop[] }[] }>)[entry.dir]
     const props = (source?.components ?? []).flatMap((component) => [
       component.name,
-      ...(component.props ?? []).flatMap((prop) => [prop.name, prop.type]),
+      ...(component.props ?? []).flatMap((prop) => [
+        prop.name,
+        ...(prop.type.match(/[A-Za-z_$][\w$-]*/g) ?? []),
+      ]),
     ])
     return [
       entry.slug,
-      [
+      [...new Set([
         entry.dir,
         entry.group,
         ...(entry.keyboard ?? []).flatMap((row) => row.keys),
         ...props,
-      ].filter(Boolean),
+      ].filter(Boolean))],
     ]
   }),
 )

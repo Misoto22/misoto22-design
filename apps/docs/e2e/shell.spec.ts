@@ -277,7 +277,10 @@ test.describe('templates', () => {
 
     const band = frame.locator('dl').first()
     await expect
-      .poll(async () => (await band.evaluate((el) => getComputedStyle(el).gridTemplateColumns)).split(' ').length)
+      .poll(async () => band.evaluate((el) => {
+        const cells = [...el.children].map((cell) => cell.getBoundingClientRect())
+        return cells.filter((cell) => Math.abs(cell.top - cells[0]!.top) < 1).length
+      }))
       .toBe(2)
 
     // Nothing may hang outside the frame at phone width.

@@ -43,6 +43,7 @@ not pay for a routing engine:
 
 ```tsx
 import { ArchitectureFigure, DiagramCanvas } from '@misoto22/design/diagrams'
+import { SiteShell, Portfolio, CollectionIntro, SearchPalette } from '@misoto22/design/website'
 ```
 
 Five server-rendered figures — architecture, workflow, sequence, data-flow and
@@ -179,3 +180,20 @@ React 19, Node 24+. ESM only.
 ## Licence
 
 MIT © Henry Chen
+
+## Website compositions
+
+Import page composition families from `@misoto22/design/website`. They include
+navigation, portfolios, content collections, reading layouts, media browsing,
+contact forms, listening views, metrics, search and conversations. Pass localized
+labels, router link elements and plain view data; keep backend requests, routing
+and authentication in the application.
+
+The complete `styles.css` includes these compositions. In an application that
+already builds Tailwind, import `website.css` alongside the portable token,
+semantic, theme and keyframe layers, and scan the package's `dist` directory.
+`npx misoto22-design docs SiteShell` and `docs SearchPalette` explain the contracts.
+
+For metadata and build scripts, `import { BRAND } from '@misoto22/design/brand'`
+loads the token mirror without loading React components. This data-only entry
+also supports Node's native ESM loading from CommonJS on the supported Node versions.

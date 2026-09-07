@@ -23,6 +23,13 @@ describe('palette search terms', () => {
     expect(SEARCH_TERMS.get('button')).toContain('asChild')
   })
 
+  it('indexes fields inside structured website props as short tokens', () => {
+    const terms = SEARCH_TERMS.get('collection') ?? []
+    expect(terms).toContain('ReactNode')
+    expect(terms).toContain('hint')
+    expect(terms.some((term) => term.includes('{'))).toBe(false)
+  })
+
   it('carries tokens, never sentences', () => {
     for (const [slug, terms] of SEARCH_TERMS) {
       const prose = terms.filter((term) => term.length > 60 || /[.。]\s/.test(term))

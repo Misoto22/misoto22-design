@@ -16,6 +16,7 @@
 @import '../../../../packages/design/src/styles/themes.css';
 @import '../../../../packages/design/src/styles/article.css';
 @import '../../../../packages/design/src/styles/keyframes.css';
+@import '../../../../packages/design/src/styles/website.css';
 /* Generated: the package's vendored faces, rewritten to the paths a static
    export actually serves them from. See scripts/generate.mjs. */
 @import '../generated/fonts.css';

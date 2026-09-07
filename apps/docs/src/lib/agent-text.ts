@@ -81,6 +81,8 @@ function propTable(rows: PropRow[]): string {
 /** One component, as the whole of what the site knows about it. */
 export function componentText(entry: ComponentEntry): string {
   const source = PROPS[entry.dir]
+  const primary = source?.components.find((component) => component.name === entry.name)
+    ?? source?.components.find((component) => /^[A-Z]/.test(component.name))
   const examples = EXAMPLES[entry.dir] ?? []
   const out: string[] = [
     `# ${entry.name}`,
@@ -88,7 +90,7 @@ export function componentText(entry: ComponentEntry): string {
     `${entry.summary}`,
     '',
     `- Group: ${entry.group}`,
-    `- Import: \`import { ${entry.name} } from '${entry.entry}'\``,
+    `- Import: \`import { ${primary?.name ?? entry.name} } from '${entry.entry}'\``,
     `- Page: ${SITE}/components/${entry.slug}/`,
   ]
 

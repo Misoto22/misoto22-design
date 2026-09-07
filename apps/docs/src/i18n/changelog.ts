@@ -44,6 +44,9 @@ import type { Locale } from './locales'
  * keeps this a gate. See `docs/releasing.md`.
  */
 const ZH: Record<string, string> = {
+  [fingerprint("Add reusable website compositions for navigation, portfolios, archives, reading, media, forms, search, metrics and conversations.")]: "新增网站组合组件，涵盖导航、作品集、内容列表、阅读页、媒体、表单、搜索、统计和对话界面。",
+  [fingerprint("The separate `@misoto22/design/website` entry owns presentation and accessible interactions. Hosts supply localized labels, router links, content and service state; chart engines remain in the optional charts entry.")]: "独立的 `@misoto22/design/website` 入口统一负责界面呈现与无障碍交互。使用方提供本地化文案、路由链接、内容和服务状态；图表引擎仍由可选的 charts 入口单独引入。",
+  [fingerprint("The portable `website.css` entry and compiled stylesheet share the canonical tokens. Offline documentation includes every family and its server and client exports.")]: "独立的 `website.css` 与编译后的完整样式共用同一套设计变量。离线文档覆盖所有新增组件组及其服务端、客户端导出。",
   // ─── unreleased ───
   [fingerprint(
     'Every icon in the package is a Remix Icon glyph now, and the brand marks lucide dropped come back with them.',

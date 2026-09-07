@@ -3,7 +3,9 @@ import catalog from '@/generated/catalog'
 import { WARNING_CODES } from '@/lib/docs'
 import { getMessages } from '@/i18n/messages'
 import { LOCALES } from '@/i18n/locales'
-import { indexText } from '@/lib/agent-text'
+import { componentText, indexText } from '@/lib/agent-text'
+import { COMPONENTS } from '@/content/registry'
+import * as website from '@misoto22/design/website'
 
 /**
  * The site has fallen behind the package three times, in the same way each
@@ -19,6 +21,11 @@ import { indexText } from '@/lib/agent-text'
  * prose is the other half of the same failure, and gets the same treatment.
  */
 describe('the site keeps up with the package', () => {
+  it.each(COMPONENTS.filter((entry) => entry.entry === '@misoto22/design/website'))('advertises a real public import for the $name family', (entry) => {
+    const imported = componentText(entry).match(/- Import: `import \{ (\w+) \}/)?.[1]
+    expect(imported).toBeTruthy()
+    expect(website).toHaveProperty(imported!)
+  })
   const copy = Object.fromEntries(
     LOCALES.map((locale) => [locale, JSON.stringify(getMessages(locale))]),
   )

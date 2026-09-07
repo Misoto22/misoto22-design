@@ -13,8 +13,9 @@ import { SURFACES_ZH } from '../components-zh/surfaces'
 import { DATA_ZH } from '../components-zh/data'
 import { CHARTS_ZH } from '../components-zh/charts'
 import { DIAGRAMS_ZH } from '../components-zh/diagrams'
+import { WEBSITE_ZH } from '../components-zh/website'
 
-/** The ten group files, in the order `content.ts` spreads them. */
+/** The group files, in the order `content.ts` spreads them. */
 const GROUP_FILES = {
   actions: ACTIONS_ZH,
   forms: FORMS_ZH,
@@ -26,6 +27,7 @@ const GROUP_FILES = {
   data: DATA_ZH,
   charts: CHARTS_ZH,
   diagrams: DIAGRAMS_ZH,
+  website: WEBSITE_ZH,
 }
 
 /**

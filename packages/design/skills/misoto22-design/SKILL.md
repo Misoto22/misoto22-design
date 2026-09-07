@@ -1,6 +1,6 @@
 ---
 name: misoto22-design
-description: Builds UI with @misoto22/design — a monochrome design system of CSS tokens and 83 accessible React primitives, charts and diagrams included. Use when a project imports '@misoto22/design', '@misoto22/design/charts' or '@misoto22/design/diagrams', sets data-mode / data-surface / data-radius / data-density, or uses cn(), CONTROL_BASE, or isInvalid. Also applies when adding a component, theming, plotting data, drawing an architecture, workflow, sequence, data-flow or lifecycle diagram, or fixing a form, table, dialog, or toast in such a project.
+description: Builds UI with @misoto22/design — a monochrome design system of CSS tokens and 83 accessible React primitives, charts and diagrams included. Use when a project imports '@misoto22/design', '@misoto22/design/charts' '@misoto22/design/diagrams' or '@misoto22/design/website', sets data-mode / data-surface / data-radius / data-density, or uses cn(), CONTROL_BASE, or isInvalid. Also applies when adding a component, theming, plotting data, drawing an architecture, workflow, sequence, data-flow or lifecycle diagram, or fixing a form, table, dialog, or toast in such a project.
 allowed-tools: Bash(npx misoto22-design *), Bash(pnpm exec misoto22-design *), Bash(bunx misoto22-design *)
 ---
 
@@ -14,7 +14,7 @@ import { Button, Field, Input } from '@misoto22/design'
 import '@misoto22/design/styles.css'
 ```
 
-## Three entry points
+## Four entry points
 
 The root entry has no dependencies a consumer has to install. Two groups live
 behind their own specifier instead, each for weight the root should not carry:
@@ -22,6 +22,7 @@ behind their own specifier instead, each for weight the root should not carry:
 ```tsx
 import { AreaChart, BarList, BigNumber } from '@misoto22/design/charts'
 import { ArchitectureFigure, DiagramCanvas } from '@misoto22/design/diagrams'
+import { SiteShell, Portfolio, CollectionIntro, SearchPalette } from '@misoto22/design/website'
 ```
 
 Charts need a rendering engine and an animation runtime that nothing else in
@@ -221,3 +222,7 @@ without retyping it.
 - `Card` — `variant`: `outline` `plate` `flat`
 - `Table` — `borders` [`TableBorders`]: `rows` `grid` `bordered` `bordered-grid` `none` · `density`: `comfortable` `compact`
 - `TH` / `TD` — `align` [`TableAlign`]: `start` `center` `end`
+
+For metadata and Node build scripts, `import { BRAND } from '@misoto22/design/brand'`
+loads the canonical color mirror without React. This is a data-only subpath,
+separate from the four React entry points above.

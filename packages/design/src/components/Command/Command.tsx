@@ -77,7 +77,7 @@ export function CommandInput({
       <RiSearchLine size={18} aria-hidden className="shrink-0 text-(--ink-3-aa)" />
       <CommandPrimitive.Input
         className={cn(
-          'h-13 w-full bg-transparent text-[15px] text-(--ink) outline-none placeholder:text-(--ink-3-aa)',
+          'h-13 w-full bg-transparent text-base md:text-[15px] text-(--ink) outline-none placeholder:text-(--ink-3-aa)',
           className,
         )}
         {...props}

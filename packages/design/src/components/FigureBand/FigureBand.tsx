@@ -4,7 +4,7 @@ import { cn } from '../../lib/cn'
 export interface Figure {
   /** Stable key; also what a caller keys its own data by. */
   id: string
-  /** The mono kicker over the value. */
+  /** The label over the value. */
   label: string
   /** The value itself, set in the serif at the band's scale. */
   value: ReactNode
@@ -28,31 +28,11 @@ export interface FigureBandProps extends Omit<HTMLAttributes<HTMLDListElement>, 
 }
 
 const VALUE_SCALE = {
-  lead: 'text-[length:var(--fs-lead)] leading-[1.1] tracking-[-0.02em]',
+  lead: 'text-[clamp(2rem,4cqi,2.75rem)] leading-[1.15] tracking-[-0.02em] tabular-nums',
   sub: 'text-[length:var(--fs-sub)] leading-[1.2]',
 } as const
 
-/**
- * A row of counted facts, divided by hairlines and nothing else.
- *
- * A `<dl>`, because that is what this is: each cell is a term and its value,
- * and a grid of `<div>`s tells a screen reader nothing about which number goes
- * with which label.
- *
- * Each divider width names the cells that do NOT open a row rather than adding
- * a rule and taking it back — an `undo` at equal specificity resolves on
- * Tailwind's own sort order, which is not something a layout should depend on.
- * Drawn this way, no edge is ever painted past the last column.
- *
- * @example
- * <FigureBand
- *   label="At a glance"
- *   figures={[
- *     { id: 'posts', label: 'Posts', value: '48', note: '+6 this year' },
- *     { id: 'photos', label: 'Frames', value: '1,204' },
- *   ]}
- * />
- */
+/** A framed, responsive group of related facts with semantic term/value pairs. */
 export function FigureBand({
   figures,
   scale = 'lead',
@@ -62,29 +42,21 @@ export function FigureBand({
 }: FigureBandProps) {
   if (figures.length === 0) return null
 
+  // Balance six metrics into two complete rows instead of a four-plus-two grid.
+  const columns = Math.min(4, Math.ceil(figures.length / Math.ceil(figures.length / 4)))
+  const columnClass = {
+    1: '@xl:basis-full',
+    2: '@xl:basis-[calc(50%-.5px)]',
+    3: '@xl:basis-[calc(33.333333%-.667px)]',
+    4: '@xl:basis-[calc(25%-.75px)]',
+  }[columns]
+
   return (
-    // The container is a WRAPPER, and it has to be. A container query resolves
-    // against an ANCESTOR container, never against the element that declares
-    // one — so `@container … @5xl:grid-cols-4` written on the `<dl>` itself
-    // could never match, and the band stayed two columns at every width. Four
-    // figures on a 1288px page came out as a 2×2 block with a hole in it, which
-    // is the arrangement this replaces.
-    //
-    // `w-full` is load-bearing: `@container` applies `contain: inline-size`,
-    // which computes the element's width WITHOUT looking at its contents. As a
-    // shrink-to-fit flex item that resolved to zero, and the band rendered as
-    // two 0px columns of overlapping text.
-    <div className="@container w-full">
+    <div className="m22-figure-band @container w-full">
       <dl
         aria-label={label}
         className={cn(
-          // A container, not a viewport reader: four figures across is a
-          // decision about how wide THIS band is, and it is wrong in a 390px
-          // frame inside a 1440px window.
-          'm-0 grid w-full grid-cols-2 border-y border-(--rule) @3xl:grid-cols-4',
-          // Each divider width names the cells that do NOT open a row rather
-          // than adding a rule and taking it back.
-          '[&>div]:border-(--rule) @max-3xl:[&>div:nth-child(even)]:border-s @max-3xl:[&>div:nth-child(n+3)]:border-t @3xl:[&>div:not(:first-child)]:border-s',
+          'm-0 flex w-full flex-wrap gap-px overflow-hidden rounded-[10px] border border-(--rule) bg-(--rule)',
           className,
         )}
         {...rest}
@@ -92,9 +64,9 @@ export function FigureBand({
         {figures.map((figure) => (
           <div
             key={figure.id}
-            className="bg-transparent px-[clamp(1rem,calc(3*var(--fluid)),1.625rem)] py-[clamp(1.5rem,calc(4*var(--fluid)),2.25rem)]"
+            className={cn('min-w-0 grow basis-[calc(50%-.5px)] bg-(--paper) px-5 py-5 @xl:px-6 @xl:py-6', columnClass)}
           >
-            <dt className="mb-3 eyebrow text-(--ink-3-aa)">{figure.label}</dt>
+            <dt className="mb-2 font-sans text-[13px] font-normal leading-normal text-(--ink-3-aa)">{figure.label}</dt>
             <dd className={cn('m-0 font-heading font-normal text-(--ink)', VALUE_SCALE[scale])}>
               {figure.value}
             </dd>

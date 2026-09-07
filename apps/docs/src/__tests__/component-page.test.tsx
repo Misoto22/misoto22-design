@@ -53,11 +53,10 @@ vi.mock('@/content/registry', async () => {
 })
 
 /**
- * Radix activates a tab on mouse DOWN, not on click — the same decision the
- * platform makes for a tab strip, and the reason a `click` here selects nothing.
+ * Complete the click gesture: draggable tabs defer activation until release.
  */
 function selectTab(name: string) {
-  fireEvent.mouseDown(screen.getByRole('tab', { name }))
+  fireEvent.click(screen.getByRole('tab', { name }))
 }
 
 /** The page is an async server component; awaiting it is what a render does. */
