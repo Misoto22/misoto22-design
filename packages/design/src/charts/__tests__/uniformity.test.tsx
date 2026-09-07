@@ -140,3 +140,24 @@ describe('a scatter chart', () => {
     expect(screen.getByText('Loading')).toBeInTheDocument()
   })
 })
+
+describe.each(CHART_SURFACE)('$dir', (entry) => {
+  it('hands the SVG no NaN attribute', () => {
+    const { container } = render(entry.render())
+
+    // A number computed from a CSS string is NaN — and `'calc(...)' * 1` is
+    // NaN too, so the scaling that looks like a no-op is the one that took a
+    // radar's fill on every render. React writes the attribute anyway, after
+    // warning once in the console. Nothing else in this suite would notice:
+    // jsdom has no layout and the hidden table still reads correctly. Walking
+    // every attribute of every chart is the only version of this gate that
+    // catches the next one.
+    const offenders = Array.from(container.querySelectorAll('*')).flatMap((element) =>
+      Array.from(element.attributes)
+        .filter((attribute) => attribute.value === 'NaN')
+        .map((attribute) => `<${element.tagName} ${attribute.name}="NaN">`),
+    )
+
+    expect(offenders).toEqual([])
+  })
+})
