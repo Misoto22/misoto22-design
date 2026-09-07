@@ -15,15 +15,7 @@ import {
   SidebarSeparator,
   SidebarTrigger,
 } from '@misoto22/design'
-import {
-  BookOpen,
-  Building2,
-  FileText,
-  Home,
-  Inbox,
-  Plus,
-  Trash2,
-} from 'lucide-react'
+import { RiAddLine, RiBookOpenLine, RiBuilding2Line, RiDeleteBinLine, RiFileTextLine, RiHomeLine, RiInboxLine } from '@remixicon/react'
 
 /**
  * A rail is composed, not configured: a header, a scrolling middle and a
@@ -56,31 +48,31 @@ export function Example() {
 
           <SidebarContent>
             <SidebarGroup label="Workspace" count={2} collapsible={false}>
-              <SidebarItem href="#home" icon={Home} active>
+              <SidebarItem href="#home" icon={RiHomeLine} active>
                 Home
               </SidebarItem>
-              <SidebarItem href="#inbox" icon={Inbox} trailing="12">
+              <SidebarItem href="#inbox" icon={RiInboxLine} trailing="12">
                 Inbox
               </SidebarItem>
             </SidebarGroup>
 
             <SidebarGroup label="Agents" count={1} badge={<Badge tone="outline">Beta</Badge>}>
-              <SidebarItem href="#personal" icon={Plus}>
+              <SidebarItem href="#personal" icon={RiAddLine}>
                 Add new
               </SidebarItem>
             </SidebarGroup>
 
             <SidebarGroup label="Teamspaces" count={2}>
-              <SidebarBranch label="Acme HQ" icon={Building2} defaultOpen>
-                <SidebarItem href="#hq" icon={Home}>
+              <SidebarBranch label="Acme HQ" icon={RiBuilding2Line} defaultOpen>
+                <SidebarItem href="#hq" icon={RiHomeLine}>
                   Overview
                 </SidebarItem>
-                <SidebarItem href="#hq-roadmap" icon={FileText}>
+                <SidebarItem href="#hq-roadmap" icon={RiFileTextLine}>
                   Roadmap
                 </SidebarItem>
               </SidebarBranch>
-              <SidebarBranch label="Engineering" icon={Building2}>
-                <SidebarItem href="#eng-sprints" icon={FileText}>
+              <SidebarBranch label="Engineering" icon={RiBuilding2Line}>
+                <SidebarItem href="#eng-sprints" icon={RiFileTextLine}>
                   Sprints
                 </SidebarItem>
               </SidebarBranch>
@@ -88,10 +80,10 @@ export function Example() {
           </SidebarContent>
 
           <SidebarFooter>
-            <SidebarItem href="#library" icon={BookOpen}>
+            <SidebarItem href="#library" icon={RiBookOpenLine}>
               Library
             </SidebarItem>
-            <SidebarItem href="#trash" icon={Trash2}>
+            <SidebarItem href="#trash" icon={RiDeleteBinLine}>
               Trash
             </SidebarItem>
             <SidebarSeparator />

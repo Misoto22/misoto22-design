@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { Inbox } from 'lucide-react'
+import { RiInboxLine } from '@remixicon/react'
 import { EmptyState } from './EmptyState'
 
 describe('EmptyState', () => {
@@ -31,7 +31,7 @@ describe('EmptyState', () => {
     // at as a fixed h3, and it is what it renders at at every level.
     render(
       <>
-        <EmptyState icon={Inbox} title="Default" />
+        <EmptyState icon={RiInboxLine} title="Default" />
         <EmptyState level={5} title="Buried" />
       </>,
     )

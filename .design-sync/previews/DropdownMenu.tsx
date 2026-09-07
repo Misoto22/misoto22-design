@@ -7,24 +7,24 @@ import {
   DropdownMenuLabel,
   Button,
 } from '@misoto22/design'
-import { Pencil, Copy, Lock, Trash2, MoreHorizontal } from 'lucide-react'
+import { RiDeleteBinLine, RiFileCopyLine, RiLockLine, RiMoreLine, RiPencilLine } from '@remixicon/react'
 
 export function PostActions() {
   return (
     <DropdownMenu open>
       <DropdownMenuTrigger asChild>
         <Button variant="secondary">
-          <MoreHorizontal size={16} />
+          <RiMoreLine size={16} aria-hidden />
           Actions
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
         <DropdownMenuLabel>Manage post</DropdownMenuLabel>
-        <DropdownMenuItem icon={Pencil}>Edit</DropdownMenuItem>
-        <DropdownMenuItem icon={Copy}>Duplicate</DropdownMenuItem>
-        <DropdownMenuItem icon={Lock}>Make private</DropdownMenuItem>
+        <DropdownMenuItem icon={RiPencilLine}>Edit</DropdownMenuItem>
+        <DropdownMenuItem icon={RiFileCopyLine}>Duplicate</DropdownMenuItem>
+        <DropdownMenuItem icon={RiLockLine}>Make private</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem icon={Trash2}>Delete</DropdownMenuItem>
+        <DropdownMenuItem icon={RiDeleteBinLine}>Delete</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )

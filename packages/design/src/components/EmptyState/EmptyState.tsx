@@ -1,11 +1,11 @@
-import type { LucideIcon } from 'lucide-react'
+import type { RemixiconComponentType } from '@remixicon/react'
 import type { HTMLAttributes, ReactNode } from 'react'
 import { Heading, type HeadingLevel } from '../Heading/Heading'
 import { cn } from '../../lib/cn'
 
 export interface EmptyStateProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
-  /** Optional lucide icon, shown muted inside a quiet circle. */
-  icon?: LucideIcon
+  /** Optional Remix Icon glyph, shown muted inside a quiet circle. */
+  icon?: RemixiconComponentType
   title: ReactNode
   description?: ReactNode
   /** The one thing to do next. An empty state without an action is a dead end. */
@@ -67,7 +67,7 @@ export function EmptyState({
     >
       {Icon && (
         <span className="mb-6 flex size-14 items-center justify-center rounded-(--radius-pill) bg-(--stone) text-(--ink-3-aa)">
-          <Icon size={24} strokeWidth={1.5} aria-hidden />
+          <Icon size={24} aria-hidden />
         </span>
       )}
       <Heading level={level} size="sub">

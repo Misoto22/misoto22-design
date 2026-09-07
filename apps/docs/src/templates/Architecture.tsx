@@ -17,7 +17,7 @@ import {
   type DiagramCanvasHandle,
   type NodeKind,
 } from '@misoto22/design/diagrams'
-import { Maximize2, RotateCcw } from 'lucide-react'
+import { RiFullscreenLine, RiResetLeftLine } from '@remixicon/react'
 
 /**
  * The specification the screen is about.
@@ -168,7 +168,7 @@ export function Architecture() {
                 aria-label="Reset the view"
                 onClick={() => canvas.current?.reset()}
               >
-                <RotateCcw size={14} strokeWidth={1.5} aria-hidden />
+                <RiResetLeftLine size={14} aria-hidden />
               </Button>
               <Button
                 size="sm"
@@ -177,7 +177,7 @@ export function Architecture() {
                 aria-label="Fit the diagram to the frame"
                 onClick={() => canvas.current?.centerOn(560, 240)}
               >
-                <Maximize2 size={14} strokeWidth={1.5} aria-hidden />
+                <RiFullscreenLine size={14} aria-hidden />
               </Button>
             </DiagramToolbarGroup>
             <DiagramToolbarGroup>

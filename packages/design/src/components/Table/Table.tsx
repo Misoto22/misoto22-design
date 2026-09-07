@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, ChevronsUpDown } from 'lucide-react'
+import { RiArrowDownLine, RiArrowUpLine, RiExpandUpDownLine } from '@remixicon/react'
 import type { HTMLAttributes, TableHTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from 'react'
 import { cn } from '../../lib/cn'
 import { warnBlankName } from '../../lib/warn'
@@ -179,9 +179,9 @@ const CELL =
   'px-[var(--table-pad-x,0)] [&:not(:last-child)]:pe-[calc(var(--table-pad-x,0px)+1.5rem)]'
 
 const SORT_ICON = {
-  ascending: ArrowUp,
-  descending: ArrowDown,
-  none: ChevronsUpDown,
+  ascending: RiArrowUpLine,
+  descending: RiArrowDownLine,
+  none: RiExpandUpDownLine,
 } as const
 
 /**
@@ -224,7 +224,6 @@ export function TH({
           {children}
           <Icon
             size={12}
-            strokeWidth={2}
             aria-hidden
             className={cn(
               'shrink-0 transition-opacity',

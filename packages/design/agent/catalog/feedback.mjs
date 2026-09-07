@@ -221,7 +221,7 @@ export const FEEDBACK = [
       {
         element: 'Mark',
         description:
-          'The tone’s lucide icon at 18px — Info, CheckCircle2, AlertTriangle or XCircle — aria-hidden, so it doubles the colour for sighted readers only. hideIcon removes it.',
+          'The tone’s Remix Icon glyph at 18px — RiInformationLine, RiCheckboxCircleLine, RiAlertLine or RiCloseCircleLine — aria-hidden, so it doubles the colour for sighted readers only. hideIcon removes it.',
       },
       {
         element: 'Title',
@@ -286,7 +286,7 @@ export const FEEDBACK = [
       {
         element: 'Medallion',
         description:
-          'The optional lucide icon at 24px inside a 56px --stone circle, aria-hidden. Decoration that gives the column something to start from, never the message.',
+          'The optional Remix Icon glyph at 24px inside a 56px --stone circle, aria-hidden. Decoration that gives the column something to start from, never the message.',
       },
       {
         element: 'Title',

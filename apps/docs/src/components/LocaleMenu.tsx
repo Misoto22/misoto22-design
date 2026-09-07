@@ -8,7 +8,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@misoto22/design'
-import { Languages } from 'lucide-react'
+import { RiTranslate2 } from '@remixicon/react'
 import { useRouter } from 'next/navigation'
 import { usePathname } from 'next/navigation'
 import { LOCALES, LOCALE_NAMES, localeFromPath, localePath } from '@/i18n/locales'
@@ -33,7 +33,7 @@ export function LocaleMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button iconOnly size="sm" variant="ghost" aria-label={t.appearance.language}>
-          <Languages size={16} strokeWidth={1.5} aria-hidden />
+          <RiTranslate2 size={16} aria-hidden />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

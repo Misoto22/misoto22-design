@@ -110,7 +110,7 @@ describe('controlFor', () => {
       '(value: string) => void',
       '() => void',
       '(date: Date) => string',
-      'LucideIcon',
+      'RemixiconComponentType',
       'Ref<HTMLInputElement>',
       "ComponentProps<typeof Calendar>['disabled']",
       'Crumb[]',

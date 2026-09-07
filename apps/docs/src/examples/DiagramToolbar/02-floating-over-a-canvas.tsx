@@ -10,7 +10,7 @@ import {
   DiagramToolbarGroup,
   type DiagramCanvasHandle,
 } from '@misoto22/design/diagrams'
-import { Maximize2, RotateCcw } from 'lucide-react'
+import { RiFullscreenLine, RiResetLeftLine } from '@remixicon/react'
 
 const SPEC = {
   meta: { title: 'Request path' },
@@ -46,10 +46,10 @@ export function Example() {
       <DiagramToolbar label="Diagram actions" placement="floating" align="start">
         <DiagramToolbarGroup>
           <Button size="sm" variant="ghost" iconOnly aria-label="Reset the view" onClick={() => canvas.current?.reset()}>
-            <RotateCcw size={14} strokeWidth={1.5} aria-hidden />
+            <RiResetLeftLine size={14} aria-hidden />
           </Button>
           <Button size="sm" variant="ghost" iconOnly aria-label="Centre the diagram" onClick={() => canvas.current?.centerOn(420, 84)}>
-            <Maximize2 size={14} strokeWidth={1.5} aria-hidden />
+            <RiFullscreenLine size={14} aria-hidden />
           </Button>
         </DiagramToolbarGroup>
         <DiagramToolbarGroup>

@@ -13,7 +13,7 @@ import {
   PopoverTrigger,
   Slider,
 } from '@misoto22/design'
-import { Copy, Download, Share2, Trash2 } from 'lucide-react'
+import { RiDeleteBinLine, RiDownloadLine, RiFileCopyLine, RiShareLine } from '@remixicon/react'
 
 /**
  * The two anchored panels, side by side, on the one question that separates
@@ -55,11 +55,11 @@ export function Example() {
           <Button variant="secondary">Share</Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          <DropdownMenuItem icon={Copy}>Copy link</DropdownMenuItem>
-          <DropdownMenuItem icon={Share2}>Post to the channel</DropdownMenuItem>
-          <DropdownMenuItem icon={Download}>Download original</DropdownMenuItem>
+          <DropdownMenuItem icon={RiFileCopyLine}>Copy link</DropdownMenuItem>
+          <DropdownMenuItem icon={RiShareLine}>Post to the channel</DropdownMenuItem>
+          <DropdownMenuItem icon={RiDownloadLine}>Download original</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem icon={Trash2} destructive>Revoke the link</DropdownMenuItem>
+          <DropdownMenuItem icon={RiDeleteBinLine} destructive>Revoke the link</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

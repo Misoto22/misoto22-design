@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
   Progress,
-  StatusPill,
+  StatusDot,
   TBody,
   TD,
   TH,
@@ -106,7 +106,6 @@ const MEMBERS = [
 const COLUMNS = [
   { key: "commits", label: "Commits" },
   { key: "opened", label: "Opened" },
-  { key: "merged", label: "Merged" },
 ] as const;
 
 const AGES = [
@@ -121,7 +120,6 @@ const AGES = [
 const PEAK: Record<(typeof COLUMNS)[number]["key"], number> = {
   commits: Math.max(...MEMBERS.map((member) => member.commits)),
   opened: Math.max(...MEMBERS.map((member) => member.opened)),
-  merged: Math.max(...MEMBERS.map((member) => member.merged)),
 };
 
 /** A tile: a card that fills its grid cell and never grows the board. */
@@ -138,7 +136,7 @@ function Tile({
 }) {
   return (
     <Card className={`flex min-h-0 flex-col ${className}`}>
-      <CardHeader className="shrink-0 gap-2 px-3 py-2">
+      <CardHeader className="shrink-0 gap-2 px-4 py-3">
         <CardTitle as="h3" className="text-sm whitespace-nowrap">
           {title}
         </CardTitle>
@@ -213,30 +211,43 @@ export function ActivityBoard() {
     // masthead, figures, attention, then the charts — because a grid that keeps
     // its columns on a phone is a page that scrolls sideways, and no amount of
     // it being the right layout on a laptop makes that acceptable.
-    <div className="@container">
-      <div className="@4xl:grid-rows-[auto_auto_minmax(0,1.15fr)_minmax(0,1fr)] grid gap-2 @4xl:min-h-[42rem] @4xl:grid-cols-12">
-        <header className="relative flex flex-wrap items-center gap-x-3 gap-y-2 border-b-2 border-(--ink) pb-2 @4xl:col-span-12">
-          <h2 className="font-heading text-base font-semibold whitespace-nowrap">
-            Activity
-          </h2>
-          <Text size="xs" tone="muted" as="span" className="whitespace-nowrap">
-            Platform 4 members · Side projects 1 member
-          </Text>
-          <ToggleGroup
-            type="single"
-            value={range}
-            aria-label="Time range"
-            onValueChange={(next) => next && setRange(next)}
-          >
-            <ToggleGroupItem value="7d">7d</ToggleGroupItem>
-            <ToggleGroupItem value="30d">30d</ToggleGroupItem>
-            <ToggleGroupItem value="90d">90d</ToggleGroupItem>
-          </ToggleGroup>
-          <div className="grow" />
-          <StatusPill tone="success">Updated 45s ago</StatusPill>
-          <Button variant="secondary" size="sm">
-            Refresh
-          </Button>
+    <div className="@container p-4">
+      <div className="@4xl:grid-rows-[auto_auto_minmax(0,1.15fr)_minmax(0,1fr)] grid gap-3 @4xl:min-h-[42rem] @4xl:grid-cols-12">
+        {/* The rule and the loading bar span the grid; the WORDS do not. Every
+          tile under this row is a Card, so its title starts 13px in — a 1px
+          border plus the header's own px-3 — and a masthead sitting flush
+          against the grid edge hangs one line proud of the five titles beneath
+          it. The inset is on the row rather than on the <header>, because
+          `inset-x-0` resolves against the padding box: padding the header would
+          have pulled the Progress in with the text and left its ends short of
+          the rule it rides on. */}
+        <header className="relative border-b-2 border-(--ink) pb-2 @4xl:col-span-12">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 px-[17px]">
+            <h2 className="font-heading text-base font-semibold whitespace-nowrap">
+              Activity
+            </h2>
+            <Text size="xs" tone="muted" as="span" className="whitespace-nowrap">
+              Platform 4 members · Side projects 1 member
+            </Text>
+            <ToggleGroup
+              type="single"
+              value={range}
+              aria-label="Time range"
+              onValueChange={(next) => next && setRange(next)}
+            >
+              <ToggleGroupItem value="7d">7d</ToggleGroupItem>
+              <ToggleGroupItem value="30d">30d</ToggleGroupItem>
+              <ToggleGroupItem value="90d">90d</ToggleGroupItem>
+            </ToggleGroup>
+            <div className="grow" />
+            <span className="eyebrow inline-flex items-center gap-2 text-(--ink-3-aa)">
+              <StatusDot tone="success" />
+              Updated 45s ago
+            </span>
+            <Button variant="secondary" size="sm">
+              Refresh
+            </Button>
+          </div>
           {/* Indeterminate on purpose: nothing here knows a percentage. It rides
             on the masthead's own rule, so the board does not move when it
             appears. */}
@@ -246,9 +257,9 @@ export function ActivityBoard() {
           />
         </header>
 
-        <div className="grid gap-2 @md:grid-cols-3 @4xl:col-span-8">
+        <div className="grid gap-3 @md:grid-cols-3 @4xl:col-span-8">
           {LANES.map((lane) => (
-            <Card key={lane.name} className="px-3 py-2">
+            <Card key={lane.name} className="px-4 py-3">
               <BigNumber
                 label={
                   <span className="inline-flex items-center gap-1.5">
@@ -269,7 +280,7 @@ export function ActivityBoard() {
               </BigNumber>
             </Card>
           ))}
-          <Card className="px-3 py-2">
+          <Card className="px-4 py-3">
             <BigNumber label="Token spend" value="$4.2k">
               <Text size="xs" tone="muted" className="truncate">
                 65.0B tokens, all activity
@@ -283,7 +294,7 @@ export function ActivityBoard() {
           title="Needs attention"
           note="23 stalled · oldest 124d"
         >
-          <div className="scroll-slim flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-3 pb-2">
+          <div className="scroll-slim flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 pt-1 pb-4">
             <Alert tone="danger" title="Weekly window at 100%">
               resets Sunday
             </Alert>
@@ -302,7 +313,7 @@ export function ActivityBoard() {
           </div>
           {/* Pinned rather than scrolled with the alerts: the shape of the backlog
             is the reading, and it is worthless below the fold. */}
-          <div className="shrink-0 border-t border-(--rule) px-3 py-2">
+          <div className="shrink-0 border-t border-(--rule) px-4 py-3">
             <BarList
               label="Stalled requests by age"
               showLabel
@@ -317,7 +328,7 @@ export function ActivityBoard() {
           title="Commits over the window"
           note="6 buckets · 08-09 → 09-03"
         >
-          <div className="flex min-h-0 flex-1 px-2 pb-2">
+          <div className="flex min-h-0 flex-1 px-3 pb-3">
             <LineChart
               config={TREND_SERIES}
               data={TREND}
@@ -341,7 +352,7 @@ export function ActivityBoard() {
           title="My days"
           note="1,984 contributions · peak 09-04"
         >
-          <div className="flex min-h-0 flex-1 px-2 pb-2">
+          <div className="flex min-h-0 flex-1 px-3 pb-3">
             <BarChart
               config={DAYS_SERIES}
               data={DAYS}
@@ -359,17 +370,36 @@ export function ActivityBoard() {
         </Tile>
 
         <Tile
-          className="min-h-[20rem] @4xl:col-span-4 @4xl:min-h-0"
+          className="min-h-[20rem] @4xl:col-span-5 @4xl:min-h-0"
           title="By member"
           note="since 08-09"
         >
-          <div className="scroll-slim min-h-0 flex-1 overflow-y-auto px-3 pb-3">
+          {/* NO RESERVED SCROLLBAR GUTTER, on either scroller. `scroll-slim`
+            sets `scrollbar-gutter: stable`, and this tile has two nested
+            scrollers — this one and the Table's own region — so eleven pixels
+            were held twice at the end edge while the start edge sat flush
+            against the card. The rules and the lane bands stopped 22px short
+            on one side and not at all on the other, which is the white strip.
+            The list fits at every width the board gives it, so both gutters
+            were holding room for a scrollbar that never arrives; where one
+            does, it overlays. */}
+          <div className="min-h-0 flex-1 overflow-y-auto pb-2 [&_.scroll-slim]:[scrollbar-gutter:auto]">
             <Table
               caption="Commits and requests per member, grouped by lane"
               density="compact"
               borders="rows"
               stickyHeader
-              className="[--table-pad-x:0.25rem]"
+              // Four pixels BETWEEN the columns and sixteen at the two outer
+              // edges, rather than sixteen everywhere. A cell pays its padding
+              // on both sides, so a uniform 16 was charged six times and put
+              // the table's own minimum at 365 — wider than the 332 the mobile
+              // frame gives it and the 344 it gets at the width the board
+              // first takes its twelve columns. It scrolled sideways at both,
+              // and the cut last column is the white strip that used to sit
+              // against the card's edge. Charged only where it shows the
+              // minimum is 317, the narrowest tile is 332, and the first cell
+              // still starts on the line the tile's title starts on.
+              className="[--table-pad-x:0.25rem] [&_td:first-child]:ps-4 [&_td:last-child]:pe-4 [&_th:first-child]:ps-4 [&_th:last-child]:pe-4"
             >
               <THead>
                 <TR>
@@ -456,11 +486,11 @@ export function ActivityBoard() {
         </Tile>
 
         <Tile
-          className="min-h-[22rem] @4xl:col-span-4 @4xl:min-h-0"
+          className="min-h-[22rem] @4xl:col-span-3 @4xl:min-h-0"
           title="Spend per day"
-          note="all activity — not attributable to a lane"
+          note="all activity, not per lane"
         >
-          <div className="flex min-h-0 flex-1 px-2 pb-2">
+          <div className="flex min-h-0 flex-1 px-3 pb-3">
             <BarChart
               config={SPEND_SERIES}
               data={SPEND}

@@ -23,7 +23,7 @@ const tree = [
   {
     name: 'ui',
     children: [
-      { name: 'lucide-react', size: 96 },
+      { name: '@remixicon/react', size: 96 },
       { name: 'cmdk', size: 62 },
       { name: 'sonner', size: 28 },
       { name: 'clsx', size: 12 },

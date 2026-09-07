@@ -1,7 +1,7 @@
 'use client'
 
 import { CollapsibleSection, NavItem } from '@misoto22/design'
-import { Home } from 'lucide-react'
+import { RiHomeLine } from '@remixicon/react'
 import { useState } from 'react'
 
 /**
@@ -18,7 +18,7 @@ export function Example() {
 
   return (
     <nav className="flex w-56 flex-col gap-1" aria-label="Docs sections">
-      <NavItem href="#" icon={Home}>Overview</NavItem>
+      <NavItem href="#" icon={RiHomeLine}>Overview</NavItem>
       <CollapsibleSection title="Components" open={open} onOpenChange={setOpen}>
         <div className="flex flex-col gap-1 ps-3">
           <NavItem href="#">Button</NavItem>

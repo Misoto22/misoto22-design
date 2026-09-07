@@ -1,8 +1,7 @@
 'use client'
 
 import { useRef, useState, type FC, type ReactNode, type RefObject } from 'react'
-import { FileDown, ImageDown, RotateCcw, ZoomIn, ZoomOut } from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import { RiFileDownloadLine, RiImageDownloadLine, RiResetLeftLine, RiZoomInLine, RiZoomOutLine, type RemixiconComponentType } from '@remixicon/react'
 import { cn } from '../../lib/cn'
 import { Button } from '../../components/Button/Button'
 import { chartToCsv, chartToPng, downloadBlob, exportFilename } from './export'
@@ -67,7 +66,7 @@ interface ToolbarControl {
   id: string
   /** The accessible name, the tooltip, and the menu row's text. One string. */
   label: string
-  icon: LucideIcon
+  icon: RemixiconComponentType
   disabled?: boolean
   busy?: boolean
   run: () => void
@@ -177,21 +176,21 @@ export function ChartToolbar({
       {
         id: 'zoom-in',
         label: 'Zoom in',
-        icon: ZoomIn,
+        icon: RiZoomInLine,
         disabled: !zoomState.canZoomIn,
         run: () => zoomState.zoomIn(),
       },
       {
         id: 'zoom-out',
         label: 'Zoom out',
-        icon: ZoomOut,
+        icon: RiZoomOutLine,
         disabled: !zoomState.canZoomOut,
         run: () => zoomState.zoomOut(),
       },
       {
         id: 'reset',
         label: 'Reset zoom',
-        icon: RotateCcw,
+        icon: RiResetLeftLine,
         disabled: !zoomState.isZoomed,
         run: () => zoomState.reset(),
       },
@@ -202,7 +201,7 @@ export function ChartToolbar({
     controls.push({
       id: 'png',
       label: 'Download PNG',
-      icon: ImageDown,
+      icon: RiImageDownloadLine,
       busy: busy === 'png',
       disabled: busy !== null,
       run: () => void runExport('png'),
@@ -213,7 +212,7 @@ export function ChartToolbar({
     controls.push({
       id: 'csv',
       label: 'Download CSV',
-      icon: FileDown,
+      icon: RiFileDownloadLine,
       busy: busy === 'csv',
       disabled: busy !== null,
       run: () => void runExport('csv'),
@@ -249,7 +248,7 @@ export function ChartToolbar({
         >
           {/* Dropped while the spinner is up, so a 44px square never holds
               two glyphs at once. */}
-          {control.busy ? null : <control.icon size={16} strokeWidth={1.5} aria-hidden />}
+          {control.busy ? null : <control.icon size={16} aria-hidden />}
         </Button>
       ))}
     </div>

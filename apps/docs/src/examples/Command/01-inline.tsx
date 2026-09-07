@@ -11,7 +11,7 @@ import {
   CommandList,
   CommandSeparator,
 } from '@misoto22/design'
-import { Blocks, Compass, Moon, Ruler, Scale, Sun } from 'lucide-react'
+import { RiCompassLine, RiMoonLine, RiRulerLine, RiScales3Line, RiShapesLine, RiSunLine } from '@remixicon/react'
 
 /**
  * The palette's parts, laid out inline so all of them are visible at once: the
@@ -33,25 +33,25 @@ export function Example() {
         {/* The glyph is what makes a long list scannable: the eye sorts by
             shape before it reads. */}
         <CommandGroup heading="Navigate">
-          <CommandItem value="components" icon={<Blocks />} meta="49" shortcut="C">
+          <CommandItem value="components" icon={<RiShapesLine aria-hidden />} meta="49" shortcut="C">
             Components
           </CommandItem>
-          <CommandItem value="foundations" icon={<Ruler />} shortcut="F">
+          <CommandItem value="foundations" icon={<RiRulerLine aria-hidden />} shortcut="F">
             Foundations
           </CommandItem>
-          <CommandItem value="principles" icon={<Scale />} shortcut="P">
+          <CommandItem value="principles" icon={<RiScales3Line aria-hidden />} shortcut="P">
             Principles
           </CommandItem>
-          <CommandItem value="templates" icon={<Compass />}>
+          <CommandItem value="templates" icon={<RiCompassLine aria-hidden />}>
             Templates
           </CommandItem>
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="Theme">
-          <CommandItem value="light" icon={<Sun />} meta="current">
+          <CommandItem value="light" icon={<RiSunLine aria-hidden />} meta="current">
             Switch to light
           </CommandItem>
-          <CommandItem value="dark" icon={<Moon />}>
+          <CommandItem value="dark" icon={<RiMoonLine aria-hidden />}>
             Switch to dark
           </CommandItem>
         </CommandGroup>

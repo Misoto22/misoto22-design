@@ -59,7 +59,7 @@ Don't restyle a component's internals — compose it and add layout around it.
 
 ```tsx
 import { AppShell, NavItem, Card, CardBody, Button } from '@misoto22/design'
-import { LayoutDashboard, FileText } from 'lucide-react'
+import { RiDashboardLine, RiFileTextLine } from '@remixicon/react'
 
 export function Dashboard() {
   return (
@@ -67,8 +67,8 @@ export function Dashboard() {
       brand={<strong style={{ fontFamily: 'var(--font-heading)' }}>misoto22</strong>}
       sidebar={
         <nav style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <NavItem href="/" icon={LayoutDashboard} active>Dashboard</NavItem>
-          <NavItem href="/posts" icon={FileText}>Posts</NavItem>
+          <NavItem href="/" icon={RiDashboardLine} active>Dashboard</NavItem>
+          <NavItem href="/posts" icon={RiFileTextLine}>Posts</NavItem>
         </nav>
       }
       topbar={<Button>New post</Button>}
@@ -83,4 +83,4 @@ export function Dashboard() {
 Components are framework-agnostic: ones that navigate render a plain `<a>` — wrap
 with your router's Link at the call site. Interactive ones (Dialog, DropdownMenu,
 Tabs, Switch, Checkbox, Toaster) are client components; icons come from
-`lucide-react`, toasts from the `toast` helper exported alongside `Toaster`.
+`@remixicon/react`, toasts from the `toast` helper exported alongside `Toaster`.

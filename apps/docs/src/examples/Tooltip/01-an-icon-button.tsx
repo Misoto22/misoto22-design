@@ -1,7 +1,7 @@
 'use client'
 
 import { Button, Tooltip, TooltipProvider } from '@misoto22/design'
-import { Check, Copy, Share2 } from 'lucide-react'
+import { RiCheckLine, RiFileCopyLine, RiShareLine } from '@remixicon/react'
 import { useEffect, useState } from 'react'
 
 /**
@@ -33,16 +33,16 @@ export function Example() {
         <Tooltip content={label}>
           <Button iconOnly aria-label={label} variant="secondary" onClick={() => setCopied(true)}>
             {copied ? (
-              <Check size={16} strokeWidth={2} className="text-(--ok)" />
+              <RiCheckLine size={16} className="text-(--ok)" aria-hidden />
             ) : (
-              <Copy size={16} strokeWidth={1.5} />
+              <RiFileCopyLine size={16} aria-hidden />
             )}
           </Button>
         </Tooltip>
 
         <Tooltip content="Share this frame" side="bottom">
           <Button iconOnly aria-label="Share this frame" variant="secondary">
-            <Share2 size={16} strokeWidth={1.5} />
+            <RiShareLine size={16} aria-hidden />
           </Button>
         </Tooltip>
       </div>

@@ -22,13 +22,13 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@misoto22/design'
-import { BookOpen, Layers, Package, Terminal } from 'lucide-react'
+import { RiBookOpenLine, RiPuzzleLine, RiStackLine, RiTerminalBoxLine } from '@remixicon/react'
 
 const SIDEBAR = [
-  { href: '#start', label: 'Getting started', icon: BookOpen },
-  { href: '#cli', label: 'CLI', icon: Terminal },
-  { href: '#queues', label: 'Queues', icon: Layers, active: true },
-  { href: '#adapters', label: 'Adapters', icon: Package },
+  { href: '#start', label: 'Getting started', icon: RiBookOpenLine },
+  { href: '#cli', label: 'CLI', icon: RiTerminalBoxLine },
+  { href: '#queues', label: 'Queues', icon: RiStackLine, active: true },
+  { href: '#adapters', label: 'Adapters', icon: RiPuzzleLine },
 ]
 
 const CONTENTS = [

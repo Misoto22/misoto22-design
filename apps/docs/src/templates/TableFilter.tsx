@@ -25,7 +25,7 @@ import {
   ToggleGroupItem,
   type SortDirection,
 } from '@misoto22/design'
-import { Copy, Download, Ellipsis, Plus, Search, Send, Trash2 } from 'lucide-react'
+import { RiAddLine, RiDeleteBinLine, RiDownloadLine, RiFileCopyLine, RiMoreLine, RiSearchLine, RiSendPlaneLine } from '@remixicon/react'
 import { useMemo, useState } from 'react'
 
 type State = 'paid' | 'open' | 'overdue'
@@ -128,11 +128,11 @@ export function TableFilter() {
         </div>
         <div className="flex items-center gap-2">
           <Button size="sm" variant="secondary" className="gap-2">
-            <Download size={14} strokeWidth={1.5} aria-hidden />
+            <RiDownloadLine size={14} aria-hidden />
             Export
           </Button>
           <Button size="sm" className="gap-2">
-            <Plus size={14} strokeWidth={1.5} aria-hidden />
+            <RiAddLine size={14} aria-hidden />
             New invoice
           </Button>
         </div>
@@ -140,9 +140,8 @@ export function TableFilter() {
 
       <div className="flex flex-wrap items-center gap-3 border-b border-(--rule) px-5 py-3">
         <div className="relative w-full @xl:w-60">
-          <Search
+          <RiSearchLine
             size={14}
-            strokeWidth={1.5}
             aria-hidden
             className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-(--ink-3-aa)"
           />
@@ -181,7 +180,7 @@ export function TableFilter() {
       {rows.length === 0 ? (
         <EmptyState
           className="py-16"
-          icon={Search}
+          icon={RiSearchLine}
           title="No invoice matches those filters"
           description="Nothing here is paid, open and overdue at once. Widen the state strip, or clear the client."
           action={
@@ -286,15 +285,15 @@ export function TableFilter() {
                         iconOnly
                         aria-label={`Actions for ${invoice.id}`}
                       >
-                        <Ellipsis size={14} strokeWidth={1.5} aria-hidden />
+                        <RiMoreLine size={14} aria-hidden />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem icon={Send}>Send a reminder</DropdownMenuItem>
-                      <DropdownMenuItem icon={Copy}>Duplicate</DropdownMenuItem>
-                      <DropdownMenuItem icon={Download}>Download PDF</DropdownMenuItem>
+                      <DropdownMenuItem icon={RiSendPlaneLine}>Send a reminder</DropdownMenuItem>
+                      <DropdownMenuItem icon={RiFileCopyLine}>Duplicate</DropdownMenuItem>
+                      <DropdownMenuItem icon={RiDownloadLine}>Download PDF</DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem icon={Trash2} destructive>
+                      <DropdownMenuItem icon={RiDeleteBinLine} destructive>
                         Void this invoice
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -323,7 +322,7 @@ export function TableFilter() {
               Clear
             </Button>
             <Button size="sm" variant="secondary" className="gap-2">
-              <Send size={14} strokeWidth={1.5} aria-hidden />
+              <RiSendPlaneLine size={14} aria-hidden />
               Send reminders
             </Button>
             <Button size="sm" variant="danger">

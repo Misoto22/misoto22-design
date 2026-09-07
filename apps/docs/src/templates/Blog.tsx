@@ -13,7 +13,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from '@misoto22/design'
-import { Rss, Search } from 'lucide-react'
+import { RiRssLine, RiSearchLine } from '@remixicon/react'
 import { useMemo, useState } from 'react'
 
 interface Post {
@@ -136,7 +136,7 @@ export function Blog() {
         </div>
         <div className="flex items-center gap-2">
           <Button size="sm" variant="ghost" className="gap-2">
-            <Rss size={14} strokeWidth={1.5} aria-hidden />
+            <RiRssLine size={14} aria-hidden />
             <span className="max-@2xl:sr-only">Subscribe</span>
           </Button>
           <StatusPill>{POSTS.length} posts</StatusPill>
@@ -169,9 +169,8 @@ export function Blog() {
             ))}
           </ToggleGroup>
           <div className="relative ms-auto w-full @xl:w-64">
-            <Search
+            <RiSearchLine
               size={14}
-              strokeWidth={1.5}
               aria-hidden
               className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-(--ink-3-aa)"
             />

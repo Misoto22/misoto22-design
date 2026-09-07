@@ -1,7 +1,7 @@
 'use client'
 
 import { FloatingIconButton, Tooltip, TooltipProvider } from '@misoto22/design'
-import { ListTree } from 'lucide-react'
+import { RiNodeTree } from '@remixicon/react'
 
 /**
  * label is aria-label and nothing else: it names the control for a screen
@@ -20,7 +20,7 @@ export function Example() {
       <div className="relative h-32 w-full overflow-hidden rounded-(--radius) border border-(--rule) [&>button]:absolute">
         <Tooltip content={name} side="top">
           <FloatingIconButton position="end" label={name}>
-            <ListTree size={16} strokeWidth={1.5} />
+            <RiNodeTree size={16} aria-hidden />
           </FloatingIconButton>
         </Tooltip>
       </div>

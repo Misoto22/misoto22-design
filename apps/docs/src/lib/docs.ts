@@ -18,6 +18,17 @@ import catalog from '@/generated/catalog'
 export const WARNING_CODES: string[] = catalog.warningCodes
 
 /**
+ * The version of `@misoto22/design` this build documents.
+ *
+ * Read out of the catalog the package emits at build time, for the same reason
+ * the warning codes are: the landing page prints it, and a version typed into a
+ * page is wrong from the next release onwards.
+ */
+export function packageVersion(): string {
+  return catalog.version
+}
+
+/**
  * Typed access to what `scripts/generate.mjs` produced.
  *
  * The JSON is imported rather than read at request time — this site is a static

@@ -11,7 +11,7 @@ import {
   SkeletonPage,
   SkeletonText,
 } from '@misoto22/design'
-import { Inbox } from 'lucide-react'
+import { RiInboxLine } from '@remixicon/react'
 
 /**
  * The three states of one screen, side by side.
@@ -99,7 +99,7 @@ export function States() {
           </div>
           <EmptyState
             className="px-4 py-10"
-            icon={Inbox}
+            icon={RiInboxLine}
             title="No client projects yet"
             description="Everything you take on shows up here, with its brief, its files and whatever it was invoiced against. Start with the one already on your desk."
             action={<Button>New project</Button>}

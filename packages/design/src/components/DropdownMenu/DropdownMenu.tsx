@@ -1,7 +1,7 @@
 'use client'
 
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
-import type { LucideIcon } from 'lucide-react'
+import type { RemixiconComponentType } from '@remixicon/react'
 import { isValidElement, useId, type ComponentProps, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 import { useOverlayContainer } from '../../lib/overlay-container'
@@ -10,13 +10,13 @@ import { useOverlayContainer } from '../../lib/overlay-container'
  * True for a component type — `icon={Settings}` — rather than a rendered element.
  *
  * Everything a `ReactNode` can be is an element, a primitive, an array, another
- * iterable or a promise; a Lucide icon is none of those, it is a `forwardRef`
- * object. So both spellings are tellable apart at runtime, which is what lets
- * one prop take either — and it has to, because this prop meant the opposite
- * thing one import away and the wrong spelling failed at render, not at the
- * type.
+ * iterable or a promise; a Remix Icon glyph is none of those, it is a plain
+ * function component. So both spellings are tellable apart at runtime, which is
+ * what lets one prop take either — and it has to, because this prop meant the
+ * opposite thing one import away and the wrong spelling failed at render, not
+ * at the type.
  */
-function isIconComponent(icon: LucideIcon | ReactNode): icon is LucideIcon {
+function isIconComponent(icon: RemixiconComponentType | ReactNode): icon is RemixiconComponentType {
   if (isValidElement(icon)) return false
   if (typeof icon === 'function') return true
   if (typeof icon !== 'object' || icon === null) return false
@@ -24,7 +24,7 @@ function isIconComponent(icon: LucideIcon | ReactNode): icon is LucideIcon {
 }
 
 /** The leading glyph, sized by this component when it was handed a component. */
-function iconNode(icon: LucideIcon | ReactNode): ReactNode {
+function iconNode(icon: RemixiconComponentType | ReactNode): ReactNode {
   if (icon === undefined || icon === null || icon === false) return null
   if (!isIconComponent(icon)) {
     return (
@@ -34,7 +34,7 @@ function iconNode(icon: LucideIcon | ReactNode): ReactNode {
     )
   }
   const Icon = icon
-  return <Icon size={16} strokeWidth={1.5} className="shrink-0" aria-hidden />
+  return <Icon size={16} className="shrink-0" aria-hidden />
 }
 
 /** Radix DropdownMenu root + trigger, re-exported as typed passthroughs. */
@@ -101,7 +101,7 @@ export interface DropdownMenuItemProps extends ComponentProps<typeof DropdownMen
    * the element while this took the component — and the wrong one did not fail
    * a type check into anything actionable, it failed at render.
    */
-  icon?: LucideIcon | ReactNode
+  icon?: RemixiconComponentType | ReactNode
   /** Paints the row as destructive. Use for delete, revoke, disconnect. */
   destructive?: boolean
 }

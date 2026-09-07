@@ -1,7 +1,7 @@
 'use client'
 
 import { Button, Separator, cn } from '@misoto22/design'
-import { Check, RotateCcw } from 'lucide-react'
+import { RiCheckLine, RiResetLeftLine } from '@remixicon/react'
 import { useMessages } from '@/i18n/useLocale'
 import {
   attribute,
@@ -123,7 +123,7 @@ function ThemeThumb({ preset, name }: { preset: ThemePreset; name: string }) {
  * standing in. So the rail carries the switch, and the page beside it carries
  * the argument for why the switch is possible.
  *
- * The current theme is a `Check`, not a highlight. A preset applies to the
+ * The current theme is a `RiCheckLine`, not a highlight. A preset applies to the
  * whole document, so "which one am I in" is a fact about the site rather than
  * about this list, and it has to survive the list being scrolled past.
  */
@@ -170,7 +170,7 @@ export function ThemeRail() {
                   {t.themes.values[preset.values.type ?? DEFAULTS.type]}
                 </span>
                 {active && (
-                  <Check size={14} strokeWidth={1.5} aria-hidden className="ms-auto shrink-0 text-(--ink)" />
+                  <RiCheckLine size={14} aria-hidden className="ms-auto shrink-0 text-(--ink)" />
                 )}
               </span>
             </button>
@@ -186,7 +186,7 @@ export function ThemeRail() {
           onClick={() => apply(RESET_PRESET)}
           disabled={matching?.id === 'reset'}
         >
-          <RotateCcw size={13} strokeWidth={1.5} aria-hidden />
+          <RiResetLeftLine size={13} aria-hidden />
           {t.appearance.reset}
         </Button>
       </div>

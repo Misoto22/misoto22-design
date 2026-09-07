@@ -6,7 +6,7 @@ const packages = [
   { name: 'recharts', size: 480 },
   { name: 'react-dom', size: 310 },
   { name: 'motion', size: 140 },
-  { name: 'lucide-react', size: 96 },
+  { name: '@remixicon/react', size: 96 },
   { name: 'cmdk', size: 62 },
   { name: 'tailwind-merge', size: 41 },
   { name: 'clsx', size: 12 },

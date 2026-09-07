@@ -12,7 +12,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from '@misoto22/design'
-import { Check, Palette, RotateCcw } from 'lucide-react'
+import { RiCheckLine, RiPaletteLine, RiResetLeftLine } from '@remixicon/react'
 import { useMessages } from '@/i18n/useLocale'
 import { ACCENTS } from './AccentProvider'
 import { AXES, DEFAULTS, LOOK_AXES, PRESETS, RESET_PRESET, useTheme } from './ThemeProvider'
@@ -48,7 +48,7 @@ export function ThemeMenu() {
     <Popover>
       <PopoverTrigger asChild>
         <Button iconOnly size="sm" variant="ghost" aria-label={t.appearance.theme}>
-          <Palette size={16} strokeWidth={1.5} aria-hidden />
+          <RiPaletteLine size={16} aria-hidden />
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -67,7 +67,7 @@ export function ThemeMenu() {
             onClick={() => apply(RESET_PRESET)}
             disabled={matching?.id === 'reset'}
           >
-            <RotateCcw size={13} strokeWidth={1.5} aria-hidden />
+            <RiResetLeftLine size={13} aria-hidden />
             {t.appearance.reset}
           </Button>
         </div>
@@ -106,7 +106,7 @@ export function ThemeMenu() {
                       {t.themes.presets[preset.id]?.name ?? preset.name}
                       {active && (
                         <span className="ms-auto flex items-center gap-1 mono-meta text-(--ink-3-aa)">
-                          <Check size={12} strokeWidth={1.5} aria-hidden />
+                          <RiCheckLine size={12} aria-hidden />
                           {t.appearance.current}
                         </span>
                       )}

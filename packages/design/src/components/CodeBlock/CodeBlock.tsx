@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, Copy } from 'lucide-react'
+import { RiCheckLine, RiFileCopyLine } from '@remixicon/react'
 import { useEffect, useState } from 'react'
 import { cn } from '../../lib/cn'
 import { Button } from '../Button/Button'
@@ -240,9 +240,9 @@ export function CodeBlock({
               className="ms-auto shrink-0 pointer-coarse:min-h-11 pointer-coarse:min-w-11"
             >
               {copied ? (
-                <Check size={14} strokeWidth={1.5} aria-hidden />
+                <RiCheckLine size={14} aria-hidden />
               ) : (
-                <Copy size={14} strokeWidth={1.5} aria-hidden />
+                <RiFileCopyLine size={14} aria-hidden />
               )}
             </Button>
           ) : null}

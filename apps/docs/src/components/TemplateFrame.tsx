@@ -1,14 +1,14 @@
 'use client'
 
 import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
-import { Monitor, Smartphone, Tablet } from 'lucide-react'
+import { RiComputerLine, RiSmartphoneLine, RiTabletLine } from '@remixicon/react'
 import { useState } from 'react'
 import { TEMPLATE_COMPONENTS } from '@/generated/template-registry'
 
 const WIDTHS = {
-  mobile: { label: 'Mobile', width: 390, icon: Smartphone },
-  tablet: { label: 'Tablet', width: 768, icon: Tablet },
-  desktop: { label: 'Desktop', width: 0, icon: Monitor },
+  mobile: { label: 'Mobile', width: 390, icon: RiSmartphoneLine },
+  tablet: { label: 'Tablet', width: 768, icon: RiTabletLine },
+  desktop: { label: 'Desktop', width: 0, icon: RiComputerLine },
 } as const
 
 type Size = keyof typeof WIDTHS
@@ -66,7 +66,7 @@ export function TemplateFrame({ templateId, name }: TemplateFrameProps) {
             const Icon = option.icon
             return (
               <ToggleGroupItem key={key} value={key} aria-label={option.label} className="gap-2">
-                <Icon size={14} strokeWidth={1.5} aria-hidden />
+                <Icon size={14} aria-hidden />
                 <span className="max-sm:sr-only">{option.label}</span>
               </ToggleGroupItem>
             )

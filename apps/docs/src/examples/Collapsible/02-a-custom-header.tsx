@@ -1,5 +1,5 @@
 import { Badge, Collapsible, CollapsibleContent, CollapsibleTrigger } from '@misoto22/design'
-import { ChevronDown } from 'lucide-react'
+import { RiArrowDownSLine } from '@remixicon/react'
 
 /**
  * The loose trigger and panel, for a header that has to hold more than a title
@@ -23,9 +23,8 @@ export function Example() {
             aria-label="Show the failed checks"
             className="group inline-flex size-8 items-center justify-center rounded-(--radius) text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:text-(--ink)"
           >
-            <ChevronDown
+            <RiArrowDownSLine
               size={16}
-              strokeWidth={1.5}
               aria-hidden
               className="transition-transform duration-(--duration-base) ease-(--ease-out-expo) group-data-[state=open]:rotate-180"
             />

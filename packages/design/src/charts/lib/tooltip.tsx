@@ -149,7 +149,7 @@ export function ChartTooltipContent({
                 ) : (
                   <>
                     {series?.icon ? (
-                      <series.icon />
+                      <series.icon aria-hidden />
                     ) : (
                       !hideIndicator && (
                         <span

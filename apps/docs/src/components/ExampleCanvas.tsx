@@ -1,7 +1,7 @@
 'use client'
 
 import { Button, OverlayContainer, cn } from '@misoto22/design'
-import { Code2, Eye, Pencil } from 'lucide-react'
+import { RiCodeSSlashLine, RiEyeLine, RiPencilLine } from '@remixicon/react'
 import { lazy, Suspense, useState } from 'react'
 import { EXAMPLES } from '@/generated/example-registry'
 import { useMessages } from '@/i18n/useLocale'
@@ -125,9 +125,9 @@ export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: Exam
             className="gap-2"
           >
             {view === 'code' ? (
-              <Eye size={14} strokeWidth={1.5} aria-hidden />
+              <RiEyeLine size={14} aria-hidden />
             ) : (
-              <Code2 size={14} strokeWidth={1.5} aria-hidden />
+              <RiCodeSSlashLine size={14} aria-hidden />
             )}
             {view === 'code' ? t.canvas.preview : t.canvas.code}
           </Button>
@@ -138,7 +138,7 @@ export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: Exam
             aria-pressed={view === 'edit'}
             className="gap-2"
           >
-            <Pencil size={14} strokeWidth={1.5} aria-hidden />
+            <RiPencilLine size={14} aria-hidden />
             {view === 'edit' ? t.canvas.done : t.canvas.edit}
           </Button>
         </div>

@@ -394,6 +394,39 @@ async function main() {
   }
   writeFileSync(join(OUT, 'types.json'), JSON.stringify(types, null, 2))
 
+  // ─── The stack, with the versions this repository actually resolved ───
+  // The landing page names what this is built on, and a hand-typed version
+  // number on a landing page is wrong within a release. Read the two manifests
+  // instead, so the strip is a fact about the build rather than a claim
+  // somebody has to remember to update. Radix carries no version: it is two
+  // dozen independently versioned packages and there is no one number to print.
+  //
+  // Names, not links. The strip is a credibility line under the two calls to
+  // action, and five 13px anchors there are five tab stops before the page
+  // starts and five hit targets under the pointer floor — paid for a
+  // destination the reader can reach by typing the name they just read.
+  const designPkg = JSON.parse(readFileSync(join(DESIGN, 'package.json'), 'utf8'))
+  const docsPkg = JSON.parse(readFileSync(join(DOCS, 'package.json'), 'utf8'))
+  const declared = (name) =>
+    docsPkg.dependencies?.[name] ??
+    docsPkg.devDependencies?.[name] ??
+    designPkg.dependencies?.[name] ??
+    designPkg.peerDependencies?.[name] ??
+    designPkg.devDependencies?.[name]
+  const stack = [
+    { name: 'React', pkg: 'react' },
+    { name: 'TypeScript', pkg: 'typescript' },
+    { name: 'Tailwind CSS', pkg: 'tailwindcss' },
+    { name: 'Radix UI' },
+    { name: 'Remix Icon', pkg: '@remixicon/react' },
+  ].map(({ pkg, ...row }) => {
+    if (!pkg) return row
+    const range = declared(pkg)
+    if (!range) throw new Error(`generate: no version declared for ${pkg}`)
+    return { ...row, version: range.replace(/^[\^~]/, '') }
+  })
+  writeFileSync(join(OUT, 'stack.json'), JSON.stringify(stack, null, 2))
+
   const templateCount = Object.keys(templates).length
   const componentCount = Object.keys(props).length
   const exampleCount = Object.values(examples).reduce((n, list) => n + list.length, 0)

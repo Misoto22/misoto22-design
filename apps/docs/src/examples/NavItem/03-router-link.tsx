@@ -1,5 +1,5 @@
 import { NavItem } from '@misoto22/design'
-import { Component, Home } from 'lucide-react'
+import { RiHomeLine, RiShapesLine } from '@remixicon/react'
 
 /**
  * asChild hands the row to a router's own Link — a plain anchor stands in for
@@ -16,13 +16,13 @@ export function Example() {
     <nav className="flex w-56 flex-col gap-1" aria-label="Router example">
       <NavItem asChild href="/">
         <a href="/">
-          <Home size={18} strokeWidth={1.5} aria-hidden className="shrink-0" />
+          <RiHomeLine size={18} aria-hidden className="shrink-0" />
           Overview
         </a>
       </NavItem>
       <NavItem asChild href="/components" active>
         <a href="/components">
-          <Component size={18} strokeWidth={1.5} aria-hidden className="shrink-0" />
+          <RiShapesLine size={18} aria-hidden className="shrink-0" />
           Components
         </a>
       </NavItem>

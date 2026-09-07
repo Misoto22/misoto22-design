@@ -14,7 +14,7 @@ import {
   StatusPill,
   Tag,
 } from '@misoto22/design'
-import { Bell, Copy, Ellipsis, Link2, Trash2 } from 'lucide-react'
+import { RiDeleteBinLine, RiFileCopyLine, RiLinkM, RiMoreLine, RiNotification3Line } from '@remixicon/react'
 
 const FACTS = [
   { label: 'Status', value: 'Mitigated' },
@@ -106,21 +106,21 @@ export function DetailPage() {
           />
           <div className="flex items-center gap-2">
             <Button size="sm" variant="secondary" className="gap-2">
-              <Bell size={14} strokeWidth={1.5} aria-hidden />
+              <RiNotification3Line size={14} aria-hidden />
               Subscribe
             </Button>
             <Button size="sm">Write the post-mortem</Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="sm" variant="ghost" iconOnly aria-label="More actions for INC-284">
-                  <Ellipsis size={14} strokeWidth={1.5} aria-hidden />
+                  <RiMoreLine size={14} aria-hidden />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem icon={Link2}>Copy a link</DropdownMenuItem>
-                <DropdownMenuItem icon={Copy}>Duplicate as a template</DropdownMenuItem>
+                <DropdownMenuItem icon={RiLinkM}>Copy a link</DropdownMenuItem>
+                <DropdownMenuItem icon={RiFileCopyLine}>Duplicate as a template</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem icon={Trash2} destructive>
+                <DropdownMenuItem icon={RiDeleteBinLine} destructive>
                   Delete the incident
                 </DropdownMenuItem>
               </DropdownMenuContent>

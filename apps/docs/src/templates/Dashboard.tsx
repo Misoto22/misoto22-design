@@ -35,7 +35,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from '@misoto22/design'
-import { Activity, Boxes, Cloud, Home, Settings } from 'lucide-react'
+import { RiCloudLine, RiHomeLine, RiPulseLine, RiSettings3Line, RiStackLine } from '@remixicon/react'
 import { useState } from 'react'
 
 const DEPLOYS = [
@@ -75,13 +75,13 @@ export function Dashboard() {
 
         <SidebarContent>
           <SidebarGroup label="Monitor" count={3} collapsible={false}>
-            <SidebarItem href="#overview" icon={Home} active>
+            <SidebarItem href="#overview" icon={RiHomeLine} active>
               Overview
             </SidebarItem>
-            <SidebarItem href="#deploys" icon={Boxes} trailing="4">
+            <SidebarItem href="#deploys" icon={RiStackLine} trailing="4">
               Deploys
             </SidebarItem>
-            <SidebarItem href="#activity" icon={Activity}>
+            <SidebarItem href="#activity" icon={RiPulseLine}>
               Activity
             </SidebarItem>
           </SidebarGroup>
@@ -90,16 +90,16 @@ export function Dashboard() {
               heading: it is somewhere you can be, and it carries an icon and a
               state the way its children do. */}
           <SidebarGroup label="Environments" count={2}>
-            <SidebarBranch label="Production" icon={Cloud} defaultOpen>
-              <SidebarItem href="#prod-web" icon={Boxes}>
+            <SidebarBranch label="Production" icon={RiCloudLine} defaultOpen>
+              <SidebarItem href="#prod-web" icon={RiStackLine}>
                 web
               </SidebarItem>
-              <SidebarItem href="#prod-api" icon={Boxes}>
+              <SidebarItem href="#prod-api" icon={RiStackLine}>
                 api
               </SidebarItem>
             </SidebarBranch>
-            <SidebarBranch label="Staging" icon={Cloud}>
-              <SidebarItem href="#staging-web" icon={Boxes}>
+            <SidebarBranch label="Staging" icon={RiCloudLine}>
+              <SidebarItem href="#staging-web" icon={RiStackLine}>
                 web
               </SidebarItem>
             </SidebarBranch>
@@ -107,7 +107,7 @@ export function Dashboard() {
         </SidebarContent>
 
         <SidebarFooter>
-          <SidebarItem href="#settings" icon={Settings}>
+          <SidebarItem href="#settings" icon={RiSettings3Line}>
             Settings
           </SidebarItem>
         </SidebarFooter>

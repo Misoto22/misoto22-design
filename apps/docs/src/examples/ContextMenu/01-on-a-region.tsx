@@ -8,7 +8,7 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@misoto22/design'
-import { Copy, Download, Trash2 } from 'lucide-react'
+import { RiDeleteBinLine, RiDownloadLine, RiFileCopyLine } from '@remixicon/react'
 
 /**
  * The menu a secondary click opens, placed at the POINTER rather than against
@@ -30,10 +30,10 @@ export function Example() {
       </ContextMenuTrigger>
       <ContextMenuContent>
         <ContextMenuLabel>Frame</ContextMenuLabel>
-        <ContextMenuItem icon={Copy}>Copy link</ContextMenuItem>
-        <ContextMenuItem icon={Download}>Download original</ContextMenuItem>
+        <ContextMenuItem icon={RiFileCopyLine}>Copy link</ContextMenuItem>
+        <ContextMenuItem icon={RiDownloadLine}>Download original</ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuItem icon={Trash2} destructive>Delete</ContextMenuItem>
+        <ContextMenuItem icon={RiDeleteBinLine} destructive>Delete</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   )

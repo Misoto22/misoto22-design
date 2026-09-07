@@ -9,7 +9,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@misoto22/design'
-import { FileText, Home } from 'lucide-react'
+import { RiFileTextLine, RiHomeLine } from '@remixicon/react'
 
 /**
  * `collapsible` is a choice about the ROWS, not about the animation. Icons suit
@@ -31,18 +31,18 @@ export function Example() {
           </SidebarHeader>
           <SidebarContent>
             <SidebarGroup label="Getting started" count={2}>
-              <SidebarItem href="#install" icon={Home} active>
+              <SidebarItem href="#install" icon={RiHomeLine} active>
                 Installation
               </SidebarItem>
-              <SidebarItem href="#tokens" icon={FileText}>
+              <SidebarItem href="#tokens" icon={RiFileTextLine}>
                 Tokens
               </SidebarItem>
             </SidebarGroup>
             <SidebarGroup label="Guides" count={2} defaultOpen={false}>
-              <SidebarItem href="#theming" icon={FileText}>
+              <SidebarItem href="#theming" icon={RiFileTextLine}>
                 Theming
               </SidebarItem>
-              <SidebarItem href="#agents" icon={FileText}>
+              <SidebarItem href="#agents" icon={RiFileTextLine}>
                 Working with agents
               </SidebarItem>
             </SidebarGroup>

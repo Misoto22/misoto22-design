@@ -21,7 +21,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from '@misoto22/design'
-import { Check, Minus } from 'lucide-react'
+import { RiCheckLine, RiSubtractLine } from '@remixicon/react'
 import { useState } from 'react'
 
 interface Plan {
@@ -99,12 +99,12 @@ function Mark({ value }: { value: Cell }) {
   if (typeof value === 'string') return <span className="text-(--ink-2)">{value}</span>
   return value ? (
     <>
-      <Check size={15} strokeWidth={2} aria-hidden className="text-(--ok)" />
+      <RiCheckLine size={15} aria-hidden className="text-(--ok)" />
       <span className="sr-only">Included</span>
     </>
   ) : (
     <>
-      <Minus size={15} strokeWidth={2} aria-hidden className="text-(--ink-3-aa)" />
+      <RiSubtractLine size={15} aria-hidden className="text-(--ink-3-aa)" />
       <span className="sr-only">Not included</span>
     </>
   )
@@ -234,9 +234,8 @@ export function Pricing() {
                     {/* The success green is a paper-ground token. On the
                         reversed plate it is the one mark that would fall below
                         contrast, so the plate spends its own ink instead. */}
-                    <Check
+                    <RiCheckLine
                       size={14}
-                      strokeWidth={2}
                       aria-hidden
                       className={
                         plan.featured

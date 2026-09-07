@@ -225,6 +225,29 @@
   --red-soft: rgba(207, 157, 214, 0.14);
 }
 
+/* ─── The landing band ───
+   One track, holding the same row of specimens twice, translated by exactly
+   half its own width — which is why the gap between tiles is a margin on each
+   tile rather than `gap` on the track. With `gap` the halves are one gap apart
+   and the loop jumps every time it wraps.
+
+   Reversed under `dir="rtl"`, so it travels the way the page reads. The band is
+   decoration and says so with `data-m22-animated`, which is what the reduced
+   motion block in the package's keyframe layer removes outright — a reader who
+   asked for less motion gets a still row of components, not a faster one. */
+@keyframes m22-docs-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+[dir='rtl'] .m22-marquee {
+  animation-direction: reverse;
+}
+
 /* ─── Shiki ───
    The highlighter emits both themes as custom properties on one markup pass, so
    switching mode is a variable swap rather than a re-highlight. `--shiki-dark`

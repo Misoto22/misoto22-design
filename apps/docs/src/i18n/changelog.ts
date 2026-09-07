@@ -46,6 +46,27 @@ import type { Locale } from './locales'
 const ZH: Record<string, string> = {
   // ─── unreleased ───
   [fingerprint(
+    'Every icon in the package is a Remix Icon glyph now, and the brand marks lucide dropped come back with them.',
+  )]: '包里的每一个图标现在都是 Remix Icon 的字形，而被 lucide 删掉的那些品牌图标，也跟着一起回来了。',
+  [fingerprint(
+    '`lucide-react` is gone from `dependencies` and `@remixicon/react` replaces it, across all thirty-four components that draw one. The names change with it — `Check` is `RiCheckLine`, `X` is `RiCloseLine`, `Settings` is `RiSettings3Line` — but no export of this package\'s own changes, so an app that never imported an icon directly sees only different glyphs.',
+  )]: '`lucide-react` 从 `dependencies` 里去掉了，换成 `@remixicon/react`，涉及会画图标的全部三十四个组件。名字也跟着换——`Check` 是 `RiCheckLine`，`X` 是 `RiCloseLine`，`Settings` 是 `RiSettings3Line`——但这个包自己的导出一个都没变，所以一个从来没有直接 import 过图标的应用，看到的只是字形不一样了。',
+  [fingerprint(
+    'BRAND MARKS ARE THE REASON. lucide removed every one of them, and a design system that cannot draw a GitHub octocat without redrawing somebody\'s trademark in a house stroke is a design system that pushes that decision onto its consumers. This site had already paid it: the mark in its own masthead was a hand-drawn path in a file of its own, and that file is deleted. Remix Icon ships `RiGithubFill`, `RiTwitterXFill`, `RiDiscordFill`, `RiSlackFill`, `RiFigmaFill` and a couple of hundred more, each in a Fill and a Line.',
+  )]: '换的理由是品牌图标。lucide 把它们一个不剩地删了，而一套要画 GitHub 章鱼猫就只能把别人的商标按自家描边风格重画一遍的设计系统，等于把这个决定推给了它的消费者。这个站点已经为此付过账：它顶栏上的那个标记，是单独一个文件里的一条手绘路径，现在那个文件删掉了。Remix Icon 提供 `RiGithubFill`、`RiTwitterXFill`、`RiDiscordFill`、`RiSlackFill`、`RiFigmaFill`，还有两百来个，每个都有 Fill 和 Line 两种。',
+  [fingerprint(
+    'Three things change for a consumer, and all three are visible rather than silent.',
+  )]: '对消费者来说有三处变化，而且三处都是看得见的，不是无声的。',
+  [fingerprint(
+    '`--ico-stroke` IS REMOVED. A Remix glyph is a filled path on a 24px grid, so there is no weight to set and nothing for the token to name; a token that documents a knob the system no longer has is worse than no token. `--ico-s`, `--ico-m` and `--ico-l` are unchanged, and so is every size the package draws at.',
+  )]: '`--ico-stroke` 被删掉了。Remix 的字形是 24px 网格上的填充路径，没有粗细可设，也就没有东西留给这个 token 去命名；一个记录着系统已经不再拥有的旋钮的 token，比没有这个 token 更糟。`--ico-s`、`--ico-m` 和 `--ico-l` 没有变，包里画图标用的每一个尺寸也都没有变。',
+  [fingerprint(
+    '`LucideIcon` becomes `RemixiconComponentType` in the props that take an icon COMPONENT — `NavItem.icon`, `EmptyState.icon`, `DropdownMenuItem.icon`, `ContextMenuItem.icon`, `CommandItem.icon`, and the chart toolbar\'s. Both are `ComponentType`s over an SVG\'s props, so a lucide icon passed to one still type-checks and still renders; the name in the reference is what moved.',
+  )]: '在那些收「图标组件」的属性上，`LucideIcon` 变成了 `RemixiconComponentType`——`NavItem.icon`、`EmptyState.icon`、`DropdownMenuItem.icon`、`ContextMenuItem.icon`、`CommandItem.icon`，以及图表工具栏的那个。两者都是架在 SVG 属性之上的 `ComponentType`，所以把一个 lucide 图标交给它，类型仍然过得去，也仍然渲染得出来；变的是参考手册上的那个名字。',
+  [fingerprint(
+    'AND `aria-hidden` IS NOW WRITTEN RATHER THAN INHERITED. lucide stamped `aria-hidden="true"` onto any icon it had not been handed an `aria-` prop or a role for. `@remixicon/react` adds nothing and spreads what it is given straight onto the `svg`, so every decorative glyph in the package carries the attribute at its own call site — thirty-nine of them, added in this change. Anything drawing its own icons should check the same thing on upgrade: nothing fails, the icon simply starts being announced.',
+  )]: '还有一件：`aria-hidden` 现在是写出来的，不是继承来的。lucide 会给任何没被交给 `aria-` 属性或 role 的图标盖上 `aria-hidden="true"`。`@remixicon/react` 什么都不加，只把收到的东西原样摊到 `svg` 上，所以包里每一个装饰性字形都在它自己的调用处带着这个属性——这次一共补了三十九处。任何自己画图标的地方，升级时都该检查同一件事：不会报错，只是那个图标开始被念出来了。',
+  [fingerprint(
     "A chart's empty state stays where its plot was, instead of pinning to the top of a taller figure.",
   )]: '图表的空状态会留在绘图区原来的位置，而不再顶到一个更高的 figure 的上沿。',
   [fingerprint(

@@ -16,21 +16,21 @@ import {
   StatusPill,
   Tag,
 } from '@misoto22/design'
-import { Boxes, Feather, Ruler } from 'lucide-react'
+import { RiQuillPenLine, RiRulerLine, RiStackLine } from '@remixicon/react'
 
 const PILLARS = [
   {
-    icon: Ruler,
+    icon: RiRulerLine,
     title: 'One ladder',
     body: 'Five heading steps, fluid between a phone and the full page, and nothing above the page title.',
   },
   {
-    icon: Feather,
+    icon: RiQuillPenLine,
     title: 'No blurred shadow',
     body: 'The system has no light source, so depth is a hairline, a change of ground, or a hard offset.',
   },
   {
-    icon: Boxes,
+    icon: RiStackLine,
     title: 'One pointer',
     body: 'Every component reads one accent token. Re-point it and the whole system follows.',
   },
@@ -102,7 +102,7 @@ export function Landing() {
           <Card key={pillar.title}>
             <CardBody className="flex flex-col gap-3">
               <span className="grid size-10 place-items-center rounded-(--radius-pill) bg-(--stone) text-(--ink-2)">
-                <pillar.icon size={18} strokeWidth={1.5} aria-hidden />
+                <pillar.icon size={18} aria-hidden />
               </span>
               {/* h2: these are the top-level sections under the hero. As h3 they
                   skipped a level, which is a jump a screen reader has to

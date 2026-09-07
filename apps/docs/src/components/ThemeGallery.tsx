@@ -1,7 +1,7 @@
 'use client'
 
 import { Badge, Button } from '@misoto22/design'
-import { Check, RotateCcw } from 'lucide-react'
+import { RiCheckLine, RiResetLeftLine } from '@remixicon/react'
 import type { Locale } from '@/i18n/locales'
 import { getMessages } from '@/i18n/messages'
 import { SectionHeading } from './PageIntro'
@@ -59,7 +59,7 @@ export function ThemeGallery({ locale }: { locale: Locale }) {
           </h2>
           {matching ? (
             <Badge tone="outline">
-              <Check size={12} strokeWidth={1.5} aria-hidden />
+              <RiCheckLine size={12} aria-hidden />
               {t.appearance.current}
             </Badge>
           ) : (
@@ -72,7 +72,7 @@ export function ThemeGallery({ locale }: { locale: Locale }) {
             onClick={() => apply(RESET_PRESET)}
             disabled={matching?.id === 'reset'}
           >
-            <RotateCcw size={13} strokeWidth={1.5} aria-hidden />
+            <RiResetLeftLine size={13} aria-hidden />
             {t.appearance.reset}
           </Button>
         </div>

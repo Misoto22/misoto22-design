@@ -1,13 +1,13 @@
 import { Slot } from '@radix-ui/react-slot'
-import type { LucideIcon } from 'lucide-react'
+import type { RemixiconComponentType } from '@remixicon/react'
 import type { AnchorHTMLAttributes, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 
 export interface NavItemProps
   extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'className' | 'children'> {
   href: string
-  /** Optional leading icon (a lucide-react component, rendered at 18px). */
-  icon?: LucideIcon
+  /** Optional leading icon (a `@remixicon/react` component, rendered at 18px). */
+  icon?: RemixiconComponentType
   /** Marks the current route. Also sets `aria-current="page"`. */
   active?: boolean
   /**
@@ -68,7 +68,7 @@ export function NavItem({
 
   return (
     <a href={href} aria-current={active ? 'page' : undefined} className={cls} {...rest}>
-      {Icon && <Icon size={18} strokeWidth={1.5} aria-hidden className="shrink-0" />}
+      {Icon && <Icon size={18} aria-hidden className="shrink-0" />}
       {children}
     </a>
   )

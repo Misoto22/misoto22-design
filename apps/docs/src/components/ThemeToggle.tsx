@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@misoto22/design'
-import { Moon, Sun } from 'lucide-react'
+import { RiMoonLine, RiSunLine } from '@remixicon/react'
 import { useEffect, useState } from 'react'
 import { useMessages } from '@/i18n/useLocale'
 
@@ -47,9 +47,9 @@ export function ThemeToggle() {
       {mode === null ? (
         <span className="size-4" aria-hidden />
       ) : mode === 'dark' ? (
-        <Sun size={16} strokeWidth={1.5} aria-hidden />
+        <RiSunLine size={16} aria-hidden />
       ) : (
-        <Moon size={16} strokeWidth={1.5} aria-hidden />
+        <RiMoonLine size={16} aria-hidden />
       )}
     </Button>
   )

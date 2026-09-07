@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import { Button } from '@misoto22/design'
 import { ArchitectureFigure, DiagramCanvas, type DiagramCanvasHandle } from '@misoto22/design/diagrams'
-import { Minus, Plus, RotateCcw } from 'lucide-react'
+import { RiAddLine, RiResetLeftLine, RiSubtractLine } from '@remixicon/react'
 
 const SPEC = {
   meta: { title: 'Request path' },
@@ -36,13 +36,13 @@ export function Example() {
       </DiagramCanvas>
       <div className="flex items-center gap-2">
         <Button size="sm" variant="ghost" iconOnly aria-label="Zoom out" onClick={() => canvas.current?.zoomOut()}>
-          <Minus size={14} strokeWidth={1.5} aria-hidden />
+          <RiSubtractLine size={14} aria-hidden />
         </Button>
         <Button size="sm" variant="ghost" iconOnly aria-label="Zoom in" onClick={() => canvas.current?.zoomIn()}>
-          <Plus size={14} strokeWidth={1.5} aria-hidden />
+          <RiAddLine size={14} aria-hidden />
         </Button>
         <Button size="sm" variant="secondary" onClick={() => canvas.current?.reset()}>
-          <RotateCcw size={14} strokeWidth={1.5} aria-hidden /> Reset
+          <RiResetLeftLine size={14} aria-hidden /> Reset
         </Button>
       </div>
     </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { X } from 'lucide-react'
+import { RiCloseLine } from '@remixicon/react'
 import type { ComponentProps, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 import { useOverlayContainer } from '../../lib/overlay-container'
@@ -112,7 +112,7 @@ export function SheetContent({
           aria-label="Close"
           className="absolute end-3 top-3 grid size-9 place-items-center rounded-(--radius-pill) text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)"
         >
-          <X size={16} strokeWidth={1.5} aria-hidden />
+          <RiCloseLine size={16} aria-hidden />
         </DialogPrimitive.Close>
 
         {children}

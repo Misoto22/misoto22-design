@@ -12,18 +12,18 @@ import {
   DropdownMenuTrigger,
   Text,
 } from '@misoto22/design'
-import { Copy, Download, MoreHorizontal, Trash2, type LucideIcon } from 'lucide-react'
+import { RiDeleteBinLine, RiDownloadLine, RiFileCopyLine, RiMoreLine, type RemixiconComponentType } from '@remixicon/react'
 
 interface Action {
   label: string
-  icon: LucideIcon
+  icon: RemixiconComponentType
   destructive?: boolean
 }
 
 const ACTIONS: Action[] = [
-  { label: 'Copy link', icon: Copy },
-  { label: 'Download original', icon: Download },
-  { label: 'Delete', icon: Trash2, destructive: true },
+  { label: 'Copy link', icon: RiFileCopyLine },
+  { label: 'Download original', icon: RiDownloadLine },
+  { label: 'Delete', icon: RiDeleteBinLine, destructive: true },
 ]
 
 /**
@@ -46,7 +46,7 @@ export function Example() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button iconOnly aria-label="Actions for kyoto-february.tif" variant="ghost" size="sm">
-                <MoreHorizontal size={16} strokeWidth={1.5} />
+                <RiMoreLine size={16} aria-hidden />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

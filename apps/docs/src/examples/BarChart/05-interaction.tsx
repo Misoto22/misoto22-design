@@ -7,7 +7,7 @@ import {
   type ChartTooltipRoundness,
   type ChartTooltipVariant,
 } from '@misoto22/design/charts'
-import { Monitor, Smartphone } from 'lucide-react'
+import { RiComputerLine, RiSmartphoneLine } from '@remixicon/react'
 import { useState } from 'react'
 import { ExampleControls } from '@/components/ExampleControls'
 
@@ -21,8 +21,8 @@ const data = [
 // A config entry can carry an icon, which the legend and the tooltip draw in
 // place of the swatch. The label still does the naming; the icon is decoration.
 const config = {
-  desktop: { label: 'Desktop', icon: Monitor },
-  mobile: { label: 'Mobile', icon: Smartphone },
+  desktop: { label: 'Desktop', icon: RiComputerLine },
+  mobile: { label: 'Mobile', icon: RiSmartphoneLine },
 } satisfies ChartConfig
 
 const VARIANTS: ChartTooltipVariant[] = ['solid', 'frosted']

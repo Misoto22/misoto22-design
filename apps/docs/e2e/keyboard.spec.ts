@@ -202,10 +202,12 @@ test('the playground resolves a name to the component, not to the icon', async (
   await page.keyboard.press('ControlOrMeta+a')
   await page.keyboard.type('<Badge tone="success">shipped</Badge>')
 
-  // lucide ships icons called Badge, Table, Command and Dialog. With icons last
-  // in the scope, typing one of those names drew a small grey outline and no
-  // error — the package spreads last so it wins every collision.
+  // lucide shipped icons called Badge, Table, Command and Dialog, and with
+  // icons last in the scope typing one of those names drew a small grey outline
+  // and no error. Remix Icon prefixes every export with Ri, so the collision is
+  // gone by construction — but the ordering is what guarantees it, so the check
+  // stays: what renders must be the package's Badge and not a glyph.
   const preview = page.locator('[data-playground-preview]')
   await expect(preview.getByText('shipped')).toBeVisible()
-  await expect(preview.locator('svg.lucide-badge')).toHaveCount(0)
+  await expect(preview.locator('svg')).toHaveCount(0)
 })

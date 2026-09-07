@@ -1,38 +1,23 @@
 'use client'
 
 import { AppShell, NavItem, Separator, Text } from '@misoto22/design'
-import {
-  Activity,
-  Boxes,
-  Database,
-  FileText,
-  GitBranch,
-  Globe,
-  KeyRound,
-  LayoutDashboard,
-  Mail,
-  Server,
-  Settings,
-  Shield,
-  Terminal,
-  Users,
-} from 'lucide-react'
+import { RiDashboardLine, RiDatabase2Line, RiFileTextLine, RiGitBranchLine, RiGlobalLine, RiGroupLine, RiKey2Line, RiMailLine, RiPulseLine, RiServerLine, RiSettings3Line, RiShieldLine, RiStackLine, RiTerminalBoxLine } from '@remixicon/react'
 
 const SECTIONS = [
-  { icon: LayoutDashboard, label: 'Overview' },
-  { icon: Activity, label: 'Metrics' },
-  { icon: Server, label: 'Hosts' },
-  { icon: Boxes, label: 'Services' },
-  { icon: GitBranch, label: 'Deploys' },
-  { icon: Database, label: 'Databases' },
-  { icon: Globe, label: 'Domains' },
-  { icon: Mail, label: 'Mail' },
-  { icon: Terminal, label: 'Logs' },
-  { icon: FileText, label: 'Reports' },
-  { icon: Users, label: 'Members' },
-  { icon: KeyRound, label: 'API keys' },
-  { icon: Shield, label: 'Audit trail' },
-  { icon: Settings, label: 'Settings' },
+  { icon: RiDashboardLine, label: 'Overview' },
+  { icon: RiPulseLine, label: 'Metrics' },
+  { icon: RiServerLine, label: 'Hosts' },
+  { icon: RiStackLine, label: 'Services' },
+  { icon: RiGitBranchLine, label: 'Deploys' },
+  { icon: RiDatabase2Line, label: 'Databases' },
+  { icon: RiGlobalLine, label: 'Domains' },
+  { icon: RiMailLine, label: 'Mail' },
+  { icon: RiTerminalBoxLine, label: 'Logs' },
+  { icon: RiFileTextLine, label: 'Reports' },
+  { icon: RiGroupLine, label: 'Members' },
+  { icon: RiKey2Line, label: 'API keys' },
+  { icon: RiShieldLine, label: 'Audit trail' },
+  { icon: RiSettings3Line, label: 'Settings' },
 ]
 
 /**

@@ -48,6 +48,8 @@ const ENGLISH_BY_DESIGN: Record<string, string> = {
   'components/LawDemo.tsx':
     'The specimens ARE the demonstration: each law is illustrated with English type at the weight and step it argues about, and Chinese would change the thing being shown.',
   'components/ThemeSpecimen.tsx': 'Specimen labels, shown as an example of the type rather than read.',
+  'components/HomeBand.tsx':
+    'The landing band, which is inert and aria-hidden and loops by rendering itself twice. Its words are furniture giving twelve primitives something to draw — "Deploy", "Healthy", "typography" — and the components themselves are the exhibit. Everything the band shows is named and linked, in both languages, in the sections under it.',
   'components/ThemeShowcase.tsx':
     'A specimen screen, and the words on it are furniture rather than copy: the argument is that a heading, a table, a form and a chart can be drawn in eight looks without a component changing, and the sentences are there to give the type something to be set in. Translating them would translate the exhibit — and would make two locales two different specimens.',
 }

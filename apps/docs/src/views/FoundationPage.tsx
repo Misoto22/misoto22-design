@@ -42,7 +42,7 @@ export async function FoundationPage({ locale, slug }: { locale: Locale; slug: s
         </div>
 
         {slug === 'typography' && <TypeSpecimen />}
-        {slug === 'icons' && <IconSpecimen />}
+        {slug === 'icons' && <IconSpecimen locale={locale} />}
 
         {/* Prose sections come BEFORE the token tables, on the two pages that have
             both. A page whose subject is a set of tokens leads with them; a page

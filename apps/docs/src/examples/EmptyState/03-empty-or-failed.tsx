@@ -1,5 +1,5 @@
 import { Button, EmptyState, ERROR_ACTION_CLASS, ErrorState } from '@misoto22/design'
-import { FileText } from 'lucide-react'
+import { RiFileTextLine } from '@remixicon/react'
 
 /**
  * Nothing here yet, against something went wrong. The pair is asymmetric, which
@@ -16,7 +16,7 @@ export function Example() {
     <div className="grid w-full gap-8 md:grid-cols-2">
       <EmptyState
         className="py-10"
-        icon={FileText}
+        icon={RiFileTextLine}
         title="No invoices yet"
         description="The first invoice you issue for this client will appear here."
         action={<Button>New invoice</Button>}
