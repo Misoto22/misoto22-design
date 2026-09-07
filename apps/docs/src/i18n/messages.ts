@@ -161,6 +161,10 @@ const en = {
     looksTitle: 'The looks',
     looksLead: '{count} combinations of the dials above. A preset is not a block of its own, so a look nobody shipped is still reachable — set the axes one at a time in the masthead panel.',
     apply: 'Apply',
+    attributesLabel: 'This theme, as attributes',
+    custom: 'Your own combination',
+    customBadge: 'Not a preset',
+    customNote: 'Six axes, set one at a time. Nothing had to ship this look for you to reach it — the line below is the whole of it.',
     everyDefault: 'Every axis at its default',
     paletteLead: 'The seventh axis, and the one that is not a look: it changes what a chart’s series are painted with and nothing a page is made of. That is why no preset carries it.',
     does: {
@@ -358,6 +362,10 @@ const zh: Messages = {
     looksTitle: '各种面貌',
     looksLead: '上面那些旋钮的 {count} 种组合。预设不是自成一块的东西，所以没人做过的搭配你照样调得出来——在顶栏那个面板里一项一项地调。',
     apply: '应用',
+    attributesLabel: '这个主题，写成属性',
+    custom: '你自己的组合',
+    customBadge: '不是预设',
+    customNote: '六项轴，一项一项地调。没人需要先把这个面貌做成预设，你也照样调得出来——下面那一行就是它的全部。',
     everyDefault: '每一项轴都在默认值上',
     paletteLead: '第七项轴，也是唯一一项不属于「面貌」的：它改的是图表里那些序列用什么颜色画，而不是页面本身由什么构成。所以没有任何一个预设带着它。',
     does: {

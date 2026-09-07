@@ -39,8 +39,16 @@ function attributes(preset: ThemePreset) {
  * of those reads a token, so the preview cannot disagree with the theme it is
  * previewing. That is the same argument the themes page makes at full size,
  * made again in eighty pixels.
+ *
+ * The theme's NAME is set into it, large, in the face that theme carries
+ * headings in — which is the one thing a specimen this size can say loudly. The
+ * caption underneath was doing that job in the site's own face, so eight
+ * previews of eight typographic decisions were all announced in the same
+ * lettering, and the axis a reader notices first was the axis the list never
+ * showed. It sits over the furniture rather than beside it because at eighty
+ * pixels there is only one place to look.
  */
-function ThemeThumb({ preset }: { preset: ThemePreset }) {
+function ThemeThumb({ preset, name }: { preset: ThemePreset; name: string }) {
   return (
     <span
       {...attributes(preset)}
@@ -48,6 +56,13 @@ function ThemeThumb({ preset }: { preset: ThemePreset }) {
       aria-hidden
       className="relative flex h-[5.25rem] w-full flex-col gap-1.5 overflow-hidden border-b border-(--rule) bg-(--paper) p-2.5"
     >
+      {/* Over the furniture, and over a wash of the theme's own ground so the
+          letters keep their contrast whatever is drawn under them. */}
+      <span className="pointer-events-none absolute inset-0 z-2 flex items-center justify-center bg-(--paper)/55">
+        <span className="font-heading text-[19px] leading-none tracking-tight text-(--ink)">
+          {name}
+        </span>
+      </span>
       {/* The same argument as the full-size specimen, at a quarter of the size:
           one theme is about what is behind a floating panel, so the preview has
           to float one. */}
@@ -129,19 +144,19 @@ export function ThemeRail() {
                   : 'border-(--rule) hover:border-(--rule-hard)',
               )}
             >
-              <ThemeThumb preset={preset} />
+              <ThemeThumb preset={preset} name={t.themes.presets[preset.id]?.name ?? preset.name} />
+              {/* The name is in the picture now, in the theme's own face. What
+                  is left down here is the row's accessible name and the three
+                  axes that place it — and those are the site's own type, so
+                  they stay comparable between rows while the names do not. */}
               <span className="flex items-center gap-2 px-2.5 py-2">
-                <span className="flex min-w-0 flex-col gap-0.5">
-                  <span
-                    className={cn('truncate text-[15px]', active ? 'text-(--ink)' : 'text-(--ink-2)')}
-                  >
-                    {t.themes.presets[preset.id]?.name ?? preset.name}
-                  </span>
-                  <span className="mono-meta text-(--ink-3-aa)">
-                    {t.themes.values[preset.values.surface ?? DEFAULTS.surface]} ·{' '}
-                    {t.themes.values[preset.values.radius ?? DEFAULTS.radius]} ·{' '}
-                    {t.themes.values[preset.values.type ?? DEFAULTS.type]}
-                  </span>
+                <span className="sr-only">
+                  {t.themes.presets[preset.id]?.name ?? preset.name}
+                </span>
+                <span className="truncate mono-meta text-(--ink-3-aa)">
+                  {t.themes.values[preset.values.surface ?? DEFAULTS.surface]} ·{' '}
+                  {t.themes.values[preset.values.radius ?? DEFAULTS.radius]} ·{' '}
+                  {t.themes.values[preset.values.type ?? DEFAULTS.type]}
                 </span>
                 {active && (
                   <Check size={14} strokeWidth={1.5} aria-hidden className="ms-auto shrink-0 text-(--ink)" />

@@ -42,8 +42,15 @@ export function AxisRack({ locale }: { locale: Locale }) {
           </div>
           {/* Scrolls rather than wraps: four chips at 9.5rem is wider than the
               column on a phone, and a strip that wraps to two lines stops
-              reading as one comparison. */}
-          <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-1 scroll-slim">
+              reading as one comparison. Focusable because of that — the chips
+              are inert, so without a stop of its own a keyboard could not reach
+              the values past the edge. */}
+          <div
+            tabIndex={0}
+            role="group"
+            aria-label={t.themes.axes[axis]}
+            className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-1 scroll-slim"
+          >
             {AXES[axis].map((value) => (
               <AxisChip
                 key={value}
