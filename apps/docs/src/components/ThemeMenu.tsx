@@ -15,10 +15,11 @@ import {
 import { Check, Palette, RotateCcw } from 'lucide-react'
 import { useMessages } from '@/i18n/useLocale'
 import { ACCENTS } from './AccentProvider'
-import { AXES, DEFAULTS, PRESETS, RESET_PRESET, useTheme, type Axis } from './ThemeProvider'
+import { AXES, DEFAULTS, LOOK_AXES, PRESETS, RESET_PRESET, useTheme } from './ThemeProvider'
 
 /** The order the axes are offered in — ground first, then shape, then feel. */
-const ORDER: Axis[] = ['surface', 'radius', 'rules', 'type', 'motion', 'density']
+/** The panel shows every axis a preset sets, so the two cannot drift apart. */
+const ORDER = LOOK_AXES
 
 /**
  * The theme panel.

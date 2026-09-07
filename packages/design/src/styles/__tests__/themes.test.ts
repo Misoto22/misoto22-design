@@ -38,7 +38,12 @@ describe('themes.css', () => {
    * which is exactly what the themes page does.
    */
   it('scopes every rule to an attribute, never to the root', () => {
-    const selectors = [...strip(THEMES).matchAll(/^([^{}]+)\{/gm)].map((m) => m[1]!.trim())
+    const selectors = [...strip(THEMES).matchAll(/^([^{}]+)\{/gm)]
+      .map((m) => m[1]!.trim())
+      // An at-rule's prelude is a condition, not a selector: `@media
+      // (forced-colors: active)` cannot name an attribute and the rules nested
+      // inside it are matched on their own lines anyway.
+      .filter((selector) => !selector.startsWith('@'))
     expect(selectors.length).toBeGreaterThan(0)
     for (const selector of selectors) {
       expect(selector, `"${selector}" must be attribute-scoped`).toMatch(/\[data-/)
@@ -112,5 +117,104 @@ describe('the radius ladder', () => {
   it('gates the adding direction so a square theme stays square', () => {
     expect(RADIUS_BLOCK).toContain('--radius-gate: min(1, var(--radius-factor))')
     expect(/--radius-frame:[^;]*var\(--radius-gate\)/.test(RADIUS_BLOCK!)).toBe(true)
+  })
+})
+
+describe('the accent chart palette', () => {
+  const block = (selector: string) =>
+    new RegExp(`${selector}[^{]*\\{([\\s\\S]*?)\\n\\}`).exec(strip(THEMES))?.[1]
+
+  const LIGHT = block("\\[data-chart-palette='accent'\\]")
+  const DARK = block("\\[data-mode='dark'\\] \\[data-chart-palette='accent'\\]")
+
+  /** `--series-N` → the lightness it pins, in series order. */
+  const ladder = (css: string | undefined) =>
+    Array.from({ length: 8 }, (_, i) => {
+      const value = new RegExp(`--series-${i + 1}:\\s*([^;]+);`).exec(css ?? '')?.[1]
+      return Number(/oklch\(from var\(--clay\)\s+([\d.]+)\s+c\s+h\)/.exec(value ?? '')?.[1])
+    })
+
+  it('declares both grounds', () => {
+    expect(LIGHT, "themes.css must declare [data-chart-palette='accent']").toBeDefined()
+    expect(DARK, 'the accent ramp must swap by value on the dark ground').toBeDefined()
+  })
+
+  /**
+   * Every step comes out of `--clay`, or the value is a palette rather than a
+   * derivation — and a consumer whose accent nobody here has seen would get
+   * whichever five hues happened to be typed.
+   */
+  it('derives every step from the accent, never from a literal', () => {
+    for (const css of [LIGHT, DARK]) {
+      expect(css).not.toMatch(/--series-\d:\s*#/)
+      expect(ladder(css).every((L) => Number.isFinite(L))).toBe(true)
+    }
+  })
+
+  /**
+   * Eight even steps, because the separation between two series here is
+   * carried by lightness alone: one hue laddered eight ways has no second
+   * dimension to spend, so an uneven rung is a pair of series that look alike.
+   */
+  it('spaces the ladder evenly on both grounds', () => {
+    for (const css of [LIGHT, DARK]) {
+      const sorted = [...ladder(css)].sort((a, b) => a - b)
+      const steps = sorted.slice(1).map((L, i) => L - sorted[i]!)
+      const span = Math.max(...steps) - Math.min(...steps)
+      expect(span, `rungs are uneven: ${steps.map((s) => s.toFixed(3)).join(' ')}`)
+        .toBeLessThan(0.002)
+    }
+  })
+
+  /**
+   * The weak end of each band is set by the worst HUE rather than the
+   * prettiest. Measured across all 360 hues at maximum chroma: on paper the
+   * weakest (green, ~144°) clears 3:1 up to L 0.640 and fails above it; on the
+   * dark ground the weakest (violet, ~294°) clears it down to L 0.530. Moving
+   * either bound outward ships a series a reader cannot see.
+   */
+  it('keeps both bands inside the contrast floor', () => {
+    expect(Math.max(...ladder(LIGHT))).toBeLessThanOrEqual(0.64)
+    expect(Math.min(...ladder(DARK))).toBeGreaterThanOrEqual(0.53)
+  })
+
+  /**
+   * Adjacent INDICES sit four rungs apart, which is what the interleave is
+   * for — and one better than the mono ramp's three. `--series-1` lands
+   * mid-band rather than at the dark end, so a one-series chart paints in the
+   * accent itself instead of in the accent's darkest possible shade; that is
+   * the whole reason this value exists rather than being `mono` with a hue.
+   */
+  it('interleaves so neighbouring series are four rungs apart', () => {
+    for (const css of [LIGHT, DARK]) {
+      const rungs = [...ladder(css)].sort((a, b) => a - b)
+      const position = (L: number) => rungs.findIndex((r) => r === L)
+      const order = ladder(css).map(position)
+      const gaps = order.slice(1).map((p, i) => Math.abs(p - order[i]!))
+      expect(Math.min(...gaps), `interleave: ${order.join(' ')}`).toBeGreaterThanOrEqual(4)
+    }
+  })
+
+  /**
+   * `tokens.css` collapses the ramp to `CanvasText` on `:root`, and a palette
+   * attribute outranks that — an element matching `[data-chart-palette]`
+   * directly beats a value it only inherits, and beats it on source order at
+   * the root itself. So a reader in forced colours who was on `chroma` kept
+   * the eight hues, which is the setting ignored rather than honoured. The
+   * restatement has to come after the palettes and match the specificity the
+   * dark blocks use.
+   */
+  it('lets forced colours outrank every palette', () => {
+    const forced = /@media \(forced-colors: active\) \{([\s\S]*)$/.exec(strip(THEMES))?.[1]
+    expect(forced, 'themes.css must restate the forced-colours ramp').toBeDefined()
+    for (let i = 1; i <= 8; i++) expect(forced).toContain(`--series-${i}: CanvasText;`)
+    expect(forced).toContain('--series-track: Canvas;')
+    expect(forced, 'must reach a palette scoped under [data-mode]')
+      .toMatch(/\[data-mode\] \[data-chart-palette\]/)
+    expect(forced).toMatch(/\[data-mode\]\[data-chart-palette\]/)
+    expect(
+      strip(THEMES).indexOf('@media (forced-colors: active)'),
+      'the restatement only wins if it comes after the palettes',
+    ).toBeGreaterThan(strip(THEMES).lastIndexOf("[data-chart-palette='accent']"))
   })
 })

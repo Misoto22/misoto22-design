@@ -48,11 +48,19 @@ const VARIANT: Record<ButtonVariant, string> = {
  * subtree marked `data-density="compact"` shrinks its controls without a single
  * call site being told. At the default density `md` is 44px — the pointer
  * target WCAG 2.5.5 asks for.
+ *
+ * `--control-lh` is what makes those numbers true rather than aspirational. A
+ * floor only binds while the box is under it, and the box is the line plus the
+ * padding plus the border — so a label inheriting the body's 1.6 leading put
+ * `sm` at 39px against its own 36px token, `md` at 46 against 44 and `lg` at 50
+ * against 48. Every size was two to three pixels taller than the number
+ * documenting it, which is also how a masthead sized from `--control-h-sm`
+ * ended up with a search field standing proud of every icon beside it.
  */
 const SIZE: Record<ButtonSize, string> = {
-  sm: 'min-h-(--control-h-sm) px-(--control-px-sm) py-(--control-py-sm) text-[13px]',
-  md: 'min-h-(--control-h-md) px-(--control-px-md) py-(--control-py-md) text-sm',
-  lg: 'min-h-(--control-h-lg) px-(--control-px-lg) py-(--control-py-lg) text-[15px]',
+  sm: 'min-h-(--control-h-sm) px-(--control-px-sm) py-(--control-py-sm) text-[13px] leading-(--control-lh)',
+  md: 'min-h-(--control-h-md) px-(--control-px-md) py-(--control-py-md) text-sm leading-(--control-lh)',
+  lg: 'min-h-(--control-h-lg) px-(--control-px-lg) py-(--control-py-lg) text-[15px] leading-(--control-lh)',
 }
 
 /** Square, because an icon has no label to give the box its width. */

@@ -8,6 +8,7 @@ import {
   type ScatterVariant,
 } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 const desktop = [
   { kb: 120, ms: 340 },
@@ -49,33 +50,35 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="flex flex-wrap gap-3">
-        <ToggleGroup
-          type="single"
-          value={shape}
-          onValueChange={(next) => next && setShape(next as ScatterShape)}
-          aria-label="Mark shape"
-        >
-          {SHAPES.map((option) => (
-            <ToggleGroupItem key={option} value={option}>
-              {option}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
+      <ExampleControls>
+        <div className="flex flex-wrap gap-3">
+          <ToggleGroup
+            type="single"
+            value={shape}
+            onValueChange={(next) => next && setShape(next as ScatterShape)}
+            aria-label="Mark shape"
+          >
+            {SHAPES.map((option) => (
+              <ToggleGroupItem key={option} value={option}>
+                {option}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
 
-        <ToggleGroup
-          type="single"
-          value={variant}
-          onValueChange={(next) => next && setVariant(next as ScatterVariant)}
-          aria-label="Mark fill"
-        >
-          {VARIANTS.map((option) => (
-            <ToggleGroupItem key={option} value={option}>
-              {option}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-      </div>
+          <ToggleGroup
+            type="single"
+            value={variant}
+            onValueChange={(next) => next && setVariant(next as ScatterVariant)}
+            aria-label="Mark fill"
+          >
+            {VARIANTS.map((option) => (
+              <ToggleGroupItem key={option} value={option}>
+                {option}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </div>
+      </ExampleControls>
 
       <ScatterChart
         title="Load time against bundle size"

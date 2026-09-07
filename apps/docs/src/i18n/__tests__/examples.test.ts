@@ -6,7 +6,8 @@ import examplesJson from '@/generated/examples.json'
 import type { ExampleData } from '@/lib/docs'
 import { ComponentPage } from '@/views/ComponentPage'
 import { fingerprint } from '../api-hash'
-import { EXAMPLE_ZH, exampleCopy } from '../examples'
+import { COMPONENTS } from '@/content/registry'
+import { EXAMPLE_ZH, exampleCopy, exampleTitle } from '../examples'
 
 vi.mock('next/link', () => ({
   default: ({ href, children }: { href: string; children: ReactNode }) =>
@@ -138,5 +139,74 @@ describe('a component page in Chinese', () => {
 
     expect(screen.getByText(ENGLISH.get(key)!)).toBeInTheDocument()
     expect(screen.queryByText(EXAMPLE_ZH[key]!.zh)).not.toBeInTheDocument()
+  })
+})
+
+/**
+ * The headings, which are the half no mechanism could see.
+ *
+ * `generate.mjs` derives them from the filename — `02-fill-variants` becomes
+ * `fill variants` — so they are not prose anyone wrote, are not in `messages.ts`
+ * and are not JSX for `untranslated-chrome.test.ts` to find. The contents rail
+ * on `/zh` therefore listed `default`, `brush` and `value labels` under 示例 for
+ * as long as the site has existed, and every check passed.
+ *
+ * The catalogue is being translated a group at a time, so this guards it two
+ * ways: a finished group may not regress, and the untranslated remainder may
+ * only get smaller. A budget rather than a list of 235 keys, because a list
+ * that long is a file nobody re-reads and a diff nobody can review.
+ */
+describe('the Chinese example headings', () => {
+  const GROUP_BY_DIR = new Map(COMPONENTS.map((entry) => [entry.dir, entry.group]))
+  const groupOf = (key: string) => GROUP_BY_DIR.get(key.slice(0, key.indexOf('/')))
+
+  /** Groups whose headings are all translated. Add one when its batch lands. */
+  const TRANSLATED_GROUPS = new Set(['Charts', 'Data'])
+
+  /**
+   * How many headings are still English. It may only go down — raise nothing,
+   * ever; lower it as batches land.
+   */
+  const UNTITLED_BUDGET = 235
+
+  const untitled = [...ENGLISH.keys()].filter((key) => !EXAMPLE_ZH[key]?.title)
+
+  it('has finished the groups it says it has finished', () => {
+    const behind = untitled.filter((key) => TRANSLATED_GROUPS.has(groupOf(key) ?? ''))
+    expect(behind).toEqual([])
+  })
+
+  it('leaves no more English headings than the budget allows', () => {
+    expect(untitled.length).toBeLessThanOrEqual(UNTITLED_BUDGET)
+  })
+
+  it('translates no heading for an example that no longer exists', () => {
+    const orphans = Object.entries(EXAMPLE_ZH)
+      .filter(([key, copy]) => copy.title && !ENGLISH.has(key))
+      .map(([key]) => key)
+    expect(orphans).toEqual([])
+  })
+
+  it('writes headings in Chinese, not in transliterated English', () => {
+    const notHan = Object.entries(EXAMPLE_ZH)
+      .filter(([, copy]) => copy.title && !/[\u4e00-\u9fff]/.test(copy.title))
+      .map(([key]) => key)
+    expect(notHan).toEqual([])
+  })
+})
+
+describe('exampleTitle', () => {
+  it('returns the Chinese heading for a locale that has one', () => {
+    expect(exampleTitle('zh', 'BarChart/06-brush', 'brush')).toBe('区间选择条')
+  })
+
+  it('leaves an English reader with the English', () => {
+    expect(exampleTitle('en', 'BarChart/06-brush', 'brush')).toBe('brush')
+  })
+
+  it('falls back to the English while a group is still untranslated', () => {
+    // The heading is derived from the filename, so the fallback is always a
+    // readable label rather than a gap — which is exactly why nobody noticed.
+    expect(exampleTitle('zh', 'Button/01-variants', 'variants')).toBe('variants')
   })
 })

@@ -3,6 +3,7 @@
 import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
 import { LineChart, type ChartBackgroundVariant, type ChartConfig } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 const data = [
   { month: 'Jan', desktop: 186 },
@@ -42,19 +43,21 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <ToggleGroup
-        type="single"
-        value={variant}
-        onValueChange={(next) => next && setVariant(next as ChartBackgroundVariant)}
-        aria-label="Background plate"
-        className="flex-wrap"
-      >
-        {VARIANTS.map((option) => (
-          <ToggleGroupItem key={option} value={option}>
-            {option}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      <ExampleControls>
+        <ToggleGroup
+          type="single"
+          value={variant}
+          onValueChange={(next) => next && setVariant(next as ChartBackgroundVariant)}
+          aria-label="Background plate"
+          className="flex-wrap"
+        >
+          {VARIANTS.map((option) => (
+            <ToggleGroupItem key={option} value={option}>
+              {option}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </ExampleControls>
 
       <LineChart title={`Visitors per month — ${variant} plate`} config={config} data={data}>
         <LineChart.Background variant={variant} />

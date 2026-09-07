@@ -96,7 +96,9 @@ function classify(name, value) {
   if (/^radius/.test(name)) return 'radius'
   if (/^(ease|fast|mid|slow|duration)/.test(name)) return 'motion'
   if (/^z-/.test(name)) return 'layer'
-  if (/^(pad|sec|maxw|col|row|w-|measure-|page-pad|scroll-offset|toc-)/.test(name)) return 'space'
+  // `bar-h` before the colour rule below, which claims everything starting
+  // `bar` — `--bar` and `--bar-2` are grounds, and this one is a height.
+  if (/^(pad|sec|maxw|col|row|w-|measure-|page-pad|scroll-offset|toc-|bar-h)/.test(name)) return 'space'
   if (/^(focus|ring)/.test(name)) return 'focus'
   if (/^ico-/.test(name)) return 'icon'
   if (/^(shadow|lift|disabled-opacity)/.test(name)) return 'depth'

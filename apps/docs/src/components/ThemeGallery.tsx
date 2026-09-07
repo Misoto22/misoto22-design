@@ -110,12 +110,13 @@ export function ThemeGallery({ locale }: { locale: Locale }) {
 }
 
 /**
- * The seventh axis, kept out of the rack and out of the presets.
+ * The seventh axis, shown as what it produces rather than as a control.
  *
- * It is documented with the others and belongs with neither: a preset is a
- * page's LOOK, and this one changes nothing a page is made of — only what a
- * chart's series are painted with. Putting it in the rack would have implied a
- * turn of it changes the furniture above, which it does not.
+ * The rack sets it like any other axis now — a themed console whose charts
+ * stayed grey was the axis being unreachable rather than being separate. What
+ * belongs HERE is the thing a toggle cannot say: three ramps side by side, so
+ * a reader picking between them is looking at the colours rather than at three
+ * words.
  */
 function PaletteRow({ locale }: { locale: Locale }) {
   const t = getMessages(locale)

@@ -6,6 +6,7 @@ import { lazy, Suspense, useState } from 'react'
 import { EXAMPLES } from '@/generated/example-registry'
 import { useMessages } from '@/i18n/useLocale'
 import { CodeBlock } from './CodeBlock'
+import { ExampleControlsSlot } from './ExampleControls'
 
 /**
  * Lazily loaded, because react-live carries a transpiler and nobody should
@@ -53,6 +54,7 @@ type View = 'preview' | 'code' | 'edit'
 export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: ExampleCanvasProps) {
   const [view, setView] = useState<View>('preview')
   const [frame, setFrame] = useState<HTMLElement | null>(null)
+  const [controls, setControls] = useState<HTMLElement | null>(null)
   const [direction, setDirection] = useState<Direction>('ltr')
   const [density, setDensity] = useState<Density>('comfortable')
   const t = useMessages()
@@ -104,6 +106,15 @@ export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: Exam
             value={density}
             onChange={setDensity}
           />
+          {/* The example's own knobs land here — see `ExampleControls`. Sized
+              like the two toggles beside it rather than like the specimen
+              below, because that is what it is: a control on the preview, not
+              part of the thing being previewed. `empty:hidden` so an example
+              with no controls does not leave a rule and a gap behind. */}
+          <div
+            ref={setControls}
+            className="flex items-center gap-1 border-s border-(--rule) ps-1 empty:hidden [&_[role=radiogroup]]:p-0 [&_[role=toolbar]]:p-0 [&_[role=group]]:p-0 [&_button]:mono-meta [&_button]:min-h-[26px] [&_button]:px-2.5 [&_button]:py-1"
+          />
         </div>
         <div className="flex items-center gap-1">
           <Button
@@ -152,7 +163,9 @@ export function ExampleCanvas({ exampleKey, html, snippet, previewHeight }: Exam
               screen — and it never saw the direction and density set here. */}
           <OverlayContainer container={frame}>
             <div className="flex w-full max-w-full justify-center">
-              <Example />
+              <ExampleControlsSlot value={controls}>
+                <Example />
+              </ExampleControlsSlot>
             </div>
           </OverlayContainer>
         </div>

@@ -3,6 +3,7 @@
 import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
 import { Histogram, type HistogramBin, type HistogramMode } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 // Buckets that arrived already counted, at the widths the metrics backend
 // chose. They get wider as the values grow, which is how latency histograms
@@ -34,18 +35,20 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <ToggleGroup
-        type="single"
-        value={mode}
-        onValueChange={(next) => next && setMode(next as HistogramMode)}
-        aria-label="Bar height"
-      >
-        {MODES.map((option) => (
-          <ToggleGroupItem key={option} value={option}>
-            {option}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      <ExampleControls>
+        <ToggleGroup
+          type="single"
+          value={mode}
+          onValueChange={(next) => next && setMode(next as HistogramMode)}
+          aria-label="Bar height"
+        >
+          {MODES.map((option) => (
+            <ToggleGroupItem key={option} value={option}>
+              {option}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </ExampleControls>
 
       <Histogram title={`Request duration — ${mode}`} data={buckets} mode={mode}>
         <Histogram.Grid />

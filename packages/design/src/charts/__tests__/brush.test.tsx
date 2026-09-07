@@ -87,3 +87,40 @@ describe('the brush', () => {
     expect(endNow - startNow).toBeGreaterThanOrEqual(2)
   })
 })
+
+/**
+ * A brush is rendered as the container's FOOTER, and the footer branch used to
+ * drop the plot's shape entirely: no `aspect-video` and — the part that was the
+ * defect — no `min-h` either. In any container that sizes to its content the
+ * plot then measured zero and only the brush's own height survived, so the
+ * page showed a scrubber with nothing above it to scrub. Recharts says so out
+ * loud ("width(-1) and height(-1) of chart should be greater than 0") into a
+ * console nobody reads, which is why it stood.
+ *
+ * jsdom does not lay out, so this asserts the class that carries the shape
+ * rather than a measured height. That is the thing that regressed.
+ */
+describe('a brushed chart', () => {
+  const plot = (container: HTMLElement) =>
+    container.querySelector('.recharts-responsive-container')
+
+  it('keeps a floor under the plot when a brush sits beneath it', () => {
+    const { container } = renderWithBrush()
+
+    expect(plot(container)).toHaveClass('min-h-[13rem]')
+    expect(plot(container)).toHaveClass('aspect-video')
+  })
+
+  it('leaves the shape on the outer box when there is no brush', () => {
+    const { container } = render(
+      <AreaChart title="Visitors per month" config={config} data={data} xDataKey="month">
+        <AreaChart.XAxis dataKey="month" />
+        <AreaChart.Area dataKey="desktop" />
+      </AreaChart>,
+    )
+
+    // Exactly one element owns the shape, or the plot is sized twice.
+    expect(plot(container)).not.toHaveClass('aspect-video')
+    expect(container.querySelector('[data-slot="chart"]')).toHaveClass('aspect-video')
+  })
+})

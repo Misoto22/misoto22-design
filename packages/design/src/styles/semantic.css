@@ -186,6 +186,8 @@
      ceiling, not a width: a narrower column still wins. */
   --measure-record: 66ch;
   /* How far below the viewport top an anchored heading comes to rest — a fixed
-     masthead plus a line of air. */
-  --scroll-offset: 88px;
+     masthead plus a line of air. Both halves are now named: the masthead is
+     `--bar-h`, so a bar that moves takes its anchors with it, where `88px` was
+     a number somebody derived once by hand and nothing kept in step. */
+  --scroll-offset: calc(var(--bar-h) + 1.5rem);
 }

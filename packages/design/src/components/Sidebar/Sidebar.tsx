@@ -580,12 +580,20 @@ export function SidebarInset({ className, children, ...rest }: ComponentProps<'d
  * It is also where `SidebarTrigger` belongs, and the layout assumes one:
  * anything passed as `children` takes the space and the trigger sits at the
  * inline end of the row.
+ *
+ * `--bar-h` is the floor, not a number of its own. This block and the masthead
+ * beside it meet at a corner, and their two bottom rules are read as one line —
+ * so a floor typed here is a floor that has to be retyped there, and the two
+ * were 56px and 64px for exactly that reason. The token also survives a rail
+ * that pins its own density: `--bar-h` is declared on the root, so its
+ * `var(--control-h-md)` resolves there and inherits as one answer, which is
+ * what keeps a compact rail's head level with a comfortable page's bar.
  */
 export function SidebarHeader({ className, children, ...rest }: ComponentProps<'div'>) {
   return (
     <div
       className={cn(
-        'flex min-h-14 shrink-0 items-center gap-2 border-b border-(--rule) px-3',
+        'flex min-h-(--bar-h) shrink-0 items-center gap-2 border-b border-(--rule) px-3',
         className,
       )}
       {...rest}
@@ -809,9 +817,18 @@ export function SidebarGroup({
  * `not-hover` rather than an ordering trick: composed with `group-hover`, it
  * says "the list is hovered and this row is not" in one selector, which does
  * not depend on which of two equally specific rules Tailwind emitted last.
+ *
+ * The WEIGHT is scoped to the current row, and the other two are not, because
+ * only the current row has anything to give up: it alone carries `font-medium`,
+ * `bg-(--stone)` and `--ink`, and on any other row those three are no-ops. Two
+ * of them stayed no-ops. `font-normal` did not — it is an absolute weight, not
+ * an undo, so in a rail whose base face is lighter than 400 it made every row
+ * in the list HEAVIER the moment the pointer arrived. Selecting one row
+ * appeared to embolden its whole section, which is the opposite of a highlight
+ * that follows the pointer.
  */
 const MOVING_HIGHLIGHT =
-  'group-hover/rows:not-hover:bg-transparent group-hover/rows:not-hover:font-normal group-hover/rows:not-hover:text-(--ink-3-aa)'
+  'group-hover/rows:not-hover:bg-transparent group-hover/rows:not-hover:text-(--ink-3-aa) group-hover/rows:not-hover:aria-[current=page]:font-normal'
 
 export interface SidebarBranchProps {
   /** The row's own words, and the name of the group it opens. */

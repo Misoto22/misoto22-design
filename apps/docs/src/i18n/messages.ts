@@ -165,7 +165,7 @@ const en = {
     customBadge: 'Not a preset',
     customNote: 'Six axes, set one at a time. Nothing had to ship this look for you to reach it — the line below is the whole of it.',
     everyDefault: 'Every axis at its default',
-    paletteLead: 'The seventh axis, and the one that is not a look: it changes what a chart’s series are painted with and nothing a page is made of. That is why no preset carries it.',
+    paletteLead: 'The seventh axis: it changes what a chart’s series are painted with and nothing else a page is made of. Three answers to two different questions — a neutral ramp, a validated eight-hue categorical palette, and one derived from --clay for a consumer whose charts have to wear their accent. Console, Aqua and Ledger carry Chroma because their reader is comparing categories; the other five stay neutral, and Atelier says why — the work is the colour.',
     axes: {
       surface: 'Surface',
       radius: 'Corners',
@@ -182,7 +182,7 @@ const en = {
       editorial: 'Editorial', grotesk: 'Grotesk', bookish: 'Bookish',
       still: 'Still', calm: 'Calm', snappy: 'Snappy',
       comfortable: 'Comfortable', compact: 'Compact',
-      mono: 'Mono', chroma: 'Chroma',
+      mono: 'Mono', chroma: 'Chroma', accent: 'Accent',
     } as Record<string, string>,
     presets: {} as Record<string, { name: string; note: string }>,
     previewLabel: 'Theme preview',
@@ -357,7 +357,7 @@ const zh: Messages = {
     customBadge: '不是预设',
     customNote: '六项轴，一项一项地调。没人需要先把这个面貌做成预设，你也照样调得出来——下面那一行就是它的全部。',
     everyDefault: '每一项轴都在默认值上',
-    paletteLead: '第七项轴，也是唯一一项不属于「面貌」的：它改的是图表里那些序列用什么颜色画，而不是页面本身由什么构成。所以没有任何一个预设带着它。',
+    paletteLead: '第七项轴：它改的是图表里那些序列用什么颜色画，页面的其余部分一概不动。三个取值回答的是两个不同的问题——一条中性色阶、一套验证过的八色分类色板，以及一条从 --clay 派生的色阶，给那些图表必须穿上自家强调色的使用者。控制台、流光、账册带的是彩色，因为它们的读者在比较分类；另外五个保持中性，而画室自己说了原因——颜色由作品来给。',
     axes: {
       surface: '底色',
       radius: '圆角',
@@ -374,7 +374,7 @@ const zh: Messages = {
       editorial: '书刊', grotesk: '无衬线', bookish: '通篇衬线',
       still: '静止', calm: '从容', snappy: '利落',
       comfortable: '宽松', compact: '紧凑',
-      mono: '单色', chroma: '彩色',
+      mono: '单色', chroma: '彩色', accent: '强调色',
     },
     presets: {
       reset: { name: '归白', note: '系统出厂的样子。纸白底、细描边、衬线标题，强调色就是墨色。' },

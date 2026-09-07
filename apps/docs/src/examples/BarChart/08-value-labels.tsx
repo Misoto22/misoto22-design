@@ -3,6 +3,7 @@
 import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
 import { BarChart, type ChartConfig, type ValueLabelMode } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 const data = [
   { month: 'Jan', desktop: 1860 },
@@ -31,18 +32,20 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <ToggleGroup
-        type="single"
-        value={show}
-        onValueChange={(next) => next && setShow(next as ValueLabelMode)}
-        aria-label="Which points are labelled"
-      >
-        {MODES.map((option) => (
-          <ToggleGroupItem key={option} value={option}>
-            {option}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      <ExampleControls>
+        <ToggleGroup
+          type="single"
+          value={show}
+          onValueChange={(next) => next && setShow(next as ValueLabelMode)}
+          aria-label="Which points are labelled"
+        >
+          {MODES.map((option) => (
+            <ToggleGroupItem key={option} value={option}>
+              {option}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </ExampleControls>
 
       <BarChart title="Visitors by month" config={config} data={data}>
         <BarChart.Grid />

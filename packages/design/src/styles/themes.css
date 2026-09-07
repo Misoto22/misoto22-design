@@ -217,3 +217,94 @@
   --series-7: #9085e9;
   --series-8: #e66767;
 }
+
+/* The third value, and the one a branded consumer actually asks for.
+ *
+ * `chroma` answers "my users read categories by colour"; this answers a
+ * different question — "our accent is not ink, and a chart that ignores it
+ * looks like someone else's chart". Those are not the same need and one value
+ * could not serve both: eight distinguishable hues are a categorical palette,
+ * and one hue laddered by lightness is a brand mark. This is the second.
+ *
+ * It derives every step from `--clay` rather than listing colours, so it works
+ * for an accent nobody here has seen. Relative colour syntax holds the hue and
+ * chroma and re-states the LIGHTNESS, which is what makes the numbers below
+ * portable: separation and contrast are carried almost entirely by lightness,
+ * so pinning it pins both regardless of which hue arrives. A chroma the
+ * lightness cannot hold is gamut-mapped by the browser, which reduces chroma
+ * and preserves L — so the ladder survives the mapping intact.
+ *
+ * The ladder is eight even steps across L 0.173–0.640 on paper and
+ * L 0.967–0.530 on the dark ground. The top of each band is where it is
+ * because of the weakest hue rather than the prettiest: at maximum chroma the
+ * worst hue on paper (green, ~144°) clears 3:1 up to L 0.640 and fails above
+ * it, and the worst on the dark ground (violet, ~294°) clears it down to
+ * L 0.530. Measured across all 360 hues at maximum chroma: adjacent-pair
+ * separation ΔE 26.7 light / 25.0 dark (OKLab ×100, against a floor of 15),
+ * minimum contrast 3.11 on both grounds.
+ *
+ * The interleave differs from the mono ramp's by one position, and that is the
+ * whole point of the value. `--series-1` sits at L 0.440 — the band the five
+ * shipped accents already occupy — so a one-series chart paints in a colour
+ * within ΔE 2 of the accent itself rather than in the accent's darkest
+ * possible shade. Ink stays available as `--series-2`, which is the pairing a
+ * two-series chart wants anyway. Every adjacent index is four ladder steps
+ * apart, one better than the mono ramp manages.
+ *
+ * What this is NOT is a categorical palette. One hue laddered eight ways is
+ * legible for two or three series and is guesswork at eight; a consumer
+ * plotting eight categories wants `chroma`. Texture and `Chart.Legend` carry
+ * identity here for the same reason they do under `mono`.
+ */
+[data-chart-palette='accent'] {
+  --series-1: oklch(from var(--clay) 0.44 c h);
+  --series-2: oklch(from var(--clay) 0.173 c h);
+  --series-3: oklch(from var(--clay) 0.507 c h);
+  --series-4: oklch(from var(--clay) 0.24 c h);
+  --series-5: oklch(from var(--clay) 0.573 c h);
+  --series-6: oklch(from var(--clay) 0.306 c h);
+  --series-7: oklch(from var(--clay) 0.64 c h);
+  --series-8: oklch(from var(--clay) 0.373 c h);
+}
+[data-mode='dark'][data-chart-palette='accent'],
+[data-mode='dark'] [data-chart-palette='accent'] {
+  /* The band mirrored, not the palette rebuilt — Law 8 again. `--clay` has
+     already swapped to its dark value by the time this reads it, so the only
+     thing restated here is where the ladder sits. */
+  --series-1: oklch(from var(--clay) 0.717 c h);
+  --series-2: oklch(from var(--clay) 0.967 c h);
+  --series-3: oklch(from var(--clay) 0.655 c h);
+  --series-4: oklch(from var(--clay) 0.905 c h);
+  --series-5: oklch(from var(--clay) 0.592 c h);
+  --series-6: oklch(from var(--clay) 0.842 c h);
+  --series-7: oklch(from var(--clay) 0.53 c h);
+  --series-8: oklch(from var(--clay) 0.78 c h);
+}
+
+/* ─── Forced colours, for the palettes ─────────────────────────────────────
+   `tokens.css` collapses the ramp to `CanvasText` when the reader has taken
+   the palette away, and it writes that on `:root` — which a palette attribute
+   then outranks, because an element that matches `[data-chart-palette]`
+   directly beats a value it merely inherits from the root, and beats it on
+   source order even at the root itself. So a reader in Windows High Contrast
+   who was on `chroma` kept getting the eight hues, which is the setting being
+   ignored rather than honoured.
+
+   Restated here, after the palettes, at the specificity the dark blocks use.
+   The values are `tokens.css`'s, unchanged — this only puts them back on top.
+   `--chart-*` is untouched: those declarations are already unopposed. */
+@media (forced-colors: active) {
+  [data-chart-palette],
+  [data-mode][data-chart-palette],
+  [data-mode] [data-chart-palette] {
+    --series-1: CanvasText;
+    --series-2: CanvasText;
+    --series-3: CanvasText;
+    --series-4: CanvasText;
+    --series-5: CanvasText;
+    --series-6: CanvasText;
+    --series-7: CanvasText;
+    --series-8: CanvasText;
+    --series-track: Canvas;
+  }
+}

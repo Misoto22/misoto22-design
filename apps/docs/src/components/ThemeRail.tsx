@@ -3,9 +3,17 @@
 import { Button, Separator, cn } from '@misoto22/design'
 import { Check, RotateCcw } from 'lucide-react'
 import { useMessages } from '@/i18n/useLocale'
-import { DEFAULTS, PRESETS, RESET_PRESET, useTheme, type Axis, type ThemePreset } from './ThemeProvider'
+import {
+  attribute,
+  DEFAULTS,
+  LOOK_AXES,
+  PRESETS,
+  RESET_PRESET,
+  useTheme,
+  type ThemePreset,
+} from './ThemeProvider'
 
-const ORDER: Axis[] = ['surface', 'radius', 'rules', 'type', 'motion', 'density']
+const ORDER = LOOK_AXES
 
 /**
  * EVERY axis, including the ones this preset leaves at the default.
@@ -21,7 +29,10 @@ const ORDER: Axis[] = ['surface', 'radius', 'rules', 'type', 'motion', 'density'
  */
 function attributes(preset: ThemePreset) {
   return Object.fromEntries(
-    ORDER.map((axis) => [`data-${axis}`, preset.values[axis] ?? DEFAULTS[axis]]),
+    // `attribute()` rather than `data-${axis}`: `chartPalette` is the one axis
+    // whose attribute hyphenates, and `data-chartPalette` is not a typo a
+    // browser reports — it is an attribute nothing selects.
+    ORDER.map((axis) => [attribute(axis), preset.values[axis] ?? DEFAULTS[axis]]),
   )
 }
 

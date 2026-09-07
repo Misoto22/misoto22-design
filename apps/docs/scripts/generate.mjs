@@ -35,6 +35,26 @@ const DESIGN = join(DOCS, '..', '..', 'packages', 'design')
 const OUT = join(DOCS, 'src', 'generated')
 
 /**
+ * This site's own furniture, which a reader must not be told to paste.
+ *
+ * `ExampleControls` moves an example's demo knobs into the canvas toolbar. The
+ * knobs themselves ARE the lesson — wiring state to a prop is what several of
+ * these examples are for — so the children stay and only the wrapper goes, the
+ * same way `export function Example()` goes.
+ */
+const CONTROLS_WRAPPER = /^[ \t]*<ExampleControls>\n([\s\S]*?)\n[ \t]*<\/ExampleControls>[ \t]*$/gm
+
+function unwrapControls(jsx) {
+  return jsx.replace(CONTROLS_WRAPPER, (_, inner) =>
+    inner
+      .split('\n')
+      // One level out, because the wrapper it sat in is gone.
+      .map((line) => (line.startsWith('  ') ? line.slice(2) : line))
+      .join('\n'),
+  )
+}
+
+/**
  * Strips a snippet down to what a reader should copy: the imports come from the
  * package, not from a relative path inside this repository, and the file's
  * scaffolding (`export function Example()`) is not part of the lesson.
@@ -60,7 +80,8 @@ function toSnippet(source) {
     .filter((line) => line.startsWith('import') && line.includes('@misoto22/design'))
     .join('\n')
 
-  return imports ? `${imports}\n\n${jsx}` : jsx
+  const printed = unwrapControls(jsx)
+  return imports ? `${imports}\n\n${printed}` : printed
 }
 
 /**

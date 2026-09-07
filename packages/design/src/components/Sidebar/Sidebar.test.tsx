@@ -383,3 +383,41 @@ describe('Sidebar side and variant', () => {
     expect(screen.getByTestId('page').className.split(/\s+/)).toContain('border')
   })
 })
+
+/**
+ * The fill follows the pointer while the pointer is in the list, and the three
+ * declarations that do it land on EVERY row. Two of them are no-ops on a row
+ * that is not current — it has no fill and no ink to give up. The weight was
+ * not: `font-normal` is an absolute weight rather than an undo, so in a rail
+ * whose base face is lighter than 400 every row in the list got HEAVIER the
+ * moment the pointer arrived, and picking one row appeared to embolden its
+ * whole section.
+ *
+ * jsdom has no `:hover`, so this asserts the scoping the selector carries.
+ * That is the thing that regressed.
+ */
+describe('the highlight that follows the pointer', () => {
+  const rows = () => screen.getAllByRole('link')
+
+  it('scopes the weight it gives up to the current row', () => {
+    render(rail())
+
+    for (const row of rows()) {
+      const weight = row.className
+        .split(/\s+/)
+        .filter((cls) => cls.includes('not-hover') && cls.includes('font-'))
+      expect(weight, `${row.textContent} must not carry an unscoped weight`).toEqual([
+        'group-hover/rows:not-hover:aria-[current=page]:font-normal',
+      ])
+    }
+  })
+
+  it('still gives up the fill and the ink on every row', () => {
+    render(rail())
+
+    for (const row of rows()) {
+      expect(row).toHaveClass('group-hover/rows:not-hover:bg-transparent')
+      expect(row).toHaveClass('group-hover/rows:not-hover:text-(--ink-3-aa)')
+    }
+  })
+})

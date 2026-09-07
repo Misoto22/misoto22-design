@@ -3,6 +3,7 @@
 import { ToggleGroup, ToggleGroupItem } from '@misoto22/design'
 import { BoxPlot, type BoxPlotOrientation } from '@misoto22/design/charts'
 import { useState } from 'react'
+import { ExampleControls } from '@/components/ExampleControls'
 
 const data = [
   { name: 'ap-southeast-2', values: [182, 190, 194, 201, 205, 209, 214, 221, 236, 402] },
@@ -28,18 +29,20 @@ export function Example() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <ToggleGroup
-        type="single"
-        value={orientation}
-        onValueChange={(next) => next && setOrientation(next as BoxPlotOrientation)}
-        aria-label="Orientation"
-      >
-        {ORIENTATIONS.map((option) => (
-          <ToggleGroupItem key={option} value={option}>
-            {option}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      <ExampleControls>
+        <ToggleGroup
+          type="single"
+          value={orientation}
+          onValueChange={(next) => next && setOrientation(next as BoxPlotOrientation)}
+          aria-label="Orientation"
+        >
+          {ORIENTATIONS.map((option) => (
+            <ToggleGroupItem key={option} value={option}>
+              {option}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </ExampleControls>
 
       <BoxPlot title="Response time by region" data={data} orientation={orientation}>
         <BoxPlot.Grid />
