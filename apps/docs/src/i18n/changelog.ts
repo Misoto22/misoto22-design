@@ -27,14 +27,14 @@ import type { Locale } from './locales'
  *
  * THE CHANGESET HALF OF THAT IS WHAT MAKES A RELEASE POSSIBLE AT ALL, and it is
  * the case the original design did not anticipate. `CHANGELOG.md` is written by
- * the Version Packages pull request, which is opened by `GITHUB_TOKEN` and so
- * carries no checks — the strings therefore first exist, and this file is first
- * found wanting, on the `main` run that was about to publish. That run is the
- * publish. So the translation cannot wait for the bump. But written before it,
- * the same lines read as orphans on `main`, and they cannot be pushed onto the
- * release branch either: the changesets action force-pushes
+ * the Version Packages pull request, so the strings first exist there and this
+ * file is first found wanting on that pull request's `verify` — which, since the
+ * release App opens it, is a check that runs and blocks the auto-merge. A
+ * missing line is therefore a release that does not happen, rather than one that
+ * happens half in English. But a translation written BEFORE the bump has no
+ * changelog entry behind it yet and would read as an orphan, and it cannot be
+ * parked on the release branch either: the changesets action force-pushes
  * `changeset-release/main` and rebuilds it from scratch whenever `main` moves.
- * Three doors, all locked, and 0.8.0 sat behind them.
  *
  * A translation written before its release ships is not an orphan — it is
  * early, and the changeset is the proof, because `.changeset/*.md` holds
@@ -44,6 +44,163 @@ import type { Locale } from './locales'
  * keeps this a gate. See `docs/releasing.md`.
  */
 const ZH: Record<string, string> = {
+  // ─── 0.9.0 ───
+  [fingerprint(
+    '`Sidebar` is a drawer where a column will not fit, and a page has a side to sit on.',
+  )]: '`Sidebar` 在放不下一整列的地方变成抽屉，而页面有一条边可以让它靠。',
+  [fingerprint(
+    'Five things the rail could not do, and one of them was the reason every application built on it wrote a second navigation by hand.',
+  )]: '导航栏做不到的五件事，其中一件正是每个基于它搭起来的应用都得再手写一套导航的原因。',
+  [fingerprint(
+    '**Under `breakpoint` it is an overlay**, not a narrower column: `fixed` against its own edge, over a scrim, and `inert` while closed. That last part is the one hand-written versions skip — a drawer merely translated off-screen still holds focus and is still read aloud, so a closed one puts its whole index between the reader and the page they were on. The scrim is a real button, because tapping beside a drawer is how a drawer is closed and that gesture has to exist for a keyboard too. A row closes it: following a link inside an overlay and leaving the overlay up is a reader landing somewhere they cannot see.',
+  )]: '**在 `breakpoint` 以下它是一层浮层**，不是一列变窄的栏：`fixed` 贴着自己那条边，压在一层遮罩上，关着的时候是 `inert`。最后这一点正是手写版本会跳过的——一个只是被平移出屏幕的抽屉，仍然握着焦点、仍然会被念出来，于是一个关着的抽屉把它整份索引横在读者和他们原本那一页之间。遮罩是一个真正的 button，因为在抽屉旁边点一下就是关抽屉的方式，而这个手势对键盘也必须存在。点一行也会关掉它：在浮层里跟着链接走、却把浮层留在上面，等于让读者落在一个自己看不见的地方。',
+  [fingerprint(
+    'The switch is a media query in the stylesheet, not a branch on `matchMedia`. The first version asked JavaScript and rendered a different tree from the answer — an answer that does not exist until an effect runs, so a phone painted a 256px column beside a 390px screen and the page scrolled sideways until React caught up. `breakpoint` is therefore one of `\'sm\' | \'md\' | \'lg\' | \'xl\'` rather than a number: these are literal class strings, and a class built from a runtime number is one the compiler never emitted. `null` pins the rail as a column at every width, and `contained` points the overlay at a positioned ancestor instead of the window — for a rail inside a device preview or an embedded console.',
+  )]: '这个切换是样式表里的一条媒体查询，不是 `matchMedia` 上的一个分支。第一版去问 JavaScript，然后照着答案渲染另一棵树——而那个答案在 effect 跑起来之前根本不存在，于是手机在 390px 的屏幕旁边画了一列 256px 的栏，页面一直横着滚，直到 React 追上来。所以 `breakpoint` 是 `\'sm\' | \'md\' | \'lg\' | \'xl\'` 之一，而不是一个数字：这些是字面量类名，而用运行时数字拼出来的类名，编译器从来没有产出过。`null` 把导航栏在任何宽度下都钉成一列，而 `contained` 把浮层指向一个定位过的祖先而不是窗口——供设备预览或内嵌控制台里的导航栏使用。',
+  [fingerprint(
+    '**`side="end"`** puts the rail on the other edge, logically: the right in a Latin document and the left in an Arabic one, with the hairline, the collapse glyph and the row tooltips all following rather than being written twice.',
+  )]: '**`side="end"`** 把导航栏放到另一条边上，而且是逻辑意义上的：拉丁文文档里是右边，阿拉伯文文档里是左边，发丝线、收起字形和行 tooltip 全都跟着走，而不是写两遍。',
+  [fingerprint(
+    '**`variant`** decides which of the two pieces is the panel. `flush` is a column and a page divided by a hairline. `floating` lifts the rail off the ground as its own bordered panel. `inset` is the same gesture the other way up — the rail becomes the ground and the new `SidebarInset` draws the page as the panel, which is why the setting lives on the provider: one decision, two components, and no way to set half of it.',
+  )]: '**`variant`** 决定这两块里哪一块是面板。`flush` 是一列和一页，中间用一根发丝线分开。`floating` 把导航栏抬离地面，成为它自己的一块带边框的面板。`inset` 是同一个手势反过来——导航栏成了地面，而新的 `SidebarInset` 把页面画成那块面板，这也是为什么这个设置放在 provider 上：一个决定，两个组件，没法只设一半。',
+  [fingerprint(
+    '**`SidebarInset`** is the column beside the rail. Every layout built on this was writing the same `flex min-w-0 flex-1 flex-col` by hand, and `min-w-0` is the half everybody forgets: a flex child\'s floor is its content, so one wide table inside pushes the whole page past the viewport and takes the rail\'s width with it.',
+  )]: '**`SidebarInset`** 就是导航栏旁边的那一列。每一个基于它的布局都在手写同一串 `flex min-w-0 flex-1 flex-col`，而 `min-w-0` 正是所有人都会忘的那一半：一个 flex 子项的下限是它的内容，所以里头一张宽表格就会把整页顶出视口，还顺带把导航栏的宽度一起带走。',
+  [fingerprint(
+    '**`persist`** takes a `localStorage` key and remembers the docked state. A reader who put the rail away did not mean "until the next page". Only the docked state is kept — restoring an open drawer is a page that loads with its own navigation over the top of itself — and it is read after mount, never during render, because a value from storage in the first pass is a hydration mismatch.',
+  )]: '**`persist`** 接一个 `localStorage` 键，记住停靠状态。把导航栏收起来的读者，意思不是「只收到下一页为止」。只有停靠状态会被记住——恢复一个打开的抽屉，等于页面加载出来时自己的导航正压在自己身上——而且这个值是在挂载之后读的，绝不在渲染当中，因为首轮就从 storage 拿值会造成 hydration 不一致。',
+  [fingerprint(
+    'Named axis defaults reach one more call site, and the argument for them is now on the page.',
+  )]: '有名字的轴默认值又够到了一处调用点，而支持它们的那套论证现在写在页面上了。',
+  [fingerprint(
+    '`ThemeRail` wrote only the axes a preset moves, on the reasoning that the rest are the White Reset. They are not: an unset axis is not "the default", it is whatever the ancestor said — and that rail\'s ancestor is a document carrying whichever theme the reader applied to the site. So every thumbnail showed the reader\'s own corners, rules and face for five of its six axes, and eight previews of eight different themes came out looking like eight previews of the one already on screen. It is the same defect the themes gallery had, in the second of the two files that draws a preview.',
+  )]: '`ThemeRail` 只写了预设会动的那几根轴，理由是其余的都属于白色重置。它们不是：一根没设置的轴不是「默认值」，而是祖先说了算——而这条导航栏的祖先，是一份带着读者给站点应用的那个主题的文档。于是每一张缩略图，六根轴里有五根显示的是读者自己的圆角、线条和字体，八个不同主题的预览看起来就是同一个已经在屏幕上的主题的八份预览。这跟主题画廊的缺陷是同一个，只不过发生在画预览的那两个文件里的第二个。',
+  [fingerprint(
+    '`SidebarBranch` — a row that opens onto more rows — plus a `badge` slot on `SidebarGroup`, and a 16rem rail.',
+  )]: '`SidebarBranch`——一行展开成更多行——外加 `SidebarGroup` 上的一个 `badge` 插槽，以及 16rem 宽的导航栏。',
+  [fingerprint(
+    'Nesting is the thing a rail is for and the thing a flat list of groups cannot do: a workspace with projects in it, a folder with documents in it, a service with its environments. The line it draws is between a PLACE and a HEADING — `SidebarGroup` is a heading over a set and has neither an icon nor a state because it is not somewhere you can be; a branch has both because it is.',
+  )]: '嵌套正是导航栏存在的意义，也正是一列扁平的分组做不到的事：一个装着若干项目的工作区，一个装着若干文档的文件夹，一个带着自己各套环境的服务。它划的那条线，是「一个地方」和「一个标题」之间的线——`SidebarGroup` 是一组东西上方的标题，既没有图标也没有状态，因为它不是你能待在里面的地方；而分支两样都有，因为它就是。',
+  [fingerprint(
+    'Children sit behind the same hairline a group draws, one indent further in, so depth reads as depth. Two levels is what the indent has room for at this width; a third is a horizontal scrollbar with an outline in it. Collapsed to icons a branch is its icon and its children are not drawn — a nested glyph under an unnested one is two marks with no visible relationship.',
+  )]: '子项排在分组画出的同一根发丝线之后，再往里缩进一级，于是深度读起来就是深度。在这个宽度下，缩进只放得下两级；第三级就是一条横向滚动条，里头装着一份大纲。收成图标之后，一个分支就是它的图标，子项不再画出来——一个嵌套字形压在一个没嵌套的字形下面，是两个看不出任何关系的记号。',
+  [fingerprint(
+    '`Sidebar` — a navigation rail down the side of an application, with the control that hides it living on the thing it hides.',
+  )]: '`Sidebar`——贴着应用侧边的一条导航栏，而收起它的那个控件，就长在它要收起的东西上。',
+  [fingerprint(
+    'Composed rather than configured: `SidebarProvider`, `Sidebar`, `SidebarHeader`, `SidebarContent`, `SidebarGroup`, `SidebarItem`, `SidebarFooter`, `SidebarSeparator`, `SidebarTrigger` and `useSidebar`. A rail is a header, a scrolling middle and a footer, and every product wants different things in all three; what the component owns is the part that is the same everywhere — the width, the edge, the scrolling, and what happens when it closes.',
+  )]: '是拼出来的，不是配出来的：`SidebarProvider`、`Sidebar`、`SidebarHeader`、`SidebarContent`、`SidebarGroup`、`SidebarItem`、`SidebarFooter`、`SidebarSeparator`、`SidebarTrigger` 和 `useSidebar`。一条导航栏就是一个头、一段会滚的中间和一个脚，而每个产品在这三处想要的东西都不一样；组件自己拥有的，是那些到哪儿都一样的部分——宽度、边缘、滚动，以及它关上时会发生什么。',
+  [fingerprint(
+    '**Closing has three shapes.** `icon` keeps the rail and drops the labels, which suits a fixed set a reader learns the shape of. `offcanvas` takes the whole rail away, which suits a long index nobody memorises — ninety-two rows collapse to ninety-two identical file icons, which is width answering nothing. `none` is a rail that does not close.',
+  )]: '**关起来有三种形状。** `icon` 留下导航栏、去掉文字，适合一组固定的、读者会记住其形状的项。`offcanvas` 把整条栏都收走，适合一份没人背得下来的长索引——九十二行会塌成九十二个一模一样的文件图标，这样的宽度什么也没回答。`none` 是一条不会关的导航栏。',
+  [fingerprint(
+    '**The trigger belongs inside.** A control that hides a thing lives on the thing: in an application\'s masthead it is one more anonymous icon in a row of them, with nothing connecting it to the column it operates.',
+  )]: '**触发器属于里面。** 收起某样东西的控件，就该长在那样东西上：放进应用的顶栏，它不过是一排匿名图标里再多一个，跟它操作的那一列之间没有任何联系。',
+  [fingerprint(
+    '**A collapsed row is still a named row.** The label leaves the layout — a `sr-only` label still occupies the flex row\'s gap — and becomes the row\'s tooltip, because an icon alone is a guess for a sighted reader and nothing at all for a screen reader. The provider supplies the tooltip provider that needs, so the icon state works without the app being told to wrap itself in one.',
+  )]: '**收起来的一行，仍然是有名字的一行。** 文字标签离开布局——一个 `sr-only` 标签仍然会占掉 flex 行的间距——转而成为这一行的 tooltip，因为光有图标，对看得见的读者是猜测，对屏幕阅读器则什么都不是。tooltip 需要的那个 provider 由 `SidebarProvider` 一并提供，所以图标状态不必先叫应用把自己包一层才能用。',
+  [fingerprint(
+    '**A `<nav>`, not an `<aside>`.** The element decides the landmark, and a rail of links announced as "complementary" is not the one a reader jumps to when they go looking for the navigation.',
+  )]: '**是 `<nav>`，不是 `<aside>`。** 元素决定了地标，而一条被念作「补充内容」的链接栏，不是读者去找导航时会跳过去的那一个。',
+  [fingerprint(
+    '`--sidebar-w` and `--sidebar-w-icon` are tokens, because the shell beside the rail has to reserve exactly what the rail believes it is.',
+  )]: '`--sidebar-w` 和 `--sidebar-w-icon` 是 token，因为导航栏旁边的外壳，必须精确地留出导航栏自认为的那个宽度。',
+  [fingerprint(
+    'Every theme axis default now has a name, so a subtree can opt OUT of an ancestor\'s theme rather than only into a different one.',
+  )]: '每一个主题轴的默认值现在都有名字了，于是一棵子树可以从祖先的主题里「退出来」，而不是只能「换到另一个里去」。',
+  [fingerprint(
+    '`[data-surface=\'paper\']`, `[data-rules=\'hairline\']`, `[data-type=\'editorial\']` and `[data-density=\'comfortable\']` join `[data-radius]`, which already worked this way. Each sits on the rule that declares the defaults rather than restating them, so there is nothing new to drift.',
+  )]: '`[data-surface=\'paper\']`、`[data-rules=\'hairline\']`、`[data-type=\'editorial\']` 和 `[data-density=\'comfortable\']` 加入了本来就这么工作的 `[data-radius]`。每一个都挂在声明默认值的那条规则上，而不是把默认值重述一遍，所以没有任何新东西会漂移。',
+  [fingerprint(
+    'The gap this closes: "the White Reset" used to be spelled "write no attribute", which works exactly once — at the root. Inside a page whose root carries a theme, an unset axis is not the default, it is whatever the ancestor said. Five theme specimens on one page each inherited whichever theme the reader had applied to the site, and all five showed the same colours.',
+  )]: '这补上的那个缺口：「白色重置」以前的写法是「一个属性都不写」，而这招只灵一次——在根节点上。在一个根节点已经带了主题的页面里，一个没设置的轴不是默认值，而是祖先说了算。同一页上的五个主题样本，各自继承了读者给站点应用的那个主题，于是五个都显示同一套颜色。',
+  [fingerprint(
+    'Two corrections found by the browser sweep, in the same layer:',
+  )]: '浏览器巡检在同一层里找出的两处更正：',
+  [fingerprint(
+    '`[data-density=\'comfortable\']` first landed on a `:root` block that also carries the status colours, the floating surfaces and the motion steps, so every element declaring the default density re-declared the whole LIGHT palette on itself — in dark mode, a light `--danger` painted on a dark ground. A neutral value may only restate the axis it names, so density now sits on a rule holding nothing else.',
+  )]: '`[data-density=\'comfortable\']` 最早落在了一个 `:root` 块上，而那个块同时还带着状态色、浮层表面和动效步长，于是每一个声明了默认密度的元素，都把整套「浅色」调色板重新声明到了自己身上——在深色模式下，就是一个浅色的 `--danger` 涂在深色底上。一个中性值只允许重述它自己点名的那一根轴，所以密度现在挂在一条别的什么都不带的规则上。',
+  [fingerprint(
+    'And the dark block was missing the compound forms — `[data-mode=\'dark\'][data-surface=\'paper\']` and the rest — so a dark subtree that named its own default surface got the light one back.',
+  )]: '还有，深色那个块缺了复合形式——`[data-mode=\'dark\'][data-surface=\'paper\']` 之类——于是一棵深色子树，只要点名了自己的默认表面，拿回来的就是浅色那一个。',
+  [fingerprint(
+    'Two controls the forms group was missing, and the way out of the one a slider cannot do: `ColorPicker`, `NumberField`, and `editable` on `Slider`.',
+  )]: '表单这一组缺的两个控件，外加滑块做不到的那件事的出路：`ColorPicker`、`NumberField`，以及 `Slider` 上的 `editable`。',
+  [fingerprint(
+    'The gap was written down in the package\'s own documentation. `Slider`\'s catalogue entry said "put an `Input` beside it when the exact number matters", which is a component library telling a caller to build the missing half by hand and keep two controls in step themselves. There was no numeric control with a range and no colour control at all.',
+  )]: '这个缺口就白纸黑字写在这个包自己的文档里。`Slider` 的目录条目说「精确数值要紧的时候，在它旁边放一个 `Input`」——这是一个组件库在叫调用者自己手搓缺掉的那一半，还得自己让两个控件保持同步。当时既没有带范围的数值控件，也根本没有颜色控件。',
+  [fingerprint(
+    '**`ColorPicker`** — a swatch trigger and a panel that works in OKLCH. That is the substance rather than the styling: in HSV, which is what `<input type="color">` and most libraries use, a row of constant "lightness" visibly darkens as it saturates, so a reader tuning a palette is fighting the instrument. The plane is normalised to the gamut row by row, so its whole surface is reachable instead of a lens of colour inside bands of clipped duplicates, and the hue strip is taken at the lightness already chosen. It reads and writes hex, `rgb()`, `hsl()`, `oklch()` and `color(display-p3 …)`; the notation a caller passes in is the notation they get back. The plane is a group of two real sliders under the canvas rather than key handlers on it, so the arrows move it and a screen reader announces which axis it is on — the part a 2D picker usually leaves out, and leaving it out makes the control unusable rather than merely awkward.',
+  )]: '**`ColorPicker`**——一个色块触发器，加上一块在 OKLCH 里工作的面板。这是实质而不是外观：在 HSV 里——也就是 `<input type="color">` 和多数库用的那一套——一排「明度」不变的颜色，会随着饱和度升高而肉眼可见地变暗，于是调色板的读者是在跟仪器较劲。这块平面是逐行按色域归一化的，所以它整个表面都够得着，而不是一小片有颜色的透镜夹在几条被裁掉的重复色带之间；色相条也取在已经选定的那个明度上。它读写 hex、`rgb()`、`hsl()`、`oklch()` 和 `color(display-p3 …)`；调用者传进去的记法，就是他们拿回来的记法。这块平面是画布下方两个真正的 slider 组成的一组，而不是挂在画布上的按键处理器，所以方向键能移动它，屏幕阅读器也会念出它当前在哪一根轴上——这是二维取色器通常会漏掉的那一部分，而漏掉它会让这个控件从「有点别扭」变成「根本没法用」。',
+  [fingerprint(
+    '**`NumberField`** — a real `<input type="number">` in the shared control box, with a grip that sweeps the value as it is dragged, one step every 4px and ten with Shift held. A value that is TUNED — a duration, a line height, an offset — is found by passing through its neighbours, not by typing candidates one at a time. Clamping happens when the field is left rather than on every keystroke, because a minimum of 10 otherwise makes 50 unreachable: the `5` is pushed up before the `0` arrives.',
+  )]: '**`NumberField`**——共用控件框里一个真正的 `<input type="number">`，带一个拖动时扫过数值的握把，每 4px 一步，按住 Shift 就是十步。一个需要「调」出来的值——一段时长、一个行高、一个偏移——是穿过它的邻居找到的，不是一个一个把候选值打出来试。夹取发生在离开字段的时候，而不是每一次按键，因为最小值若是 10，否则 50 就永远打不出来：`5` 在 `0` 到达之前就被顶上去了。',
+  [fingerprint(
+    '**`Slider`\'s `editable`** — turns the readout into a box per thumb, showing `format`\'s output at rest and the bare number on focus, so a reader still sees "$1,200" and a typist is never asked to type a currency symbol back. A typed value is held inside the neighbouring thumb as well as inside `min` and `max`, which is the bound a dragged one cannot cross and a typed one can.',
+  )]: '**`Slider` 的 `editable`**——把读数变成每个滑块一个输入框，静止时显示 `format` 的输出，聚焦时显示裸数字，于是读者看到的仍然是「$1,200」，而打字的人从不会被要求把货币符号再敲一遍回去。打进去的值同时被夹在相邻滑块之内，以及 `min` 和 `max` 之内——前者正是拖动越不过、而打字越得过的那道界。',
+  [fingerprint(
+    '`Slider` is now controlled from its own state whether or not the caller controls it, because a number typed into the readout never passes through Radix — left as it was, the thumb stayed where it had been while the figure above it moved.',
+  )]: '`Slider` 现在无论调用者控不控制它，都由它自己的 state 来控制，因为打进读数里的数字从不经过 Radix——照原样放着，滑块会停在原地不动，而它上方的数字已经变了。',
+  [fingerprint(
+    'The colour maths is adapted from [DialKit](https://github.com/joshpuckett/dialkit) (MIT, Copyright (c) 2026 Josh Puckett); the notice travels with it in `src/lib/color.ts`.',
+  )]: '颜色运算改编自 [DialKit](https://github.com/joshpuckett/dialkit)（MIT，Copyright (c) 2026 Josh Puckett）；版权声明跟着它一起放在 `src/lib/color.ts` 里。',
+  [fingerprint(
+    'The rail stops looking like a terminal listing.',
+  )]: '导航栏不再像一份终端清单了。',
+  [fingerprint(
+    'A `SidebarGroup` heading was set in the MONO face at 15px medium. Ten of those stacked in a column read as a code listing rather than as a navigation: mono is this system\'s voice for code, metadata and figures, and a navigation heading is none of those. The heading is now the same face and size as its rows and outranks them by weight and by one step of ink — the two signals that can rank a row without changing what kind of thing it is. Counts come off mono too.',
+  )]: '`SidebarGroup` 的标题原本用等宽字体、15px、medium 字重排。十个这样的标题竖着堆成一列，读起来像一份代码清单，而不像一套导航：等宽是这套系统留给代码、元数据和数字的嗓音，而导航标题一样都不是。标题现在跟它下面的行同字体同字号，靠字重和一档墨色压过它们——这两个信号能给一行排位，又不改变它是哪一类东西。计数也从等宽里挪了出来。',
+  [fingerprint(
+    '`NavItem` tightens with it: `--radius-sm`, and the padding a 14px row wants rather than the padding a 15px one did.',
+  )]: '`NavItem` 跟着收紧：`--radius-sm`，以及 14px 的行该有的内边距，而不是 15px 的行原来那套。',
+  [fingerprint(
+    '`BulletChart` draws its target where the target is.',
+  )]: '`BulletChart` 把目标线画在目标真正在的地方。',
+  [fingerprint(
+    'Two ways the rule went missing, and the second one is the common case.',
+  )]: '那根线消失的两种方式，而第二种才是常见情况。',
+  [fingerprint(
+    'A fixed half-width pull put a target at the bottom of the scale half outside the track, where `overflow-hidden` took it — so "Open incidents, target 0" drew no target at all, on the one measure whose whole point is the distance from it. The pull is proportional now: flush at the start at 0, flush at the end at 1, centred on its position everywhere between.',
+  )]: '一个固定的半宽偏移，会把落在刻度最底端的目标线推得一半在轨道之外，然后被 `overflow-hidden` 吃掉——于是「未结事故，目标 0」根本没画出目标线，偏偏这条指标的全部意义就是「离目标还有多远」。现在这个偏移是按比例的：在 0 处贴着起点，在 1 处贴着终点，中间任何位置都以它自己为中心。',
+  [fingerprint(
+    'And the rule is drawn in `--ink` on a bar drawn in `--ink`, so wherever the target sat INSIDE the achieved range it was an ink rule on an ink bar and simply not there — which is every measure that is meeting its target. It now carries a paper halo, so it reads against the bar and against the bands alike.',
+  )]: '还有，这根线用 `--ink` 画，而柱子也用 `--ink` 画，所以只要目标落在已达成的区间「里面」，它就是一根墨色的线画在墨色的柱子上，等于根本不在——而那正是每一条正在达标的指标。它现在带了一圈纸色描边，于是无论衬着柱子还是衬着背景色带，都读得出来。',
+  [fingerprint(
+    'Diagram edges go straight when straight is available.',
+  )]: '图表连线在能走直线的时候就走直线。',
+  [fingerprint(
+    'Two bugs, one symptom. The port spread keyed on the word `auto` rather than on the face a line would actually use, so every auto-routed line leaving one node counted as sharing a face with every other — a node with one line going right and one going down had both nudged off centre to make room for each other on a face neither was on. Each line then arrived a few units out of true, and the router answered that with a dogleg: two corners, an S, and a line that looks like it is avoiding something.',
+  )]: '两个 bug，一个症状。端口分散是按 `auto` 这个词来判定的，而不是按线实际会用的那一面，于是从同一个节点出发的每一条自动路由线，都被算作跟其他所有线共用一面——一个节点上一条线往右、一条线往下，两条都被挤离中心，好给对方在一个谁都不在的面上腾地方。于是每条线到达时都偏了几个单位，而路由器对此的回答是拐一个折：两个角、一个 S 形，一条看上去像在绕开什么东西的线。',
+  [fingerprint(
+    'The spread now keys on the resolved face, and a line whose two ends are within two corner radii of each other is drawn straight rather than kinked — below that threshold the dogleg cannot even draw its own corners. Real turns keep their elbows.',
+  )]: '分散现在按解析出来的那一面判定，而两端相距在两个圆角半径以内的线会画成直的而不是拐折的——低于这个阈值，那个折连自己的角都画不出来。真正的转弯仍然保留它的肘部。',
+  [fingerprint(
+    'A floating panel now reads as floating, and a list draws one highlight rather than two.',
+  )]: '浮层现在读起来是浮着的，而一个列表只画一处高亮，不是两处。',
+  [fingerprint(
+    '**Depth.** Every overlay — menu, popover, select, dialog, sheet, palette — sat on `--paper` over a page of `--paper` with a hairline between them, so nothing said the two were different surfaces. `--panel-lift` is the offset under them, and it does not break Law 2: the law says a box-shadow is never BLURRED, not that there is never one. Two hard steps in the rule colours, which is a stack seen from the front — the flattest way to say depth without drawing light.',
+  )]: '**深度。** 每一种浮层——菜单、popover、select、对话框、抽屉、命令面板——都坐在 `--paper` 上，而页面也是 `--paper`，中间只隔一根发丝线，于是没有任何东西说明这是两个不同的表面。`--panel-lift` 就是它们底下的那道偏移，而它并不违反第二定律：定律说的是 box-shadow 从不「带模糊」，不是说从来不许有。用线条色画出两级硬边，那是一叠东西从正面看过去的样子——在不画光的前提下，说出深度最扁平的办法。',
+  [fingerprint(
+    '**One highlight.** `SidebarItem` drew the current page filled and filled a row under the pointer, which is two rows claiming to be where the reader is. While the pointer is in the list the fill is the pointer\'s, and it returns to the current row when the pointer leaves. `aria-current` never moves — nothing about what is TRUE changes, only what is drawn.',
+  )]: '**只有一处高亮。** `SidebarItem` 会给当前页面画填充，也会给指针下的那一行画填充，于是有两行同时声称「读者在这儿」。指针在列表里的时候，填充归指针；指针离开，填充回到当前行。`aria-current` 从不移动——「什么是真的」没有任何改变，改变的只是画出来的东西。',
+  [fingerprint(
+    '`TabsList` no longer grows a vertical scrollbar beside a row of tabs.',
+  )]: '`TabsList` 不会再在一排标签旁边长出一条竖直滚动条了。',
+  [fingerprint(
+    '`overflow-x: auto` on its own computes `overflow-y` to `auto` as well, and the active trigger\'s `-mb-px` rule leaves the content exactly one pixel taller than the box — enough for a browser to draw a full-height scrollbar next to a strip with nothing to scroll. A strip only ever scrolls sideways, so it now says so.',
+  )]: '单写 `overflow-x: auto` 会把 `overflow-y` 也算成 `auto`，而选中标签那条 `-mb-px` 规则让内容刚好比容器高出一个像素——足够让浏览器在一条根本没东西可滚的横条旁边画出一条通高的滚动条。一条横条只会横着滚，所以现在它就这么写了。',
+  [fingerprint(
+    'Three things that did not line up.',
+  )]: '三处没对齐的东西。',
+  [fingerprint(
+    '**`Sidebar` renders without a provider.** It threw, which is defensible for a hook a consumer called by hand and wrong for the component: `<Sidebar>` on its own is the first thing anybody writes, and the documentation site\'s own props panel renders exactly that and got an error boundary instead of a rail. The parts now fall back to the state a rail with no controls would be in — open, not collapsible. `useSidebar` still throws, because a call to the hook is code asking for state nothing is keeping.',
+  )]: '**`Sidebar` 现在没有 provider 也能渲染。** 它以前会抛错——对一个被调用者手动调用的 hook 来说这说得过去，对组件来说就是错的：单写一个 `<Sidebar>` 是任何人第一个会写的东西，而文档站自己的属性面板渲染的正是这个，拿到的却是一个错误边界而不是一条导航栏。这些部件现在会退回到「一条没有控件的导航栏」该有的状态——展开，且不可收起。`useSidebar` 仍然会抛错，因为调用这个 hook 是代码在要一份根本没人在保存的状态。',
+  [fingerprint(
+    '**`ErrorState`\'s code was set `leading-none`.** At the title step this face draws about 62px of ink and a line box of exactly the font size is 47, so the figures overflowed their own box by seven pixels at each end — pressing against the eyebrow above and eating a third of the gap to the heading below. It has a real line box now, and the space the layout asks for is the space that appears.',
+  )]: '**`ErrorState` 的状态码原本设了 `leading-none`。** 在 title 这一档，这套字体画出来大约有 62px 的墨，而恰好等于字号的行盒只有 47，于是数字上下各溢出自己的盒子七个像素——上顶着眉标，下吃掉了到标题那段间距的三分之一。它现在有一个真正的行盒了，布局要多少空间，出现的就是多少。',
+  [fingerprint(
+    '**`TD` says why it is top-aligned, and when not to be.** A 36px row action beside 16px of text makes a 52px row, and top-aligned every other cell hangs at the top of it with twenty pixels of nothing underneath.',
+  )]: '**`TD` 现在会说清楚它为什么顶对齐，以及什么时候不该顶对齐。** 16px 的文字旁边放一个 36px 的行内操作，这一行就有 52px 高，而顶对齐之下，其他每一个单元格都吊在这一行的顶上，底下空着二十个像素。',
   // ─── 0.8.0 ───
   [fingerprint(
     'The package tells an agent when it gets a component wrong, and reaches agents that are not Claude Code.',
