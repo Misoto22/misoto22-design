@@ -44,6 +44,18 @@ import type { Locale } from './locales'
  * keeps this a gate. See `docs/releasing.md`.
  */
 const ZH: Record<string, string> = {
+  [fingerprint(
+    '`RadarChart.Radar` fills again instead of handing the SVG `NaN`.',
+  )]: '`RadarChart.Radar` 又能填充了，而不是把一个 `NaN` 递给 SVG。',
+  [fingerprint(
+    'The default fill opacity follows `--chart-fill` through a `calc()`, so it reads on both grounds without the component knowing which one it is on. That value is a string, and the dimming factor was applied to it in JS — `\'calc(…)\' * 1` is `NaN`, which React writes to `fill-opacity` after warning once in the console. Every unselected radar therefore lost its fill, on every render, since the default path never went through a number at all.',
+  )]: '默认填充不透明度是通过一个 `calc()` 跟着 `--chart-fill` 走的，于是它在深浅两种底色上都读得出来，而组件自己并不需要知道当前在哪一种上。问题是那个值是字符串，而变暗系数是在 JS 里乘上去的——`\'calc(…)\' * 1` 等于 `NaN`，React 会在控制台警告一次之后把它写进 `fill-opacity`。于是每一条未被选中的雷达线都丢了填充，每一次渲染都是如此，因为默认那条路径压根就没经过一个数字。',
+  [fingerprint(
+    'The factor multiplies inside the `calc()` now. A number passed as `fillOpacity` still scales the way it always did.',
+  )]: '现在这个系数是乘在 `calc()` 内部的。作为 `fillOpacity` 传进来的数字，仍然照它一直以来的方式缩放。',
+  [fingerprint(
+    'A gate walks every chart\'s rendered attributes and fails on any `NaN`, because nothing else would have noticed: jsdom has no layout, and the hidden table each chart carries still read correctly the whole time.',
+  )]: '现在有一道关卡会遍历每一张图表渲染出来的属性，遇到任何 `NaN` 就失败——因为别的东西都不会发现：jsdom 没有布局，而每张图表随身带的那张隐藏表格，自始至终读起来都是对的。',
   // ─── 0.9.0 ───
   [fingerprint(
     '`Sidebar` is a drawer where a column will not fit, and a page has a side to sit on.',
