@@ -27,6 +27,13 @@ export const AXES = {
 export type Axis = keyof typeof AXES
 export type AxisValue<A extends Axis> = (typeof AXES)[A][number]
 
+/** The axes that make a LOOK — `chartPalette` changes what a chart is painted with. */
+export const LOOK_AXES: Axis[] = ['surface', 'radius', 'rules', 'type', 'motion', 'density']
+
+/** An axis as it is written in the DOM. `chartPalette` is the only one that hyphenates. */
+export const attribute = (axis: Axis) =>
+  `data-${axis.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`
+
 /** What each axis reads when nothing is chosen — the attribute is absent. */
 export const DEFAULTS: Record<Axis, string> = {
   surface: 'paper',
