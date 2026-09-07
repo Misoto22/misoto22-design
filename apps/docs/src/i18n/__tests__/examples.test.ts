@@ -161,7 +161,7 @@ describe('the Chinese example headings', () => {
   const groupOf = (key: string) => GROUP_BY_DIR.get(key.slice(0, key.indexOf('/')))
 
   /** Groups whose headings are all translated. Add one when its batch lands. */
-  const TRANSLATED_GROUPS = new Set(['Charts', 'Data'])
+  const TRANSLATED_GROUPS = new Set(['Charts', 'Data', 'Website'])
 
   /**
    * How many headings are still English. It may only go down — raise nothing,

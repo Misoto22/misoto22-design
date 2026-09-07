@@ -35,6 +35,11 @@
       "types": "./dist/diagrams/index.d.ts",
       "import": "./dist/diagrams/index.js"
     },
+    "./website": {
+      "types": "./dist/website/index.d.ts",
+      "import": "./dist/website/index.js"
+    },
+    "./website.css": "./dist/website.css",
     "./styles.css": "./dist/styles.css",
     "./tokens.css": "./dist/tokens.css",
     "./semantic.css": "./dist/semantic.css",
@@ -46,7 +51,11 @@
       "import": "./dist/tokens.js"
     },
     "./themes.css": "./dist/themes.css",
-    "./article.css": "./dist/article.css"
+    "./article.css": "./dist/article.css",
+    "./brand": {
+      "types": "./dist/tokens/brand.d.ts",
+      "default": "./dist/tokens/brand.js"
+    }
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

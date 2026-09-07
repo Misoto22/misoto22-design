@@ -1,5 +1,6 @@
 import { fingerprint } from './api-hash'
 import type { Locale } from './locales'
+import { WEBSITE_EXAMPLES_ZH } from './examples-website'
 
 /**
  * The sentence under each example, in Chinese.
@@ -53,6 +54,7 @@ export interface ExampleCopy {
 }
 
 export const EXAMPLE_ZH: Record<string, ExampleCopy> = {
+  ...WEBSITE_EXAMPLES_ZH,
   // ─── Actions ───
   "Button/01-variants": { hash: '68d6b1c4', zh: "四个 variant，按它们争夺注意力的顺序排开。variant 默认是 primary，所以一屏只留一个，其余控件一律给 secondary 或 ghost；danger 是一种状态、不是一档强调，把它花在「只是重要」的东西上，等到真有什么是破坏性的时候，页面上就再没有东西读起来像破坏性的了。" },
   "Button/02-sizes": { hash: 'cb8ddb44', zh: "同一个 variant 下的三个尺寸，于是变的只有那个盒子。几乎永远该拿 md：sm 在默认密度下是 36px，低于 md 自己就能达到的 44px，所以拿它拼出来的工具栏，是一排拇指按不中的目标（WCAG 2.5.5）——而 lg 是留给这一页真正在讲的那一个动作的。" },

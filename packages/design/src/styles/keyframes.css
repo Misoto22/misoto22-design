@@ -10,6 +10,31 @@
    one place, at the bottom.
    ========================================================================== */
 
+.m22-tabs-list { position: relative; isolation: isolate; }
+.m22-tabs-list[data-swipe] { touch-action: pan-y; user-select: none; }
+.m22-tabs-list[data-dragging] { cursor: grabbing; }
+.m22-tabs-list[data-orientation=horizontal][data-measured]::before { content: ''; position: absolute; z-index: 0; pointer-events: none; left: 0; top: calc(var(--tab-y) + var(--tab-height) - 2px); width: var(--tab-width); height: 2px; background: var(--accent); transform: translateX(calc(var(--tab-x) + var(--tab-drag-x, 0px))); transition: transform var(--duration-base) var(--ease-out-expo), width var(--duration-base) var(--ease-out-expo); }
+.m22-tabs-list [role=tab] { position: relative; z-index: 1; }
+/* Keep the focus treatment inside the scrolling strip so no outline is clipped. */
+.m22-tabs-list [role=tab]:focus { outline: none; }
+.m22-tabs-list [role=tab]:focus-visible { outline: none; background-color: var(--paper-2); box-shadow: inset 0 0 0 1px var(--rule-2); border-radius: 4px; }
+.m22-tabs-list[data-orientation=horizontal][data-measured] [role=tab][data-state=active] { border-bottom-color: transparent; }
+.m22-tabs-list[data-dragging]::before { transition-duration: 0ms; }
+.m22-tabs-panel[data-state=active] { animation: m22-tab-in var(--duration-base) var(--ease-out-expo); }
+.m22-tabs-panel[hidden] { display: none; }
+@keyframes m22-tab-in { from { opacity: 0; transform: translateX(var(--tab-enter-x, 0px)); } to { opacity: 1; transform: translateX(0); } }
+.m22-sheet { translate: none; --sheet-x: 0%; --sheet-y: 0%; }
+.m22-sheet[data-side=top] { --sheet-y: -100%; }
+.m22-sheet[data-side=bottom] { --sheet-y: 100%; }
+.m22-sheet[data-side=start] { --sheet-x: -100%; }
+.m22-sheet[data-side=end] { --sheet-x: 100%; }
+.m22-sheet[data-side=start]:dir(rtl) { --sheet-x: 100%; }
+.m22-sheet[data-side=end]:dir(rtl) { --sheet-x: -100%; }
+.m22-sheet[data-state=open] { animation: m22-sheet-in var(--duration-base) var(--ease-out-expo); }
+.m22-sheet[data-state=closed] { animation: m22-sheet-out var(--duration-fast) var(--ease); }
+@keyframes m22-sheet-in { from { transform: translate(var(--sheet-x), var(--sheet-y)); } to { transform: translate(0, 0); } }
+@keyframes m22-sheet-out { from { transform: translate(0, 0); } to { transform: translate(var(--sheet-x), var(--sheet-y)); } }
+
 /* A surface arriving in place — a panel, a menu, a tab's contents. Short and
    small: the page did not change, only part of it. */
 @keyframes m22-panel-in {

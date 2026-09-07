@@ -56,13 +56,16 @@ function propLines(rows) {
 /** One component, as the whole of what the package knows about it. */
 function componentText(entry, source, specifier) {
   const slug = slugOf(entry.name)
+  const importName = source.components.find((part) => part.name === entry.name)?.name
+    ?? source.components.find((part) => /^[A-Z]/.test(part.name))?.name
+  if (!importName) throw new Error(`component family has no public React export: ${entry.name}`)
   const out = [
     `# ${entry.name}`,
     '',
     entry.summary,
     '',
     `- Group: ${entry.group}`,
-    `- Import: \`import { ${entry.name} } from '${specifier}'\``,
+    `- Import: \`import { ${importName} } from '${specifier}'\``,
     `- Version: ${version}`,
     `- Docs: ${SITE}/components/${slug}/`,
   ]

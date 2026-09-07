@@ -1,0 +1,26 @@
+@layer base {
+  /* Document defaults shared by the website compositions. */
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: clamp(15.5px, 1.05vw, 17px);
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3, h4 { margin: 0; font-weight: 400; }
+  p { margin: 0; }
+  a { color: inherit; }
+  :lang(zh) {
+    text-spacing-trim: space-first;
+    text-autospace: normal;
+    font-synthesis-style: none;
+  }
+  :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+    outline: var(--focus-w) solid var(--focus);
+    outline-offset: var(--focus-off);
+  }
+}

@@ -384,7 +384,16 @@ export function extractProps(componentsDir) {
     } catch {
       continue
     }
-    out[entry] = extractFile(file)
+    // Families may split server markup and client interactions into siblings.
+    // Keep their public parts together, while excluding colocated test code.
+    const files = [file, ...readdirSync(dir).sort()
+      .filter((name) => name.endsWith('.tsx') && !/\.(test|spec)\.tsx$/.test(name) && name !== `${entry}.tsx`)
+      .map((name) => join(dir, name))]
+    const parts = files.map(extractFile)
+    out[entry] = {
+      components: parts.flatMap((part) => part.components),
+      exportedTypes: parts.flatMap((part) => part.exportedTypes),
+    }
   }
   return out
 }

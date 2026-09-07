@@ -38,6 +38,7 @@ export type ComponentGroup =
   | 'Navigation'
   | 'Surfaces'
   | 'Diagrams'
+  | 'Website'
 
 export interface ComponentEntry {
   /** URL segment — the name in kebab-case. */

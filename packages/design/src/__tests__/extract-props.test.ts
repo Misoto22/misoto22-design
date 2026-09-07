@@ -54,6 +54,8 @@ beforeAll(() => {
   directory = mkdtempSync(join(tmpdir(), 'extract-props-'))
   mkdirSync(join(directory, 'Widget'))
   writeFileSync(join(directory, 'Widget', 'Widget.tsx'), FIXTURE)
+  writeFileSync(join(directory, 'Widget', 'WidgetAction.tsx'), 'export function WidgetAction({ label }: { label: string }) { return null }')
+  writeFileSync(join(directory, 'Widget', 'Widget.test.tsx'), 'export function TestOnly() { return null }')
   fixture = extractProps(directory).Widget as Source
   real = extractProps(join(PACKAGE, 'src', 'components')) as Record<string, Source>
 })
@@ -87,6 +89,9 @@ describe('{@link} in a doc comment', () => {
 })
 
 describe('the real components', () => {
+  it('documents sibling exports without publishing test fixtures', () => {
+    expect(fixture.components.map((entry) => entry.name)).toEqual(['Widget', 'WidgetAction'])
+  })
   // The rows the documentation site published as a dangling full stop: the
   // link was dropped and the sentence around it kept its punctuation.
   it.each([

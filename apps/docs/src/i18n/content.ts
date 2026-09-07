@@ -11,6 +11,7 @@ import { SURFACES_ZH } from './components-zh/surfaces'
 import { DATA_ZH } from './components-zh/data'
 import { CHARTS_ZH } from './components-zh/charts'
 import { DIAGRAMS_ZH } from './components-zh/diagrams'
+import { WEBSITE_ZH } from './components-zh/website'
 
 /**
  * The editorial layer, translated.
@@ -141,6 +142,7 @@ const GROUPS_ZH: Record<ComponentGroup, string> = {
   Data: '数据',
   Charts: '图表',
   Diagrams: '图示',
+  Website: '网站',
 }
 
 /**
@@ -164,6 +166,7 @@ export const COMPONENTS_ZH: Record<string, ComponentCopyZh> = {
   ...DATA_ZH,
   ...CHARTS_ZH,
   ...DIAGRAMS_ZH,
+  ...WEBSITE_ZH,
 }
 
 /** The Chinese if it was made from THIS English, and the English otherwise. */

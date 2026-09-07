@@ -1,0 +1,21 @@
+import { describe, expect, it } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { RecoveryLinks, RecoveryState, WebsiteLoading } from './Recovery'
+
+describe('website recovery', () => {
+  it('preserves one page heading and host-owned destinations', () => {
+    render(<RecoveryState code="404" heading="Page unavailable" message="Choose another page." action={<button>Try again</button>} elsewhere={<RecoveryLinks label="Elsewhere" items={[{ id: 'work', link: <a href="/zh/work">工作</a> }]} />} />)
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Page unavailable')
+    expect(screen.getByRole('link', { name: '工作' })).toHaveAttribute('href', '/zh/work')
+  })
+
+  it.each(['records', 'gallery', 'media', 'metrics', 'identity'] as const)('names the %s loading state once and reserves its content', (layout) => {
+    const { container } = render(<WebsiteLoading layout={layout} label="正在载入内容" />)
+    expect(screen.getAllByRole('status')).toHaveLength(1)
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByRole('status')).toHaveTextContent('正在载入内容')
+    expect(container.querySelector('header')).not.toBeNull()
+    expect(container.querySelector('[data-loading-content]')).not.toBeNull()
+  })
+})

@@ -239,9 +239,9 @@ export function ChartContainer({
           "[&_.recharts-reference-line_[stroke='#ccc']]:stroke-(--chart-grid)",
           "[&_.recharts-dot[stroke='#fff']]:stroke-transparent",
           "[&_.recharts-sector[stroke='#fff']]:stroke-transparent",
-          // Recharts draws its own focus ring; the system draws one focus ring,
-          // in one place, and this is how the duplicate is removed.
-          '[&_.recharts-layer]:outline-hidden [&_.recharts-sector]:outline-hidden [&_.recharts-surface]:outline-hidden',
+          // Keyboard-focusable SVGs use the same global :focus-visible rule as
+          // every other control. A utility-level outline reset here overrides
+          // that base rule and leaves a working chart with no visible focus.
           className,
         )}
         {...rest}

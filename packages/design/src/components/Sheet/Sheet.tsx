@@ -35,6 +35,8 @@ export interface SheetContentProps
   description?: ReactNode
   /** Hide the title visually while keeping it for assistive tech. */
   hideTitle?: boolean
+  /** Accessible close action, supplied by the host locale. */
+  closeLabel?: string
 }
 
 /**
@@ -63,6 +65,7 @@ export function SheetContent({
   title,
   description,
   hideTitle = false,
+  closeLabel = 'Close',
   className,
   children,
   ...rest
@@ -74,11 +77,12 @@ export function SheetContent({
       <DialogPrimitive.Overlay
         data-m22-animated
         className={cn(
-          'inset-0 z-(--z-overlay) bg-(--scrim) data-[state=open]:animate-[m22-fade-in_var(--duration-fast)_var(--ease)]',
+          'inset-0 z-(--z-overlay) bg-(--scrim) data-[state=open]:animate-[m22-fade-in_var(--duration-fast)_var(--ease)] data-[state=closed]:animate-[m22-fade-out_var(--duration-fast)_var(--ease)]',
           container ? 'absolute' : 'fixed',
         )}
       />
       <DialogPrimitive.Content
+        data-side={side}
         // The panel's own assertion that its travel is decorative — the scrim
         // beside it always made one and this half never did, so under reduced
         // motion the fade was cancelled and the panel still slid the whole
@@ -88,7 +92,7 @@ export function SheetContent({
         // depends on anyone remembering it.
         data-m22-animated
         className={cn(
-          'fixed z-(--z-modal) flex flex-col overflow-y-auto border-(--panel-border) bg-(--panel-bg) p-6 shadow-(--panel-lift) panel-blur transition-transform duration-(--duration-slow) ease-(--ease-out-expo) scroll-slim',
+          'm22-sheet fixed z-(--z-modal) flex flex-col overflow-y-auto border-(--panel-border) bg-(--panel-bg) p-6 shadow-(--panel-lift) panel-blur scroll-slim',
           SIDE[side],
           // Docked to the container's edge, and capped by its box — the widths
           // above are read against the viewport and would overflow a frame.
@@ -109,7 +113,7 @@ export function SheetContent({
         </div>
 
         <DialogPrimitive.Close
-          aria-label="Close"
+          aria-label={closeLabel}
           className="absolute end-3 top-3 grid size-9 place-items-center rounded-(--radius-pill) text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)"
         >
           <RiCloseLine size={16} aria-hidden />

@@ -48,7 +48,7 @@ renders beautifully — `DIAGRAM_ACCENT_ON_CONTAINER`, `DIAGRAM_DIRECTION_ON_LEA
 `DIAGRAM_STAGE_OUT_OF_RANGE`. `skills/misoto22-design/rules/a11y.md` tables what
 each one fires on; `src/lib/warn.ts` is where they are printed.
 
-Three entry points, and importing from the wrong one throws rather than renders
+Four entry points, and importing from the wrong one throws rather than renders
 blank. Each `docs` file names its own on the `Import:` line.
 
 | Specifier | What ships from it |
@@ -56,6 +56,7 @@ blank. Each `docs` file names its own on the `Import:` line.
 | `@misoto22/design` | The primitives |
 | `@misoto22/design/charts` | Charts — needs the `recharts` and `motion` peers |
 | `@misoto22/design/diagrams` | Figures with routed edges |
+| `@misoto22/design/website` | Website compositions, with data and routes supplied by the host |
 
 ## You are working ON this package, in its repository
 

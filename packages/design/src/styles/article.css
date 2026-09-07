@@ -120,6 +120,8 @@
 
 [data-m22-article] a {
   color: var(--ink);
+  /* Extend the hit area without changing the surrounding line box. */
+  padding-block: max(0px, calc((var(--control-h-md) - 1.25em) / 2));
   text-decoration: underline;
   text-decoration-color: var(--rule-2);
   text-underline-offset: 4px;

@@ -27,19 +27,19 @@ const BUDGET = {
   /**
    * The compiled stylesheet, without the vendored font files.
    *
-   * 95 → 100 for the rail's drawer. The switch between a column and an overlay
-   * is a media query rather than a branch on `matchMedia`, so that the first
-   * paint on a phone is already the right layout — and a media query written as
-   * utilities is four breakpoints' worth of classes in the sheet whether or not
-   * a given app uses more than one. Growth, not a step change: it is the whole
-   * of `Sidebar`'s narrow-screen behaviour, and it is the reason the alternative
-   * — a 256px column beside a 390px screen until an effect ran — is gone.
+   * 100 → 210 for seventeen website composition families (206.4 kB measured). The standalone sheet
+   * includes their responsive layouts; Tailwind consumers can import the
+   * portable layers separately. Website compositions have their own JS entry
+   * and tree-shaking checks below.
    */
-  styles: 100,
+  styles: 210,
   /**
    * Everything, bundled and minified — the worst case a consumer can hit.
    *
-   * 435 → 440 for the icon set. Remix Icon carries each glyph as an inline
+   * 440 → 445 for tab measurement, drag gestures and shared overlay behavior
+   * (440.7 kB measured). The single-component budget remains unchanged.
+   *
+   * Previously, 435 → 440 for the icon set. Remix Icon carries each glyph as an inline
    * path string where lucide carried an `iconNode` array, and over the
    * thirty-five glyphs this package draws that is 432.9 kB → 436.0. Growth of
    * 0.7%, which is the noise this budget exists NOT to police — the point is a
@@ -47,7 +47,7 @@ const BUDGET = {
    * like the whole set arriving in the bundle rather than three kilobytes.
    * (`diagrams` went the other way, 172.8 → 171.0, for the same reason.)
    */
-  everything: 440,
+  everything: 445,
   /**
    * One leaf component, bundled and minified. If this ever approaches
    * `everything`, tree shaking has stopped working and every consumer is
@@ -123,6 +123,10 @@ const BUDGET = {
    * already has.
    */
   singleFigure: 55,
+  /** Seventeen website families, including their shared Radix primitives. */
+  website: 275,
+  /** A navigation link must not pull in conversations, galleries or charts. */
+  singleWebsiteComponent: 40,
 }
 
 const kb = (bytes) => Math.round((bytes / 1024) * 10) / 10
@@ -205,6 +209,18 @@ async function main() {
   report.push(['one figure', kb(singleFigure), BUDGET.singleFigure])
   if (kb(singleFigure) > BUDGET.singleFigure) failures.push('one figure')
 
+  const websitePeers = ['recharts', 'motion', 'motion/react']
+  const website = await bundleSize(`export * from './dist/website/index.js'`, websitePeers)
+  report.push(['website entry', kb(website), BUDGET.website])
+  if (kb(website) > BUDGET.website) failures.push('website entry')
+
+  const singleWebsite = await bundleSize(
+    `import { SiteLink } from './dist/website/index.js'\nconsole.log(SiteLink)`,
+    websitePeers,
+  )
+  report.push(['one website part', kb(singleWebsite), BUDGET.singleWebsiteComponent])
+  if (kb(singleWebsite) > BUDGET.singleWebsiteComponent) failures.push('one website part')
+
   const share = Math.round((single / everything) * 100)
   for (const [name, size, budget] of report) {
     console.log(`  ${name.padEnd(20)} ${String(size).padStart(6)} kB   budget ${budget} kB`)
@@ -214,6 +230,9 @@ async function main() {
   // The proportion is the real test: an absolute budget can be met by a package
   // that ships everything and simply is not very big yet.
   if (share > 25) failures.push(`tree shaking (one component is ${share}% of everything)`)
+  const websiteShare = Math.round((singleWebsite / website) * 100)
+  console.log(`  one website part is ${websiteShare}% of the website entry`)
+  if (websiteShare > 25) failures.push(`website tree shaking (one part is ${websiteShare}% of the entry)`)
 
   if (failures.length > 0) {
     console.error(`\ncheck-size: over budget — ${failures.join(', ')}`)

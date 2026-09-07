@@ -58,6 +58,10 @@ interface CommonProps {
   maxHeight?: number | string
   /** Drops the copy button, for a block nobody is meant to run. */
   copyable?: boolean
+  /** Accessible copy action, supplied by the host locale. */
+  copyLabel?: string
+  /** Accessible confirmation after copying. */
+  copiedLabel?: string
   /**
    * Names the scrollable body for a screen reader. Defaults to `title`, and to
    * "Code" when there is not one.
@@ -128,8 +132,8 @@ const HIGHLIGHTED =
 /**
  * A multi-line snippet, on a plate, with a way to take it away.
  *
- * The strip along the top carries the title, the language and the copy button,
- * and it is there whenever there is anything to put in it. It is deliberately
+ * A labelled block has a strip for its title, language and copy button.
+ * Without a label, copying sits beside the code in the same row. It is deliberately
  * not a hover affordance: a control that appears on hover does not exist on a
  * touch screen, which is where a reader is most likely to want the snippet and
  * least able to select it by hand.
@@ -183,6 +187,8 @@ export function CodeBlock({
   lang,
   maxHeight,
   copyable = true,
+  copyLabel = 'Copy the snippet',
+  copiedLabel = 'Copied',
   label,
   className,
   lineNumbers = false,
@@ -217,12 +223,13 @@ export function CodeBlock({
         // item defaults to `min-width: auto`, so without it the block grows to
         // the min-content width of its longest line — an unbroken install
         // command — and pushes the whole page sideways on a phone.
-        'flex min-w-0 flex-col overflow-hidden rounded-(--radius-lg) border border-(--rule) bg-(--paper-2)',
+        'min-w-0 overflow-hidden rounded-(--radius-md) border border-(--rule) bg-(--paper-2)',
+        title || languageLabel ? 'flex flex-col' : 'grid grid-cols-[minmax(0,1fr)_auto] items-center',
         className,
       )}
     >
       {title || languageLabel || copyable ? (
-        <div className="flex items-center gap-3 border-b border-(--rule) py-1.5 ps-4 pe-1.5">
+        <div className={cn('flex items-center gap-3', title || languageLabel ? 'border-b border-(--rule) py-1.5 ps-4 pe-1.5' : 'col-start-2 row-start-1 p-1.5')}>
           {title ? <span className="mono-meta truncate text-(--ink-2)">{title}</span> : null}
           {languageLabel ? (
             <span className="mono-meta shrink-0 text-(--ink-3-aa)">{languageLabel}</span>
@@ -233,7 +240,7 @@ export function CodeBlock({
               size="sm"
               variant="ghost"
               onClick={copy}
-              aria-label={copied ? 'Copied' : 'Copy the snippet'}
+              aria-label={copied ? copiedLabel : copyLabel}
               // `sm` is 36px, under the 44px a finger needs. The bump is gated
               // on a coarse pointer so a mouse-driven page keeps the compact
               // strip (WCAG 2.5.5).
@@ -255,7 +262,7 @@ export function CodeBlock({
         role="group"
         aria-label={label ?? title ?? 'Code'}
         style={maxHeight === undefined ? undefined : { maxHeight }}
-        className="overflow-auto px-4 py-3.5 scroll-slim"
+        className={cn('overflow-auto px-4 py-3.5 scroll-slim', !title && !languageLabel && 'col-start-1 row-start-1')}
       >
         {html === undefined ? (
           <pre className="m-0 min-w-max bg-transparent p-0 font-mono text-[13px] leading-[1.7]">

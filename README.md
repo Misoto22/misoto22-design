@@ -246,3 +246,11 @@ after the local gates pass. See [`.design-sync/NOTES.md`](.design-sync/NOTES.md)
 <div align="center">
 <sub>Built by Henry Chen · MIT</sub>
 </div>
+
+### Website compositions
+
+`@misoto22/design/website` adds 17 composition families for complete editorial
+websites. Presentation and accessible interactions live in the package; content,
+router adapters and backend integrations remain with each consumer. Use the
+portable `website.css` entry with an existing Tailwind pipeline, or import the
+complete `styles.css`. The offline CLI documents every family and public part.

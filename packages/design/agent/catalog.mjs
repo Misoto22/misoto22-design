@@ -42,6 +42,7 @@ import { SURFACES } from './catalog/surfaces.mjs'
 import { DATA } from './catalog/data.mjs'
 import { CHARTS } from './catalog/charts.mjs'
 import { DIAGRAMS } from './catalog/diagrams.mjs'
+import { WEBSITE } from './catalog/website.mjs'
 
 /**
  * @typedef {object} KeyRow
@@ -116,6 +117,7 @@ export const GROUPS = [
   'Data',
   'Charts',
   'Diagrams',
+  'Website',
 ]
 
 /** Every component's slug is its name in kebab-case. Derived, never authored. */
@@ -143,6 +145,7 @@ export const ENTRY_POINTS = {
   '@misoto22/design': 'components',
   '@misoto22/design/charts': 'charts',
   '@misoto22/design/diagrams': 'diagrams',
+  '@misoto22/design/website': 'website',
 }
 
 /** The specifier a consumer imports the root entry from. */
@@ -167,6 +170,7 @@ export const CATALOG = [
   ...DATA,
   ...CHARTS,
   ...DIAGRAMS,
+  ...WEBSITE,
 ]
 
 /**
