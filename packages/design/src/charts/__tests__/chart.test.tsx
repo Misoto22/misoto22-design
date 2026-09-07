@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { AreaChart, BarChart, type ChartConfig } from '../index'
+import { AreaChart, BarChart, RadarChart, type ChartConfig } from '../index'
 
 const config = {
   desktop: { label: 'Desktop' },
@@ -199,5 +199,64 @@ describe('the legend', () => {
     )
 
     expect(screen.queryByRole('button', { name: 'Desktop' })).not.toBeInTheDocument()
+  })
+})
+
+describe('a radar fill', () => {
+  const skills = { current: { label: 'Current' }, target: { label: 'Target' } } satisfies ChartConfig
+
+  const skillRows = [
+    { skill: 'Design', current: 80, target: 95 },
+    { skill: 'Ship', current: 65, target: 90 },
+    { skill: 'Support', current: 72, target: 85 },
+  ]
+
+  function polygonFill(container: HTMLElement, index: number): string | null {
+    const polygons = container.querySelectorAll('.recharts-radar-polygon .recharts-polygon')
+    return polygons[index]?.getAttribute('fill-opacity') ?? null
+  }
+
+  it('follows the ground rather than a fixed number', () => {
+    const { container } = render(
+      <RadarChart title="Team profile" config={skills} data={skillRows} angleDataKey="skill">
+        <RadarChart.Radar dataKey="current" />
+      </RadarChart>,
+    )
+
+    // The default has to stay a calc() over `--chart-fill`: a radar fill that
+    // reads on the light ground is washed out on the dark one, and the
+    // component has no way to know which it is on.
+    expect(polygonFill(container, 0)).toBe('calc(var(--chart-fill) * 2.2)')
+  })
+
+  it('recedes with the series when another one is picked', () => {
+    const { container } = render(
+      <RadarChart
+        title="Team profile"
+        config={skills}
+        data={skillRows}
+        angleDataKey="skill"
+        selectedDataKey="current"
+      >
+        <RadarChart.Radar dataKey="current" isClickable />
+        <RadarChart.Radar dataKey="target" isClickable />
+      </RadarChart>,
+    )
+
+    // Dimming scales the coefficient inside the calc(). Applying it to the
+    // result instead multiplies a string, which is NaN — the attribute React
+    // then writes, leaving the unpicked series with no fill at all.
+    expect(polygonFill(container, 0)).toBe('calc(var(--chart-fill) * 2.2)')
+    expect(polygonFill(container, 1)).toBe('calc(var(--chart-fill) * 2.2 * 0.1)')
+  })
+
+  it('still takes a number from the call site', () => {
+    const { container } = render(
+      <RadarChart title="Team profile" config={skills} data={skillRows} angleDataKey="skill">
+        <RadarChart.Radar dataKey="current" fillOpacity={0.5} />
+      </RadarChart>,
+    )
+
+    expect(polygonFill(container, 0)).toBe('0.5')
   })
 })

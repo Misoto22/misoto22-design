@@ -258,8 +258,12 @@ function Radar({
   const { dot, activeDot } = resolveDots(children, id, dataKey, opacity.dot)
   // `--chart-fill` is a number, not a length, so it can be read into a
   // calc() the SVG attribute accepts — which is how the default follows the
-  // ground without the component knowing which ground it is on.
-  const filledStrength = `calc(var(--chart-fill) * ${FILL_STRENGTH})` as unknown as number
+  // ground without the component knowing which ground it is on. Dimming has
+  // to multiply inside the calc() rather than scale the result: the value is
+  // a string, and multiplying it in JS hands the attribute NaN.
+  const dimFill = dimmed ? ` * ${opacity.fill}` : ''
+  const filledStrength = `calc(var(--chart-fill) * ${FILL_STRENGTH}${dimFill})` as unknown as number
+  const filledOpacity = fillOpacity === undefined ? filledStrength : fillOpacity * opacity.fill
   const stops = colorStops(config[dataKey])
 
   return (
@@ -270,7 +274,7 @@ function Radar({
         strokeOpacity={opacity.stroke}
         strokeWidth={STROKE_WIDTH}
         fill={isFilled ? `url(#${id}-fill-${dataKey})` : 'none'}
-        fillOpacity={isFilled ? (fillOpacity ?? filledStrength) * opacity.fill : 0}
+        fillOpacity={isFilled ? filledOpacity : 0}
         dot={dot}
         activeDot={activeDot}
         filter={glowing ? `url(#${id}-glow-${dataKey})` : undefined}
