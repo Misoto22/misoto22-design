@@ -36,8 +36,18 @@ const BUDGET = {
    * — a 256px column beside a 390px screen until an effect ran — is gone.
    */
   styles: 100,
-  /** Everything, bundled and minified — the worst case a consumer can hit. */
-  everything: 435,
+  /**
+   * Everything, bundled and minified — the worst case a consumer can hit.
+   *
+   * 435 → 440 for the icon set. Remix Icon carries each glyph as an inline
+   * path string where lucide carried an `iconNode` array, and over the
+   * thirty-five glyphs this package draws that is 432.9 kB → 436.0. Growth of
+   * 0.7%, which is the noise this budget exists NOT to police — the point is a
+   * step change, and a step change from swapping an icon set would have looked
+   * like the whole set arriving in the bundle rather than three kilobytes.
+   * (`diagrams` went the other way, 172.8 → 171.0, for the same reason.)
+   */
+  everything: 440,
   /**
    * One leaf component, bundled and minified. If this ever approaches
    * `everything`, tree shaking has stopped working and every consumer is
