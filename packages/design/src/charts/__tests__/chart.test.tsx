@@ -60,6 +60,21 @@ describe('the figure', () => {
     expect(screen.getByRole('cell', { name: '305' })).toBeInTheDocument()
   })
 
+  it('leaves the empty state where the plot was, not at the top of the figure', () => {
+    render(
+      <AreaChart title="Visitors per month" config={config} data={[]}>
+        <AreaChart.Area dataKey="desktop" />
+      </AreaChart>,
+    )
+
+    // The empty box stops growing at 26rem while the figure around it can be
+    // any height the page gives it, so without an auto margin the words pin to
+    // the top of a cell the plot had filled.
+    const box = screen.getByText('No data in this range').closest('figure > div')
+
+    expect(box).toHaveClass('my-auto')
+  })
+
   it('omits the table when the page prints the data itself', () => {
     render(
       <AreaChart title="Visitors" config={config} data={data} hideDataTable>
