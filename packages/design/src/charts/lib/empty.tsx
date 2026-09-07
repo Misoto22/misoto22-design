@@ -33,7 +33,16 @@ export function ChartEmpty({
   action,
 }: ChartEmptyProps) {
   return (
-    <div className="flex aspect-video max-h-[26rem] min-h-[13rem] w-full items-center justify-center">
+    // `my-auto` is what keeps this where the plot was. The box sizes itself
+    // 16:9 up to 26rem, which is right for a card that grows to its content and
+    // short of a figure given a fixed height by the page around it — a
+    // dashboard tile, a panel in a grid. Without the auto margin the state pins
+    // to the top of that figure while the plot it stands in for filled the
+    // whole cell, so the same chart reads at two different heights depending on
+    // whether it has data. The margin absorbs the free space when there is any
+    // and does nothing when there is none, so the content-sized case is
+    // untouched.
+    <div className="my-auto flex aspect-video max-h-[26rem] min-h-[13rem] w-full items-center justify-center">
       <EmptyState title={title} description={description} action={action} className="py-0" />
     </div>
   )

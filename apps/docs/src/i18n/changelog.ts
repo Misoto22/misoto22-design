@@ -44,6 +44,13 @@ import type { Locale } from './locales'
  * keeps this a gate. See `docs/releasing.md`.
  */
 const ZH: Record<string, string> = {
+  // ─── unreleased ───
+  [fingerprint(
+    "A chart's empty state stays where its plot was, instead of pinning to the top of a taller figure.",
+  )]: '图表的空状态会留在绘图区原来的位置，而不再顶到一个更高的 figure 的上沿。',
+  [fingerprint(
+    '`ChartEmpty` sizes itself 16:9 and stops at `max-h-[26rem]`, which is right for a card that grows to its content and short of a figure the page has given a fixed height — a dashboard tile, a cell in a grid. The box was then shorter than the figure holding it, so the words landed near the top while the plot they stand in for had filled the whole cell, and the same chart read at two different heights depending on whether it had data. The container it replaces is `flex-1` and `justify-center`; this was neither. An auto margin is the smaller of the two available fixes: it absorbs the free space when there is any and does nothing when there is none, so a chart that sizes to its own content keeps exactly the shape it had.',
+  )]: '`ChartEmpty` 按 16:9 给自己定尺寸，并在 `max-h-[26rem]` 处打住。这对一张跟着内容长大的卡片是对的，对一个被页面给定了固定高度的 figure——仪表盘的一块瓦片、网格里的一格——就不够高了。于是这个盒子比装着它的 figure 矮，文字落在靠上的位置，而它所替代的绘图区本来是把整格填满的；同一张图表，有数据和没数据读起来是两个高度。它替下来的那个容器是 `flex-1` 加 `justify-center`，而它两样都不是。自动外边距是两种改法里较小的那一种：有空余时它吃掉空余，没有空余时它什么也不做，所以按自身内容定尺寸的图表，形状分毫未变。',
   // ─── 0.10.0 ───
   [fingerprint(
     'The chart palette gains a third value, and forced colours gets its ramp back.',
