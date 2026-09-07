@@ -1,5 +1,15 @@
 # @misoto22/design
 
+## 0.12.0
+
+### Minor Changes
+
+- [#84](https://github.com/Misoto22/misoto22-design/pull/84) [`424b569`](https://github.com/Misoto22/misoto22-design/commit/424b569f1fc9d8629d85738e82b9f541684cbffc) Thanks [@Misoto22](https://github.com/Misoto22)! - Add reusable website compositions for navigation, portfolios, archives, reading, media, forms, search, metrics and conversations.
+  
+  The separate `@misoto22/design/website` entry owns presentation and accessible interactions. Hosts supply localized labels, router links, content and service state; chart engines remain in the optional charts entry.
+  
+  The portable `website.css` entry and compiled stylesheet share the canonical tokens. Offline documentation includes every family and its server and client exports.
+
 ## 0.11.0
 
 ### Minor Changes
