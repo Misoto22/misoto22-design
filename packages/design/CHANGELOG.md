@@ -1,5 +1,13 @@
 # @misoto22/design
 
+## 0.12.4
+
+### Patch Changes
+
+- [#93](https://github.com/Misoto22/misoto22-design/pull/93) [`9489393`](https://github.com/Misoto22/misoto22-design/commit/9489393283ad92cdbb0e40a36c7738746c2c132f) Thanks [@Misoto22](https://github.com/Misoto22)! - Media-detail return controls now keep a 44px touch target.
+  
+  The layout receives a host-owned link, so direct semantic children need their own target instead of inheriting density from the host.
+
 ## 0.12.3
 
 ### Patch Changes
