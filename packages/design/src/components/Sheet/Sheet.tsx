@@ -114,7 +114,7 @@ export function SheetContent({
 
         <DialogPrimitive.Close
           aria-label={closeLabel}
-          className="absolute end-3 top-3 grid size-9 place-items-center rounded-(--radius-pill) text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)"
+          className="absolute end-3 top-3 grid size-11 place-items-center rounded-(--radius-pill) text-(--ink-3-aa) transition-colors duration-(--duration-fast) hover:bg-(--stone) hover:text-(--ink)"
         >
           <RiCloseLine size={16} aria-hidden />
         </DialogPrimitive.Close>
