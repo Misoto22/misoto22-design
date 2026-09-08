@@ -75,3 +75,14 @@ describe('SheetContent under reduced motion', () => {
     expect(baseElement.querySelectorAll('[data-m22-animated]').length).toBeGreaterThanOrEqual(2)
   })
 })
+
+describe('SheetContent close action', () => {
+  it('keeps the icon compact inside a 44px target', () => {
+    render(
+      <Sheet defaultOpen>
+        <SheetContent title="Filters" closeLabel="Close filters">Body</SheetContent>
+      </Sheet>,
+    )
+    expect(screen.getByRole('button', { name: 'Close filters' }).className).toContain('size-11')
+  })
+})

@@ -55,6 +55,12 @@ const ZH: Record<string, string> = {
     "The question prompt is a distinct conversation invitation inside a larger portfolio or archive. Its heading now names the section landmark, so assistive technology can find that invitation directly. The circular submit control keeps its compact shape while restoring the package's documented 44px interactive target.",
   )]: '问答提示是作品集或档案中的一处独立对话入口。它的标题现在会为该区域命名，让辅助技术能够直接找到这处邀请。圆形提交控件保留紧凑外观，同时恢复设计包文档约定的 44px 交互触点。',
   [fingerprint(
+    'Sheet close actions provide a 44px target across every edge.',
+  )]: '抽屉关闭操作在每个方向上都提供 44px 的触控目标。',
+  [fingerprint(
+    "The close icon remains small, while its reachable surface now meets the same 44px target used by the rest of the package's mobile controls.",
+  )]: '关闭图标保持紧凑，而可触达的表面现在与包中其他移动端控件一样，达到 44px 的目标。',
+  [fingerprint(
     'Every icon in the package is a Remix Icon glyph now, and the brand marks lucide dropped come back with them.',
   )]: '包里的每一个图标现在都是 Remix Icon 的字形，而被 lucide 删掉的那些品牌图标，也跟着一起回来了。',
   [fingerprint(
