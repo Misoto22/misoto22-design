@@ -41,6 +41,26 @@ test('the current section is marked by more than a step of grey', async ({ page 
   expect(parseFloat(width)).toBeGreaterThan(0)
 })
 
+test('a fixed website-navigation thumbnail remains in its own card', async ({ page }) => {
+  await page.goto('/components/')
+  const thumbnail = page.locator('[data-component-thumb="SiteNavigation/01-navigation-and-preferences"]')
+  await thumbnail.scrollIntoViewIfNeeded()
+  await expect(thumbnail).toBeVisible()
+
+  const navigation = thumbnail.locator('.m22-site-navigation')
+  await expect(navigation).toBeVisible()
+  const [thumbnailBox, navigationBox] = await Promise.all([
+    thumbnail.boundingBox(),
+    navigation.boundingBox(),
+  ])
+  expect(thumbnailBox).not.toBeNull()
+  expect(navigationBox).not.toBeNull()
+  expect(navigationBox!.x).toBeGreaterThanOrEqual(thumbnailBox!.x - 1)
+  expect(navigationBox!.y).toBeGreaterThanOrEqual(thumbnailBox!.y - 1)
+  expect(navigationBox!.x + navigationBox!.width).toBeLessThanOrEqual(thumbnailBox!.x + thumbnailBox!.width + 1)
+  expect(navigationBox!.y + navigationBox!.height).toBeLessThanOrEqual(thumbnailBox!.y + thumbnailBox!.height + 1)
+})
+
 test('every page ends in a footer rather than in whitespace', async ({ page }) => {
   await page.goto('/components/button/')
   const footer = page.getByRole('contentinfo')
