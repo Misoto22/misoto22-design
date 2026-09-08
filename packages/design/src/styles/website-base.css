@@ -23,4 +23,10 @@
     outline: var(--focus-w) solid var(--focus);
     outline-offset: var(--focus-off);
   }
+  /* Recharts clears the browser's SVG outline. Keep its keyboard cursor as
+     visible as every other control, without asking hosts to add a local rule. */
+  [data-slot='chart'] svg.recharts-surface[tabindex]:focus-visible {
+    outline: var(--focus-w) solid var(--focus);
+    outline-offset: var(--focus-off);
+  }
 }

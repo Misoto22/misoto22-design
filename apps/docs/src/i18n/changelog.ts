@@ -61,6 +61,12 @@ const ZH: Record<string, string> = {
     "The close icon remains small, while its reachable surface now meets the same 44px target used by the rest of the package's mobile controls.",
   )]: '关闭图标保持紧凑，而可触达的表面现在与包中其他移动端控件一样，达到 44px 的目标。',
   [fingerprint(
+    'Website fields retain a 16px type size on phones, and keyboard-focused charts now show the system focus ring.',
+  )]: '网站表单在手机上保持 16px 字号，键盘聚焦图表时也会显示系统焦点环。',
+  [fingerprint(
+    'Compact controls keep their desktop density. Only editable collection, question-card and command-palette fields expand to the mobile-safe text size, while a direct Recharts surface rule protects its keyboard focus treatment from chart defaults.',
+  )]: '紧凑控件保留桌面端密度；只有内容列表、问答卡和命令面板中的可编辑字段会放大到移动端安全字号，同时 Recharts 图表表面会用直接规则避免图表默认样式覆盖键盘焦点反馈。',
+  [fingerprint(
     'Every icon in the package is a Remix Icon glyph now, and the brand marks lucide dropped come back with them.',
   )]: '包里的每一个图标现在都是 Remix Icon 的字形，而被 lucide 删掉的那些品牌图标，也跟着一起回来了。',
   [fingerprint(

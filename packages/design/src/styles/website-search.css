@@ -34,6 +34,7 @@
   .m22-search-palette__footer { flex-shrink: 0; flex-wrap: wrap; gap: 1rem; }
   @media (max-width: 40rem) {
     .m22-search-palette { inset-block-start: 4svh; max-block-size: 88svh; }
+    .m22-search-palette__search input { font-size: 1rem; }
     .m22-search-palette__result + span { display: none; }
     .m22-search-palette__footer { display: none; }
   }

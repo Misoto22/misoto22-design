@@ -73,6 +73,12 @@
   .m22-site-navigation .m22-navigation-search { inline-size: auto; }
   .m22-collection-intro { padding-block-start: 6rem; }
 }
+@media (max-width: 40rem) {
+  /* Safari zooms a page when the field it focuses is under 16px. Keep the
+     surrounding compact composition, but make the editable text legible. */
+  .m22-collection-search input,
+  .m22-question-card form input { font-size: 1rem; }
+}
 @media (max-width: 359px) {
   .m22-site-navigation .m22-navigation-search { inline-size: 44px; }
 }
