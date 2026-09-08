@@ -1,5 +1,17 @@
 # @misoto22/design
 
+## 0.13.0
+
+### Minor Changes
+
+- [#97](https://github.com/Misoto22/misoto22-design/pull/97) [`e34836e`](https://github.com/Misoto22/misoto22-design/commit/e34836e057c02054850aa78e66c656c9838ae934) Thanks [@Misoto22](https://github.com/Misoto22)! - Media-detail return controls now retain a 44px touch target after browser subpixel rounding.
+  
+  A 0.25px safety margin prevents a declared 44px target from measuring just under 44px in a real browser layout.
+  
+  Media page compositions accept `headingLevel` when they are embedded inside an existing document outline.
+  
+  The default remains an `h1` for standalone pages, while an embedded composition can use the heading level that follows its host section.
+
 ## 0.12.5
 
 ### Patch Changes
