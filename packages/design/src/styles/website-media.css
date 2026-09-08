@@ -47,6 +47,7 @@
 
 .m22-media-detail { padding-block: clamp(2rem, 5vw, 4.5rem) clamp(4rem, 8vw, 7rem); }
 .m22-media-index-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block-end: 1rem; border-block-end: 1px solid var(--border-subtle); }
+.m22-media-index-bar > :is(a, button) { min-inline-size: 44px; min-block-size: 44px; }
 .m22-media-index { color: var(--foreground-muted); font-family: var(--font-mono); font-size: 0.6875rem; font-variant-numeric: tabular-nums; letter-spacing: 0.13em; }
 .m22-media-spread { display: grid; grid-template-columns: minmax(0, 1fr) clamp(20rem, 29vw, 27rem); align-items: start; gap: clamp(1.5rem, 3.5vw, 4.5rem); padding-block: clamp(1.5rem, 3.5vw, 3.75rem); }
 .m22-media-well { display: flex; min-inline-size: 0; align-items: flex-start; }
