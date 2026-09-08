@@ -15,8 +15,8 @@ describe('website interaction styles', () => {
     expect(search).toMatch(/@media \(max-width: 40rem\)[\s\S]*\.m22-search-palette__search input \{ font-size: 1rem; \}/)
   })
 
-  it('keeps the media-detail return control at a 44px target', () => {
-    expect(media).toMatch(/\.m22-media-index-bar > :is\(a, button\) \{ min-inline-size: 44px; min-block-size: 44px; \}/)
+  it('keeps the media-detail return control above 44px after browser rounding', () => {
+    expect(media).toMatch(/\.m22-media-index-bar > :is\(a, button\) \{ min-inline-size: 44\.25px; min-block-size: 44\.25px; \}/)
   })
 
   it('gives the keyboard chart surface the shared visible focus ring', () => {

@@ -52,6 +52,12 @@ const ZH: Record<string, string> = {
     'Media-detail return controls now keep a 44px touch target.',
   )]: '媒体详情的返回控件现在保持 44px 触控目标。',
   [fingerprint(
+    'Media-detail return controls now retain a 44px touch target after browser subpixel rounding.',
+  )]: '媒体详情的返回控件现在即使经过浏览器子像素取整，也能保持 44px 触控目标。',
+  [fingerprint(
+    'A 0.25px safety margin prevents a declared 44px target from measuring just under 44px in a real browser layout.',
+  )]: '额外的 0.25px 安全余量可避免声明为 44px 的触控目标在真实浏览器布局中测得略小于 44px。',
+  [fingerprint(
     'The layout receives a host-owned link, so direct semantic children need their own target instead of inheriting density from the host.',
   )]: '布局接收由使用方提供的链接，因此直接的语义子元素需要拥有自己的触控目标，而不应继承使用方的紧凑密度。',
   [fingerprint(
