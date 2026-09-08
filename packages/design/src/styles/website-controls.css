@@ -1,7 +1,7 @@
 /* Shared interaction density and focus treatment for public reading surfaces. */
 .m22-collection-controls { gap: .75rem 1.25rem; padding-block: .75rem; }
 .m22-collection-filters { gap: .25rem; }
-.m22-collection-filters>button { min-block-size: 34px; padding: .375rem .625rem; font-size: .8125rem; border-radius: var(--radius-sm); }
+.m22-collection-filters>button { min-inline-size: 44px; min-block-size: 34px; padding: .375rem .625rem; font-size: .8125rem; border-radius: var(--radius-sm); }
 .m22-collection-search { gap: .5rem; flex: 0 1 16rem; max-inline-size: 18rem; padding: 0 .625rem; border: 1px solid var(--rule); border-radius: var(--radius-sm); background: var(--paper); }
 .m22-collection-search:focus-within { border-color: var(--website-focus); }
 .m22-collection-search>svg { flex: none; color: var(--ink-3-aa); }
@@ -31,7 +31,7 @@
 .m22-selection-toolbar { animation: m22-fade-in var(--duration-fast) var(--ease); }
 :root { --website-focus: color-mix(in srgb, var(--ink) 60%, var(--paper)); }
 :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
-  outline: 1px solid var(--website-focus);
+  outline: var(--focus-w) solid var(--website-focus);
   outline-offset: 3px;
 }
 .m22-site-navigation-inner { min-block-size: 3.75rem; }

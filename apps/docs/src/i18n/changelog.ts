@@ -49,6 +49,9 @@ const ZH: Record<string, string> = {
   [fingerprint("The portable `website.css` entry and compiled stylesheet share the canonical tokens. Offline documentation includes every family and its server and client exports.")]: "独立的 `website.css` 与编译后的完整样式共用同一套设计变量。离线文档覆盖所有新增组件组及其服务端、客户端导出。",
   // ─── unreleased ───
   [fingerprint(
+    "Restore the collection filter hit area and the chart's two-pixel focus ring on public websites.",
+  )]: '恢复公共网站中内容筛选的触控范围，以及图表的两像素键盘焦点环。',
+  [fingerprint(
     'Media-detail return controls now keep a 44px touch target.',
   )]: '媒体详情的返回控件现在保持 44px 触控目标。',
   [fingerprint(

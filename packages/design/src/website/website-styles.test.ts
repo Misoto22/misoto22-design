@@ -22,5 +22,10 @@ describe('website interaction styles', () => {
   it('gives the keyboard chart surface the shared visible focus ring', () => {
     expect(base).toContain("[data-slot='chart'] svg.recharts-surface[tabindex]:focus-visible")
     expect(base).toContain('outline: var(--focus-w) solid var(--focus);')
+    expect(controls).toContain('outline: var(--focus-w) solid var(--website-focus);')
+  })
+
+  it('keeps compact collection filters wide enough for a thumb', () => {
+    expect(controls).toContain('.m22-collection-filters>button { min-inline-size: 44px; min-block-size: 34px;')
   })
 })
