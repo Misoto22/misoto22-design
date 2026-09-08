@@ -64,10 +64,11 @@ function componentText(entry, source, specifier) {
     '',
     entry.summary,
     '',
+    `- Kind: ${entry.kind ?? 'component'}`,
     `- Group: ${entry.group}`,
     `- Import: \`import { ${importName} } from '${specifier}'\``,
     `- Version: ${version}`,
-    `- Docs: ${SITE}/components/${slug}/`,
+    `- Docs: ${SITE}/${entry.kind === 'pattern' ? 'patterns' : 'components'}/${slug}/`,
   ]
   if (entry.related?.length) out.push(`- Related: ${entry.related.join(', ')}`)
   out.push('')
@@ -196,10 +197,16 @@ function indexText() {
     '',
   ]
   for (const group of GROUPS) {
-    const entries = CATALOG.filter((entry) => entry.group === group)
+    const entries = CATALOG.filter((entry) => entry.group === group && entry.kind !== 'pattern')
     if (entries.length === 0) continue
     out.push(`### ${group}`, '')
     for (const entry of entries) out.push(`- **${entry.name}** — ${entry.summary}`)
+    out.push('')
+  }
+  const patterns = CATALOG.filter((entry) => entry.kind === 'pattern')
+  if (patterns.length > 0) {
+    out.push('## Website patterns', '')
+    for (const entry of patterns) out.push(`- **${entry.name}** — ${entry.summary}`)
     out.push('')
   }
   return out.join('\n')
@@ -274,7 +281,7 @@ function main() {
     ),
   )
 
-  console.log(`agent docs: ${CATALOG.length} components → dist/agent/`)
+  console.log(`agent docs: ${CATALOG.length} entries → dist/agent/`)
 }
 
 main()

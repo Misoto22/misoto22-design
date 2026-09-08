@@ -1,6 +1,6 @@
 import propsData from '@/generated/props.json'
 import examplesData from '@/generated/examples.json'
-import { COMPONENTS, type ComponentEntry } from '@/content/registry'
+import { CATALOG_ENTRIES, COMPONENTS, PATTERNS, type ComponentEntry } from '@/content/registry'
 import { FOUNDATIONS } from '@/content/foundations'
 import { TEMPLATES } from '@/content/templates'
 import { LAWS } from '@/content/principles'
@@ -91,7 +91,7 @@ export function componentText(entry: ComponentEntry): string {
     '',
     `- Group: ${entry.group}`,
     `- Import: \`import { ${primary?.name ?? entry.name} } from '${entry.entry}'\``,
-    `- Page: ${SITE}/components/${entry.slug}/`,
+    `- Page: ${SITE}/${entry.kind === 'pattern' ? 'patterns' : 'components'}/${entry.slug}/`,
   ]
 
   if (entry.related?.length) out.push(`- Related: ${entry.related.join(', ')}`)
@@ -210,6 +210,13 @@ export function indexText(): string {
         `- [${entry.name}](${SITE}/components/${entry.slug}/llms.txt): ${entry.summary}`,
     ),
     '',
+    '## Website patterns',
+    '',
+    ...PATTERNS.map(
+      (entry) =>
+        `- [${entry.name}](${SITE}/patterns/${entry.slug}/): ${entry.summary}`,
+    ),
+    '',
     '## Foundations',
     '',
     ...FOUNDATIONS.map((page) => `- [${page.title}](${SITE}/foundations/${page.slug}/): ${flow(page.summary)}`),
@@ -229,5 +236,5 @@ export function indexText(): string {
 
 /** Everything, for a reader that would rather fetch once. */
 export function fullText(): string {
-  return [indexText(), '', '---', '', ...COMPONENTS.map(componentText)].join('\n')
+  return [indexText(), '', '---', '', ...CATALOG_ENTRIES.map(componentText)].join('\n')
 }

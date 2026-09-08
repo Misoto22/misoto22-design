@@ -6,7 +6,7 @@ import { MediaCollection, MediaGallery, MediaGalleryItem, MediaMasthead } from '
  */
 export function Example() {
   return (
-    <MediaCollection masthead={<MediaMasthead title="Field observations" description="A small collection of places and light." />}>
+    <MediaCollection masthead={<MediaMasthead title="Field observations" description="A small collection of places and light." headingLevel={4} />}>
       <MediaGallery>
         <MediaGalleryItem title="The far shore" index="01" location="Coast" orientation="landscape">
           <a href="#far-shore"><svg viewBox="0 0 640 420" role="img" aria-label="Illustration of a shoreline beneath a pale sky">

@@ -58,6 +58,12 @@ const ZH: Record<string, string> = {
     'A 0.25px safety margin prevents a declared 44px target from measuring just under 44px in a real browser layout.',
   )]: '额外的 0.25px 安全余量可避免声明为 44px 的触控目标在真实浏览器布局中测得略小于 44px。',
   [fingerprint(
+    'Media page compositions accept `headingLevel` when they are embedded inside an existing document outline.',
+  )]: '媒体页面组合在嵌入已有文档大纲时可通过 `headingLevel` 指定标题层级。',
+  [fingerprint(
+    'The default remains an `h1` for standalone pages, while an embedded composition can use the heading level that follows its host section.',
+  )]: '独立页面仍默认使用 `h1`；嵌入式组合则可使用紧跟宿主区块的标题层级。',
+  [fingerprint(
     'The layout receives a host-owned link, so direct semantic children need their own target instead of inheriting density from the host.',
   )]: '布局接收由使用方提供的链接，因此直接的语义子元素需要拥有自己的触控目标，而不应继承使用方的紧凑密度。',
   [fingerprint(

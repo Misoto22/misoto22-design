@@ -2,7 +2,7 @@ import { useState, type ReactElement } from 'react'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { MediaDetailLayout, MediaGallery, MediaGalleryItem, MediaGallerySkeleton, MediaMapAreaList, MediaMapMarker, MediaMapNavigation, MediaMetadata, MediaPager, MediaPagerItem } from './Media'
+import { MediaDetailLayout, MediaGallery, MediaGalleryItem, MediaGallerySkeleton, MediaMapAreaList, MediaMapMarker, MediaMapNavigation, MediaMasthead, MediaMetadata, MediaPager, MediaPagerItem } from './Media'
 
 describe('Media gallery and detail composition', () => {
   it('retains host links, intrinsic dimensions and image descriptions', () => {
@@ -13,6 +13,25 @@ describe('Media gallery and detail composition', () => {
     expect(within(link).getByRole('img')).toHaveAttribute('width', '800')
     expect(within(link).getByRole('img')).toHaveAttribute('height', '1200')
     expect(screen.getByRole('listitem')).toHaveTextContent('001A portraitSydney')
+  })
+
+  it('lets page compositions join an existing document outline', () => {
+    render(
+      <>
+        <MediaMasthead title="Field observations" headingLevel={4} />
+        <MediaDetailLayout
+          title="Shore"
+          titleId="shore"
+          headingLevel={4}
+          notesLabel="Frame notes"
+          orientation="landscape"
+          backLink={<a href="/archive">Back</a>}
+          media={<img alt="Shore" src="/shore.jpg" />}
+        />
+      </>,
+    )
+
+    expect(screen.getAllByRole('heading', { level: 4 })).toHaveLength(2)
   })
 
   it('renders a localized empty state with its recovery action', () => {
