@@ -49,6 +49,12 @@ const ZH: Record<string, string> = {
   [fingerprint("The portable `website.css` entry and compiled stylesheet share the canonical tokens. Offline documentation includes every family and its server and client exports.")]: "独立的 `website.css` 与编译后的完整样式共用同一套设计变量。离线文档覆盖所有新增组件组及其服务端、客户端导出。",
   // ─── unreleased ───
   [fingerprint(
+    'Media-detail return controls now keep a 44px touch target.',
+  )]: '媒体详情的返回控件现在保持 44px 触控目标。',
+  [fingerprint(
+    'The layout receives a host-owned link, so direct semantic children need their own target instead of inheriting density from the host.',
+  )]: '布局接收由使用方提供的链接，因此直接的语义子元素需要拥有自己的触控目标，而不应继承使用方的紧凑密度。',
+  [fingerprint(
     'Question cards expose their heading as a named region and restore a 44px submit target.',
   )]: '问答卡片会以标题命名自己的区域，并恢复 44px 的提交触点。',
   [fingerprint(
