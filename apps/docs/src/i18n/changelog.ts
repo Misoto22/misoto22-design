@@ -49,6 +49,12 @@ const ZH: Record<string, string> = {
   [fingerprint("The portable `website.css` entry and compiled stylesheet share the canonical tokens. Offline documentation includes every family and its server and client exports.")]: "独立的 `website.css` 与编译后的完整样式共用同一套设计变量。离线文档覆盖所有新增组件组及其服务端、客户端导出。",
   // ─── unreleased ───
   [fingerprint(
+    'Question cards expose their heading as a named region and restore a 44px submit target.',
+  )]: '问答卡片会以标题命名自己的区域，并恢复 44px 的提交触点。',
+  [fingerprint(
+    "The question prompt is a distinct conversation invitation inside a larger portfolio or archive. Its heading now names the section landmark, so assistive technology can find that invitation directly. The circular submit control keeps its compact shape while restoring the package's documented 44px interactive target.",
+  )]: '问答提示是作品集或档案中的一处独立对话入口。它的标题现在会为该区域命名，让辅助技术能够直接找到这处邀请。圆形提交控件保留紧凑外观，同时恢复设计包文档约定的 44px 交互触点。',
+  [fingerprint(
     'Every icon in the package is a Remix Icon glyph now, and the brand marks lucide dropped come back with them.',
   )]: '包里的每一个图标现在都是 Remix Icon 的字形，而被 lucide 删掉的那些品牌图标，也跟着一起回来了。',
   [fingerprint(
