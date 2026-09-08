@@ -25,7 +25,10 @@ import catalog from '../generated/catalog'
  * either stops being true.
  */
 
-export const GROUPS = catalog.groups as readonly string[] as readonly ComponentGroup[]
+const CATALOG_GROUPS = catalog.groups as readonly string[] as readonly ComponentGroup[]
+
+/** Groups that contain reusable primitives, rather than application patterns. */
+export const GROUPS = CATALOG_GROUPS.filter((group) => group !== 'Website') as ComponentGroup[]
 
 export type ComponentGroup =
   | 'Actions'
@@ -56,6 +59,8 @@ export interface ComponentEntry {
   /** Display name. */
   name: string
   group: ComponentGroup
+  /** Website compositions are documented as patterns, not as primitive components. */
+  kind?: 'component' | 'pattern'
   /** One line, shown in the index and under the page title. */
   summary: string
   /** When to reach for this rather than the component beside it. */
@@ -149,19 +154,37 @@ const PREVIEW_HEIGHTS: Record<string, string> = {
   'diagram-minimap': 'min-h-[24rem]',
 }
 
-export const COMPONENTS: ComponentEntry[] = catalog.components.map((entry) => ({
+export const CATALOG_ENTRIES: ComponentEntry[] = catalog.components.map((entry) => ({
   ...(entry as Omit<ComponentEntry, 'dir' | 'previewHeight'>),
   dir: entry.name,
   previewHeight: PREVIEW_HEIGHTS[entry.slug],
 }))
 
+/** Importable primitive components shown in the component catalogue. */
+export const COMPONENTS = CATALOG_ENTRIES.filter((entry) => entry.kind !== 'pattern')
+
+/** Website-level compositions, intentionally separated from primitive components. */
+export const PATTERNS = CATALOG_ENTRIES.filter((entry) => entry.kind === 'pattern')
+
 export const BY_SLUG = new Map(COMPONENTS.map((entry) => [entry.slug, entry]))
+export const PATTERN_BY_SLUG = new Map(PATTERNS.map((entry) => [entry.slug, entry]))
+export const CATALOG_BY_SLUG = new Map(CATALOG_ENTRIES.map((entry) => [entry.slug, entry]))
 
 /** Components in sidebar order: groups as declared, entries alphabetical within. */
 export function groupedComponents(): { group: ComponentGroup; entries: ComponentEntry[] }[] {
   return GROUPS.map((group) => ({
     group,
     entries: COMPONENTS.filter((entry) => entry.group === group).sort((a, b) =>
+      a.name.localeCompare(b.name),
+    ),
+  })).filter((section) => section.entries.length > 0)
+}
+
+/** Website patterns currently form one intentional collection. */
+export function groupedPatterns(): { group: ComponentGroup; entries: ComponentEntry[] }[] {
+  return CATALOG_GROUPS.map((group) => ({
+    group,
+    entries: PATTERNS.filter((entry) => entry.group === group).sort((a, b) =>
       a.name.localeCompare(b.name),
     ),
   })).filter((section) => section.entries.length > 0)

@@ -13,14 +13,18 @@ export interface MediaMastheadProps extends Omit<HTMLAttributes<HTMLElement>, 't
   eyebrow?: ReactNode
   title: ReactNode
   description?: ReactNode
+  /** The title level when this page composition sits inside another document. */
+  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6
 }
 
 /** The quiet opening to an image collection, before its controls and prints. */
-export function MediaMasthead({ eyebrow, title, description, className, ...rest }: MediaMastheadProps) {
+export function MediaMasthead({ eyebrow, title, description, headingLevel = 1, className, ...rest }: MediaMastheadProps) {
+  const Heading = `h${headingLevel}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+
   return (
     <header className={cn('m22-media-masthead', className)} {...rest}>
       {eyebrow && <p className="m22-media-eyebrow">{eyebrow}</p>}
-      <h1 className="m22-media-masthead-title">{title}</h1>
+      <Heading className="m22-media-masthead-title">{title}</Heading>
       {description && <p className="m22-media-description">{description}</p>}
     </header>
   )
@@ -145,6 +149,8 @@ export function MediaGallerySkeleton({ label, count = 6 }: MediaGallerySkeletonP
 export interface MediaDetailLayoutProps extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
   title: ReactNode
   titleId: string
+  /** The title level when this page composition sits inside another document. */
+  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6
   category?: ReactNode
   notesLabel: string
   orientation: 'portrait' | 'landscape' | 'square'
@@ -160,7 +166,9 @@ export interface MediaDetailLayoutProps extends Omit<HTMLAttributes<HTMLElement>
 }
 
 /** Portraits share a spread with their notes; landscapes lead a full-width spread. */
-export function MediaDetailLayout({ title, titleId, category, notesLabel, orientation, backLink, index, media, light, actions, metadata, location, pager, related, className, ...rest }: MediaDetailLayoutProps) {
+export function MediaDetailLayout({ title, titleId, headingLevel = 1, category, notesLabel, orientation, backLink, index, media, light, actions, metadata, location, pager, related, className, ...rest }: MediaDetailLayoutProps) {
+  const Heading = `h${headingLevel}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+
   return (
     <div className="m22-media-detail-page">
       <article className={cn('m22-media-detail', className)} aria-labelledby={titleId} data-photo-detail {...rest}>
@@ -174,7 +182,7 @@ export function MediaDetailLayout({ title, titleId, category, notesLabel, orient
             <div className="m22-media-ledger-narrative">
               <div className="m22-media-ledger-lead">
                 {category && <p className="m22-media-eyebrow">{category}</p>}
-                <h1 id={titleId} className="m22-media-detail-title">{title}</h1>
+                <Heading id={titleId} className="m22-media-detail-title">{title}</Heading>
               </div>
               {light}
               {actions && <div className="m22-media-actions" data-photo-actions>{actions}</div>}

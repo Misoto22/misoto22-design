@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { ACCENTS, useAccent } from './AccentProvider'
 import { FOUNDATIONS } from '@/content/foundations'
-import { COMPONENTS } from '@/content/registry'
+import { COMPONENTS, PATTERNS } from '@/content/registry'
 import { SEARCH_TERMS } from '@/content/haystack'
 import { componentName, foundationCopy, groupName } from '@/i18n/content'
 import { localePath } from '@/i18n/locales'
@@ -214,6 +214,27 @@ export function CommandPalette() {
               // headings to read it from.
               meta={groupName(locale, entry.group)}
               onSelect={() => go(`/components/${entry.slug}/`)}
+            >
+              {componentName(locale, entry.slug, entry.name)}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+
+        <CommandSeparator />
+
+        <CommandGroup heading={t.palette.patterns}>
+          {PATTERNS.map((entry) => (
+            <CommandItem
+              key={entry.slug}
+              value={entry.name}
+              keywords={[
+                ...(SEARCH_TERMS.get(entry.slug) ?? []),
+                groupName(locale, entry.group),
+                componentName(locale, entry.slug, entry.name),
+              ]}
+              icon={<RiLayoutGridLine aria-hidden />}
+              meta={t.palette.patterns}
+              onSelect={() => go(`/patterns/${entry.slug}/`)}
             >
               {componentName(locale, entry.slug, entry.name)}
             </CommandItem>

@@ -1,4 +1,10 @@
-/** Website compositions with data, routes and services supplied by the host. */
+/**
+ * Website patterns compose primitives into an application-shaped surface.
+ *
+ * They remain public exports, but are intentionally not presented as another
+ * group of primitives: callers bring routes, content and service state, while
+ * these entries describe how the system's components fit together.
+ */
 export const WEBSITE = [
   {
     "name": "SiteShell",
@@ -272,4 +278,4 @@ export const WEBSITE = [
       }
     ]
   }
-]
+].map((entry) => ({ ...entry, kind: 'pattern' }))

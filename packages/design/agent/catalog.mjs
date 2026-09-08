@@ -81,6 +81,7 @@ import { WEBSITE } from './catalog/website.mjs'
  * @typedef {object} CatalogEntry
  * @property {string} name Display name, the directory name, and the slug source.
  * @property {string} group One of `GROUPS`.
+ * @property {'component' | 'pattern'} [kind] Whether this is a reusable primitive or a website composition.
  * @property {string} summary One line.
  * @property {string} [when] When to reach for this rather than the one beside it.
  * @property {AnatomyPart[]} [anatomy] The parts a reader can point at, named.

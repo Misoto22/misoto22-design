@@ -4,7 +4,7 @@ import { WARNING_CODES } from '@/lib/docs'
 import { getMessages } from '@/i18n/messages'
 import { LOCALES } from '@/i18n/locales'
 import { componentText, indexText } from '@/lib/agent-text'
-import { COMPONENTS } from '@/content/registry'
+import { PATTERNS } from '@/content/registry'
 import * as website from '@misoto22/design/website'
 
 /**
@@ -21,7 +21,7 @@ import * as website from '@misoto22/design/website'
  * prose is the other half of the same failure, and gets the same treatment.
  */
 describe('the site keeps up with the package', () => {
-  it.each(COMPONENTS.filter((entry) => entry.entry === '@misoto22/design/website'))('advertises a real public import for the $name family', (entry) => {
+  it.each(PATTERNS)('advertises a real public import for the $name family', (entry) => {
     const imported = componentText(entry).match(/- Import: `import \{ (\w+) \}/)?.[1]
     expect(imported).toBeTruthy()
     expect(website).toHaveProperty(imported!)
