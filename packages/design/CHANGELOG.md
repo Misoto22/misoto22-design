@@ -1,5 +1,13 @@
 # @misoto22/design
 
+## 0.12.1
+
+### Patch Changes
+
+- [#86](https://github.com/Misoto22/misoto22-design/pull/86) [`2745959`](https://github.com/Misoto22/misoto22-design/commit/27459599bbfc7cc178ebc65949d4922b1f4f8a40) Thanks [@Misoto22](https://github.com/Misoto22)! - Question cards expose their heading as a named region and restore a 44px submit target.
+  
+  The question prompt is a distinct conversation invitation inside a larger portfolio or archive. Its heading now names the section landmark, so assistive technology can find that invitation directly. The circular submit control keeps its compact shape while restoring the package's documented 44px interactive target.
+
 ## 0.12.0
 
 ### Minor Changes
