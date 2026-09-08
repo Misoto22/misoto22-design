@@ -1,5 +1,13 @@
 # @misoto22/design
 
+## 0.12.3
+
+### Patch Changes
+
+- [#91](https://github.com/Misoto22/misoto22-design/pull/91) [`942b251`](https://github.com/Misoto22/misoto22-design/commit/942b2513b1deba9ea4d76c572f92b8a639a3d13f) Thanks [@Misoto22](https://github.com/Misoto22)! - Website fields retain a 16px type size on phones, and keyboard-focused charts now show the system focus ring.
+  
+  Compact controls keep their desktop density. Only editable collection, question-card and command-palette fields expand to the mobile-safe text size, while a direct Recharts surface rule protects its keyboard focus treatment from chart defaults.
+
 ## 0.12.2
 
 ### Patch Changes
