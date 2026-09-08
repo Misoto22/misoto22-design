@@ -1,5 +1,11 @@
 # @misoto22/design
 
+## 0.13.1
+
+### Patch Changes
+
+- [#99](https://github.com/Misoto22/misoto22-design/pull/99) [`6d4f512`](https://github.com/Misoto22/misoto22-design/commit/6d4f5129146a239609924bc5ca303c5682c74f1e) Thanks [@Misoto22](https://github.com/Misoto22)! - Restore the collection filter hit area and the chart's two-pixel focus ring on public websites.
+
 ## 0.13.0
 
 ### Minor Changes
