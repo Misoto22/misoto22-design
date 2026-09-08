@@ -1,5 +1,13 @@
 # @misoto22/design
 
+## 0.12.5
+
+### Patch Changes
+
+- [#95](https://github.com/Misoto22/misoto22-design/pull/95) [`b03eb7b`](https://github.com/Misoto22/misoto22-design/commit/b03eb7b571e25e93537b384f0be062f2a4c91753) Thanks [@Misoto22](https://github.com/Misoto22)! - Media-detail return controls now retain a 44px touch target after browser subpixel rounding.
+  
+  A 0.25px safety margin prevents a declared 44px target from measuring just under 44px in a real browser layout.
+
 ## 0.12.4
 
 ### Patch Changes

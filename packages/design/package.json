@@ -1,6 +1,6 @@
 {
   "name": "@misoto22/design",
-  "version": "0.12.4",
+  "version": "0.12.5",
   "private": false,
   "description": "Monochrome design system — CSS tokens and accessible React primitives",
   "license": "MIT",
