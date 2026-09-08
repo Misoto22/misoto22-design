@@ -1,5 +1,13 @@
 # @misoto22/design
 
+## 0.12.2
+
+### Patch Changes
+
+- [#88](https://github.com/Misoto22/misoto22-design/pull/88) [`9d24295`](https://github.com/Misoto22/misoto22-design/commit/9d2429522a71386f4eb7cea5e09ce61a2bc76aa2) Thanks [@Misoto22](https://github.com/Misoto22)! - Sheet close actions provide a 44px target across every edge.
+  
+  The close icon remains small, while its reachable surface now meets the same 44px target used by the rest of the package's mobile controls.
+
 ## 0.12.1
 
 ### Patch Changes
