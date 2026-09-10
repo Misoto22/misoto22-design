@@ -114,11 +114,10 @@ you are about to do that thing, not before.
 - **Never write a `dark:` variant.** Dark mode is a value swap behind
   `data-mode="dark"`; a `dark:` override fights it and wins in only one theme.
 - **Theme with the `data-*` axes**, set on any element, not just `:root`.
-  `data-mode`, `data-surface`, `data-radius`, `data-rules`, `data-type`,
-  `data-motion`, `data-density`, `data-table-density`, `data-chart-palette`.
-  There is no `data-accent` — `--accent` is a custom property, re-pointed in
-  CSS. `npx misoto22-design docs --installed` prints the current list; it is
-  read out of the stylesheets rather than kept by hand here.
+  `data-mode`, `data-accent`, `data-surface`, `data-radius`, `data-rules`,
+  `data-type`, `data-motion`, `data-density`, `data-table-density`,
+  `data-chart-palette`. `npx misoto22-design docs --installed` prints the
+  current list; it is read out of the stylesheets rather than kept by hand here.
 - **Durations and radii come from tokens.** `duration-(--duration-fast)`,
   `rounded-(--radius)` — not `duration-150`, not `rounded-lg`.
 - **No blurred shadow.** `--shadow*` resolves to `none` on purpose. Depth is a

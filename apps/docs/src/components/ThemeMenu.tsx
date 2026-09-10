@@ -14,7 +14,7 @@ import {
 } from '@misoto22/design'
 import { RiCheckLine, RiPaletteLine, RiResetLeftLine } from '@remixicon/react'
 import { useMessages } from '@/i18n/useLocale'
-import { ACCENTS } from './AccentProvider'
+import { ACCENTS, SWATCH } from './AccentProvider'
 import { AXES, DEFAULTS, LOOK_AXES, PRESETS, RESET_PRESET, useTheme } from './ThemeProvider'
 
 /** The order the axes are offered in — ground first, then shape, then feel. */
@@ -160,8 +160,9 @@ export function ThemeMenu() {
                   >
                     <span
                       aria-hidden
+                      data-accent={option.id}
                       className="size-4 rounded-full border border-(--rule-2)"
-                      style={{ background: option.swatch }}
+                      style={{ background: SWATCH }}
                     />
                   </button>
                 ))}

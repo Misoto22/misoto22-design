@@ -14,7 +14,7 @@ import {
 import { RiBox3Line, RiCircleLine, RiColorFilterLine, RiContrastLine, RiDragMove2Line, RiHistoryLine, RiHome5Line, RiLayoutGridLine, RiLayoutLine, RiPaletteLine, RiRulerLine, RiScales3Line, RiText } from '@remixicon/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { ACCENTS, useAccent } from './AccentProvider'
+import { ACCENTS, SWATCH, useAccent } from './AccentProvider'
 import { FOUNDATIONS } from '@/content/foundations'
 import { COMPONENTS, PATTERNS } from '@/content/registry'
 import { SEARCH_TERMS } from '@/content/haystack'
@@ -169,9 +169,13 @@ export function CommandPalette() {
               icon={
                 <RiCircleLine
                   // The swatch IS the answer to "what does this one look like",
-                  // which a row of five names cannot give.
+                  // which a row of six names cannot give. `data-accent` on the
+                  // glyph itself is what makes each one paint its OWN accent:
+                  // `--accent` holds only the chosen one, and the package
+                  // re-derives the chain on any element that names an accent.
+                  data-accent={option.id}
                   className="fill-current"
-                  style={{ color: option.swatch }}
+                  style={{ color: SWATCH }}
                   aria-hidden
                 />
               }

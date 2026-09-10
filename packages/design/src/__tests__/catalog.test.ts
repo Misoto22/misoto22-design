@@ -108,7 +108,7 @@ describe('agent catalog', () => {
     //
     // The count is written out on purpose. Adding a component means changing it,
     // which is the moment to look at the import list.
-    expect(entries).toHaveLength(112)
+    expect(entries).toHaveLength(115)
     const runs = entries
       .map((entry) => entry.group)
       .filter((group, index, all) => group !== all[index - 1])
@@ -224,8 +224,9 @@ describe('agent catalog', () => {
   it('explains exactly the theme axes the stylesheets define', () => {
     // The half that cannot be derived is what an UNSET axis gives you, so that
     // half is authored — and this is what stops it describing an axis the CSS
-    // does not have. It described `data-accent` for months, which is an
-    // attribute that has never existed and that an agent could set all day.
+    // does not have. It described `data-accent` for months while no selector
+    // defined one, and an agent could set it all day. It defines one now, and
+    // the table gained the row by failing here rather than by being remembered.
     expect(Object.keys(axisDefaults).sort()).toEqual(Object.keys(derivedAxes).sort())
   })
 

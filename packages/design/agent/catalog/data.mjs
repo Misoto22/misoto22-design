@@ -167,6 +167,79 @@ export const DATA = [
     related: ['table', 'scatter-chart'],
   },
   {
+    name: 'CalendarHeatmap',
+    group: 'Data',
+    summary: 'A year of daily readings, as a week-by-week grid.',
+    when: 'The readings are dated and the question is about the calendar. Heatmap is the grid underneath and knows nothing about dates; this is the arrangement everybody writes on top of it and nobody writes the same way twice.',
+    anatomy: [
+      {
+        element: 'Grid',
+        required: true,
+        description:
+          'A Heatmap: one column per week, one row per weekday, drawn from the dates rather than from the order of the array. Every date is arithmetic on UTC midnights, so the same window renders identically in every timezone.',
+      },
+      {
+        element: 'Window',
+        required: true,
+        description:
+          'from and to, or the earliest and latest date in values when they are left off. The grid runs back to the start of the first week and on to the end of the last, so a column is always a whole week.',
+      },
+      {
+        element: 'Weekday rows',
+        required: true,
+        description:
+          'Seven row headers from weekdayLabels, always Sunday-first in the ARRAY and rotated onto the grid by weekStartsOn \u2014 so a Monday-first calendar and a translation are two separate decisions.',
+      },
+      {
+        element: 'Month headers',
+        description:
+          'A name from monthLabels on the first column each month touches, blank on the rest. The blanks carry a run of zero-width spaces so the grid can still tell them apart, which is what a lookup by column NAME requires.',
+      },
+      {
+        element: 'Gaps',
+        description:
+          'A day inside the window with no entry, and every day in the leading and trailing partial weeks: a dashed outline with an announced \u201cno data\u201d, never the palest cell on the ramp.',
+      },
+      {
+        element: 'Cell reading',
+        description:
+          'What describe returns for that day, announced with the cell. Keyed by the cell rather than by the number, so two days with the same count are two different readings.',
+      },
+    ],
+    practices: [
+      {
+        kind: 'do',
+        text: 'Pass from and to whenever the window is a fact about the question rather than about the data. Derived from the values, a quiet January does not exist \u2014 the grid silently becomes a different window from the one beside it, and the two are then compared anyway.',
+      },
+      {
+        kind: 'do',
+        text: 'Write describe so it names the unit. The row and column a cell is announced with are a weekday and a month over a block of five weeks, so without it the reading a screen reader gets is a date and a bare number.',
+      },
+      {
+        kind: 'do',
+        text: 'Pin domain to compare two calendars. A quiet year and a busy one drawn on their own domains look identical, and the comparison the reader came for is not merely lost but inverted.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not send a zero for a day nothing was recorded. Null is drawn as a gap and zero as the palest cell, and a page that draws them alike invites the reader to explain an outage that was a hole in collection.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not hand it dates carrying a time or a zone. Every bound is parsed as a UTC midnight from YYYY-MM-DD, so a timestamp that is 23:00 somewhere lands on the day before it in the grid.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not reach for it where the rows are not weekdays. An hour-by-weekday load or a confusion matrix is a Heatmap, and going through this one means inventing dates for cells that do not have any.',
+      },
+    ],
+    accessibility: [
+      'The grid is a real <table>, so a screen reader walks the same structure the eye reads: a header row, a header column, and a cell that announces its own reading.',
+      'A day with no entry announces \u201cno data\u201d rather than a number, so a gap and a zero are different to a reader who cannot see the ramp.',
+      'The reading is keyed by the cell, so the date is announced with the count \u2014 the row and column headers alone name a weekday and a month, not a day.',
+    ],
+    related: ['heatmap', 'calendar', 'sparkline'],
+  },
+  {
     name: 'Sparkline',
     group: 'Data',
     summary: 'A run of numbers at the size of a word.',
@@ -319,6 +392,79 @@ export const DATA = [
       'Pin max to compare two lists side by side: on independent scales the leading row of each fills its track, and two very different numbers look identical.',
     ],
     related: ['bar-chart', 'table'],
+  },
+  {
+    name: 'Metric',
+    group: 'Data',
+    summary: 'One reading, on a plate: a label, a figure, and what qualifies it.',
+    when: 'Four across on a console. BigNumber is the same idea at headline scale for the ONE figure a view is about, and needs the charts entry; this is the tile, and needs nothing.',
+    anatomy: [
+      {
+        element: 'Plate',
+        required: true,
+        description:
+          'An <article> at --radius with a hairline round it and 12px of padding, or whatever asChild is handed. It has no heading and no landmark: a row of four is a row of readings, not four sections.',
+      },
+      {
+        element: 'Label',
+        required: true,
+        description:
+          'label as an eyebrow at --ink-3-aa. Nothing binds it to the figure programmatically, so document order is the whole association.',
+      },
+      {
+        element: 'Tone dot',
+        description:
+          'A StatusDot beside the label when tone is set, un-pulsed and aria-hidden. Decoration by construction, which is why whatever it means has to be in detail as well.',
+      },
+      {
+        element: 'Figure',
+        required: true,
+        description:
+          'value in the mono face at --fs-item with tabular figures, printed exactly as handed over — no unit, currency or locale is guessed. Tabular because four tiles in a row are read down the column as much as along it.',
+      },
+      {
+        element: 'Detail',
+        description:
+          'detail under the figure at --ink-2 in the small step. One line: what makes the number a reading rather than a count.',
+      },
+      {
+        element: 'Aside',
+        description:
+          'aside, last, unwrapped and unstyled: a Sparkline, a denominator, a caveat. Unlike BigNumber\u2019s note slot it carries no margin of its own, so a tight tile stays tight.',
+      },
+    ],
+    practices: [
+      {
+        kind: 'do',
+        text: 'Put whatever the tone means into detail as well. The dot is aria-hidden by construction, so a tile whose only account of a failure is that it is red says nothing at all to a screen reader, and nothing in greyscale.',
+      },
+      {
+        kind: 'do',
+        text: 'Format value at the call site. It is printed exactly as handed over, which is what lets a locale, a currency and a unit be decided once by the application rather than guessed four times by four tiles.',
+      },
+      {
+        kind: 'do',
+        text: 'Give the slotted child no children of its own under asChild. The label and the figure are injected into it, so `<Link href="/jobs" />` is the whole call \u2014 a child with content of its own gets that content and the tile both.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not reach for this where there is one figure and a change to report. BigNumber has a delta, a direction stated by the call site and an announced verdict; a tone dot is not any of those, and re-implementing them in aside gets the announcement wrong.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not write a sentence into detail under asChild. The whole tile is inside one link, so the link\u2019s accessible name is every word in it read in order, and a clause added there is a clause read out every time the link is reached.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not put a heading inside one. The plate is an <article> with no name, so a heading in it opens a section a screen reader will list \u2014 four tiles then read as four sections of the page rather than as one row of figures.',
+      },
+    ],
+    accessibility: [
+      'The tone dot is aria-hidden without exception, so colour is never the only carrier \u2014 the words in detail are.',
+      'value is taken already formatted. The component does not guess a unit, a currency or a locale.',
+      'Under asChild the tile becomes the caller\u2019s element, so the link or button is the whole plate rather than a target inside it.',
+    ],
+    related: ['big-number', 'status-dot', 'sparkline'],
   },
   {
     name: 'BigNumber',

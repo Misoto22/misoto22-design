@@ -10,7 +10,7 @@
  * Derived for the same reason the theme axes are. A hand-kept list of codes is
  * a list that goes stale the first time someone adds a warning and does not
  * think about the website — which is exactly how the site came to describe a
- * `data-accent` attribute that never existed.
+ * `data-accent` attribute the stylesheets did not have at the time.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { dirname, join } from 'node:path'

@@ -30,6 +30,40 @@ export interface ApiCopy {
 export const API_ZH: Record<string, ApiCopy> = {
   ...WEBSITE_API_ZH,
 
+  // ─── CalendarHeatmap ───
+  "CalendarHeatmap.CalendarHeatmap": { hash: '92a7b937', zh: "一年的每日读数，画成一周一列的网格。\n\n`Heatmap` 画的是一张有名字的行和列组成的网格，对日期一无所知；这个组件就是所有人都会在它上面再写一遍、而且没有两次写法相同的那套排法——一周一列、一个星期几一行、月份名标在它碰到的第一列上，窗口两头的日子留成空缺而不是零。\n\n这张网格是按「日期」搭出来的，不是按数组顺序，所以数据里的一个缺口就是日历上的一个缺口。这正是它要防的那种失败：给一串光秃秃的计数，少了一个星期二，它后面的每一条读数都会挪一格，结果是一张看上去很像样、却根本没发生过的一年。\n\n每一个日期都是在 UTC 零点上做算术。一张按本地时间画的日历，在两个时区里就是两张不同的日历，而两者的分歧正好是一天宽——小到能混过评审，大到足以把一条读数挪进错误的那一周。" },
+  "CalendarHeatmap.CalendarHeatmap#title": { hash: '4b8d41f0', zh: "这张日历在讲什么。必填，而且它就是这张表的名字。" },
+  "CalendarHeatmap.CalendarHeatmap#showTitle": { hash: '2d8ba978', zh: "把标题印在网格上方，而不是藏起来。" },
+  "CalendarHeatmap.CalendarHeatmap#description": { hash: 'da2566d2', zh: "标题下面的一行——单位、时间窗口、需要提醒的地方。" },
+  "CalendarHeatmap.CalendarHeatmap#values": { hash: '10df4a97', zh: "每有一条读数的日子给一项。顺序无所谓；网格是按日期搭出来的。\n\n窗口里没有对应项的那一天会画成一个空缺，而不是零，这也正是日历最常丢掉的那个区分：「什么都没发生」和「什么都没记录下来」是两条不同的读数，而把它们画成一样的页面，是在请读者去解释一次其实只是采集断了的故障。" },
+  "CalendarHeatmap.CalendarHeatmap#from": { hash: '85302731', zh: "网格覆盖的第一天，写成 `YYYY-MM-DD`。不传就取 `values` 里最早的那个日期。\n\n只要这个窗口是关于「问题」而不是关于数据的事实——「最近一年」「本季度」——两头都要给。靠数据推出来的话，一个安静的一月干脆就不存在了，网格于是悄悄变成了和旁边那张不一样的窗口。" },
+  "CalendarHeatmap.CalendarHeatmap#to": { hash: 'c0e28449', zh: "网格覆盖的最后一天，写成 `YYYY-MM-DD`。不传就取 `values` 里最晚的那个日期。" },
+  "CalendarHeatmap.CalendarHeatmap#describe": { hash: '1a4d0aed', zh: "每一格要播报的内容，参数是它的读数和它的日期。\n\n默认是日期加数字。想把单位叫出来时用它——比如「3 commits on 2026-01-05」——因为一格被播报时带的行头和列头是一个星期几，加上一个横跨五周的月份名，两个都不说明那是哪一天。" },
+  "CalendarHeatmap.CalendarHeatmap#weekdayLabels": { hash: '701b26b5', zh: "七个行头，数组里永远是周日在先，不管 `weekStartsOn` 是多少。\n\n周日在先是就「数组」而言，不是就网格而言：这组标签是翻译，而第一列是哪一天是日历惯例，把两件事绑在一起，会让一份周一开头的德语日历和一份周一开头的英语日历变成两个不同的数组。" },
+  "CalendarHeatmap.CalendarHeatmap#monthLabels": { hash: '81696845', zh: "十二个列头，一月在先。" },
+  "CalendarHeatmap.CalendarHeatmap#weekStartsOn": { hash: '8d6d67da', zh: "网格的第一行是星期几。`0` 是周日，`1` 是周一。" },
+  "CalendarHeatmap.CalendarHeatmap#domain": { hash: '12af485a', zh: "值域，写成 `[min, max]`。不传就从这些读数里推出来。\n\n只要两张日历是要放在一起比的，就把它钉死：一个清闲的年份和一个忙碌的年份各按自己的值域画出来，看上去一模一样，读者来做的那个对比不只是丢了，而是反了。" },
+  "CalendarHeatmap.CalendarHeatmap#empty": { hash: '72966656', zh: "没有窗口可画时，这张网格显示什么。" },
+
+  // ─── Metric ───
+  "Metric.Metric": { hash: 'c3ab0baa', zh: "一条读数，摆在一块小板上：一个标签、一个数字，以及限定它的那句话。\n\n它和 `BigNumber` 不是一回事：那个是同一个想法放大到标题尺寸，给的是「整个视图就讲这一个数字」的场合，而且要用 charts 入口。这个是控制台上一排四个的那种小块：更小、用等宽而不是编辑体，并且带着两样 `BigNumber` 没地方放的东西——一个状态色调，以及数字下面一个不是 delta 的自由槽位。这两样就是它存在的全部理由；一个因为 delta 用不上、只好把某些小块写成 <div> 的仪表盘，是一个装着两种小块设计的仪表盘。\n\n数字按构造就是等宽加表格数字，因为一排四个既是横着读的，也是顺着这一列往下读的，而比例数字会把同一个量级排成两个宽度。" },
+  "Metric.Metric#label": { hash: 'e63a1fc2', zh: "这个数字数的是什么。" },
+  "Metric.Metric#value": { hash: '87a4ba12', zh: "那个数字，已经格式化好的——这个组件不会去猜单位，也不会去猜地区。" },
+  "Metric.Metric#detail": { hash: '2377d301', zh: "一行上下文。没有它，这就只是一个数，不是一条读数。" },
+  "Metric.Metric#tone": { hash: 'c6cd1d28', zh: "这条读数目前的状况。画成标签旁边的一个点，而且永远只是「第二个」载体：这个点是 `aria-hidden` 的，所以这个色调想说的意思也必须写进 `detail`，否则它到不了任何看不见它的人那里。" },
+  "Metric.Metric#aside": { hash: '2d43eb6b', zh: "一条走势线、一个分母、一句提醒。放在数字下面。" },
+  "Metric.Metric#asChild": { hash: '1c446aac', zh: "渲染 `children` 来当这块板，而不是那个 `<article>`，同时保留这一套样式——一个可点击的小块就是这样拿到路由自己的 `Link` 的，而这个包不需要引入任何路由。\n\n被塞进来的那个元素自己不能带子节点：标签、数字和它们下面的一切都是被注入「进」它里面的，这正是重点。整块板都在一个链接里面，也意味着这个链接的可访问名称就是它里面每一个词按顺序读一遍——「Rows, 63,851, newest yesterday」——所以 `detail` 要短到能当成链接的一部分听下去。" },
+  "Metric.Metric#children": { hash: '43af3100', zh: "在 `asChild` 下，这块板要变成的那个元素。不加 `asChild` 时它会被忽略。" },
+
+  // ─── PageHeader ───
+  "PageHeader.PageHeader": { hash: 'cb8c76ee', zh: "一个页面的开头：这一页是什么，以及什么在限定它。\n\n系统里有 `Heading` 管标题、`Breadcrumb` 管路径，却没有任何东西规定一个页面该怎么「开始」——于是每个应用都自己发明一套排法，眉标在这一屏落在标题上面，在下一屏落在标题下面。这个组件把顺序、下面那条线、以及控件摆在哪里都固定下来。\n\n它和 `AppShell` 不是一回事：外壳是页面外面的框，每条路由都共用那条侧栏和那条顶栏；这个是路由自己那一栏里的第一样东西。\n\n除非 `level` 另有说法，标题渲染成 `h1`；而这个默认值几乎在所有情况下就是全部答案，理由值得说一句：一个页面只有一个名字，而一个把文档标题据为己有的外壳，是把这一页自己的名字拿走了。一屏上出现两个开头，就是两个页面。\n\n字号则根本不是属性。`Heading` 在 level 1 上默认是 `--fs-title`，那是给「主题就是标题本身」的文档用的编辑级台阶；而一个页面开头站在一块工作界面上方，标题是下面那堆东西的标签，读者真正要看的是线下面那些记录。`--fs-heading` 在每一个层级上都是那一档，画它的仍然是 `Heading`，所以这条阶梯始终只有一条，把一个开头挪到大纲更深处也从不改变它的大小。" },
+  "PageHeader.PageHeader#title": { hash: '360dff89', zh: "这一页是什么。一行，而且是整页唯一有这个分量的东西。" },
+  "PageHeader.PageHeader#eyebrow": { hash: '2f4e50f8', zh: "标题上方的那行小字。\n\n它是一个定位提示，不是装饰：在一个用编号称呼各个页面的控制台里，它就是那个编号；在别处，它是这一页所属的那个板块。" },
+  "PageHeader.PageHeader#description": { hash: 'a05a9d52', zh: "一句话，说明这一页是干什么的。绝不是第二条结论。" },
+  "PageHeader.PageHeader#breadcrumb": { hash: 'd9889482', zh: "开头上方的那条路径，给本身没有钉住一条路径的外壳用。\n\n渲染在应用框架里的页面通常不传它——一屏上两条路径，是对「我在哪」的两个回答。它收的是已经渲染好的 `Breadcrumb`，而不是它的 items，这样每一节路径仍然由调用处自己接到路由上。" },
+  "PageHeader.PageHeader#level": { hash: 'ed6783bd', zh: "`title` 在它落进的那份文档里开出的标题层级。\n\n默认是 `1`，而这正是一个页面开头本来的身份：一个页面只有一个名字，而一个把文档标题据为己有的外壳，是把这一页自己的名字拿走了。只有当这个开头并不属于这份文档时才去改它——一块预览画布、一份放在文档页面里展示的模板、一段嵌在使用方自己的 `h1` 底下的组合。\n\n字号不跟着层级走。`title` 在每一个层级上都渲染成 `--fs-heading`，因为把一个开头挪到大纲更深处，是关于这份文档的事实，不是「请把字号调小」的请求。" },
+  "PageHeader.PageHeader#actions": { hash: '01413d40', zh: "限定「这一页是什么」的那些控件，放在开头里面，而不是内容上方。\n\n这个区分值得守住：一个时间范围选择器并不作用于那些记录，它说的是标题指的是其中哪一段。放到线下面，它就变成一条工具栏，和页面开头那一条横排争起来；放在标题旁边，它读起来就是标题的一部分——而它本来就是。" },
+
   // ─── Charts, fourth pass: the statistical family, small multiples,
   // sonification, and the zoom-and-export toolbar. ───
 "BoxPlot.BoxPlot#title": { hash: '36d936dd', zh: "这张图在讲什么，用一句读者能据此行动的话。必填，而且即使不显示出来也会播报给读屏软件。" },
@@ -181,7 +215,7 @@ export const API_ZH: Record<string, ApiCopy> = {
   "Heatmap.Heatmap#columns": { hash: 'fad5019d', zh: "列表头，按它们应该出现的顺序。" },
   "Heatmap.Heatmap#rows": { hash: 'b85fd641', zh: "行表头，按它们应该出现的顺序。" },
   "Heatmap.Heatmap#domain": { hash: '0094b018', zh: "取值域，写成 `[min, max]`。不传就从数据里推。\n\n只要两张网格是要拿来对照的，就一定要把它固定下来：各自独立取域的两张热力图长得一模一样、含义却不同，而这正是共享一个图例也补不了的那个错。" },
-  "Heatmap.Heatmap#formatValue": { hash: '64de3947', zh: "格式化一个值，用于这一格的播报和它印出来的标签。" },
+  "Heatmap.Heatmap#formatValue": { hash: '8cc6f41f', zh: "格式化一个值，用于这一格的播报和它印出来的标签。\n\n这一格本身也会一并交过来，所以一张列头本身说不清自己的网格，可以把这条读数叫出名字，而不只是叫出那个数。日历就是必须这样做的那个场景：两天数目相同，是两条不同的读数，而一格被播报时带的行头和列头——一个「周一」，加上一个横跨五周的月份名——并不说明那是哪一天。" },
   "Heatmap.Heatmap#showValues": { hash: '811e52ef', zh: "把数字印在每个格子里。只有在网格足够粗的时候才读得清。" },
   'Heatmap.Heatmap#empty': { hash: '930b1408', zh: "网格没有行、或者没有列可画时显示什么。\n\n一张没有表头的热力图渲染出来是一句说明顶着一片空无，读起来像一个没加载出来的网格，而不是一个里面本来就没东西的网格。" },
   "Sparkline.Sparkline": { hash: '6f2ffb6c', zh: "一个词那么大的一串数字——在表格单元格里、在数字旁边、在一行的末尾。\n\n刻意不画坐标轴、不画网格、不带标签：迷你折线回答的是“这一路是什么形状”，而任何能让它回答“到底是多少”的装饰，同时也会让它大到没法内嵌——而内嵌正是选它的唯一理由。确切的值重要时，把数字印在它旁边（`value` 就是干这个的）；需要精确读趋势时，它要的是 `<LineChart>` 和属于自己的空间。\n\n不需要渲染引擎：它就是一条画在归一化 viewBox 上的 `<path>`，所以在表格里放一百个也不花什么代价。" },

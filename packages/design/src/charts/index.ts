@@ -93,6 +93,12 @@ export type {
 export { Heatmap } from './Heatmap/Heatmap'
 export type { HeatmapCell, HeatmapProps, HeatmapScale } from './Heatmap/Heatmap'
 
+export { CalendarHeatmap } from './CalendarHeatmap/CalendarHeatmap'
+export type {
+  CalendarHeatmapProps,
+  CalendarHeatmapValue,
+} from './CalendarHeatmap/CalendarHeatmap'
+
 export { Sparkline } from './Sparkline/Sparkline'
 export type { SparklineProps, SparklineVariant } from './Sparkline/Sparkline'
 

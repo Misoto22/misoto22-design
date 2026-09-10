@@ -49,6 +49,60 @@ const ZH: Record<string, string> = {
   [fingerprint("The portable `website.css` entry and compiled stylesheet share the canonical tokens. Offline documentation includes every family and its server and client exports.")]: "独立的 `website.css` 与编译后的完整样式共用同一套设计变量。离线文档覆盖所有新增组件组及其服务端、客户端导出。",
   // ─── unreleased ───
   [fingerprint(
+    '`CalendarHeatmap` — a year of daily readings as a week-by-week grid, built from the dates rather than from the order of the array.',
+  )]: '`CalendarHeatmap`——一年的每日读数，画成一周一列的网格，而且是按日期搭出来的，不是按数组顺序。',
+  [fingerprint(
+    '`Heatmap` draws named rows and columns and knows nothing about dates, so every consumer wrote the calendar on top of it and none of them wrote it the same way twice. What that costs is not effort but correctness: given a bare list of counts, one missing Tuesday shifts every reading after it by a cell, and the result is a plausible picture of a year that did not happen.',
+  )]: '`Heatmap` 画的是有名字的行和列，对日期一无所知，于是每个使用方都在它上面自己写一遍日历，而且没有两次写法相同。这件事付出的代价不是工时，而是正确性：给一串光秃秃的计数，少了一个星期二，它后面的每一条读数都会挪一格，结果是一张看上去很像样、却根本没发生过的一年。',
+  [fingerprint(
+    "**A day with no entry is a gap, not a zero.** \"Nothing happened\" and \"nothing was recorded\" are different readings, and a grid that draws them alike invites the reader to explain an outage that was a hole in collection. `null` renders as a dashed outline and announces \"no data\"; zero is the palest cell on the ramp.",
+  )]: '**没有对应项的那一天是空缺，不是零。** 「什么都没发生」和「什么都没记录下来」是两条不同的读数，而把它们画成一样的网格，是在请读者去解释一次其实只是采集断了的故障。`null` 渲染成一圈虚线轮廓并播报「无数据」；零则是色阶上最淡的那一格。',
+  [fingerprint(
+    'Every bound is a UTC midnight parsed out of `YYYY-MM-DD`, because a local-time calendar drawn in two timezones is two different calendars and the disagreement is exactly one day wide — small enough to survive review, large enough to move a reading into the wrong week.',
+  )]: '每一个边界都是从 `YYYY-MM-DD` 按 UTC 零点解析出来的，因为一张按本地时间画的日历，在两个时区里就是两张不同的日历，而两者的分歧正好是一天宽——小到能混过评审，大到足以把一条读数挪进错误的那一周。',
+  [fingerprint(
+    '`Heatmap.formatValue` now receives the cell as well as the number. It is what makes `describe(value, date)` possible at all: two days with the same count are two different readings, and the row and column a cell is announced with are a weekday and a month spanning five weeks. Existing callers are unaffected — the parameter is additional and a one-argument formatter still satisfies the type.',
+  )]: '`Heatmap.formatValue` 现在除了那个数字，还会拿到这一格本身。正是它让 `describe(value, date)` 成为可能：两天数目相同，是两条不同的读数，而一格被播报时带的行和列，是一个星期几加上一个横跨五周的月份。已有的调用方不受影响——这个参数是加上去的，一个只收一个参数的格式化函数照样满足类型。',
+  [fingerprint(
+    '`Metric` — the stat tile that sits four across on a console: a label, a monospaced figure, a status tone and a free slot under the number.',
+  )]: '`Metric`——控制台上一排四个的那种读数小块：一个标签、一个等宽数字、一个状态色调，以及数字下面一个自由槽位。',
+  [fingerprint(
+    '**`BigNumber` was the only figure in the set and it is the wrong size for four of them.** It is one headline in the editorial face with a delta under it, for the ONE number a view is about, and it needs the charts entry. A dashboard whose tiles have to be a `<div>` because the delta does not apply is a dashboard with two tile designs in it, which is what every console built on this package had.',
+  )]: '**这套系统里表示数字的只有 `BigNumber`，而一排四个要的不是那个尺寸。** 它是一条编辑体的标题、下面挂一个 delta，给的是「整个视图就讲这一个数字」的场合，而且要用 charts 入口。一个因为 delta 用不上、只好把某些小块写成 `<div>` 的仪表盘，是一个装着两种小块设计的仪表盘——而每一个建在这个包上的控制台，都正是这样。',
+  [fingerprint(
+    'The figure is monospace and tabular by construction rather than by a prop. Four tiles in a row are read down the column as much as along it, and proportional digits put the same magnitude at two different widths — which is a comparison the reader came for and cannot make.',
+  )]: '数字用等宽加表格数字，是按构造定下来的，不是靠某个属性。一排四个既是横着读的，也是顺着这一列往下读的，而比例数字会把同一个量级排成两个宽度——那正是读者来做、却做不成的那个对比。',
+  [fingerprint(
+    "`asChild` is how a tile becomes a link, and it is `Slottable` underneath rather than a bare `Slot`: a bare one hands the child the props and leaves it holding its own content, so `<a href=\"…\" />` would render a correctly styled empty box and nothing would say so. The whole plate becomes the link, which also means the link's accessible name is every word in the tile, read in order.",
+  )]: '一个小块靠 `asChild` 变成链接，而底下用的是 `Slottable` 而不是光秃秃的 `Slot`：光秃秃的那个只把属性交给子元素，内容仍旧是子元素自己的，于是 `<a href="…" />` 会渲染出一个样式完全正确的空盒子，而且没有任何地方会提一句。整块板变成那个链接，这也意味着链接的可访问名称就是这块板里每一个词按顺序读一遍。',
+  [fingerprint(
+    '`PageHeader` — a page opening, with the order of its parts fixed: the trail, the kicker, the title, the controls that qualify it, and the sentence under them.',
+  )]: '`PageHeader`——一个页面的开头，各部分的顺序被固定下来：路径、眉标、标题、限定它的那些控件，以及它们下面那句话。',
+  [fingerprint(
+    'The system had `Heading` for a heading and `Breadcrumb` for a trail and nothing that said how a page STARTS, so every application invented the arrangement — and the eyebrow landed above the title on one screen and below it on the next. Two consoles built on this package had two different answers, which is one more than a design system is for.',
+  )]: '系统里有 `Heading` 管标题、`Breadcrumb` 管路径，却没有任何东西规定一个页面该怎么「开始」，于是每个应用都自己发明一套排法——眉标在这一屏落在标题上面，在下一屏落在标题下面。两个建在这个包上的控制台给出了两个不同的答案，而这比一套设计系统该允许的多了一个。',
+  [fingerprint(
+    '**Where the range picker goes is the argument.** It sits beside the title, above the rule, because it does not act on the records: it says which slice of them the title refers to. Below the rule it becomes a toolbar competing with whatever strip the page starts with, which is where every application had put it.',
+  )]: '**真正要争的是时间范围选择器摆在哪。** 它在标题旁边、在线的上面，因为它并不作用于那些记录：它说的是标题指的是其中哪一段。放到线下面，它就变成一条工具栏，和页面开头那一横排争起来——而每个应用原本正是把它放在那里的。',
+  [fingerprint(
+    "The title is an `h1` by default because a page has one name, and a shell that owns the document's heading has taken the page's own name away from it; `level` moves it for the case where the opening is not the document's, which is a preview canvas or a template inside a page that already has an `h1`. The SIZE does not move with it: `--fs-heading` at every level, rather than `Heading`'s own level-1 default of `--fs-title`, because a page opening stands over a working screen and moving one down the outline is a fact about the document rather than a request for smaller type.",
+  )]: '标题默认是 `h1`，因为一个页面只有一个名字，而一个把文档标题据为己有的外壳，是把这一页自己的名字拿走了；`level` 是给「这个开头并不属于这份文档」那种情况用的——一块预览画布，或者一份放在已经有 `h1` 的页面里的模板。字号不跟着动：在每一个层级上都是 `--fs-heading`，而不是 `Heading` 在 level 1 上默认的 `--fs-title`，因为一个页面开头站在一块工作界面上方，而把它挪到大纲更深处，是关于这份文档的事实，不是「请把字号调小」的请求。',
+  [fingerprint(
+    '`data-accent` is a shipped theme axis now — `ink`, `clay`, `forest`, `cobalt`, `moss` and `plum`, each re-pointing one token the whole system reads.',
+  )]: '`data-accent` 现在是随包发布的一项主题轴——`ink`、`clay`、`forest`、`cobalt`、`moss`、`plum`，每一个都只是把整套系统都在读的那一个 token 指到别处。',
+  [fingerprint(
+    "**The site could show it and no consumer could have it.** Five accents lived in the documentation app's own `globals.css`, so a page on ui.misoto22.com demonstrated a re-pointing that no installed copy of the package could reproduce — while `SKILL.md`, `rules/tokens.md` and the emitted `llms.txt` each said in so many words that no such attribute existed. All three were right about the package and wrong about what the reader had just been shown.",
+  )]: '**这个网站能演示它，而任何使用方都拿不到。** 五个主色一直住在文档站自己的 `globals.css` 里，于是 ui.misoto22.com 上的页面演示的那次重新指向，任何一份已安装的包都复现不了——与此同时 `SKILL.md`、`rules/tokens.md` 和生成的 `llms.txt` 都白纸黑字地写着没有这个属性。三处说的关于包本身都没错，关于读者刚刚看到的东西则全错。',
+  [fingerprint(
+    '`moss` is the sixth and it is the one the axis was moved for: a green-grey with almost no chroma left in it, for a dense working screen where the accent has to mark a choice without becoming the loudest thing on the page.',
+  )]: '`moss` 是第六个，也是这项轴之所以被搬上来的那一个：一种几乎没剩下多少彩度的绿灰，给的是密集的工作界面——那里主色要能标出「被选中」，又不能成为整页最响的东西。',
+  [fingerprint(
+    "Every value carries a light hex, a dark hex and a collapse to `CanvasText` under forced colours. The last of those is not politeness — a browser remaps an element's own colours and does not reach inside an SVG or a `color-mix()`, and `[data-accent='moss']` matches an element directly, so it outranks anything `:root` merely offers. Without the restatement a reader in Windows High Contrast who had chosen an accent kept it.",
+  )]: '每个值都带三样东西：亮色的 hex、暗色的 hex，以及在强制颜色模式下坍缩到 `CanvasText`。最后这一样不是客气——浏览器只会重映射元素自身的颜色，够不到 SVG 内部，也够不到 `color-mix()`；而 `[data-accent=\'moss\']` 是直接匹配到元素上的，因此压得过 `:root` 仅仅提供的任何值。少了这次重述，Windows 高对比度下选过主色的读者就会一直保留着它。',
+  [fingerprint(
+    "Nothing is authored twice. `scripts/theme-axes.mjs` reads the axis out of the selectors that define it, so the skill, the offline agent documentation and the site's index gained the row because the CSS exists. The one thing a selector cannot say — that an unset accent is `ink` rather than the ancestor's — is the line `catalog.mjs` still authors.",
+  )]: '没有任何东西被写两遍。`scripts/theme-axes.mjs` 从定义这项轴的选择器里把它读出来，所以 skill、离线的 agent 文档和站点索引多出这一行，只是因为那段 CSS 存在。选择器唯一说不出来的那件事——没设置时的主色是 `ink`，而不是祖先元素的那个——才是 `catalog.mjs` 仍然要手写的那一行。',
+  [fingerprint(
     "Restore the collection filter hit area and the chart's two-pixel focus ring on public websites.",
   )]: '恢复公共网站中内容筛选的触控范围，以及图表的两像素键盘焦点环。',
   [fingerprint(
@@ -114,6 +168,21 @@ const ZH: Record<string, string> = {
   [fingerprint(
     '`ChartEmpty` sizes itself 16:9 and stops at `max-h-[26rem]`, which is right for a card that grows to its content and short of a figure the page has given a fixed height — a dashboard tile, a cell in a grid. The box was then shorter than the figure holding it, so the words landed near the top while the plot they stand in for had filled the whole cell, and the same chart read at two different heights depending on whether it had data. The container it replaces is `flex-1` and `justify-center`; this was neither. An auto margin is the smaller of the two available fixes: it absorbs the free space when there is any and does nothing when there is none, so a chart that sizes to its own content keeps exactly the shape it had.',
   )]: '`ChartEmpty` 按 16:9 给自己定尺寸，并在 `max-h-[26rem]` 处打住。这对一张跟着内容长大的卡片是对的，对一个被页面给定了固定高度的 figure——仪表盘的一块瓦片、网格里的一格——就不够高了。于是这个盒子比装着它的 figure 矮，文字落在靠上的位置，而它所替代的绘图区本来是把整格填满的；同一张图表，有数据和没数据读起来是两个高度。它替下来的那个容器是 `flex-1` 加 `justify-center`，而它两样都不是。自动外边距是两种改法里较小的那一种：有空余时它吃掉空余，没有空余时它什么也不做，所以按自身内容定尺寸的图表，形状分毫未变。',
+  [fingerprint(
+    "The `warm` and `cool` surfaces keep their rules dark now — both set `--rule` and `--rule-2` once, so every border on a dark page rendered near-white.",
+  )]: '`warm` 和 `cool` 这两个表面，现在在深色下也把线条留在暗处——它们的 `--rule` 和 `--rule-2` 只写了一遍，于是深色页面上的每一条边框都渲染成了近白色。',
+  [fingerprint(
+    "**The dark block restated the grounds and not the rules.** Each surface moves five tokens on the light ground and only three of them came back in dark, so `#e8e4da` and `#e4e9ee` kept resolving over `#12110f` and `#0c0e11` — 14.86:1 and 15.82:1 against the surface's own paper, where the neutral dark rule sits at 1.42:1. Measured in a console built on this package: 33 routes, up to 174 near-white borders on one page. `glass` restates both and was never affected.",
+  )]: '**深色那个块重述了底色，没有重述线条。** 每个表面在浅色底上移动五个 token，到了深色只回来三个，于是 `#e8e4da` 和 `#e4e9ee` 继续解析在 `#12110f` 和 `#0c0e11` 上——对着这两个表面自己的纸色，是 14.86:1 和 15.82:1，而中性的深色线条坐在 1.42:1。在一个基于这个包搭起来的控制台上量过：33 条路由，单页最多 174 条近白色边框。`glass` 把两条都重述了，从来没有中招。',
+  [fingerprint(
+    "The replacements are built the way `tokens.css` builds its own, the system's near-white at an alpha over whatever ground is under it, and at the SAME alphas — 0.14 and 0.26 — because the alpha is what a rule's weight is. What moves is the near-white: `#f4f4f2` held at its own lightness and turned onto the surface's dark hue, 84.6° for warm and 258.4° for cool, at the chroma that surface's light `--rule` carries. Composited on each surface's own dark paper the two land at 1.45 / 2.19 and 1.42 / 2.17 against the root's 1.42 / 2.16.",
+  )]: '替换上去的值，是照 `tokens.css` 自己的做法搭出来的——系统的近白色，以一个透明度压在底下无论什么底色上——而且用的是「同一组」透明度，0.14 和 0.26，因为透明度就是一条线条的分量。变的是那个近白色：把 `#f4f4f2` 按住它自己的明度，转到该表面的深色色相上，暖色 84.6°、冷色 258.4°，彩度取该表面浅色 `--rule` 所带的那一档。合成到各自的深色纸面上，这两条落在 1.45 / 2.19 和 1.42 / 2.17，对着根节点的 1.42 / 2.16。',
+  [fingerprint(
+    "The tint is not decoration. A light warm rule carries MORE chroma than the ground it separates — C 0.0111 at `--stone` against 0.0185 at `--rule-2` — and the root's neutral near-white inverts that on the dark ground: at 26% it washes the tint out, leaving warm's heaviest rule at C 0.0075 over a `--stone` of C 0.0103, the least warm thing on a warm page.",
+  )]: '这层色偏不是装饰。浅色下的暖色线条，彩度比它所分隔的那层底色「更高」——`--stone` 是 C 0.0111，`--rule-2` 是 0.0185——而根节点那个中性近白色，在深色底上把这件事反了过来：在 26% 处它把底色的色偏冲淡，让暖色最重的那条线落到 C 0.0075，压在一层 C 0.0103 的 `--stone` 上，成了一张暖色页面上最不暖的东西。',
+  [fingerprint(
+    "The test asks this per TOKEN now rather than per block, because a dark block existing is not a dark block being complete — which is the whole of what the surface axis was checking, and both of these had one.",
+  )]: '测试现在是按「每个 token」问，而不是按每个块问，因为一个深色块存在，不等于这个深色块是完整的——而后者正是表面这根轴原本检查的全部，偏偏这两个表面都有一个块。',
   // ─── 0.10.0 ───
   [fingerprint(
     'The chart palette gains a third value, and forced colours gets its ramp back.',

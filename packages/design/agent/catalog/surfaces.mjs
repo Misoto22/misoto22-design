@@ -230,7 +230,70 @@ export const SURFACES = [
       'Below md the closed drawer carries inert, so its links are out of the tab order and out of the accessibility tree rather than merely off screen. Above md it never is: there the sidebar is the page’s navigation column.',
       'Both ways out return focus to the toggle. Focus left inside an inert subtree is focus the browser throws away, and the scrim is worse — it is the focused element and it unmounts.',
     ],
-    related: ['nav-item'],
+    related: ['nav-item', 'page-header'],
+  },
+  {
+    name: 'PageHeader',
+    group: 'Surfaces',
+    summary: 'A page opening: what this page is, and what qualifies it.',
+    when: 'The top of a route\u2019s own column. AppShell is the frame AROUND a page; this is the first thing inside one.',
+    anatomy: [
+      {
+        element: 'Header',
+        required: true,
+        description:
+          'A <header>, and therefore the page\u2019s banner landmark. A column with a hairline under it and 24px of clearance below the rule \u2014 no top padding, so the shell decides where the page starts.',
+      },
+      {
+        element: 'Trail',
+        description:
+          'breadcrumb, above everything, as a rendered Breadcrumb rather than its items \u2014 the crumbs stay the caller\u2019s to wire to a router. Left off inside a frame that already pins one.',
+      },
+      {
+        element: 'Eyebrow',
+        description:
+          'eyebrow in the mono kicker at --ink-3-aa, above the title and never below it. A page numeral, or the section the page belongs to.',
+      },
+      {
+        element: 'Title',
+        required: true,
+        description:
+          'title through Heading at --fs-heading, as an h1 unless level says otherwise. The size never follows the level: a page opening stands over a working screen rather than over a document whose subject is its own title, at every step of the outline.',
+      },
+      {
+        element: 'Actions',
+        description:
+          'actions, on the title\u2019s baseline at the inline end. Controls that say which slice the title refers to \u2014 a range picker, a scope switch \u2014 not controls that act on the records.',
+      },
+      {
+        element: 'Description',
+        description:
+          'description under the title, capped at --measure-record so it stays a readable measure while the row above it runs the full width.',
+      },
+    ],
+    practices: [
+      {
+        kind: 'do',
+        text: 'Put the range picker here rather than above the table. It qualifies the title \u2014 it says which slice of the archive the page is about \u2014 and below the rule it becomes a toolbar arguing with whatever strip the page starts with.',
+      },
+      {
+        kind: 'do',
+        text: 'Leave breadcrumb off inside a shell that already pins a trail. Two trails on one screen are two answers to \u201cwhere am I\u201d, and a reader checks both.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not render two openings on one page at level 1. Each is an h1, so the second is a second document as far as heading navigation is concerned; a preview or a template inside a page that has its own h1 is what level is for.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not put a second finding in description. One sentence saying what the page is for; a number that changes belongs under the rule, beside the figures it is comparable with.',
+      },
+    ],
+    accessibility: [
+      'The title is an h1 by default, so the page has a name in the heading list whatever the shell around it is doing, and level moves it where the opening is not the document\u2019s.',
+      'The <header> is the page\u2019s banner landmark, which is what a landmark-based reader jumps to first.',
+    ],
+    related: ['heading', 'breadcrumb', 'app-shell'],
   },
   {
     name: 'Calendar',

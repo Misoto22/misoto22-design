@@ -8,10 +8,24 @@ const read = (file: string) => readFileSync(join(HERE, '..', file), 'utf8')
 
 const THEMES = read('themes.css')
 const TOKENS = read('tokens.css')
+const SEMANTIC = read('semantic.css')
 const INDEX = read('index.css')
 
 const strip = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, '')
 const declared = (css: string) => new Set([...strip(css).matchAll(/--([\w-]+):/g)].map((m) => m[1]!))
+
+/** Every rule in a stylesheet as `[selector list, declarations]`. */
+const rules = (css: string) =>
+  [...strip(css).matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((m) => [m[1]!.trim(), m[2]!] as const)
+
+/** Every token declared by the rules whose selector list names `selector`. */
+const movedBy = (css: string, selector: string) => {
+  const moved = new Set<string>()
+  for (const [selectors, body] of rules(css))
+    if (selectors.split(',').some((one) => one.trim() === selector))
+      for (const name of declared(body)) moved.add(name)
+  return moved
+}
 
 /** Names `index.css` promotes into Tailwind's `@theme`, which a theme may also move. */
 const THEME_LAYER = new Set([...strip(INDEX).matchAll(/--(font-[\w-]+):/g)].map((m) => m[1]!))
@@ -26,7 +40,13 @@ describe('themes.css', () => {
    * learn would make the theme a fork rather than a dressing.
    */
   it('only re-points tokens that already exist', () => {
-    const known = declared(TOKENS)
+    // Both layers count as "already exists". `tokens.css` owns values and
+    // `semantic.css` owns roles, and the accent axis has to move a role: the
+    // whole chain from --clay up to --accent-on-muted is declared on :root in
+    // the semantic layer, so it computes there and a theme that re-points only
+    // the primitive changes nothing at all. Reading one layer and not the
+    // other would have failed a theme for naming a token the package ships.
+    const known = new Set([...declared(TOKENS), ...declared(SEMANTIC)])
     const unknown = [...declared(THEMES)].filter(
       (name) => !known.has(name) && !THEME_LAYER.has(name),
     )
@@ -61,6 +81,85 @@ describe('themes.css', () => {
     for (const name of new Set(surfaces)) {
       expect(THEMES).toContain(`[data-mode='dark'][data-surface='${name}']`)
     }
+  })
+
+  /**
+   * Law 8 per TOKEN, which is the claim the check above does not make.
+   *
+   * A dark block existing is not a dark block being complete. `warm` and `cool`
+   * both had one and both restated only the three grounds in it, leaving
+   * `--rule` and `--rule-2` set once, unqualified by mode — so the light
+   * hairline rendered on the dark page at 14.86:1 and 15.82:1 against those
+   * surfaces' own `--paper`, where the neutral dark rule sits at 1.42:1. Every
+   * border and divider on the page came out near-white, and it did so silently:
+   * the light hex simply keeps resolving on a ground it was never measured
+   * against, which is the same failure the accent axis is guarded for.
+   *
+   * BOTH forms are checked, because they are not the same selector and an app
+   * writes `data-mode` and its surface on the SAME element — where a descendant
+   * selector matches nothing at all.
+   */
+  it('moves every token a surface moves on both grounds', () => {
+    const names = new Set([...strip(THEMES).matchAll(/\[data-surface='(\w+)'\]/g)].map((m) => m[1]!))
+    expect(names.size).toBeGreaterThan(1)
+    for (const name of names) {
+      const light = movedBy(THEMES, `[data-surface='${name}']`)
+      expect(light.size, `[data-surface='${name}'] must move something`).toBeGreaterThan(0)
+      for (const form of [
+        `[data-mode='dark'][data-surface='${name}']`,
+        `[data-mode='dark'] [data-surface='${name}']`,
+      ]) {
+        const dark = movedBy(THEMES, form)
+        const missing = [...light].filter((token) => !dark.has(token))
+        expect(missing, `${form} leaves the light value of --${missing.join(', --')} standing`)
+          .toEqual([])
+      }
+    }
+  })
+
+  /**
+   * Law 8 again, on the axis that carries the only hue the page itself is
+   * allowed. An accent with a light value and no dark one fails contrast the
+   * moment the reader switches mode, and it fails silently — the light hex
+   * simply keeps rendering, on a ground it was never measured against.
+   */
+  it('gives every accent a dark value too', () => {
+    const accents = [...strip(THEMES).matchAll(/\[data-accent='(\w+)'\]/g)].map((m) => m[1]!)
+    expect(new Set(accents).size).toBeGreaterThan(1)
+    for (const name of new Set(accents)) {
+      expect(THEMES).toContain(`[data-mode='dark'][data-accent='${name}']`)
+      expect(THEMES).toContain(`[data-mode='dark'] [data-accent='${name}']`)
+    }
+  })
+
+  /**
+   * The accent moves the pointer, and re-derives the chain hanging off it.
+   *
+   * `--accent: var(--red)` is declared on `:root` in `semantic.css`, so it is
+   * substituted THERE — against the root's `--clay`. A theme that re-points
+   * only `--clay` on a descendant changes nothing the descendant renders,
+   * which is how a rail of eight themed previews all painted the accent of the
+   * page around them.
+   */
+  it('re-derives the whole accent chain, not only its root pointer', () => {
+    const block = /\[data-accent\]\s*\{([\s\S]*?)\n\}/.exec(strip(THEMES))?.[1]
+    expect(block, "themes.css must carry a bare [data-accent] block").toBeDefined()
+    for (const token of ['--red', '--on-red', '--accent', '--accent-foreground', '--accent-on-muted'])
+      expect(block).toContain(`${token}:`)
+  })
+
+  /**
+   * A browser remaps an element's own colours under forced colours and does
+   * not reach inside an SVG or a `color-mix()`, so an accent survives there as
+   * a hue the reader has asked not to see — and `[data-accent='moss']` matches
+   * the element directly, which outranks anything the root merely offers.
+   */
+  it('collapses every accent to the system ink under forced colours', () => {
+    const forced = /@media \(forced-colors: active\) \{([\s\S]*)$/.exec(strip(THEMES))?.[1]
+    expect(forced).toMatch(/\[data-mode\] \[data-accent\]/)
+    expect(forced).toMatch(/\[data-mode\]\[data-accent\]/)
+    expect(forced).toContain('--clay: CanvasText;')
+    expect(forced).toContain('--clay-ink: CanvasText;')
   })
 
   /**

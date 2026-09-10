@@ -1,11 +1,10 @@
 /*
- * Theming beyond the accent.
+ * The theming axes.
  *
- * The accent proves one token can be re-pointed. This proves the rest can:
- * five independent axes, each an attribute on the root, each re-pointing
- * tokens that already exist. No component is touched by any of it, and nothing
- * here introduces a token — a theme that needed a new token would be a second
- * design system wearing the first one's name.
+ * Seven of them, each an attribute, each re-pointing tokens that already
+ * exist. No component is touched by any of it, and nothing here introduces a
+ * token — a theme that needed a new token would be a second design system
+ * wearing the first one's name.
  *
  * The axes are independent on purpose. A named preset is a combination, not a
  * block of its own, so "warm surface with sharp corners" is reachable even
@@ -15,9 +14,190 @@
  * no attribute at all.
  */
 
+/* ─── Accent ───────────────────────────────────────────────────────────────
+   The one token every other axis was written to prove could move.
+
+   Law 7 says the accent IS ink, and this does not walk that back — `ink` is
+   the default and it is the system as it ships. What this axis demonstrates is
+   the thing underneath the law: every component reads `--accent`, which points
+   at `--red`, which points at `--clay`. ONE token. A consumer whose brand is
+   not monochrome re-points it and the whole system follows without a component
+   being touched.
+
+   This lived in the documentation site's own stylesheet for four releases,
+   which meant the site could show it and no consumer could have it — and the
+   package meanwhile said in three places that no such attribute existed. It
+   does now, and it is derived from these selectors like every other axis.
+
+   Two values per accent, not one. `--clay` is the MARK — a fill, a rule, a
+   pill — and `--clay-ink` is the same colour set as TEXT, which has to clear
+   AA against paper and therefore cannot always be the same hex. That
+   distinction already existed in the token layer for exactly this reason;
+   these are the first accents to need it.
+
+   Measured with the WCAG 2.x relative-luminance formula, against the White
+   Reset's own grounds (`--paper` #ffffff light, #0d0d0d dark). AA is 4.5:1 for
+   text and 3:1 for a UI mark; the third column is `--clay-ink` over the 10% /
+   14% wash `--accent-on-muted` is printed on.
+
+       accent    light: mark / ink / on wash     dark: mark / ink / on wash
+       ink       19.03   19.03   15.39           17.65   17.65   12.51
+       clay       7.45    8.77    7.51            7.41    9.13    7.51
+       forest     7.59    8.66    7.44            8.91   10.52    8.42
+       cobalt     8.05    9.21    7.86            8.41   10.23    8.27
+       plum       8.49    9.55    8.12            8.74   10.43    8.41
+       moss       5.80    8.30    7.24            8.76   11.32    9.06
+
+   `--accent-foreground` resolves to `--paper`, so paper printed ON the accent
+   fill is the mark column read the other way up. */
+
+/* The default, NAMED. "Ink" used to be spelled "write no attribute", which
+   works exactly once, at the root: inside an element that already carries an
+   accent, an unset accent is not ink, it is whatever the ancestor said. */
+[data-accent='ink'] {
+  --clay: var(--ink);
+  --clay-ink: var(--ink);
+  --red-soft: rgba(16, 16, 16, 0.07);
+}
+
+/* The warm editorial red the site carried before the White Reset. */
+[data-accent='clay'] {
+  --clay: #8a3f24;
+  --clay-ink: #7a3720;
+  --red-soft: rgba(138, 63, 36, 0.1);
+}
+/* A cool neutral green — quiet enough to sit under a lot of type. */
+[data-accent='forest'] {
+  --clay: #2f5d42;
+  --clay-ink: #2a5439;
+  --red-soft: rgba(47, 93, 66, 0.1);
+}
+/* The most conventional software blue that still clears AA on paper. */
+[data-accent='cobalt'] {
+  --clay: #2b4c9b;
+  --clay-ink: #27448a;
+  --red-soft: rgba(43, 76, 155, 0.1);
+}
+/* A darker chroma for a brand that wants presence without heat. */
+[data-accent='plum'] {
+  --clay: #6b3a72;
+  --clay-ink: #613468;
+  --red-soft: rgba(107, 58, 114, 0.1);
+}
+/* A green-grey with almost no chroma left in it, for a dense working screen
+   where the accent has to mark a choice without becoming the loudest thing on
+   the page. The lowest-contrast mark of the six on paper, and deliberately so:
+   it is a rule and a fill more often than it is a word. */
+[data-accent='moss'] {
+  --clay: #566b52;
+  --clay-ink: #41533e;
+  --red-soft: rgba(86, 107, 82, 0.1);
+}
+
+/* Re-derives the chain, on any element that names an accent.
+
+   A `var()` is substituted where it is DECLARED, not where it is read:
+   `--accent: var(--red)` is written on `:root` in `semantic.css`, so it
+   computes THERE — against the root's `--clay` — and what inherits down is the
+   answer, not the question. Re-pointing `--clay` on a descendant therefore
+   changed nothing at all, and every accent swatch, preview and thumbnail on a
+   themes rail painted the accent of the page rather than its own.
+
+   `--on-red` is here for the same reason: it resolves to `--paper`, so an
+   element naming its own surface needs the foreground re-derived against that
+   surface rather than against the document's. */
+[data-accent] {
+  --red: var(--clay);
+  --red-ink: var(--clay);
+  --on-red: var(--paper);
+  --accent: var(--red);
+  --accent-hover: var(--red-ink);
+  --accent-muted: var(--red-soft);
+  --accent-wash: var(--red-soft);
+  --accent-foreground: var(--on-red);
+  --accent-on-dark: var(--red);
+  --accent-on-muted: var(--red-ink);
+}
+
+/* On the dark ground the same hues have to come UP to clear AA, not down. An
+   accent with only a light value fails contrast the moment someone switches
+   mode — which is why the token layer swaps by value rather than by block. */
+
+[data-mode='dark'][data-accent='ink'],
+[data-mode='dark'] [data-accent='ink'] {
+  --clay: var(--ink);
+  --clay-ink: var(--ink);
+  --red-soft: rgba(244, 244, 242, 0.12);
+}
+
+[data-mode='dark'][data-accent='clay'],
+[data-mode='dark'] [data-accent='clay'] {
+  --clay: #e08a68;
+  --clay-ink: #e8a184;
+  --red-soft: rgba(224, 138, 104, 0.14);
+}
+[data-mode='dark'][data-accent='forest'],
+[data-mode='dark'] [data-accent='forest'] {
+  --clay: #7fbd97;
+  --clay-ink: #98caab;
+  --red-soft: rgba(127, 189, 151, 0.14);
+}
+[data-mode='dark'][data-accent='cobalt'],
+[data-mode='dark'] [data-accent='cobalt'] {
+  --clay: #8aaaf0;
+  --clay-ink: #a3bcf4;
+  --red-soft: rgba(138, 170, 240, 0.14);
+}
+[data-mode='dark'][data-accent='plum'],
+[data-mode='dark'] [data-accent='plum'] {
+  --clay: #cf9dd6;
+  --clay-ink: #dab0e0;
+  --red-soft: rgba(207, 157, 214, 0.14);
+}
+[data-mode='dark'][data-accent='moss'],
+[data-mode='dark'] [data-accent='moss'] {
+  --clay: #9cb597;
+  --clay-ink: #b8cbb3;
+  --red-soft: rgba(156, 181, 151, 0.14);
+}
+
 /* ─── Surface ──────────────────────────────────────────────────────────────
    The ground and its two steps. Law 8 still holds — dark is a value swap, so
-   each surface defines both and neither is a separate palette. */
+   each surface defines both and neither is a separate palette.
+
+   THE RULES ARE PART OF THE SURFACE, and for four releases only half of them
+   swapped. `warm` and `cool` set `--rule` and `--rule-2` unqualified by mode
+   and then restated only the three grounds in dark, so the LIGHT hairline
+   survived onto the dark page: #e8e4da at 14.86:1 against warm's own dark
+   `--paper`, #e4e9ee at 15.82:1 against cool's, where the neutral dark rule
+   sits at 1.42:1. Every border and divider on the page came out near-white —
+   measured in a console on this package at up to 174 such elements on one of
+   33 routes. `glass` restates both and was never affected.
+
+   The dark values are built the way `tokens.css` builds its own: the system's
+   near-white at an alpha over whatever ground is under it, at the SAME alphas,
+   0.14 and 0.26, because the alpha is what a rule's WEIGHT is. Composited on
+   each surface's own dark `--paper` that is 1.45 / 2.19 on warm and
+   1.42 / 2.17 on cool against the root's 1.42 / 2.16, at ΔE 13.5 / 23.9 and
+   13.8 / 24.5 against its 13.8 / 24.6 (OKLab ×100). Same rule, same weight, a
+   differently tinted ground.
+
+   What moves is the near-white. `#f4f4f2` held at its own lightness (L 0.967)
+   and turned onto the surface's dark hue — 84.6° warm and 258.4° cool, the hue
+   `--paper`, `--paper-2` and `--stone` already carry there — at the chroma that
+   surface's LIGHT `--rule` carries (C 0.0141 and 0.0087). Tinting it is not
+   decoration: the light halves ladder chroma UP with rule weight, warm running
+   C 0.0111 at `--stone`, 0.0141 at `--rule` and 0.0185 at `--rule-2`, and the
+   root's neutral ink inverts that on the dark ground — at 26% it washes the
+   ground's tint out, leaving warm's heaviest rule at C 0.0075 over a `--stone`
+   of C 0.0103, the least warm thing on a warm page. Tinted, it lands at
+   C 0.0109, on the ground's own hue.
+
+   Not restated under forced colours, unlike the accent below. `tokens.css`
+   does not collapse `--rule` there because it does not have to: a border is an
+   element's own colour and the browser remaps it, and nothing in the package
+   draws these two into an SVG or a `color-mix()`, which is the gap the accent
+   block exists to close. */
 
 [data-surface='warm'] {
   --paper: #fdfcf9;
@@ -31,6 +211,10 @@
   --paper: #12110f;
   --paper-2: #1a1814;
   --stone: #221f1a;
+  /* #f4f4f2 at L 0.967, hue 84.6°, C 0.0143 — warm's own hue at the chroma its
+     light `--rule` carries. */
+  --rule: rgba(248, 243, 233, 0.14);
+  --rule-2: rgba(248, 243, 233, 0.26);
 }
 
 [data-surface='cool'] {
@@ -45,6 +229,9 @@
   --paper: #0c0e11;
   --paper-2: #14171b;
   --stone: #1c2026;
+  /* The same construction on cool's hue, 258.4°, at C 0.0091. */
+  --rule: rgba(240, 244, 250, 0.14);
+  --rule-2: rgba(240, 244, 250, 0.26);
 }
 
 /* Glass, and the one place this system allows a blur.
@@ -281,7 +468,7 @@
   --series-8: oklch(from var(--clay) 0.78 c h);
 }
 
-/* ─── Forced colours, for the palettes ─────────────────────────────────────
+/* ─── Forced colours, for every axis that carries a hue ────────────────────
    `tokens.css` collapses the ramp to `CanvasText` when the reader has taken
    the palette away, and it writes that on `:root` — which a palette attribute
    then outranks, because an element that matches `[data-chart-palette]`
@@ -306,5 +493,22 @@
     --series-7: CanvasText;
     --series-8: CanvasText;
     --series-track: Canvas;
+  }
+
+  /* The accent has the same problem and needs the same answer.
+
+     A browser remaps an HTML element's own colours and does not reach inside
+     an SVG or a `color-mix()`, so a fill drawn from `--clay` survived forced
+     colours as a hue nobody asked for — and `[data-accent='moss']` matches the
+     element directly, which outranks anything the root merely offers. Under
+     forced colours the system owns what a chosen state looks like, so every
+     accent collapses to the reader's own ink. */
+  [data-accent],
+  [data-mode][data-accent],
+  [data-mode] [data-accent] {
+    --clay: CanvasText;
+    --clay-ink: CanvasText;
+    --red-soft: Canvas;
+    --on-red: Canvas;
   }
 }

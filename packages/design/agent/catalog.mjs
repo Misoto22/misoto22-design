@@ -185,14 +185,20 @@ export const CATALOG = [
  * writing no attribute at all — and a reader who does not know that reads the
  * value list as exhaustive and sets one needlessly.
  *
- * `data-accent` is deliberately absent, and was the reason this became derived
- * rather than authored: the site's llms.txt described one for months. There is
- * no such attribute. `--accent` is a custom property, re-pointed in CSS.
+ * `data-accent` is the reason this became derived rather than authored: the
+ * site's llms.txt described one for months while the stylesheets had none, and
+ * an agent reading it set an attribute that did nothing. It is now real — the
+ * selectors are in `themes.css` — and it arrived here the same way every other
+ * value does, by being in the CSS. Nobody had to remember this table.
  *
  * @type {Record<string, string>}
  */
 export const AXIS_DEFAULTS = {
   'data-mode': 'follows the app',
+  // Law 7: the accent IS ink, and `ink` is that stated as a value rather than
+  // as an absence — an unset accent inside a themed subtree is the ancestor's,
+  // not the system's.
+  'data-accent': 'ink',
   'data-surface': 'paper',
   'data-radius': 'the default radius ladder',
   'data-rules': 'hairline',

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { ACCENTS } from '@/components/AccentProvider'
 import { AXES, DEFAULTS, LOOK_AXES, PRESETS, attribute } from '@/components/ThemeProvider'
 // Reached across the workspace on purpose: a selector is the only thing that
 // settles whether an axis value is real, and the package already derives them.
@@ -54,6 +55,22 @@ describe('the theme axes', () => {
         `${attribute(axis)} offers it, no selector defines it`,
       ).toEqual([])
     }
+  })
+
+  /**
+   * The accent picker offers exactly the accents the package defines.
+   *
+   * The hues used to live in this app's own stylesheet, which is why nothing
+   * checked this: a list and the CSS it drew from were both the site's, so they
+   * could only disagree with each other. `data-accent` is a shipped axis now,
+   * and this list is names and notes over the package's selectors — an id with
+   * no selector behind it is a swatch painted in the page's own accent, six
+   * previews of six accents all showing the one already on screen.
+   */
+  it('offers exactly the accents the package ships', () => {
+    const defined = DERIVED['data-accent'] ?? []
+    const offered = ACCENTS.map((accent) => accent.id)
+    expect([...offered].sort()).toEqual([...defined].sort())
   })
 
   /** A preset that sets an axis the panel cannot show is a look with no dial. */
