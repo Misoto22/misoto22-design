@@ -321,6 +321,79 @@ export const DATA = [
     related: ['bar-chart', 'table'],
   },
   {
+    name: 'Metric',
+    group: 'Data',
+    summary: 'One reading, on a plate: a label, a figure, and what qualifies it.',
+    when: 'Four across on a console. BigNumber is the same idea at headline scale for the ONE figure a view is about, and needs the charts entry; this is the tile, and needs nothing.',
+    anatomy: [
+      {
+        element: 'Plate',
+        required: true,
+        description:
+          'An <article> at --radius with a hairline round it and 12px of padding, or whatever asChild is handed. It has no heading and no landmark: a row of four is a row of readings, not four sections.',
+      },
+      {
+        element: 'Label',
+        required: true,
+        description:
+          'label as an eyebrow at --ink-3-aa. Nothing binds it to the figure programmatically, so document order is the whole association.',
+      },
+      {
+        element: 'Tone dot',
+        description:
+          'A StatusDot beside the label when tone is set, un-pulsed and aria-hidden. Decoration by construction, which is why whatever it means has to be in detail as well.',
+      },
+      {
+        element: 'Figure',
+        required: true,
+        description:
+          'value in the mono face at --fs-item with tabular figures, printed exactly as handed over — no unit, currency or locale is guessed. Tabular because four tiles in a row are read down the column as much as along it.',
+      },
+      {
+        element: 'Detail',
+        description:
+          'detail under the figure at --ink-2 in the small step. One line: what makes the number a reading rather than a count.',
+      },
+      {
+        element: 'Aside',
+        description:
+          'aside, last, unwrapped and unstyled: a Sparkline, a denominator, a caveat. Unlike BigNumber\u2019s note slot it carries no margin of its own, so a tight tile stays tight.',
+      },
+    ],
+    practices: [
+      {
+        kind: 'do',
+        text: 'Put whatever the tone means into detail as well. The dot is aria-hidden by construction, so a tile whose only account of a failure is that it is red says nothing at all to a screen reader, and nothing in greyscale.',
+      },
+      {
+        kind: 'do',
+        text: 'Format value at the call site. It is printed exactly as handed over, which is what lets a locale, a currency and a unit be decided once by the application rather than guessed four times by four tiles.',
+      },
+      {
+        kind: 'do',
+        text: 'Give the slotted child no children of its own under asChild. The label and the figure are injected into it, so `<Link href="/jobs" />` is the whole call \u2014 a child with content of its own gets that content and the tile both.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not reach for this where there is one figure and a change to report. BigNumber has a delta, a direction stated by the call site and an announced verdict; a tone dot is not any of those, and re-implementing them in aside gets the announcement wrong.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not write a sentence into detail under asChild. The whole tile is inside one link, so the link\u2019s accessible name is every word in it read in order, and a clause added there is a clause read out every time the link is reached.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not put a heading inside one. The plate is an <article> with no name, so a heading in it opens a section a screen reader will list \u2014 four tiles then read as four sections of the page rather than as one row of figures.',
+      },
+    ],
+    accessibility: [
+      'The tone dot is aria-hidden without exception, so colour is never the only carrier \u2014 the words in detail are.',
+      'value is taken already formatted. The component does not guess a unit, a currency or a locale.',
+      'Under asChild the tile becomes the caller\u2019s element, so the link or button is the whole plate rather than a target inside it.',
+    ],
+    related: ['big-number', 'status-dot', 'sparkline'],
+  },
+  {
     name: 'BigNumber',
     group: 'Data',
     summary: 'One number, at the size of a headline.',

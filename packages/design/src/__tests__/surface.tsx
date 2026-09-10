@@ -56,6 +56,7 @@ import {
   Kbd,
   LinkArrow,
   Markdown,
+  Metric,
   NavItem,
   NumberField,
   PageHeader,
@@ -298,6 +299,9 @@ export const SURFACE: SurfaceEntry[] = [
   ) },
   { dir: 'Kbd', render: () => <p>Press <Kbd>⌘</Kbd> <Kbd>K</Kbd></p> },
   { dir: 'LinkArrow', render: () => <a href="#x">Read the paper<LinkArrow /></a> },
+  { dir: 'Metric', render: () => (
+    <Metric label="Rows" value="63,851" detail="newest yesterday" tone="success" />
+  ) },
   { dir: 'NavItem', render: () => (
     <nav aria-label="Primary"><NavItem href="#work" active>Work</NavItem></nav>
   ) },

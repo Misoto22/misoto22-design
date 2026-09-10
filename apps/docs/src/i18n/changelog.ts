@@ -49,6 +49,18 @@ const ZH: Record<string, string> = {
   [fingerprint("The portable `website.css` entry and compiled stylesheet share the canonical tokens. Offline documentation includes every family and its server and client exports.")]: "独立的 `website.css` 与编译后的完整样式共用同一套设计变量。离线文档覆盖所有新增组件组及其服务端、客户端导出。",
   // ─── unreleased ───
   [fingerprint(
+    '`Metric` — the stat tile that sits four across on a console: a label, a monospaced figure, a status tone and a free slot under the number.',
+  )]: '`Metric`——控制台上一排四个的那种读数小块：一个标签、一个等宽数字、一个状态色调，以及数字下面一个自由槽位。',
+  [fingerprint(
+    '**`BigNumber` was the only figure in the set and it is the wrong size for four of them.** It is one headline in the editorial face with a delta under it, for the ONE number a view is about, and it needs the charts entry. A dashboard whose tiles have to be a `<div>` because the delta does not apply is a dashboard with two tile designs in it, which is what every console built on this package had.',
+  )]: '**这套系统里表示数字的只有 `BigNumber`，而一排四个要的不是那个尺寸。** 它是一条编辑体的标题、下面挂一个 delta，给的是「整个视图就讲这一个数字」的场合，而且要用 charts 入口。一个因为 delta 用不上、只好把某些小块写成 `<div>` 的仪表盘，是一个装着两种小块设计的仪表盘——而每一个建在这个包上的控制台，都正是这样。',
+  [fingerprint(
+    'The figure is monospace and tabular by construction rather than by a prop. Four tiles in a row are read down the column as much as along it, and proportional digits put the same magnitude at two different widths — which is a comparison the reader came for and cannot make.',
+  )]: '数字用等宽加表格数字，是按构造定下来的，不是靠某个属性。一排四个既是横着读的，也是顺着这一列往下读的，而比例数字会把同一个量级排成两个宽度——那正是读者来做、却做不成的那个对比。',
+  [fingerprint(
+    "`asChild` is how a tile becomes a link, and it is `Slottable` underneath rather than a bare `Slot`: a bare one hands the child the props and leaves it holding its own content, so `<a href=\"…\" />` would render a correctly styled empty box and nothing would say so. The whole plate becomes the link, which also means the link's accessible name is every word in the tile, read in order.",
+  )]: '一个小块靠 `asChild` 变成链接，而底下用的是 `Slottable` 而不是光秃秃的 `Slot`：光秃秃的那个只把属性交给子元素，内容仍旧是子元素自己的，于是 `<a href="…" />` 会渲染出一个样式完全正确的空盒子，而且没有任何地方会提一句。整块板变成那个链接，这也意味着链接的可访问名称就是这块板里每一个词按顺序读一遍。',
+  [fingerprint(
     '`PageHeader` — a page opening, with the order of its parts fixed: the trail, the kicker, the title, the controls that qualify it, and the sentence under them.',
   )]: '`PageHeader`——一个页面的开头，各部分的顺序被固定下来：路径、眉标、标题、限定它的那些控件，以及它们下面那句话。',
   [fingerprint(
