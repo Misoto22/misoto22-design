@@ -63,6 +63,7 @@ not just `:root`. An unset axis is the default.
 | Attribute | Values | Unset means |
 | --- | --- | --- |
 | `data-mode` | `light` `dark` | follows the app |
+| `data-accent` | `clay` `cobalt` `forest` `moss` `plum` | ink |
 | `data-surface` | `warm` `cool` `glass` | paper |
 | `data-radius` | `sharp` `round` | the default ladder |
 | `data-rules` | `quiet` `firm` | hairline |
@@ -75,13 +76,14 @@ not just `:root`. An unset axis is the default.
 <section data-surface="warm" data-radius="sharp" data-density="compact">…</section>
 ```
 
-There is **no `data-accent` attribute.** `--accent` is a single CSS custom
-property; re-skin the system by re-pointing it in your own stylesheet, not by
-setting an attribute.
+The accent is **one token**, `--clay`, which every component reads through
+`--accent`. The attribute is the five shipped hues plus `ink`; a brand that is
+none of them re-points the token itself, and the whole system follows.
 
 ```css
-/* Correct way to re-accent */
-:root { --accent: var(--ok); --accent-hover: var(--ok-ink); }
+/* An accent the package has never seen. Both values: the mark, and the same
+   colour set as text, which has to clear AA on paper. */
+[data-accent='brand'] { --clay: #1f6f5c; --clay-ink: #1a5c4c; }
 ```
 
 ## Radius, duration and control size come from tokens

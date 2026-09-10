@@ -49,6 +49,21 @@ const ZH: Record<string, string> = {
   [fingerprint("The portable `website.css` entry and compiled stylesheet share the canonical tokens. Offline documentation includes every family and its server and client exports.")]: "独立的 `website.css` 与编译后的完整样式共用同一套设计变量。离线文档覆盖所有新增组件组及其服务端、客户端导出。",
   // ─── unreleased ───
   [fingerprint(
+    '`data-accent` is a shipped theme axis now — `ink`, `clay`, `forest`, `cobalt`, `moss` and `plum`, each re-pointing one token the whole system reads.',
+  )]: '`data-accent` 现在是随包发布的一项主题轴——`ink`、`clay`、`forest`、`cobalt`、`moss`、`plum`，每一个都只是把整套系统都在读的那一个 token 指到别处。',
+  [fingerprint(
+    "**The site could show it and no consumer could have it.** Five accents lived in the documentation app's own `globals.css`, so a page on ui.misoto22.com demonstrated a re-pointing that no installed copy of the package could reproduce — while `SKILL.md`, `rules/tokens.md` and the emitted `llms.txt` each said in so many words that no such attribute existed. All three were right about the package and wrong about what the reader had just been shown.",
+  )]: '**这个网站能演示它，而任何使用方都拿不到。** 五个主色一直住在文档站自己的 `globals.css` 里，于是 ui.misoto22.com 上的页面演示的那次重新指向，任何一份已安装的包都复现不了——与此同时 `SKILL.md`、`rules/tokens.md` 和生成的 `llms.txt` 都白纸黑字地写着没有这个属性。三处说的关于包本身都没错，关于读者刚刚看到的东西则全错。',
+  [fingerprint(
+    '`moss` is the sixth and it is the one the axis was moved for: a green-grey with almost no chroma left in it, for a dense working screen where the accent has to mark a choice without becoming the loudest thing on the page.',
+  )]: '`moss` 是第六个，也是这项轴之所以被搬上来的那一个：一种几乎没剩下多少彩度的绿灰，给的是密集的工作界面——那里主色要能标出「被选中」，又不能成为整页最响的东西。',
+  [fingerprint(
+    "Every value carries a light hex, a dark hex and a collapse to `CanvasText` under forced colours. The last of those is not politeness — a browser remaps an element's own colours and does not reach inside an SVG or a `color-mix()`, and `[data-accent='moss']` matches an element directly, so it outranks anything `:root` merely offers. Without the restatement a reader in Windows High Contrast who had chosen an accent kept it.",
+  )]: '每个值都带三样东西：亮色的 hex、暗色的 hex，以及在强制颜色模式下坍缩到 `CanvasText`。最后这一样不是客气——浏览器只会重映射元素自身的颜色，够不到 SVG 内部，也够不到 `color-mix()`；而 `[data-accent=\'moss\']` 是直接匹配到元素上的，因此压得过 `:root` 仅仅提供的任何值。少了这次重述，Windows 高对比度下选过主色的读者就会一直保留着它。',
+  [fingerprint(
+    "Nothing is authored twice. `scripts/theme-axes.mjs` reads the axis out of the selectors that define it, so the skill, the offline agent documentation and the site's index gained the row because the CSS exists. The one thing a selector cannot say — that an unset accent is `ink` rather than the ancestor's — is the line `catalog.mjs` still authors.",
+  )]: '没有任何东西被写两遍。`scripts/theme-axes.mjs` 从定义这项轴的选择器里把它读出来，所以 skill、离线的 agent 文档和站点索引多出这一行，只是因为那段 CSS 存在。选择器唯一说不出来的那件事——没设置时的主色是 `ink`，而不是祖先元素的那个——才是 `catalog.mjs` 仍然要手写的那一行。',
+  [fingerprint(
     "Restore the collection filter hit area and the chart's two-pixel focus ring on public websites.",
   )]: '恢复公共网站中内容筛选的触控范围，以及图表的两像素键盘焦点环。',
   [fingerprint(

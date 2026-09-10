@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url'
 import { extractProps } from '../../scripts/extract-props.mjs'
 // @ts-expect-error — plain ESM data, typed by JSDoc rather than by a declaration.
 import { ENTRY_POINTS } from '../../agent/catalog.mjs'
+// @ts-expect-error — a build script, run here for the fact it derives.
+import { themeAxes } from '../../scripts/theme-axes.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
 const SKILL = join(ROOT, 'skills', 'misoto22-design')
@@ -174,17 +176,38 @@ describe('skill structure', () => {
     expect(specifiers.filter((specifier) => !skill.includes(specifier))).toEqual([])
   })
 
-  it('does not describe an attribute the stylesheets have never had', () => {
-    // `data-accent` was documented for months and has never existed. It was
-    // still here, in the same skill whose own rules/tokens.md says it is not.
+  it('describes exactly the theme axes the stylesheets define', () => {
+    // This used to assert the opposite about one of them. `data-accent` was
+    // documented for months while no selector defined it, so the fix was a
+    // test that no skill file offered it — and when the axis then became real,
+    // that test was a rule holding the documentation wrong in the other
+    // direction. Comparing against the derived list is the version that
+    // survives an axis arriving OR leaving: a skill an agent carries before it
+    // has run anything cannot be a hand-kept copy of a stylesheet.
+    //
+    // Across the skill rather than in one file: `data-table-density` is set by
+    // a prop and belongs beside `Table`, not in the theming table, and pinning
+    // every axis to one page would be a rule about layout rather than about
+    // coverage.
+    const text = ['SKILL.md', ...readdirSync(join(SKILL, 'rules')).map((f) => `rules/${f}`)]
+      .map((file) => readFileSync(join(SKILL, file), 'utf8'))
+      .join('\n')
+    const axes = Object.keys(themeAxes() as Record<string, string[]>)
+    expect(axes.length).toBeGreaterThan(0)
+    expect(axes.filter((axis) => !text.includes(`\`${axis}\``))).toEqual([])
+  })
+
+  it('denies no axis it also documents', () => {
+    // The failure that produced the rule above, generalised: one file saying an
+    // attribute does not exist while another offers it is worse than either,
+    // because a reader believes whichever it reads first.
     const files = ['SKILL.md', ...readdirSync(join(SKILL, 'rules')).map((f) => `rules/${f}`)]
-    const claims = files.filter((file) => {
-      const text = readFileSync(join(SKILL, file), 'utf8')
-      // A line saying it does NOT exist is the point, so only count the ones
-      // that offer it as something to set.
-      return /(?:set|use|plus|,)\s*`?data-accent/.test(text)
-    })
-    expect(claims).toEqual([])
+    const denials = files.filter((file) =>
+      /(?:no|not a|never)\s+`?data-[a-z-]+`?\s+attribute/i.test(
+        readFileSync(join(SKILL, file), 'utf8'),
+      ),
+    )
+    expect(denials).toEqual([])
   })
 
   it('leaves no rule file unreferenced', () => {

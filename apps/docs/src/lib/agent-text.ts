@@ -31,9 +31,11 @@ const SITE = 'https://ui.misoto22.com'
  * The theme axes, as the package derives them from its own stylesheets.
  *
  * Written out by hand here until it said there was a `data-accent` attribute,
- * which there has never been, and did not mention `data-surface="glass"`,
- * which there is. A list of someone else's file goes stale silently; this one
- * did, and an agent reading it set an attribute that does nothing.
+ * which at the time there was not, and did not mention `data-surface="glass"`,
+ * which there was. A list of someone else's file goes stale silently; this one
+ * did, and an agent reading it set an attribute that does nothing. The accent
+ * later became a real axis and this line needed no edit, which is the shape
+ * working rather than a coincidence.
  */
 const THEME_AXES = catalog.themeAxes as { axis: string; values: string[]; unset: string | null }[]
 
@@ -190,8 +192,10 @@ export function indexText(): string {
     ),
     '',
     'An unset attribute is the default; nothing is anchored to `:root`, so an',
-    'axis set on any element applies to the subtree below it. There is no',
-    '`data-accent` attribute — `--accent` is a custom property, re-pointed in CSS.',
+    'axis set on any element applies to the subtree below it. `data-accent`',
+    're-points one token, `--clay`, which every component reads through',
+    '`--accent`; a brand that is none of the shipped values re-points that token',
+    'in a stylesheet instead of setting the attribute.',
     '',
     '## When you get it wrong',
     '',

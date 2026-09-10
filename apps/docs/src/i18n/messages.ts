@@ -127,9 +127,9 @@ const en = {
     presetsTab: 'Presets',
     customTab: 'Customise',
     axesNote:
-      'Six axes, each an attribute on the root that re-points tokens the package already defines — no component reads any of them.',
+      'Seven axes, each an attribute on the root that re-points tokens the package already defines — no component reads any of them.',
     accentTitle: 'Accent',
-    accentNote: 'One token, --clay. Every surface that marks a choice — a primary button, a checked box, the active tab, the current page — reads it through --accent. The system ships monochrome; these show what re-pointing it does.',
+    accentNote: 'One token, --clay. Every surface that marks a choice — a primary button, a checked box, the active tab, the current page — reads it through --accent. data-accent is the seventh axis and ships in the package; these six are what it carries, and a brand that is none of them re-points the token itself.',
     current: 'current',
     language: 'Language',
   },
@@ -341,9 +341,9 @@ const zh: Messages = {
     presetsTab: '预设',
     customTab: '自定义',
     axesNote:
-      '六项轴。每一项都是根元素上的一个属性，只是把包里已有的 token 重新指向别处——没有任何组件读它们。',
+      '七项轴。每一项都是根元素上的一个属性，只是把包里已有的 token 重新指向别处——没有任何组件读它们。',
     accentTitle: '主色',
-    accentNote: '只有一个 token：--clay。所有表示“被选中”的表面——主按钮、勾选框、当前标签页、当前页码——都通过 --accent 读它。系统默认是单色的，这些选项展示的是改掉这一个指针会发生什么。',
+    accentNote: '只有一个 token：--clay。所有表示“被选中”的表面——主按钮、勾选框、当前标签页、当前页码——都通过 --accent 读它。data-accent 是第七项轴，随包一起发布；这六个就是它带的值，而任何一个都不合适的品牌，直接把这个 token 指到别处即可。',
     current: '当前',
     language: '语言',
   },

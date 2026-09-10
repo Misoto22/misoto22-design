@@ -3,13 +3,14 @@
  *
  * These were described by hand in two places, and both went wrong in the way a
  * hand-kept list of someone else's file always does: the site's `llms.txt`
- * advertised a `data-accent` attribute that has never existed, and omitted
- * `data-surface="glass"`, which has. An agent reading it set an attribute that
- * does nothing and never reached one that does.
+ * advertised a `data-accent` attribute the stylesheets did not have, and
+ * omitted `data-surface="glass"`, which they did. An agent reading it set an
+ * attribute that does nothing and never reached one that does.
  *
  * So the axes and their values are derived. A selector is the only thing that
  * decides whether an axis value is real, and adding one to the CSS is now the
- * whole of adding one to the documentation.
+ * whole of adding one to the documentation. `data-accent` came back as a real
+ * axis afterwards and needed no edit here, which is the proof of the shape.
  *
  * What is NOT derivable is what an unset axis gives you — `catalog.mjs` authors
  * that, and `catalog.test.ts` fails when the two lists stop matching.

@@ -11,9 +11,9 @@ import * as website from '@misoto22/design/website'
  * The site has fallen behind the package three times, in the same way each
  * time: the package gained something an agent can use, nobody thought about
  * this side, and the page kept describing the version before it. Once it
- * advertised a `data-accent` attribute that has never existed. Twice it listed
- * a way in that had been superseded. Every one of those was invisible until
- * somebody read the page against the package.
+ * advertised a `data-accent` attribute the stylesheets did not have. Twice it
+ * listed a way in that had been superseded. Every one of those was invisible
+ * until somebody read the page against the package.
  *
  * So the drift is a test rather than a habit. What the package publishes about
  * itself — its theme axes, its warning codes — is read from the artifact its
@@ -50,9 +50,11 @@ describe('the site keeps up with the package', () => {
     const missing = axes.filter((axis) => !index.includes(axis))
     expect(missing).toEqual([])
 
-    // The one that was invented. It must not come back by hand.
-    expect(index).toContain('no')
-    expect(index).toContain('`data-accent`')
+    // The one that was invented, and is now real. It reaches this page because
+    // a selector defines it, which is the whole arrangement: it was written by
+    // hand for months, was wrong for months, and nobody had to remember it the
+    // day it stopped being wrong.
+    expect(axes).toContain('data-accent')
   })
 
   it('never hard-codes the component count into prose', () => {
