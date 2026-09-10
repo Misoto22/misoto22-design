@@ -168,6 +168,21 @@ const ZH: Record<string, string> = {
   [fingerprint(
     '`ChartEmpty` sizes itself 16:9 and stops at `max-h-[26rem]`, which is right for a card that grows to its content and short of a figure the page has given a fixed height — a dashboard tile, a cell in a grid. The box was then shorter than the figure holding it, so the words landed near the top while the plot they stand in for had filled the whole cell, and the same chart read at two different heights depending on whether it had data. The container it replaces is `flex-1` and `justify-center`; this was neither. An auto margin is the smaller of the two available fixes: it absorbs the free space when there is any and does nothing when there is none, so a chart that sizes to its own content keeps exactly the shape it had.',
   )]: '`ChartEmpty` 按 16:9 给自己定尺寸，并在 `max-h-[26rem]` 处打住。这对一张跟着内容长大的卡片是对的，对一个被页面给定了固定高度的 figure——仪表盘的一块瓦片、网格里的一格——就不够高了。于是这个盒子比装着它的 figure 矮，文字落在靠上的位置，而它所替代的绘图区本来是把整格填满的；同一张图表，有数据和没数据读起来是两个高度。它替下来的那个容器是 `flex-1` 加 `justify-center`，而它两样都不是。自动外边距是两种改法里较小的那一种：有空余时它吃掉空余，没有空余时它什么也不做，所以按自身内容定尺寸的图表，形状分毫未变。',
+  [fingerprint(
+    "The `warm` and `cool` surfaces keep their rules dark now — both set `--rule` and `--rule-2` once, so every border on a dark page rendered near-white.",
+  )]: '`warm` 和 `cool` 这两个表面，现在在深色下也把线条留在暗处——它们的 `--rule` 和 `--rule-2` 只写了一遍，于是深色页面上的每一条边框都渲染成了近白色。',
+  [fingerprint(
+    "**The dark block restated the grounds and not the rules.** Each surface moves five tokens on the light ground and only three of them came back in dark, so `#e8e4da` and `#e4e9ee` kept resolving over `#12110f` and `#0c0e11` — 14.86:1 and 15.82:1 against the surface's own paper, where the neutral dark rule sits at 1.42:1. Measured in a console built on this package: 33 routes, up to 174 near-white borders on one page. `glass` restates both and was never affected.",
+  )]: '**深色那个块重述了底色，没有重述线条。** 每个表面在浅色底上移动五个 token，到了深色只回来三个，于是 `#e8e4da` 和 `#e4e9ee` 继续解析在 `#12110f` 和 `#0c0e11` 上——对着这两个表面自己的纸色，是 14.86:1 和 15.82:1，而中性的深色线条坐在 1.42:1。在一个基于这个包搭起来的控制台上量过：33 条路由，单页最多 174 条近白色边框。`glass` 把两条都重述了，从来没有中招。',
+  [fingerprint(
+    "The replacements are built the way `tokens.css` builds its own, the system's near-white at an alpha over whatever ground is under it, and at the SAME alphas — 0.14 and 0.26 — because the alpha is what a rule's weight is. What moves is the near-white: `#f4f4f2` held at its own lightness and turned onto the surface's dark hue, 84.6° for warm and 258.4° for cool, at the chroma that surface's light `--rule` carries. Composited on each surface's own dark paper the two land at 1.45 / 2.19 and 1.42 / 2.17 against the root's 1.42 / 2.16.",
+  )]: '替换上去的值，是照 `tokens.css` 自己的做法搭出来的——系统的近白色，以一个透明度压在底下无论什么底色上——而且用的是「同一组」透明度，0.14 和 0.26，因为透明度就是一条线条的分量。变的是那个近白色：把 `#f4f4f2` 按住它自己的明度，转到该表面的深色色相上，暖色 84.6°、冷色 258.4°，彩度取该表面浅色 `--rule` 所带的那一档。合成到各自的深色纸面上，这两条落在 1.45 / 2.19 和 1.42 / 2.17，对着根节点的 1.42 / 2.16。',
+  [fingerprint(
+    "The tint is not decoration. A light warm rule carries MORE chroma than the ground it separates — C 0.0111 at `--stone` against 0.0185 at `--rule-2` — and the root's neutral near-white inverts that on the dark ground: at 26% it washes the tint out, leaving warm's heaviest rule at C 0.0075 over a `--stone` of C 0.0103, the least warm thing on a warm page.",
+  )]: '这层色偏不是装饰。浅色下的暖色线条，彩度比它所分隔的那层底色「更高」——`--stone` 是 C 0.0111，`--rule-2` 是 0.0185——而根节点那个中性近白色，在深色底上把这件事反了过来：在 26% 处它把底色的色偏冲淡，让暖色最重的那条线落到 C 0.0075，压在一层 C 0.0103 的 `--stone` 上，成了一张暖色页面上最不暖的东西。',
+  [fingerprint(
+    "The test asks this per TOKEN now rather than per block, because a dark block existing is not a dark block being complete — which is the whole of what the surface axis was checking, and both of these had one.",
+  )]: '测试现在是按「每个 token」问，而不是按每个块问，因为一个深色块存在，不等于这个深色块是完整的——而后者正是表面这根轴原本检查的全部，偏偏这两个表面都有一个块。',
   // ─── 0.10.0 ───
   [fingerprint(
     'The chart palette gains a third value, and forced colours gets its ramp back.',

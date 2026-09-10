@@ -14,6 +14,19 @@ const INDEX = read('index.css')
 const strip = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, '')
 const declared = (css: string) => new Set([...strip(css).matchAll(/--([\w-]+):/g)].map((m) => m[1]!))
 
+/** Every rule in a stylesheet as `[selector list, declarations]`. */
+const rules = (css: string) =>
+  [...strip(css).matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((m) => [m[1]!.trim(), m[2]!] as const)
+
+/** Every token declared by the rules whose selector list names `selector`. */
+const movedBy = (css: string, selector: string) => {
+  const moved = new Set<string>()
+  for (const [selectors, body] of rules(css))
+    if (selectors.split(',').some((one) => one.trim() === selector))
+      for (const name of declared(body)) moved.add(name)
+  return moved
+}
+
 /** Names `index.css` promotes into Tailwind's `@theme`, which a theme may also move. */
 const THEME_LAYER = new Set([...strip(INDEX).matchAll(/--(font-[\w-]+):/g)].map((m) => m[1]!))
 
@@ -67,6 +80,40 @@ describe('themes.css', () => {
     const surfaces = [...strip(THEMES).matchAll(/\[data-surface='(\w+)'\]/g)].map((m) => m[1]!)
     for (const name of new Set(surfaces)) {
       expect(THEMES).toContain(`[data-mode='dark'][data-surface='${name}']`)
+    }
+  })
+
+  /**
+   * Law 8 per TOKEN, which is the claim the check above does not make.
+   *
+   * A dark block existing is not a dark block being complete. `warm` and `cool`
+   * both had one and both restated only the three grounds in it, leaving
+   * `--rule` and `--rule-2` set once, unqualified by mode — so the light
+   * hairline rendered on the dark page at 14.86:1 and 15.82:1 against those
+   * surfaces' own `--paper`, where the neutral dark rule sits at 1.42:1. Every
+   * border and divider on the page came out near-white, and it did so silently:
+   * the light hex simply keeps resolving on a ground it was never measured
+   * against, which is the same failure the accent axis is guarded for.
+   *
+   * BOTH forms are checked, because they are not the same selector and an app
+   * writes `data-mode` and its surface on the SAME element — where a descendant
+   * selector matches nothing at all.
+   */
+  it('moves every token a surface moves on both grounds', () => {
+    const names = new Set([...strip(THEMES).matchAll(/\[data-surface='(\w+)'\]/g)].map((m) => m[1]!))
+    expect(names.size).toBeGreaterThan(1)
+    for (const name of names) {
+      const light = movedBy(THEMES, `[data-surface='${name}']`)
+      expect(light.size, `[data-surface='${name}'] must move something`).toBeGreaterThan(0)
+      for (const form of [
+        `[data-mode='dark'][data-surface='${name}']`,
+        `[data-mode='dark'] [data-surface='${name}']`,
+      ]) {
+        const dark = movedBy(THEMES, form)
+        const missing = [...light].filter((token) => !dark.has(token))
+        expect(missing, `${form} leaves the light value of --${missing.join(', --')} standing`)
+          .toEqual([])
+      }
     }
   })
 

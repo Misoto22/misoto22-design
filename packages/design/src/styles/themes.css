@@ -163,7 +163,41 @@
 
 /* ─── Surface ──────────────────────────────────────────────────────────────
    The ground and its two steps. Law 8 still holds — dark is a value swap, so
-   each surface defines both and neither is a separate palette. */
+   each surface defines both and neither is a separate palette.
+
+   THE RULES ARE PART OF THE SURFACE, and for four releases only half of them
+   swapped. `warm` and `cool` set `--rule` and `--rule-2` unqualified by mode
+   and then restated only the three grounds in dark, so the LIGHT hairline
+   survived onto the dark page: #e8e4da at 14.86:1 against warm's own dark
+   `--paper`, #e4e9ee at 15.82:1 against cool's, where the neutral dark rule
+   sits at 1.42:1. Every border and divider on the page came out near-white —
+   measured in a console on this package at up to 174 such elements on one of
+   33 routes. `glass` restates both and was never affected.
+
+   The dark values are built the way `tokens.css` builds its own: the system's
+   near-white at an alpha over whatever ground is under it, at the SAME alphas,
+   0.14 and 0.26, because the alpha is what a rule's WEIGHT is. Composited on
+   each surface's own dark `--paper` that is 1.45 / 2.19 on warm and
+   1.42 / 2.17 on cool against the root's 1.42 / 2.16, at ΔE 13.5 / 23.9 and
+   13.8 / 24.5 against its 13.8 / 24.6 (OKLab ×100). Same rule, same weight, a
+   differently tinted ground.
+
+   What moves is the near-white. `#f4f4f2` held at its own lightness (L 0.967)
+   and turned onto the surface's dark hue — 84.6° warm and 258.4° cool, the hue
+   `--paper`, `--paper-2` and `--stone` already carry there — at the chroma that
+   surface's LIGHT `--rule` carries (C 0.0141 and 0.0087). Tinting it is not
+   decoration: the light halves ladder chroma UP with rule weight, warm running
+   C 0.0111 at `--stone`, 0.0141 at `--rule` and 0.0185 at `--rule-2`, and the
+   root's neutral ink inverts that on the dark ground — at 26% it washes the
+   ground's tint out, leaving warm's heaviest rule at C 0.0075 over a `--stone`
+   of C 0.0103, the least warm thing on a warm page. Tinted, it lands at
+   C 0.0109, on the ground's own hue.
+
+   Not restated under forced colours, unlike the accent below. `tokens.css`
+   does not collapse `--rule` there because it does not have to: a border is an
+   element's own colour and the browser remaps it, and nothing in the package
+   draws these two into an SVG or a `color-mix()`, which is the gap the accent
+   block exists to close. */
 
 [data-surface='warm'] {
   --paper: #fdfcf9;
@@ -177,6 +211,10 @@
   --paper: #12110f;
   --paper-2: #1a1814;
   --stone: #221f1a;
+  /* #f4f4f2 at L 0.967, hue 84.6°, C 0.0143 — warm's own hue at the chroma its
+     light `--rule` carries. */
+  --rule: rgba(248, 243, 233, 0.14);
+  --rule-2: rgba(248, 243, 233, 0.26);
 }
 
 [data-surface='cool'] {
@@ -191,6 +229,9 @@
   --paper: #0c0e11;
   --paper-2: #14171b;
   --stone: #1c2026;
+  /* The same construction on cool's hue, 258.4°, at C 0.0091. */
+  --rule: rgba(240, 244, 250, 0.14);
+  --rule-2: rgba(240, 244, 250, 0.26);
 }
 
 /* Glass, and the one place this system allows a blur.
