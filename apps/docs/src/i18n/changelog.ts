@@ -49,6 +49,18 @@ const ZH: Record<string, string> = {
   [fingerprint("The portable `website.css` entry and compiled stylesheet share the canonical tokens. Offline documentation includes every family and its server and client exports.")]: "独立的 `website.css` 与编译后的完整样式共用同一套设计变量。离线文档覆盖所有新增组件组及其服务端、客户端导出。",
   // ─── unreleased ───
   [fingerprint(
+    '`PageHeader` — a page opening, with the order of its parts fixed: the trail, the kicker, the title, the controls that qualify it, and the sentence under them.',
+  )]: '`PageHeader`——一个页面的开头，各部分的顺序被固定下来：路径、眉标、标题、限定它的那些控件，以及它们下面那句话。',
+  [fingerprint(
+    'The system had `Heading` for a heading and `Breadcrumb` for a trail and nothing that said how a page STARTS, so every application invented the arrangement — and the eyebrow landed above the title on one screen and below it on the next. Two consoles built on this package had two different answers, which is one more than a design system is for.',
+  )]: '系统里有 `Heading` 管标题、`Breadcrumb` 管路径，却没有任何东西规定一个页面该怎么「开始」，于是每个应用都自己发明一套排法——眉标在这一屏落在标题上面，在下一屏落在标题下面。两个建在这个包上的控制台给出了两个不同的答案，而这比一套设计系统该允许的多了一个。',
+  [fingerprint(
+    '**Where the range picker goes is the argument.** It sits beside the title, above the rule, because it does not act on the records: it says which slice of them the title refers to. Below the rule it becomes a toolbar competing with whatever strip the page starts with, which is where every application had put it.',
+  )]: '**真正要争的是时间范围选择器摆在哪。** 它在标题旁边、在线的上面，因为它并不作用于那些记录：它说的是标题指的是其中哪一段。放到线下面，它就变成一条工具栏，和页面开头那一横排争起来——而每个应用原本正是把它放在那里的。',
+  [fingerprint(
+    "The title is an `h1` by default because a page has one name, and a shell that owns the document's heading has taken the page's own name away from it; `level` moves it for the case where the opening is not the document's, which is a preview canvas or a template inside a page that already has an `h1`. The SIZE does not move with it: `--fs-heading` at every level, rather than `Heading`'s own level-1 default of `--fs-title`, because a page opening stands over a working screen and moving one down the outline is a fact about the document rather than a request for smaller type.",
+  )]: '标题默认是 `h1`，因为一个页面只有一个名字，而一个把文档标题据为己有的外壳，是把这一页自己的名字拿走了；`level` 是给「这个开头并不属于这份文档」那种情况用的——一块预览画布，或者一份放在已经有 `h1` 的页面里的模板。字号不跟着动：在每一个层级上都是 `--fs-heading`，而不是 `Heading` 在 level 1 上默认的 `--fs-title`，因为一个页面开头站在一块工作界面上方，而把它挪到大纲更深处，是关于这份文档的事实，不是「请把字号调小」的请求。',
+  [fingerprint(
     '`data-accent` is a shipped theme axis now — `ink`, `clay`, `forest`, `cobalt`, `moss` and `plum`, each re-pointing one token the whole system reads.',
   )]: '`data-accent` 现在是随包发布的一项主题轴——`ink`、`clay`、`forest`、`cobalt`、`moss`、`plum`，每一个都只是把整套系统都在读的那一个 token 指到别处。',
   [fingerprint(

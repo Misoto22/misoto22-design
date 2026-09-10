@@ -58,6 +58,7 @@ import {
   Markdown,
   NavItem,
   NumberField,
+  PageHeader,
   Pagination,
   Popover,
   PopoverContent,
@@ -299,6 +300,15 @@ export const SURFACE: SurfaceEntry[] = [
   { dir: 'LinkArrow', render: () => <a href="#x">Read the paper<LinkArrow /></a> },
   { dir: 'NavItem', render: () => (
     <nav aria-label="Primary"><NavItem href="#work" active>Work</NavItem></nav>
+  ) },
+  { dir: 'PageHeader', render: () => (
+    <PageHeader
+      eyebrow="04"
+      title="Money"
+      description="Balances and flows, as at the last sync."
+      breadcrumb={<Breadcrumb items={[{ label: 'Living', href: '#/living' }, { label: 'Money' }]} />}
+      actions={<Button size="sm">Last 7 days</Button>}
+    />
   ) },
   { dir: 'Pagination', render: () => (
     <Pagination page={7} pageCount={20} onPageChange={() => {}} />

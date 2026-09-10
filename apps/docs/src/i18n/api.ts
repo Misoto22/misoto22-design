@@ -30,6 +30,15 @@ export interface ApiCopy {
 export const API_ZH: Record<string, ApiCopy> = {
   ...WEBSITE_API_ZH,
 
+  // ─── PageHeader ───
+  "PageHeader.PageHeader": { hash: 'cb8c76ee', zh: "一个页面的开头：这一页是什么，以及什么在限定它。\n\n系统里有 `Heading` 管标题、`Breadcrumb` 管路径，却没有任何东西规定一个页面该怎么「开始」——于是每个应用都自己发明一套排法，眉标在这一屏落在标题上面，在下一屏落在标题下面。这个组件把顺序、下面那条线、以及控件摆在哪里都固定下来。\n\n它和 `AppShell` 不是一回事：外壳是页面外面的框，每条路由都共用那条侧栏和那条顶栏；这个是路由自己那一栏里的第一样东西。\n\n除非 `level` 另有说法，标题渲染成 `h1`；而这个默认值几乎在所有情况下就是全部答案，理由值得说一句：一个页面只有一个名字，而一个把文档标题据为己有的外壳，是把这一页自己的名字拿走了。一屏上出现两个开头，就是两个页面。\n\n字号则根本不是属性。`Heading` 在 level 1 上默认是 `--fs-title`，那是给「主题就是标题本身」的文档用的编辑级台阶；而一个页面开头站在一块工作界面上方，标题是下面那堆东西的标签，读者真正要看的是线下面那些记录。`--fs-heading` 在每一个层级上都是那一档，画它的仍然是 `Heading`，所以这条阶梯始终只有一条，把一个开头挪到大纲更深处也从不改变它的大小。" },
+  "PageHeader.PageHeader#title": { hash: '360dff89', zh: "这一页是什么。一行，而且是整页唯一有这个分量的东西。" },
+  "PageHeader.PageHeader#eyebrow": { hash: '2f4e50f8', zh: "标题上方的那行小字。\n\n它是一个定位提示，不是装饰：在一个用编号称呼各个页面的控制台里，它就是那个编号；在别处，它是这一页所属的那个板块。" },
+  "PageHeader.PageHeader#description": { hash: 'a05a9d52', zh: "一句话，说明这一页是干什么的。绝不是第二条结论。" },
+  "PageHeader.PageHeader#breadcrumb": { hash: 'd9889482', zh: "开头上方的那条路径，给本身没有钉住一条路径的外壳用。\n\n渲染在应用框架里的页面通常不传它——一屏上两条路径，是对「我在哪」的两个回答。它收的是已经渲染好的 `Breadcrumb`，而不是它的 items，这样每一节路径仍然由调用处自己接到路由上。" },
+  "PageHeader.PageHeader#level": { hash: 'ed6783bd', zh: "`title` 在它落进的那份文档里开出的标题层级。\n\n默认是 `1`，而这正是一个页面开头本来的身份：一个页面只有一个名字，而一个把文档标题据为己有的外壳，是把这一页自己的名字拿走了。只有当这个开头并不属于这份文档时才去改它——一块预览画布、一份放在文档页面里展示的模板、一段嵌在使用方自己的 `h1` 底下的组合。\n\n字号不跟着层级走。`title` 在每一个层级上都渲染成 `--fs-heading`，因为把一个开头挪到大纲更深处，是关于这份文档的事实，不是「请把字号调小」的请求。" },
+  "PageHeader.PageHeader#actions": { hash: '01413d40', zh: "限定「这一页是什么」的那些控件，放在开头里面，而不是内容上方。\n\n这个区分值得守住：一个时间范围选择器并不作用于那些记录，它说的是标题指的是其中哪一段。放到线下面，它就变成一条工具栏，和页面开头那一条横排争起来；放在标题旁边，它读起来就是标题的一部分——而它本来就是。" },
+
   // ─── Charts, fourth pass: the statistical family, small multiples,
   // sonification, and the zoom-and-export toolbar. ───
 "BoxPlot.BoxPlot#title": { hash: '36d936dd', zh: "这张图在讲什么，用一句读者能据此行动的话。必填，而且即使不显示出来也会播报给读屏软件。" },
