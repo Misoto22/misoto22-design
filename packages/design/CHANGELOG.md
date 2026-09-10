@@ -1,5 +1,129 @@
 # @misoto22/design
 
+## 0.14.0
+
+### Minor Changes
+
+- [#101](https://github.com/Misoto22/misoto22-design/pull/101) [`8d6e255`](https://github.com/Misoto22/misoto22-design/commit/8d6e2550dddcb71261fe3db4def037854ed4cfc7) Thanks [@Misoto22](https://github.com/Misoto22)! - `data-accent` is a shipped theme axis now — `ink`, `clay`, `forest`, `cobalt`, `moss` and `plum`, each re-pointing one token the whole system reads.
+  
+  **The site could show it and no consumer could have it.** Five accents lived in
+  the documentation app's own `globals.css`, so a page on ui.misoto22.com
+  demonstrated a re-pointing that no installed copy of the package could
+  reproduce — while `SKILL.md`, `rules/tokens.md` and the emitted `llms.txt` each
+  said in so many words that no such attribute existed. All three were right about
+  the package and wrong about what the reader had just been shown.
+  
+  `moss` is the sixth and it is the one the axis was moved for: a green-grey with
+  almost no chroma left in it, for a dense working screen where the accent has to
+  mark a choice without becoming the loudest thing on the page.
+  
+  Every value carries a light hex, a dark hex and a collapse to `CanvasText` under
+  forced colours. The last of those is not politeness — a browser remaps an
+  element's own colours and does not reach inside an SVG or a `color-mix()`, and
+  `[data-accent='moss']` matches an element directly, so it outranks anything
+  `:root` merely offers. Without the restatement a reader in Windows High Contrast
+  who had chosen an accent kept it.
+  
+  Nothing is authored twice. `scripts/theme-axes.mjs` reads the axis out of the
+  selectors that define it, so the skill, the offline agent documentation and the
+  site's index gained the row because the CSS exists. The one thing a selector
+  cannot say — that an unset accent is `ink` rather than the ancestor's — is the
+  line `catalog.mjs` still authors.
+
+- [#101](https://github.com/Misoto22/misoto22-design/pull/101) [`8d6e255`](https://github.com/Misoto22/misoto22-design/commit/8d6e2550dddcb71261fe3db4def037854ed4cfc7) Thanks [@Misoto22](https://github.com/Misoto22)! - `CalendarHeatmap` — a year of daily readings as a week-by-week grid, built from the dates rather than from the order of the array.
+  
+  `Heatmap` draws named rows and columns and knows nothing about dates, so every
+  consumer wrote the calendar on top of it and none of them wrote it the same way
+  twice. What that costs is not effort but correctness: given a bare list of
+  counts, one missing Tuesday shifts every reading after it by a cell, and the
+  result is a plausible picture of a year that did not happen.
+  
+  **A day with no entry is a gap, not a zero.** "Nothing happened" and "nothing
+  was recorded" are different readings, and a grid that draws them alike invites
+  the reader to explain an outage that was a hole in collection. `null` renders as
+  a dashed outline and announces "no data"; zero is the palest cell on the ramp.
+  
+  Every bound is a UTC midnight parsed out of `YYYY-MM-DD`, because a local-time
+  calendar drawn in two timezones is two different calendars and the disagreement
+  is exactly one day wide — small enough to survive review, large enough to move a
+  reading into the wrong week.
+  
+  `Heatmap.formatValue` now receives the cell as well as the number. It is what
+  makes `describe(value, date)` possible at all: two days with the same count are
+  two different readings, and the row and column a cell is announced with are a
+  weekday and a month spanning five weeks. Existing callers are unaffected — the
+  parameter is additional and a one-argument formatter still satisfies the type.
+
+- [#101](https://github.com/Misoto22/misoto22-design/pull/101) [`8d6e255`](https://github.com/Misoto22/misoto22-design/commit/8d6e2550dddcb71261fe3db4def037854ed4cfc7) Thanks [@Misoto22](https://github.com/Misoto22)! - `Metric` — the stat tile that sits four across on a console: a label, a monospaced figure, a status tone and a free slot under the number.
+  
+  **`BigNumber` was the only figure in the set and it is the wrong size for four
+  of them.** It is one headline in the editorial face with a delta under it, for
+  the ONE number a view is about, and it needs the charts entry. A dashboard whose
+  tiles have to be a `<div>` because the delta does not apply is a dashboard with
+  two tile designs in it, which is what every console built on this package had.
+  
+  The figure is monospace and tabular by construction rather than by a prop.
+  Four tiles in a row are read down the column as much as along it, and
+  proportional digits put the same magnitude at two different widths — which is a
+  comparison the reader came for and cannot make.
+  
+  `asChild` is how a tile becomes a link, and it is `Slottable` underneath rather
+  than a bare `Slot`: a bare one hands the child the props and leaves it holding
+  its own content, so `<a href="…" />` would render a correctly styled empty box
+  and nothing would say so. The whole plate becomes the link, which also means the
+  link's accessible name is every word in the tile, read in order.
+
+- [#101](https://github.com/Misoto22/misoto22-design/pull/101) [`8d6e255`](https://github.com/Misoto22/misoto22-design/commit/8d6e2550dddcb71261fe3db4def037854ed4cfc7) Thanks [@Misoto22](https://github.com/Misoto22)! - `PageHeader` — a page opening, with the order of its parts fixed: the trail, the kicker, the title, the controls that qualify it, and the sentence under them.
+  
+  The system had `Heading` for a heading and `Breadcrumb` for a trail and nothing
+  that said how a page STARTS, so every application invented the arrangement — and
+  the eyebrow landed above the title on one screen and below it on the next. Two
+  consoles built on this package had two different answers, which is one more than
+  a design system is for.
+  
+  **Where the range picker goes is the argument.** It sits beside the title, above
+  the rule, because it does not act on the records: it says which slice of them the
+  title refers to. Below the rule it becomes a toolbar competing with whatever
+  strip the page starts with, which is where every application had put it.
+  
+  The title is an `h1` by default because a page has one name, and a shell that
+  owns the document's heading has taken the page's own name away from it; `level`
+  moves it for the case where the opening is not the document's, which is a
+  preview canvas or a template inside a page that already has an `h1`. The SIZE
+  does not move with it: `--fs-heading` at every level, rather than `Heading`'s own
+  level-1 default of `--fs-title`, because a page opening stands over a working
+  screen and moving one down the outline is a fact about the document rather than
+  a request for smaller type.
+
+### Patch Changes
+
+- [#101](https://github.com/Misoto22/misoto22-design/pull/101) [`8d6e255`](https://github.com/Misoto22/misoto22-design/commit/8d6e2550dddcb71261fe3db4def037854ed4cfc7) Thanks [@Misoto22](https://github.com/Misoto22)! - The `warm` and `cool` surfaces keep their rules dark now — both set `--rule` and `--rule-2` once, so every border on a dark page rendered near-white.
+  
+  **The dark block restated the grounds and not the rules.** Each surface moves
+  five tokens on the light ground and only three of them came back in dark, so
+  `#e8e4da` and `#e4e9ee` kept resolving over `#12110f` and `#0c0e11` — 14.86:1
+  and 15.82:1 against the surface's own paper, where the neutral dark rule sits at
+  1.42:1. Measured in a console built on this package: 33 routes, up to 174
+  near-white borders on one page. `glass` restates both and was never affected.
+  
+  The replacements are built the way `tokens.css` builds its own, the system's
+  near-white at an alpha over whatever ground is under it, and at the SAME alphas
+  — 0.14 and 0.26 — because the alpha is what a rule's weight is. What moves is
+  the near-white: `#f4f4f2` held at its own lightness and turned onto the
+  surface's dark hue, 84.6° for warm and 258.4° for cool, at the chroma that
+  surface's light `--rule` carries. Composited on each surface's own dark paper
+  the two land at 1.45 / 2.19 and 1.42 / 2.17 against the root's 1.42 / 2.16.
+  
+  The tint is not decoration. A light warm rule carries MORE chroma than the
+  ground it separates — C 0.0111 at `--stone` against 0.0185 at `--rule-2` — and
+  the root's neutral near-white inverts that on the dark ground: at 26% it washes
+  the tint out, leaving warm's heaviest rule at C 0.0075 over a `--stone` of
+  C 0.0103, the least warm thing on a warm page.
+  
+  The test asks this per TOKEN now rather than per block, because a dark block
+  existing is not a dark block being complete — which is the whole of what the
+  surface axis was checking, and both of these had one.
+
 ## 0.13.1
 
 ### Patch Changes
