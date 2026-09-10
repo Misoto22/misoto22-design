@@ -1234,6 +1234,15 @@ const ZH: Record<string, string> = {
   '7fe8f132':
     '**Input、Textarea 和 Select 已经各走各的了**：聚焦和禁用的处理各不相同，每个都揣着一份自己的控件 class 字符串。',
   '9eb63729': '`Spinner` 是一个强调色的环，而这套系统的强调色是墨色。',
+  [fingerprint(
+    '`Heatmap` lays its grid out as a fixed table now, so its cells keep a real width instead of collapsing to 0px.',
+  )]: '`Heatmap` 现在把网格排成一张固定布局的表格，好让每一格都保住一个真实的宽度，而不是塌缩成 0px。',
+  [fingerprint(
+    "Every cell's printed reading is `sr-only`, so automatic table layout had no content to size a data column by and handed the row-header column all the slack it could find. Measured in a consumer at 1440px: 919 of 1035px went to the header, and every one of a year calendar's 392 cells came out 0px wide — an invisible grid. `CalendarHeatmap` inherits `Heatmap`, so it carried the same defect.",
+  )]: '每一格里打印出来的读数都是 `sr-only` 的，于是自动表格布局找不到内容来决定数据列的宽度，就把所有能找到的余量都让给了行标题列。在一个使用方那边按 1440px 实测：1035px 里有 919px 分给了表头，而一年日历的 392 格无一例外都算成了 0px 宽——一张看不见的网格。`CalendarHeatmap` 继承自 `Heatmap`，所以带着同一个缺陷。',
+  [fingerprint(
+    "The row-header column gets its width from a `colgroup` rather than from a cell, because fixed layout only ever reads a column's width off a cell in the table's first row, and that row's own corner cell is `sr-only` — `position: absolute` — so a width placed there was never seen. A `col` is read regardless of which cell in the column, or which row, is hidden.",
+  )]: '行标题列的宽度来自一个 `colgroup`，而不是某个单元格，因为固定布局只会从表格第一行里的某个单元格读取列宽，而那一行自己的角落单元格是 `sr-only` 的——`position: absolute`——放在那里的宽度从来不会被看到。`col` 则不管列里哪个单元格、或者哪一行被隐藏，都照样会被读到。',
 }
 
 /** The English a translation was made from, for the orphan check. */
