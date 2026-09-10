@@ -167,6 +167,79 @@ export const DATA = [
     related: ['table', 'scatter-chart'],
   },
   {
+    name: 'CalendarHeatmap',
+    group: 'Data',
+    summary: 'A year of daily readings, as a week-by-week grid.',
+    when: 'The readings are dated and the question is about the calendar. Heatmap is the grid underneath and knows nothing about dates; this is the arrangement everybody writes on top of it and nobody writes the same way twice.',
+    anatomy: [
+      {
+        element: 'Grid',
+        required: true,
+        description:
+          'A Heatmap: one column per week, one row per weekday, drawn from the dates rather than from the order of the array. Every date is arithmetic on UTC midnights, so the same window renders identically in every timezone.',
+      },
+      {
+        element: 'Window',
+        required: true,
+        description:
+          'from and to, or the earliest and latest date in values when they are left off. The grid runs back to the start of the first week and on to the end of the last, so a column is always a whole week.',
+      },
+      {
+        element: 'Weekday rows',
+        required: true,
+        description:
+          'Seven row headers from weekdayLabels, always Sunday-first in the ARRAY and rotated onto the grid by weekStartsOn \u2014 so a Monday-first calendar and a translation are two separate decisions.',
+      },
+      {
+        element: 'Month headers',
+        description:
+          'A name from monthLabels on the first column each month touches, blank on the rest. The blanks carry a run of zero-width spaces so the grid can still tell them apart, which is what a lookup by column NAME requires.',
+      },
+      {
+        element: 'Gaps',
+        description:
+          'A day inside the window with no entry, and every day in the leading and trailing partial weeks: a dashed outline with an announced \u201cno data\u201d, never the palest cell on the ramp.',
+      },
+      {
+        element: 'Cell reading',
+        description:
+          'What describe returns for that day, announced with the cell. Keyed by the cell rather than by the number, so two days with the same count are two different readings.',
+      },
+    ],
+    practices: [
+      {
+        kind: 'do',
+        text: 'Pass from and to whenever the window is a fact about the question rather than about the data. Derived from the values, a quiet January does not exist \u2014 the grid silently becomes a different window from the one beside it, and the two are then compared anyway.',
+      },
+      {
+        kind: 'do',
+        text: 'Write describe so it names the unit. The row and column a cell is announced with are a weekday and a month over a block of five weeks, so without it the reading a screen reader gets is a date and a bare number.',
+      },
+      {
+        kind: 'do',
+        text: 'Pin domain to compare two calendars. A quiet year and a busy one drawn on their own domains look identical, and the comparison the reader came for is not merely lost but inverted.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not send a zero for a day nothing was recorded. Null is drawn as a gap and zero as the palest cell, and a page that draws them alike invites the reader to explain an outage that was a hole in collection.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not hand it dates carrying a time or a zone. Every bound is parsed as a UTC midnight from YYYY-MM-DD, so a timestamp that is 23:00 somewhere lands on the day before it in the grid.',
+      },
+      {
+        kind: 'dont',
+        text: 'Do not reach for it where the rows are not weekdays. An hour-by-weekday load or a confusion matrix is a Heatmap, and going through this one means inventing dates for cells that do not have any.',
+      },
+    ],
+    accessibility: [
+      'The grid is a real <table>, so a screen reader walks the same structure the eye reads: a header row, a header column, and a cell that announces its own reading.',
+      'A day with no entry announces \u201cno data\u201d rather than a number, so a gap and a zero are different to a reader who cannot see the ramp.',
+      'The reading is keyed by the cell, so the date is announced with the count \u2014 the row and column headers alone name a weekday and a month, not a day.',
+    ],
+    related: ['heatmap', 'calendar', 'sparkline'],
+  },
+  {
     name: 'Sparkline',
     group: 'Data',
     summary: 'A run of numbers at the size of a word.',

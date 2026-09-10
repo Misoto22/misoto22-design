@@ -6,6 +6,7 @@ import {
   BigNumber,
   BoxPlot,
   BulletChart,
+  CalendarHeatmap,
   Facet,
   Histogram,
   WaterfallChart,
@@ -138,6 +139,13 @@ const DAYS = ['Mon', 'Tue', 'Wed']
 const heat = DAYS.flatMap((row, y) =>
   HOURS.map((column, x) => ({ row, column, value: (x + 1) * (y + 2) })),
 )
+
+// Twelve weeks of daily readings, with two days deliberately absent so the
+// fixture exercises the gap a calendar draws rather than a zero.
+const calendar = Array.from({ length: 84 }, (_, offset) => ({
+  date: new Date(Date.UTC(2026, 0, 4) + offset * 86_400_000).toISOString().slice(0, 10),
+  value: offset % 29 === 0 ? null : (offset % 7) * 3 + 1,
+}))
 
 const latency = [
   { name: 'Sydney', values: [182, 190, 194, 201, 205, 209, 214, 221, 236, 402] },
@@ -399,6 +407,19 @@ export const CHART_SURFACE: ChartSurfaceEntry[] = [
         <TreemapChart.Tooltip />
       </TreemapChart>
     ),
+  },
+  {
+    dir: 'CalendarHeatmap',
+    render: () => (
+      <CalendarHeatmap
+        title="Commits per day"
+        values={calendar}
+        from="2026-01-04"
+        to="2026-03-28"
+        describe={(value, date) => `${String(value)} commits on ${date}`}
+      />
+    ),
+    renderEmpty: () => <CalendarHeatmap title="Commits per day" values={[]} />,
   },
   {
     dir: 'Heatmap',

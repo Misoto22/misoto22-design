@@ -18,6 +18,7 @@ import { CHART_SURFACE } from './surface'
 const KEYBOARD_LAYER_EXEMPT = new Set([
   // Not Recharts at all: HTML tables, an inline SVG, a stack of divs.
   'Heatmap',
+  'CalendarHeatmap',
   'Sparkline',
   'BarList',
   'BigNumber',

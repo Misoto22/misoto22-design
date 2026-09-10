@@ -49,6 +49,21 @@ const ZH: Record<string, string> = {
   [fingerprint("The portable `website.css` entry and compiled stylesheet share the canonical tokens. Offline documentation includes every family and its server and client exports.")]: "独立的 `website.css` 与编译后的完整样式共用同一套设计变量。离线文档覆盖所有新增组件组及其服务端、客户端导出。",
   // ─── unreleased ───
   [fingerprint(
+    '`CalendarHeatmap` — a year of daily readings as a week-by-week grid, built from the dates rather than from the order of the array.',
+  )]: '`CalendarHeatmap`——一年的每日读数，画成一周一列的网格，而且是按日期搭出来的，不是按数组顺序。',
+  [fingerprint(
+    '`Heatmap` draws named rows and columns and knows nothing about dates, so every consumer wrote the calendar on top of it and none of them wrote it the same way twice. What that costs is not effort but correctness: given a bare list of counts, one missing Tuesday shifts every reading after it by a cell, and the result is a plausible picture of a year that did not happen.',
+  )]: '`Heatmap` 画的是有名字的行和列，对日期一无所知，于是每个使用方都在它上面自己写一遍日历，而且没有两次写法相同。这件事付出的代价不是工时，而是正确性：给一串光秃秃的计数，少了一个星期二，它后面的每一条读数都会挪一格，结果是一张看上去很像样、却根本没发生过的一年。',
+  [fingerprint(
+    "**A day with no entry is a gap, not a zero.** \"Nothing happened\" and \"nothing was recorded\" are different readings, and a grid that draws them alike invites the reader to explain an outage that was a hole in collection. `null` renders as a dashed outline and announces \"no data\"; zero is the palest cell on the ramp.",
+  )]: '**没有对应项的那一天是空缺，不是零。** 「什么都没发生」和「什么都没记录下来」是两条不同的读数，而把它们画成一样的网格，是在请读者去解释一次其实只是采集断了的故障。`null` 渲染成一圈虚线轮廓并播报「无数据」；零则是色阶上最淡的那一格。',
+  [fingerprint(
+    'Every bound is a UTC midnight parsed out of `YYYY-MM-DD`, because a local-time calendar drawn in two timezones is two different calendars and the disagreement is exactly one day wide — small enough to survive review, large enough to move a reading into the wrong week.',
+  )]: '每一个边界都是从 `YYYY-MM-DD` 按 UTC 零点解析出来的，因为一张按本地时间画的日历，在两个时区里就是两张不同的日历，而两者的分歧正好是一天宽——小到能混过评审，大到足以把一条读数挪进错误的那一周。',
+  [fingerprint(
+    '`Heatmap.formatValue` now receives the cell as well as the number. It is what makes `describe(value, date)` possible at all: two days with the same count are two different readings, and the row and column a cell is announced with are a weekday and a month spanning five weeks. Existing callers are unaffected — the parameter is additional and a one-argument formatter still satisfies the type.',
+  )]: '`Heatmap.formatValue` 现在除了那个数字，还会拿到这一格本身。正是它让 `describe(value, date)` 成为可能：两天数目相同，是两条不同的读数，而一格被播报时带的行和列，是一个星期几加上一个横跨五周的月份。已有的调用方不受影响——这个参数是加上去的，一个只收一个参数的格式化函数照样满足类型。',
+  [fingerprint(
     '`Metric` — the stat tile that sits four across on a console: a label, a monospaced figure, a status tone and a free slot under the number.',
   )]: '`Metric`——控制台上一排四个的那种读数小块：一个标签、一个等宽数字、一个状态色调，以及数字下面一个自由槽位。',
   [fingerprint(
