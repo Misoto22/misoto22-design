@@ -73,6 +73,18 @@
   }
 }
 
+/* A thumbnail is a bounded specimen, even when the component it demonstrates
+   normally owns the viewport. The website navigation is fixed in a real
+   publication; leaving it fixed here lets one card cover the documentation
+   masthead. Its component contract stays unchanged — only this decorative
+   preview gives it a local positioning context and width. */
+[data-component-thumb] .m22-site-navigation {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 100% !important;
+}
+
 @utility eyebrow {
   font-family: var(--font-mono);
   font-size: 11px;

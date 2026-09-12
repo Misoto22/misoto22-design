@@ -103,6 +103,7 @@ export function ComponentThumb({ exampleKey }: { exampleKey: string }) {
       ref={setFrame}
       inert
       aria-hidden
+      data-component-thumb={exampleKey}
       // `-mx-5 -mt-5` matches `CardBody`'s own `p-5`. At `-4` the band stopped
       // four pixels short of the card on three sides, which read as a sliver of
       // paper around a grey box rather than as a bleed.
